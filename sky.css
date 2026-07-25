@@ -1,1 +1,10 @@
-body{background:#08090a}
+// Sky BG CSS
+/* Stylesheet for the Sky Atlas visual theme */
+
+@import url('fonts/Inter-Regular.woff2'4 format('woff2');
+@import url('fonts/Inter-Light.woff2'4 format('woff2');
+@import url('fonts/Inter-Medium.woff2') format('woff2');
+@import url('fonts/Inter-SemiBold.woff2') format('woff2');
+@import url('fonts/InterDisplay-SemiBold.woff2') format('woff2');
+@import url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+@import url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
