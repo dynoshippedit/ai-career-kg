@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data Scientist career path | Learn Computer Stuff</title>
+<meta name="description" content="You answer questions with data that nobody could answer by looking at a dashboard. Free resources, which certificate is worth paying for, and how to get…">
+<link rel="canonical" href="https://learncomputerstuff.dev/r/data-scientist/">
+<meta property="og:title" content="Data Scientist career path | Learn Computer Stuff"><meta property="og:description" content="You answer questions with data that nobody could answer by looking at a dashboard. Free resources, which certificate is worth paying for, and how to get…">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/r/data-scientist/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6E675A;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand: ground is set explicitly so a viewer's dark theme
+   does not repaint a deliberately single-theme design. */
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:rgba(44,82,51,.07)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:rgba(138,45,59,.07)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:rgba(0,0,0,.03);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Occupation", "name": "Data Scientist", "description": "You answer questions with data that nobody could answer by looking at a dashboard.", "url": "https://learncomputerstuff.dev/r/data-scientist/", "alternateName": ["Applied Scientist", "Machine Learning Analyst", "Quantitative Analyst", "Research Analyst"], "occupationalCategory": "Data"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://learncomputerstuff.dev/"}, {"@type": "ListItem", "position": 2, "name": "Data", "item": "https://learncomputerstuff.dev/f/data/"}, {"@type": "ListItem", "position": 3, "name": "Data Scientist"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/f/data/">Data</a> / <span>Data Scientist</span></div></div>
+<main id="main"><div class="wrap"><section>
+<span class="eyebrow"><a href="/f/data/">Data</a></span>
+<h1>Data Scientist</h1>
+<p class="lede prose">You answer questions with data that nobody could answer by looking at a dashboard.</p>
+<p><span class="pill pill-warn"><span aria-hidden="true">!</span>Degree usually expected</span> <span class="pill pill-warn"><span aria-hidden="true">◆</span>Hard, and the hard part is the statistics rather than the code.</span></p>
+</section></div><hr class="rule">
+
+
+<div class="wrap"><section>
+<h2>Can I actually do this?</h2>
+<div class="prose"><p>We have marked this one as NOT no-degree-friendly, and we want to be straight about why. Postings for this title very commonly ask for a quantitative degree, often a postgraduate one, and unlike most roles here that requirement is frequently real rather than decorative — the statistics are load-bearing. It is not impossible without one, and people do arrive from analysis, research or a scientific field. But if you are choosing a route into tech with no degree and no maths background, data analysis or data engineering are honest routes and this is a slower one. Our free-first position does not change; our claim about how open the door is does.</p><p><strong>Who it suits.</strong> People who enjoy being wrong in public and finding out why.</p>
+<p><strong>Runway.</strong> Years, and the statistics genuinely cannot be skipped.</p></div>
+<div class="note"><span class="eyebrow">Coming from another job?</span><p>Coming from analysis? That is the route we would actually recommend. You get paid while you close the statistical gap. <a href="/r/data-analyst/">Data Analyst</a></p></div>
+<p class="eyebrow" style="margin-top:1.25rem">Also advertised as</p><ul class="tags"><li>Applied Scientist</li><li>Machine Learning Analyst</li><li>Quantitative Analyst</li><li>Research Analyst</li></ul>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>The route</h2>
+<p class="prose">Four stations, in order. Each one is a thing you finish before the next matters.</p>
+<ol class="route">
+  <li class="here"><span class="station-num" aria-hidden="true">1</span>
+    <span class="station-label">Station one</span><h3>Learn it free</h3>
+    <p class="prose">Only the best few, deliberately. Every one of these is free to use — the pill on each card says exactly what is and isn't free.</p>
+    <div class="card"><h3><a href="https://scikit-learn.org/stable/user_guide.html">scikit-learn — the user guide</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>Not just an API reference — it explains the methods, their assumptions and when they fail. Free and open source.</p><p><span class="dateline">Verified 2026-07-27</span></p></div><div class="card"><h3><a href="https://docs.python.org/3/tutorial/index.html">Python — the official tutorial</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>The working language of the field.</p><p><span class="dateline">Verified 2026-07-26</span></p></div><div class="card"><h3><a href="https://www.postgresql.org/docs/current/tutorial-start.html">PostgreSQL — the official tutorial</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>You will spend more time getting the data than modelling it. SQL is not optional.</p><p><span class="dateline">Verified 2026-07-27</span></p></div>
+    <p><a class="subtle-link" href="/x/">See the full catalog in the explorer →</a></p>
+  </li>
+  <li><span class="station-num" aria-hidden="true">2</span>
+    <span class="station-label">Station two</span><h3>Attest strategically</h3>
+    <p class="prose">Nothing worth buying, and we want to be blunt: this role attracts the heaviest marketing of paid certificates and bootcamps of anything in this directory, and a certificate does not substitute for the statistics background that postings ask for. If the maths is the gap, close the maths. If it is not, a portfolio of honest analysis will do more than any certificate priced at four figures.</p>
+    <div class="card"><h3>Nothing here is worth paying for</h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>No credential needed</span></p><p>Nothing worth buying, and we want to be blunt: this role attracts the heaviest marketing of paid certificates and bootcamps of anything in this directory, and a certificate does not substitute for the statistics background that postings ask for. If the maths is the gap, close the maths. If it is not, a portfolio of honest analysis will do more than any certificate priced at four figures.</p><p><span class="dateline">Checked 2026-07-27</span></p></div>
+  </li>
+  <li><span class="station-num" aria-hidden="true">3</span>
+    <span class="station-label">Station three</span><h3>Prove it</h3>
+    <p class="prose">A certificate says you passed a test. These say you can do the job.</p>
+    <div class="card"><h3>An analysis where you report the negative result</h3><p>A question you investigated where the answer was &#x27;no effect&#x27; — reported clearly. This demonstrates statistical honesty, which is the whole discipline.</p></div><div class="card"><h3>A model with its limitations stated</h3><p>What it gets wrong, on whom, and what you would not use it for.</p></div><div class="card"><h3>A reproducible notebook</h3><p>Someone else can run it and get your numbers. Rarer than it should be.</p></div>
+  </li>
+  <li><span class="station-num" aria-hidden="true">4</span>
+    <span class="station-label">Station four</span><h3>Get hired</h3>
+    <p class="eyebrow">Search these exact titles</p><ul class="tags"><li>data scientist</li><li>applied scientist</li><li>quantitative analyst</li><li>research analyst</li></ul>
+    <p class="prose" style="margin-top:1rem"><strong>Who hires for this.</strong> Large product companies, finance, health research, consultancies and government analytical services.</p>
+    <p class="prose">Interviews here test statistical reasoning directly, which is why we have not marked the role as an open no-degree route. That is our reading of how the role is advertised, not a verified hiring statistic.</p>
+    <div class="note"><span class="eyebrow">On salary</span><p>We don&#x27;t publish salary estimates. Numbers copied between blogs drift from reality, and a wrong number costs you real negotiating power. When we have a verified public source, it goes here with its date.</p></div>
+  </li>
+</ol>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>Where this route continues</h2>
+<ul><li><a href="/r/ml-engineer/">Machine Learning Engineer</a> — if you find you prefer shipping models to studying them</li><li><a href="/r/data-analyst/">Data Analyst</a> — sideways move</li><li><a href="/r/ml-engineer/">Machine Learning Engineer</a> — sideways move</li></ul>
+<p style="margin-top:1.5rem"><span class="dateline">This page last verified 2026-07-27</span> · <a href="/method/">How we verify</a></p>
+<p class="dateline prose">scikit-learn user guide and the PostgreSQL tutorial fetched and READ 2026-07-27. Python tutorial carried from the 2026-07-26 verification.</p>
+</section></div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>Pick a job. Get the path. Mostly free.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>
