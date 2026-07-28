@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPU / CUDA Engineer career path | Learn Computer Stuff</title>
+<meta name="description" content="You make code run fast on GPUs — writing and tuning the kernels that everything else waits on. Free resources, which certificate is worth paying for, and…">
+<link rel="canonical" href="https://learncomputerstuff.dev/r/gpu-engineer/">
+<meta property="og:title" content="GPU / CUDA Engineer career path | Learn Computer Stuff"><meta property="og:description" content="You make code run fast on GPUs — writing and tuning the kernels that everything else waits on. Free resources, which certificate is worth paying for, and…">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/r/gpu-engineer/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6E675A;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand: ground is set explicitly so a viewer's dark theme
+   does not repaint a deliberately single-theme design. */
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:rgba(44,82,51,.07)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:rgba(138,45,59,.07)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:rgba(0,0,0,.03);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Occupation", "name": "GPU / CUDA Engineer", "description": "You make code run fast on GPUs — writing and tuning the kernels that everything else waits on.", "url": "https://learncomputerstuff.dev/r/gpu-engineer/", "alternateName": ["CUDA Engineer", "GPU Compute Engineer", "HPC Engineer", "Performance Engineer"], "occupationalCategory": "AI / Machine Learning"}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://learncomputerstuff.dev/"}, {"@type": "ListItem", "position": 2, "name": "AI / Machine Learning", "item": "https://learncomputerstuff.dev/f/ai-ml/"}, {"@type": "ListItem", "position": 3, "name": "GPU / CUDA Engineer"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/f/ai-ml/">AI / Machine Learning</a> / <span>GPU / CUDA Engineer</span></div></div>
+<main id="main"><div class="wrap"><section>
+<span class="eyebrow"><a href="/f/ai-ml/">AI / Machine Learning</a></span>
+<h1>GPU / CUDA Engineer</h1>
+<p class="lede prose">You make code run fast on GPUs — writing and tuning the kernels that everything else waits on.</p>
+<p><span class="pill pill-warn"><span aria-hidden="true">!</span>Degree usually expected</span> <span class="pill pill-warn"><span aria-hidden="true">◆</span>Hard, and narrow. Fewer employers than the other AI/ML roles — we have not measured how many.</span></p>
+</section></div><hr class="rule">
+
+
+<div class="wrap"><section>
+<h2>Can I actually do this?</h2>
+<div class="prose"><p>Not an entry role. It assumes you already write C++ comfortably; CUDA is a specialisation on top. NVIDIA&#x27;s own introductory tutorial assumes C++ familiarity and goes straight to kernels.</p><p><strong>Who it suits.</strong> People who enjoy making something measurably faster and can hold a mental model of memory and parallelism.</p>
+<p><strong>Runway.</strong> Assumes existing C++ competence. The CUDA layer on top of that is months, not years.</p></div>
+<div class="note"><span class="eyebrow">Coming from another job?</span><p>Coming from ML or systems engineering with real C++? That is the assumed starting point for NVIDIA&#x27;s own material. <a href="/r/ml-engineer/">Machine Learning Engineer</a></p></div>
+<p class="eyebrow" style="margin-top:1.25rem">Also advertised as</p><ul class="tags"><li>CUDA Engineer</li><li>GPU Compute Engineer</li><li>HPC Engineer</li><li>Performance Engineer</li></ul>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>The route</h2>
+<p class="prose">Four stations, in order. Each one is a thing you finish before the next matters.</p>
+<ol class="route">
+  <li class="here"><span class="station-num" aria-hidden="true">1</span>
+    <span class="station-label">Station one</span><h3>Learn it free</h3>
+    <p class="prose">Only the best few, deliberately. Every one of these is free to use — the pill on each card says exactly what is and isn't free.</p>
+    <div class="card"><h3><a href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/">An Even Easier Introduction to CUDA (NVIDIA, updated)</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>Free tutorial that takes a plain C++ array-addition program and turns it into a running CUDA kernel, covering grids, blocks and thread indexing. HARDWARE CAVEAT, stated on the page itself: you need a CUDA-capable NVIDIA GPU on Windows, WSL or 64-bit Linux, or a cloud GPU instance — it names AWS, Azure and Google Colab. The CUDA Toolkit itself is free.</p><p><span class="dateline">Verified 2026-07-26</span></p></div><div class="card"><h3><a href="https://docs.nvidia.com/cuda/cuda-programming-guide/index.html">CUDA Programming Guide (current edition)</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>NVIDIA&#x27;s reference guide, free to read. Note the URL: docs.nvidia.com/cuda/cuda-c-programming-guide/ still serves an edition titled &quot;(Legacy)&quot; — use this one.</p><p><span class="dateline">Verified 2026-07-26</span></p></div><div class="card"><h3><a href="https://docs.nvidia.com/cuda/">CUDA Toolkit Documentation hub</a></h3><p><span class="pill pill-free"><span aria-hidden="true">✓</span>Free to learn · no certificate</span></p><p>Index into the Quick Start Guide, installation guides and Best Practices Guide, which the introductory tutorial points to as the next step.</p><p><span class="dateline">Verified 2026-07-26</span></p></div>
+    <p><a class="subtle-link" href="/x/">See the full catalog in the explorer →</a></p>
+  </li>
+  <li><span class="station-num" aria-hidden="true">2</span>
+    <span class="station-label">Station two</span><h3>Attest strategically</h3>
+    <p class="prose">Optional and probably late. NVIDIA&#x27;s certification is real, but this is a role where a profiler trace showing a kernel you sped up is the more direct evidence. Note NVIDIA&#x27;s paid DLI courses are a separate thing from its certification — do not buy one expecting the other.</p>
+    <div class="card">
+<h3><a href="/c/nvidia-nca-ncp/">NVIDIA Certifications (NCA / NCP)</a></h3>
+<p class="dateline">NVIDIA · NCA and NCP tracks (e.g. NCA-GENL)</p>
+<p><span class="pill pill-paid"><span aria-hidden="true">$</span>Free to learn · paid certificate</span> <span class="seal"><span aria-hidden="true">✓</span>Recognized</span></p>
+<div class="tablewrap"><table class="ledger">
+<caption class="eyebrow" style="text-align:left;padding:.4rem 0">The honest cost</caption>
+<tr><th scope="row">Cost</th><td>$125<br><span class="dateline">$125–500 depending on tier: Associate (NCA) from $125, Professional (NCP) from $200.</span></td></tr><tr><th scope="row">Validity</th><td>2 years.</td></tr><tr><th scope="row">Renewal</th><td>Retake the exam every 2 years.</td></tr><tr><th scope="row">Assessment</th><td>Proctored exam, delivered remotely via Certiverse</td></tr><tr><th scope="row">Proctored</th><td>Yes</td></tr><tr><th scope="row">Verify via</th><td>digital badge, with an optional certificate</td></tr>
+<tr class="total"><th scope="row">Cost per active year</th><td class="figure"><span class="cpay">$63/yr<small>125 ÷ 2 for Associate; $100/yr for Professional at $200 ÷ 2</small></span></td></tr>
+</table></div>
+<p>NVIDIA&#x27;s own credential for its GPU and AI stack. Prerequisites vary by exam; NCA-GENL expects basic generative-AI and LLM understanding.</p>
+<div class="note"><span class="eyebrow">Read this before you buy</span><p>NVIDIA&#x27;s own Deep Learning Institute courses are PAID ($30–500) and issue completion certificates, not this certification — two different things that are easy to conflate. The free preparation for this exam is NVIDIA&#x27;s documentation and developer blog, not DLI.</p></div>
+<p><span class="dateline">Verified 2026-07-25</span> · <a href="https://www.nvidia.com/en-us/learn/certification/">Official page</a></p>
+</div>
+  </li>
+  <li><span class="station-num" aria-hidden="true">3</span>
+    <span class="station-label">Station three</span><h3>Prove it</h3>
+    <p class="prose">A certificate says you passed a test. These say you can do the job.</p>
+    <div class="card"><h3>A kernel you measurably sped up</h3><p>Take a naive CUDA kernel, profile it, optimise memory access, and publish before-and-after timings with the profiler output. The measurement is the artifact.</p></div><div class="card"><h3>Port a real CPU workload</h3><p>Move a genuine CPU-bound computation to the GPU and document where the speedup came from — and where it did not, which is usually more interesting.</p></div><div class="card"><h3>An occupancy write-up</h3><p>Document a case where you traded register pressure against occupancy, with numbers. This demonstrates you understand the hardware rather than the API.</p></div>
+  </li>
+  <li><span class="station-num" aria-hidden="true">4</span>
+    <span class="station-label">Station four</span><h3>Get hired</h3>
+    <p class="eyebrow">Search these exact titles</p><ul class="tags"><li>CUDA engineer</li><li>GPU engineer</li><li>HPC engineer</li><li>performance engineer</li></ul>
+    <p class="prose" style="margin-top:1rem"><strong>Who hires for this.</strong> GPU vendors, AI infrastructure and inference companies, HPC and national labs, quantitative finance, graphics and simulation.</p>
+    <p class="prose">Evidence for this role is numeric. A repository with profiler output and before-and-after timings is directly checkable in a way a certificate is not — that is our reasoning about what employers can verify, not a survey of hiring practice.</p>
+    <div class="note"><span class="eyebrow">On salary</span><p>We don&#x27;t publish salary estimates. Numbers copied between blogs drift from reality, and a wrong number costs you real negotiating power. When we have a verified public source, it goes here with its date.</p></div>
+  </li>
+</ol>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>Where this route continues</h2>
+<ul><li><a href="/r/ai-infrastructure-engineer/">AI Infrastructure Engineer</a> — from kernels to clusters</li><li><a href="/r/distributed-systems-engineer/">Distributed Systems Engineer</a> — deeper into systems</li><li><a href="/r/ml-engineer/">Machine Learning Engineer</a> — sideways move</li></ul>
+<p style="margin-top:1.5rem"><span class="dateline">This page last verified 2026-07-26</span> · <a href="/method/">How we verify</a></p>
+<p class="dateline prose">All three resources fetched and READ 2026-07-26, not merely pinged. Hardware requirement and CUDA Toolkit cost quoted from the tutorial&#x27;s own text. The legacy-vs-current guide split was found by comparing page titles. Credential facts carried from the verified NVIDIA matrix row (2026-07-25).</p>
+</section></div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>Pick a job. Get the path. Mostly free.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

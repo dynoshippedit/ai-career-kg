@@ -1,0 +1,23 @@
+# Cloudflare Pages redirects — old 8-page site to the new build.
+# NOT DEPLOYED. Rationale, evidence and honesty notes: 06-launch/REDIRECT_MAP.md
+# Copy into 05-build/site/ at deploy time (Gate F), not before.
+#
+# /path and /builder are NOT listed here. Both carried query-parameter deep links
+# (?p=<role>, ?path=<role>, ?b=<stack>) and Cloudflare Pages does not reliably match on
+# query strings, so both are handled by real pages in the build that read the parameter
+# and route correctly. A blanket redirect would have silently collapsed 15 deep links.
+#
+# The old .html forms (/explorer.html etc.) already 307 to their clean URLs on the
+# current host, so they chain into the rules below and need no separate entries.
+
+# --- strong mappings: the new page does the same job
+/pathways   /f/ai-ml/      301
+/learn      /method/       301
+/explorer   /x/            301
+/nocred     /x/?c=absence  301
+
+# --- weak mapping: best approximation, 302 on purpose
+/patterns   /method/       302
+
+# No blanket redirect to / — mass-redirecting to a homepage is a soft-404
+# pattern that strands the reader and is discounted by search engines.
