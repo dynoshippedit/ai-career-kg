@@ -1,22 +1,32 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Explorer — 935 resources | Learn Computer Stuff</title>
-<meta name="description" content="Search 935 learning resources and credentials, filterable by field, type and what is actually free. Each entry says how far it was checked.">
+<title>The directory — 935 resources | Learn Computer Stuff</title>
+<meta name="description" content="Browse 935 learning resources and credentials from 567 providers, by field, type or cost. Each entry says how far it was checked.">
 <link rel="canonical" href="https://learncomputerstuff.dev/x/">
-<meta property="og:title" content="Explorer — 935 resources | Learn Computer Stuff"><meta property="og:description" content="Search 935 learning resources and credentials, filterable by field, type and what is actually free. Each entry says how far it was checked.">
+<meta property="og:title" content="The directory — 935 resources | Learn Computer Stuff"><meta property="og:description" content="Browse 935 learning resources and credentials from 567 providers, by field, type or cost. Each entry says how far it was checked.">
 <meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/x/">
 <style>
 :root{
-  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6E675A;
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
   --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
   --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
   --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --measure:65ch; --gap:1.5rem;
 }
-/* The paper IS the brand: ground is set explicitly so a viewer's dark theme
-   does not repaint a deliberately single-theme design. */
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
 html{background:var(--paper);-webkit-text-size-adjust:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
@@ -58,8 +68,8 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 /* dual-coded pills: icon + word + color, never color alone (R4.2) */
 .pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
-.pill-free{color:var(--forest);border-color:var(--forest);background:rgba(44,82,51,.07)}
-.pill-paid{color:var(--claret);border-color:var(--claret);background:rgba(138,45,59,.07)}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
 .pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
 .dateline{font-size:.72rem;color:var(--ink-soft)}
 
@@ -82,11 +92,23 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 
 .skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
 .skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
 ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
 ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
 ul.plain li a{font-weight:600}
 .muted{color:var(--ink-soft);font-size:.92em}
-.note-warn{border-left-width:5px;background:rgba(0,0,0,.03);padding-right:.9rem}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
 .subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
 
 /* Signature 2 — the LEDGER */
@@ -130,33 +152,56 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 }
 @media print{nav.top,.btn{display:none}}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://learncomputerstuff.dev/"}, {"@type": "ListItem", "position": 2, "name": "Explorer"}]}</script>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://learncomputerstuff.dev/"}, {"@type": "ListItem", "position": 2, "name": "Directory"}]}</script>
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site"><div class="wrap">
 <a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
 </div></header>
-<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <span>Explorer</span></div></div>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <span>Directory</span></div></div>
 <main id="main"><div class="wrap"><section>
 <span class="eyebrow">Tier two — the full catalog</span>
-<h1>Explorer</h1>
-<p class="lede prose">Every resource in the directory — 935 of them.
-The role pages deliberately show only a curated few; this is where everything lives.</p>
+<h1>The directory</h1>
+<p class="lede prose">Every resource we hold — 935 of them, from 567 providers.
+The career routes show a curated handful each; this is everything behind them.</p>
 <div class="note"><span class="eyebrow">How much we actually checked</span>
 <p>Not every entry is verified to the same standard, and we would rather say so than imply
 otherwise. Of 935 entries: <strong>905</strong> carry the date we last checked the link ourselves; <strong>30</strong> were added by the operator and are marked <em>operator-added</em> rather than given a date we did not earn; <strong>114</strong> sit behind a bot wall or render only in a browser, so our checker could not read them — kept because a human decided they are real, not because a script proved it; <strong>91</strong> are flagged <em>needs checking</em> in the table below and have not been through a final review.</p>
 <p>Nothing here is padding — every row was reviewed by a person before it shipped. But
 "reviewed" and "machine-verified today" are different things, and the Verified column tells
 you which one you are looking at.</p></div>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>Browse by field</h2>
+<ul class="chips"><li><a class="chip" href="/x/?d=ai_career">AI &amp; Machine Learning<span>599</span></a></li><li><a class="chip" href="/x/?d=ux_product">UX &amp; Product<span>236</span></a></li><li><a class="chip" href="/x/?d=cybersecurity">Cybersecurity<span>39</span></a></li><li><a class="chip" href="/x/?d=data_engineering">Data Engineering<span>36</span></a></li><li><a class="chip" href="/x/?d=robotics">Robotics<span>12</span></a></li><li><a class="chip" href="/x/?d=software_engineering">Software Engineering<span>7</span></a></li><li><a class="chip" href="/x/?d=it_systems_cloud">IT, Systems &amp; Cloud<span>6</span></a></li></ul>
 </section>
 <section style="padding-top:0">
+<h2>Browse by what it is</h2>
+<ul class="chips"><li><a class="chip" href="/x/?t=credential">credential<span>274</span></a></li><li><a class="chip" href="/x/?t=course">course<span>226</span></a></li><li><a class="chip" href="/x/?t=docs">docs<span>116</span></a></li><li><a class="chip" href="/x/?t=tool">tool<span>111</span></a></li><li><a class="chip" href="/x/?t=standard">standard<span>58</span></a></li><li><a class="chip" href="/x/?t=pattern">pattern<span>50</span></a></li><li><a class="chip" href="/x/?t=proof_spec">proof spec<span>43</span></a></li><li><a class="chip" href="/x/?t=provider">provider<span>42</span></a></li><li><a class="chip" href="/x/?t=platform">platform<span>3</span></a></li><li><a class="chip" href="/x/?t=framework">framework<span>1</span></a></li><li><a class="chip" href="/x/?t=program">program<span>1</span></a></li></ul>
+</section>
+<section style="padding-top:0">
+<h2>Browse by what it costs</h2>
+<ul class="chips"><li><a class="chip" href="/x/?c=free-free">Free to learn · free certificate<span>85</span></a></li><li><a class="chip" href="/x/?c=free-paid">Free to learn · paid certificate<span>285</span></a></li><li><a class="chip" href="/x/?c=free-none">Free to learn · no certificate<span>368</span></a></li><li><a class="chip" href="/x/?c=undecomposed">Cost not decomposed yet<span>197</span></a></li></ul>
+</section>
+<section style="padding-top:0">
+<h2>The providers we hold most from</h2>
+<p class="prose">24 organisations with more than one entry here. A further
+<strong>444</strong> providers appear once each — the long tail is most of this
+directory, and searching by name is the way into it.</p>
+<ul class="chips"><li><a class="chip" href="/x/?q=Microsoft">Microsoft<span>28</span></a></li><li><a class="chip" href="/x/?q=Google">Google<span>22</span></a></li><li><a class="chip" href="/x/?q=Hugging%20Face">Hugging Face<span>13</span></a></li><li><a class="chip" href="/x/?q=arXiv">arXiv<span>13</span></a></li><li><a class="chip" href="/x/?q=IBM">IBM<span>11</span></a></li><li><a class="chip" href="/x/?q=Stanford%20University">Stanford University<span>11</span></a></li><li><a class="chip" href="/x/?q=Amazon%20Web%20Services">Amazon Web Services<span>10</span></a></li><li><a class="chip" href="/x/?q=OpenAI">OpenAI<span>10</span></a></li><li><a class="chip" href="/x/?q=Anthropic">Anthropic<span>10</span></a></li><li><a class="chip" href="/x/?q=Google%20Cloud">Google Cloud<span>9</span></a></li><li><a class="chip" href="/x/?q=DeepLearning.AI">DeepLearning.AI<span>9</span></a></li><li><a class="chip" href="/x/?q=Meta">Meta<span>9</span></a></li><li><a class="chip" href="/x/?q=CompTIA">CompTIA<span>8</span></a></li><li><a class="chip" href="/x/?q=freeCodeCamp">freeCodeCamp<span>8</span></a></li><li><a class="chip" href="/x/?q=MIT%20%28Massachusetts%20Institute%20of%20Technology%29">MIT (Massachusetts Institute of Technology)<span>8</span></a></li><li><a class="chip" href="/x/?q=Databricks">Databricks<span>7</span></a></li><li><a class="chip" href="/x/?q=GitHub">GitHub<span>7</span></a></li><li><a class="chip" href="/x/?q=Kaggle">Kaggle<span>7</span></a></li><li><a class="chip" href="/x/?q=Snowflake">Snowflake<span>7</span></a></li><li><a class="chip" href="/x/?q=Nielsen%20Norman%20Group">Nielsen Norman Group<span>7</span></a></li><li><a class="chip" href="/x/?q=LangChain">LangChain<span>6</span></a></li><li><a class="chip" href="/x/?q=Oracle">Oracle<span>6</span></a></li><li><a class="chip" href="/x/?q=ISC2">ISC2<span>5</span></a></li><li><a class="chip" href="/x/?q=PECB">PECB<span>5</span></a></li></ul>
+</section></div><hr class="rule">
+
+<div class="wrap"><section>
+<h2>Or search everything</h2>
 <form id="f" onsubmit="return false" style="display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));align-items:end">
 <label>Search<br><input id="q" type="search" placeholder="name or provider" style="width:100%;padding:.45rem;border:1px solid var(--hair);background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:.85rem"></label>
 <label>Field<br><select id="d" style="width:100%;padding:.45rem;border:1px solid var(--hair);background:var(--paper);color:var(--ink)"><option value="">All</option><option value="ai_career">AI &amp; Machine Learning</option><option value="cybersecurity">Cybersecurity</option><option value="data_engineering">Data Engineering</option><option value="it_systems_cloud">IT, Systems &amp; Cloud</option><option value="robotics">Robotics</option><option value="software_engineering">Software Engineering</option><option value="ux_product">UX &amp; Product</option></select></label>
 <label>Type<br><select id="t" style="width:100%;padding:.45rem;border:1px solid var(--hair);background:var(--paper);color:var(--ink)"><option value="">All</option><option value="absences_confirmed">absences_confirmed</option><option value="course">course</option><option value="credential">credential</option><option value="docs">docs</option><option value="framework">framework</option><option value="none">none</option><option value="pattern">pattern</option><option value="platform">platform</option><option value="program">program</option><option value="proof_spec">proof_spec</option><option value="provider">provider</option><option value="standard">standard</option><option value="tool">tool</option></select></label>
-<label>Cost<br><select id="c" style="width:100%;padding:.45rem;border:1px solid var(--hair);background:var(--paper);color:var(--ink)"><option value="">All</option><option value="free_content_free_credential">Free to learn · free certificate</option><option value="free_content_paid_credential">Free to learn · paid certificate</option><option value="free_content_no_credential">Free to learn · no certificate</option><option value="undecomposed">Cost not decomposed yet</option></select></label>
+<label>Cost<br><select id="c" style="width:100%;padding:.45rem;border:1px solid var(--hair);background:var(--paper);color:var(--ink)"><option value="">All</option><option value="free-free">Free to learn · free certificate</option><option value="free-paid">Free to learn · paid certificate</option><option value="free-none">Free to learn · no certificate</option><option value="undecomposed">Cost not decomposed yet</option></select></label>
 </form>
 <p id="n" class="dateline" style="margin-top:1rem" role="status" aria-live="polite">Loading the catalog…</p>
+<p id="clear" style="margin:.25rem 0 0"></p>
 <div class="tablewrap"><table class="ledger"><thead><tr>
 <th scope="col">Resource</th><th scope="col">Provider</th><th scope="col">Type</th><th scope="col">Cost</th><th scope="col">Verified</th>
 </tr></thead><tbody id="b"></tbody></table></div>
@@ -164,7 +209,7 @@ you which one you are looking at.</p></div>
 </section></div>
 <script>
 const PILL={"free-free":"pill-free","free-paid":"pill-paid","free-none":"pill-free","undecomposed":"pill-warn","absence":"pill-warn","retired":"pill-paid","checkstatus":"pill-warn","updating":"pill-warn"};
-const ICON={"free-free":"✓","free-paid":"$","free-none":"✓","undecomposed":"?","absence":"\u2715"};
+const ICON={"free-free":"✓","free-paid":"$","free-none":"✓","undecomposed":"?","absence":"✕"};
 let ALL=[],LIM=200;
 const $=i=>document.getElementById(i);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -174,6 +219,8 @@ function draw(){
     (!q||x.n.toLowerCase().includes(q)||x.p.toLowerCase().includes(q)));
   $("n").textContent=r.length.toLocaleString()+" of "+ALL.length.toLocaleString()+" resources"+
     (r.length>LIM?" — showing the first "+LIM:"");
+  $("clear").innerHTML=(q||d||t||c)?'<a class="subtle-link" href="#" id="cl">Clear filters</a>':"";
+  if($("cl"))$("cl").onclick=ev=>{ev.preventDefault();["q","d","t","c"].forEach(k=>$(k).value="");LIM=200;draw();sync();};
   $("b").innerHTML=r.slice(0,LIM).map(x=>
     '<tr><td><a href="'+esc(x.u)+'">'+esc(x.n||"(untitled)")+'</a>'+
     (x.chk?' <span class="pill pill-warn" title="not through a final review yet">'+
@@ -191,12 +238,15 @@ function sync(){
   ["q","d","t","c"].forEach(k=>{if($(k).value)u.set(k,$(k).value);});
   history.replaceState(null,"",u.toString()?"?"+u:location.pathname);
 }
-fetch("/data/catalog.json").then(r=>r.json()).then(j=>{ALL=j.rows;draw();})
+fetch("/data/catalog.json").then(r=>r.json()).then(j=>{ALL=j.rows;draw();
+  if(P.get("q")||P.get("d")||P.get("t")||P.get("c"))
+    document.getElementById("f").scrollIntoView({behavior:"smooth",block:"start"});
+})
  .catch(()=>{$("n").textContent="The catalog could not be loaded.";});
 ["q","d","t","c"].forEach(i=>$(i).addEventListener("input",()=>{LIM=200;draw();sync();}));
 </script></main>
 <footer class="site"><div class="wrap"><div class="cols">
-<div><strong>Learn Computer Stuff</strong><br>Pick a job. Get the path. Mostly free.</div>
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
 <div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
 <div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
 </div></div></footer>

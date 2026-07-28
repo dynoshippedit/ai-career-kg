@@ -14,7 +14,7 @@
 /pathways   /f/ai-ml/      301
 /learn      /method/       301
 /explorer   /x/            301
-/nocred     /x/?c=absence  301
+/nocred     /x/?t=absences_confirmed  301
 
 # --- weak mapping: best approximation, 302 on purpose
 /patterns   /method/       302

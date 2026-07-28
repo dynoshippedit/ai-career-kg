@@ -8,15 +8,25 @@
 <meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/r/ai-product-engineer/">
 <style>
 :root{
-  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6E675A;
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
   --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
   --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
   --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --measure:65ch; --gap:1.5rem;
 }
-/* The paper IS the brand: ground is set explicitly so a viewer's dark theme
-   does not repaint a deliberately single-theme design. */
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
 html{background:var(--paper);-webkit-text-size-adjust:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
@@ -58,8 +68,8 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 /* dual-coded pills: icon + word + color, never color alone (R4.2) */
 .pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
-.pill-free{color:var(--forest);border-color:var(--forest);background:rgba(44,82,51,.07)}
-.pill-paid{color:var(--claret);border-color:var(--claret);background:rgba(138,45,59,.07)}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
 .pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
 .dateline{font-size:.72rem;color:var(--ink-soft)}
 
@@ -82,11 +92,23 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 
 .skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
 .skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
 ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
 ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
 ul.plain li a{font-weight:600}
 .muted{color:var(--ink-soft);font-size:.92em}
-.note-warn{border-left-width:5px;background:rgba(0,0,0,.03);padding-right:.9rem}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
 .subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
 
 /* Signature 2 — the LEDGER */
@@ -202,7 +224,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p class="dateline prose">Resources fetched and READ 2026-07-26. Chip Huyen&#x27;s link points at the substantive chapter (28,420 chars) rather than the TOC (409). LEFT OUT ON PURPOSE: Google&#x27;s People + AI Guidebook is the canonical resource for this role, but it renders only 36 characters even in headless Chrome, so its content could not be verified and it is not cited on trust.</p>
 </section></div></main>
 <footer class="site"><div class="wrap"><div class="cols">
-<div><strong>Learn Computer Stuff</strong><br>Pick a job. Get the path. Mostly free.</div>
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
 <div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
 <div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
 </div></div></footer>

@@ -8,15 +8,25 @@
 <meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/r/">
 <style>
 :root{
-  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6E675A;
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
   --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
   --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
   --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --measure:65ch; --gap:1.5rem;
 }
-/* The paper IS the brand: ground is set explicitly so a viewer's dark theme
-   does not repaint a deliberately single-theme design. */
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
 html{background:var(--paper);-webkit-text-size-adjust:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
@@ -58,8 +68,8 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 /* dual-coded pills: icon + word + color, never color alone (R4.2) */
 .pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
-.pill-free{color:var(--forest);border-color:var(--forest);background:rgba(44,82,51,.07)}
-.pill-paid{color:var(--claret);border-color:var(--claret);background:rgba(138,45,59,.07)}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
 .pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
 .dateline{font-size:.72rem;color:var(--ink-soft)}
 
@@ -82,11 +92,23 @@ hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
 
 .skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
 .skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
 ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
 ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
 ul.plain li a{font-weight:600}
 .muted{color:var(--ink-soft);font-size:.92em}
-.note-warn{border-left-width:5px;background:rgba(0,0,0,.03);padding-right:.9rem}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
 .subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
 
 /* Signature 2 — the LEDGER */
@@ -143,7 +165,7 @@ Each one is free to follow end to end.</p>
 </section></div><hr class="rule">
 <div class="wrap"><section><h2><a href="/f/it-systems-cloud/">IT, Systems &amp; Cloud</a></h2><ul class="plain"><li><a href="/r/cloud-engineer/">Cloud Engineer</a> <span class="muted">You design and run the infrastructure that applications live on, in code rather than by hand.</span></li><li><a href="/r/cloud-support/">Cloud Support</a> <span class="muted">You keep cloud infrastructure running and help engineers and customers when it misbehaves.</span></li><li><a href="/r/helpdesk-support/">Help Desk / IT Support</a> <span class="muted">You are the person who fixes it when someone&#x27;s computer, login or printer stops working.</span></li><li><a href="/r/network-admin/">Network Administrator</a> <span class="muted">You keep the network up — switches, routing, wifi, VPNs, and the mystery of why one floor can&#x27;t print.</span></li><li><a href="/r/platform-engineer/">Platform Engineer</a> <span class="muted">You build the paved road other engineers ship on, so they stop reinventing the same pipeline.</span></li><li><a href="/r/solutions-architect/">Solutions Architect</a> <span class="muted">You decide how the pieces fit together, and you have to defend the decision to people paying for it.</span></li><li><a href="/r/sysadmin/">Systems Administrator</a> <span class="muted">You keep the servers, accounts and services running that everyone else quietly depends on.</span></li></ul><h2><a href="/f/cybersecurity/">Cybersecurity</a></h2><ul class="plain"><li><a href="/r/appsec/">Application Security Engineer</a> <span class="muted">You stop vulnerabilities from being written, rather than finding them after they ship.</span></li><li><a href="/r/cloud-security/">Cloud Security Engineer</a> <span class="muted">You make sure the cloud account nobody is watching is not the way in.</span></li><li><a href="/r/pentester/">Penetration Tester</a> <span class="muted">You are paid to break in, with permission and in writing, and then explain exactly how.</span></li><li><a href="/r/soc-analyst/">SOC Analyst</a> <span class="muted">You watch the alerts, work out which ones matter, and investigate the ones that do.</span></li><li><a href="/r/security-analyst/">Security Analyst</a> <span class="muted">You work out what an attacker did, or is doing, and write it up so someone can act.</span></li></ul><h2><a href="/f/ai-ml/">AI / Machine Learning</a></h2><ul class="plain"><li><a href="/r/ai-infrastructure-engineer/">AI Infrastructure Engineer</a> — degree usually expected <span class="muted">You run the clusters models train and serve on — GPUs, schedulers, networking and the things that fail at 3am.</span></li><li><a href="/r/ai-platform-engineer/">AI Platform Engineer</a> — degree usually expected <span class="muted">You build the internal platform other teams use to ship AI — so they do not each reinvent serving, tracking and deployment.</span></li><li><a href="/r/ai-product-engineer/">AI Product Engineer</a> — degree usually expected <span class="muted">You own whether an AI feature is actually good for the people using it — not just whether it runs.</span></li><li><a href="/r/ai-research-engineer/">AI Research Engineer</a> — degree usually expected <span class="muted">You build and run the experiments researchers design — training the models, not writing the papers.</span></li><li><a href="/r/ai-research-scientist/">AI Research Scientist</a> — degree usually expected <span class="muted">You originate the ideas — formulate the problems, run the experiments, publish the results.</span></li><li><a href="/r/ai-safety-researcher/">AI Safety Researcher</a> — degree usually expected <span class="muted">You work on making advanced AI systems behave as intended — interpretability, alignment, evaluation.</span></li><li><a href="/r/ai-security-engineer/">AI Security Engineer</a> — degree usually expected <span class="muted">You find and close the ways AI systems get attacked — prompt injection, data poisoning, model theft, unsafe tool use.</span></li><li><a href="/r/ai-software-engineer/">AI Software Engineer</a> — degree usually expected <span class="muted">You are a software engineer who builds features on top of AI models — the AI is a component, not the product.</span></li><li><a href="/r/ai-solutions-architect/">AI Solutions Architect</a> — degree usually expected <span class="muted">You design how AI systems fit together — and decide what not to build.</span></li><li><a href="/r/data-engineer-ai/">Data Engineer (AI/ML)</a> — degree usually expected <span class="muted">You build and run the pipelines that get data to the models, reliably and on time.</span></li><li><a href="/r/distributed-systems-engineer/">Distributed Systems Engineer</a> — degree usually expected <span class="muted">You build systems that stay correct when machines fail, networks partition and clocks disagree.</span></li><li><a href="/r/gpu-engineer/">GPU / CUDA Engineer</a> — degree usually expected <span class="muted">You make code run fast on GPUs — writing and tuning the kernels that everything else waits on.</span></li><li><a href="/r/llm-engineer/">LLM Engineer</a> — degree usually expected <span class="muted">You build applications on top of large language models — retrieval, agents, evaluation and serving.</span></li><li><a href="/r/mlops-engineer/">MLOps Engineer</a> — degree usually expected <span class="muted">You make machine learning repeatable — training, tracking, deploying and watching models in production.</span></li><li><a href="/r/ml-engineer/">Machine Learning Engineer</a> — degree usually expected <span class="muted">You take models from a notebook to something that runs reliably in production, and keep it working.</span></li></ul><h2><a href="/f/ux-product/">UX &amp; Product Design</a></h2><ul class="plain"><li><a href="/r/accessibility-specialist/">Accessibility Specialist</a> <span class="muted">You make sure the product works for people the team forgot to think about.</span></li><li><a href="/r/technical-writer/">Technical Writer</a> <span class="muted">You make complicated things understandable, in writing, for someone in a hurry.</span></li><li><a href="/r/ux-designer/">UX Designer</a> <span class="muted">You decide how a product should work for the person using it, then prove the decision with evidence.</span></li><li><a href="/r/ux-researcher/">UX Researcher</a> <span class="muted">You find out what people actually do, rather than what everyone assumes they do.</span></li></ul><h2><a href="/f/software-engineering/">Software Engineering</a></h2><ul class="plain"><li><a href="/r/backend/">Backend Developer</a> <span class="muted">You build the part users never see — the APIs, the data layer, and everything that has to stay up.</span></li><li><a href="/r/devops/">DevOps Engineer</a> <span class="muted">You make shipping software boring — automated, repeatable, and safe to undo.</span></li><li><a href="/r/frontend/">Frontend Developer</a> <span class="muted">You build the part of the software people actually touch — and make it work on their device, not just yours.</span></li><li><a href="/r/fullstack/">Full-Stack Developer</a> <span class="muted">You build the screen and the thing behind it, and you own the whole feature.</span></li><li><a href="/r/mobile/">Mobile Developer</a> <span class="muted">You build the app on the phone, where the network drops and the battery matters.</span></li><li><a href="/r/qa-test-automation/">QA / Test Automation Engineer</a> <span class="muted">You find out what breaks before a user does, and turn that into a test that runs forever.</span></li><li><a href="/r/sre/">Site Reliability Engineer</a> <span class="muted">You keep the thing running at scale, and you use software to do it rather than heroics.</span></li></ul><h2><a href="/f/data/">Data</a></h2><ul class="plain"><li><a href="/r/analytics-engineer/">Analytics Engineer</a> <span class="muted">You turn raw tables into the trustworthy, documented ones everyone else queries.</span></li><li><a href="/r/data-analyst/">Data Analyst</a> <span class="muted">You answer questions with data, and explain the answer to people who will not read your code.</span></li><li><a href="/r/data-engineer/">Data Engineer</a> <span class="muted">You build the pipes that get data from where it is made to where it gets used, reliably, every day.</span></li><li><a href="/r/data-scientist/">Data Scientist</a> — degree usually expected <span class="muted">You answer questions with data that nobody could answer by looking at a dashboard.</span></li></ul></section></div></main>
 <footer class="site"><div class="wrap"><div class="cols">
-<div><strong>Learn Computer Stuff</strong><br>Pick a job. Get the path. Mostly free.</div>
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
 <div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
 <div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
 </div></div></footer>
