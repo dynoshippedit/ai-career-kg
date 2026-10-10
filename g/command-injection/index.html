@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OS command injection: when your input reaches a shell | Learn Computer Stuff</title>
+<meta name="description" content="OS command injection: shell metacharacters, blind time-delay proofs, and why allow-lists beat blocklists — reproduced locally and fixed. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/command-injection/">
+<meta property="og:title" content="OS command injection: when your input reaches a shell | Learn Computer Stuff"><meta property="og:description" content="OS command injection: shell metacharacters, blind time-delay proofs, and why allow-lists beat blocklists — reproduced locally and fixed. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/command-injection/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"OS command injection: when your input reaches a shell","item":"https://learncomputerstuff.dev/g/command-injection/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>OS command injection: when your input reaches a shell</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>OS command injection: when your input reaches a shell</h1>
+<p class="lede prose">OS command injection is SQL injection's sibling one layer down: instead of the database executing your input as code, the <strong>operating system</strong> does. It sits inside <strong>OWASP Top 10:2025 A05 — Injection</strong> as <strong>CWE-78</strong>, and its impact is usually worse than SQLi's — a compromised database is bad; a compromised server is the whole machine. You will meet it in legacy integrations (a script shelling out to a reporting binary), in network-device web interfaces, in "convenience" wrappers around system utilities, and — from the other side — in EDR process-creation telemetry, where a web worker spawning a shell is one of the highest-fidelity alerts in the building.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + live reproduction + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (HTTP in depth), <a href="/g/linux-cli/"><code>a-linux-cli</code></a> (shells, processes, what <code>whoami</code> means), <a href="/g/sqli/"><code>b-sqli</code></a> (the input-becomes-code pattern), B-AUTH (authorization discipline: you test only what you are allowed to touch)</td></tr><tr><th scope="row">Map references</th><td>OWASP Top 10:2025 A05 Injection · WSTG-INPV-13 · CWE-78</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>OS command injection is SQL injection's sibling one layer down: instead of the database executing your input as code, the <strong>operating system</strong> does. It sits inside <strong>OWASP Top 10:2025 A05 — Injection</strong> as <strong>CWE-78</strong>, and its impact is usually worse than SQLi's — a compromised database is bad; a compromised server is the whole machine. You will meet it in legacy integrations (a script shelling out to a reporting binary), in network-device web interfaces, in "convenience" wrappers around system utilities, and — from the other side — in EDR process-creation telemetry, where a web worker spawning a shell is one of the highest-fidelity alerts in the building.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You know what a shell is and what it does with <code>;</code>, <code>&amp;</code>, <code>|</code> (<a href="/g/linux-cli/"><code>a-linux-cli</code></a>) — this lesson is what happens when a stranger gets to type into one.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy command-injection lab, DVWA's Command Injection module, or a bounty program whose scope explicitly includes the asset. Never test outside authorization; re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl is enough. Keep your proofs to <code>whoami</code>/<code>id</code>/<code>echo</code> — the finding is proven the moment injected output renders. Do not pivot, persist, or touch other systems.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Some applications call out to the operating system: a diagnostic page that pings a host, a feedback form that invokes the <code>mail</code> program, a report generator that shells out to a converter. The dangerous pattern, in Python-flavored pseudocode:</p>
+<pre><code>os.system(&quot;ping -c 1 &quot; + user_input)</code></pre>
+<p><code>os.system</code> hands the string to a <strong>shell</strong>, and the shell parses the whole thing as a command line. If <code>user_input</code> is <code>127.0.0.1</code>, the command is what the developer meant. If <code>user_input</code> is <code>127.0.0.1; whoami</code>, the shell runs <code>ping -c 1 127.0.0.1</code>, then runs <code>whoami</code>. The input stopped being an argument and became code — the same sentence as SQLi, one layer down. The vulnerability is not the <code>ping</code>; it is the shell sitting between the application and the operating system, interpreting metacharacters the developer never intended the user to supply.</p>
+<p><strong>The metacharacter classes, in probe order.</strong> These are what the shell understands, so these are what you test:</p>
+<ul>
+<li><strong>Command separators (Windows + Unix):</strong> <code>&amp;</code>, <code>&amp;&amp;</code>, <code>|</code>, <code>||</code> — chain a new command after the original.</li>
+<li><strong>Separators (Unix only):</strong> <code>;</code>, newline — end the original command entirely.</li>
+<li><strong>Inline execution (Unix):</strong> backticks and <code>$(...)</code> — the injected command runs <em>inside</em> the original command's arguments.</li>
+<li><strong>Quoted contexts:</strong> if your input lands inside quotes in the original command, terminate the quote first (<code>&quot;</code> or <code>&#x27;</code>), then use a separator.</li>
+</ul>
+<p><strong>Blind command injection.</strong> Often the application's response doesn't include the command output — the feedback form sends mail and shows "thanks." The finding is still provable, through side channels: <strong>time delays</strong> (<code>; sleep 10</code> — the response takes 10 seconds), <strong>output redirection</strong> (write to a file under the web root, then fetch it), or <strong>out-of-band</strong> (cause a DNS lookup to infrastructure you control and watch for it). A blind injection is a finding, not a failed test — you just need a different channel.</p>
+<p><strong>Why it arises in real code.</strong> Legacy integrations nobody dares rewrite, convenience wrappers ("it's just a ping"), and the false belief that a constrained input can't contain metacharacters. The DVWA case is canonical: an IP address passed to <code>ping</code> via <code>shell_exec()</code>.</p>
+<p><strong>Why allow-lists beat blocklists.</strong> The instinct is to block the metacharacters — strip <code>;</code>, <code>&amp;</code>, <code>|</code>, backticks. This loses, every time: shells have more metacharacters than you can enumerate (newlines, <code>$()</code>, <code>${IFS}</code>, encoded forms), and one missed character reopens everything. An <strong>allow-list</strong> inverts the problem: instead of naming what's forbidden (infinite), you name what's permitted (finite) — "this field is an IPv4 address," "this field is one of these five report names" — and reject everything else. You can't bypass a check that never lets your input reach a shell in the first place.</p>
+<p><strong>How defenders see it.</strong> Process-creation telemetry is the crown jewel: Sysmon Event ID 1 on Windows, <code>auditd</code> execve on Linux. The hunt is structural — a web-server worker (<code>w3wp.exe</code>, <code>httpd</code>, <code>php-fpm</code>, <code>node</code>) as the <strong>parent process</strong> spawning <code>cmd.exe</code>, <code>powershell.exe</code>, <code>sh</code>, or <code>bash</code>. A web process has no legitimate reason to spawn shells; that parent-child pair is high-fidelity. Command lines containing separators or <code>whoami</code>/<code>curl</code>/<code>wget</code> from that parent confirm it. WAF coverage exists (ModSecurity CRS 932xxx family, e.g. <code>REQUEST-932-APPLICATION-ATTACK-RCE.conf</code>) but it's a tripwire, not a barrier. Application logs show the probing phase: distinctive 500s and timeouts from malformed separator payloads.</p>
+<h3>Worked example: the diagnostic demo</h3>
+<p>A minimal diagnostic app (stdlib Python, local only — the walkthrough runs it). <code>GET /diag?host=127.0.0.1</code> builds <code>ping -c 1 &lt;host&gt;</code> and runs it <strong>through a shell</strong>, returning the output. The app also simulates a <code>mail</code>-style blind endpoint at <code>/feedback?email=</code> that invokes a shell command and returns only "thanks."</p>
+<p>Baseline: <code>host=127.0.0.1</code> returns ping output. Probe: <code>host=127.0.0.1; echo PROBE-XYZ</code> — the response contains <code>PROBE-XYZ</code>. That string in the output <em>is</em> the vulnerability: your input was executed as a shell command. Confirm with <code>whoami</code> — the response now tells you which OS user the web app runs as (impact evidence, read-only). Blind channel: <code>email=x; sleep 5</code> at <code>/feedback</code> — the "thanks" takes 5 seconds. The delay is the proof, no output needed.</p>
+<p>The fix, in the same app: stop calling the shell. The ping becomes a subprocess call with an argument list and no shell (<code>[&quot;ping&quot;, &quot;-c&quot;, &quot;1&quot;, host]</code> — the host can never become a command), plus an allow-list check that the host is a valid IP or hostname. Re-test: <code>; echo PROBE-XYZ</code> now fails the allow-list (or is passed as a literal argument to ping, which errors harmlessly); <code>sleep 5</code> changes nothing; legitimate <code>127.0.0.1</code> still works. Then the rule, stated once and kept: the single most effective defense is to <strong>never call out to OS commands from application code</strong> — almost every use case has a safer platform API. If you must, allow-list; never escape metacharacters.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-command-injection.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo app stands in for the PortSwigger/DVWA targets the reader uses (no Docker on this machine — see gaps).</p>
+<ol>
+<li><strong>Start the vulnerable app.</strong> Save the <code>app.py</code> from this lesson's companion (diagnostic page building <code>ping -c 1 &lt;host&gt;</code> through a shell; <code>/feedback</code> blind endpoint) and run it on port 8324. Confirm the baseline: <code>curl &#x27;localhost:8324/diag?host=127.0.0.1&#x27;</code> returns ping output.</li>
+<li><strong>Separator probe.</strong> <code>curl &#x27;localhost:8324/diag?host=127.0.0.1; echo PROBE-XYZ&#x27;</code> — observe <code>PROBE-XYZ</code> in the response. Write down, verbatim, the request and the response — this pair is the finding.</li>
+<li><strong>Confirm impact, read-only.</strong> <code>host=127.0.0.1 &amp;&amp; whoami</code> — the response shows the OS user the app runs as. Note what that user could reach; do not reach for it. The finding is proven; stop.</li>
+<li><strong>Blind channel.</strong> <code>curl &#x27;localhost:8324/feedback?email=x; sleep 5&#x27;</code> — time the response (~5s) versus <code>email=x</code> (~instant). The delay is the proof where there is no output.</li>
+<li><strong>Apply the fix.</strong> Patch the handler: no shell (argument-list subprocess), plus an allow-list that the host matches an IP/hostname pattern. Restart the app.</li>
+<li><strong>Verify the fix — four cases.</strong> <code>; echo PROBE-XYZ</code> → rejected by the allow-list (or passed inertly to ping); <code>&amp;&amp; whoami</code> → same; <code>sleep 5</code> on <code>/feedback</code> → no delay; <code>host=127.0.0.1</code> → ping output unchanged (legitimate function unbroken).</li>
+<li><strong>Read the defender view.</strong> The companion logs every spawned command. Find your probe in the log: the parent process (the Python app) spawning <code>/bin/sh</code> with your metacharacters in the command line. Write the detection rule: alert on any web-worker process spawning a shell, with the command line attached.</li>
+</ol>
+<p>No step above is marked "not run by us" — in-band, blind, the fix, and all four verification cases ran locally.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy OS command injection lab (the simple in-band one first), or DVWA's Command Injection module. Find the injection point with the <code>echo</code> probe, then determine whether it is in-band or blind (if blind, prove it with the time-delay channel). Then check the quoted-context case: does the input land inside quotes in the original command, and if so, what terminates it?</p>
+<p><strong>Success test:</strong> A one-page report: the vulnerable parameter, the metacharacter class that worked, in-band vs blind with evidence, the read-only impact confirmation (<code>whoami</code> output), the fix (no-shell API + allow-list, stated as code-level remediation), and the defender detection (which telemetry, which parent-child pattern). If you cannot determine the quoting context, say so and name the experiment that would settle it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Blocklist "sanitization."</strong> Stripping <code>;</code> and <code>&amp;</code> while leaving newlines, <code>$()</code>, backticks, or <code>${IFS}</code> — the shell has more metacharacters than your list. Allow-list or no-shell; there is no third option that holds.</li>
+<li><strong>"The input is numeric."</strong> Validation that isn't actually enforced, or enforced client-side — the server is the only place a check counts.</li>
+<li><strong>Fixing the sink but not the pattern.</strong> You patched the ping page; the feedback form still shells out. Every <code>system()</code>/<code>shell_exec()</code>/backtick call in the codebase is the same bug wearing a different feature.</li>
+<li><strong>Blind = not vulnerable.</strong> The absence of output is a channel problem, not a verdict. Time delays and OAST exist precisely for this case.</li>
+<li><strong>Over-proving.</strong> Running <code>whoami</code> proves the finding. Pivoting, reading <code>/etc/passwd</code>, or establishing persistence on an authorized target is outside every scope — the impact statement says what the access <em>could</em> reach, and stops.</li>
+<li><strong>Forgetting the parent process.</strong> Defenders don't hunt your payload string; they hunt the web-worker-spawns-shell pair. Your report's detection section should say so.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — OS command injection</strong> (<a href="https://portswigger.net/web-security/os-command-injection)">portswigger.net/web-security/os-command-injection)</a> — <em>read</em> fully; the canonical treatment (metacharacter classes, blind techniques: time/redirect/OAST, prevention). <em>Note</em> the prevention order: never shell out first, allow-list second, never escape.</li>
+<li><strong>CWE-78</strong> (<a href="https://cwe.mitre.org/data/definitions/78.html)">cwe.mitre.org/data/definitions/78.html)</a> — <em>skim</em> the definition and its parent CWE-77 (command injection); cite the ID in findings.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger Academy — OS command injection labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; in-band plus the three blind techniques from this lesson.</li>
+<li><strong>DVWA — Command Injection module</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — free; run locally via Docker: the Low→High ladder shows naive escaping failing, and Impossible shows the allow-list fix.</li>
+<li><strong>OWASP Command Injection Defense Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side: safe APIs per language, allow-list patterns.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why <code>os.system(&quot;ping -c 1 &quot; + user_input)</code> is vulnerable but <code>subprocess.run([&quot;ping&quot;, &quot;-c&quot;, &quot;1&quot;, user_input])</code> is not, in terms of who parses the input.</li>
+<li>A feedback form returns only "thanks" no matter what you submit, but <code>; sleep 8</code> makes the response take 8 seconds. Explain why this proves command injection and which metacharacter class did the work.</li>
+<li>Predict the process tree a defender sees during active command-injection probing, and explain why the parent-child relationship is a better detector than the payload string.</li>
+<li>A developer proposes stripping <code>;</code>, <code>&amp;</code>, <code>|</code>, and backticks from the input as the fix. Name two shell features this misses and explain why allow-listing is structurally stronger.</li>
+<li>You confirm injection with <code>whoami</code> on an authorized target. Explain what you write in the impact section of the report, and what you must not do next.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": vulnerable parameter, working metacharacter class, in-band vs blind evidence, read-only impact, code-level fix, defender detection.</p>
+<p><strong>Honest claim:</strong> "I can find OS command injection with metacharacter probes, prove blind cases through side channels, demonstrate read-only impact, and verify the no-shell/allow-list fix."</p>
+<p><strong>Can't claim yet:</strong> "I can assess the full blast radius" — post-exploitation impact assessment is a Stage C/D skill; this lesson proves the hole, not the house.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/ssrf/"><code>b-ssrf</code></a> — the server makes requests instead of running commands; compare which trust relationship each one abuses.</li>
+<li>B-DEF (defensive basics) — sit on the other side: write the Sysmon/auditd rule for your own attack traffic.</li>
+<li>D red-team concepts (Stage D) — why this class is the first thing an adversary wants, taught as defender telemetry.</li>
+<li>Map refs: <strong>OWASP Top 10:2025 A05</strong>, <strong>WSTG-INPV-13</strong>, <strong>CWE-78</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

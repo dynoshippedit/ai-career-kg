@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI attacks and defenses in the build pipeline | Learn Computer Stuff</title>
+<meta name="description" content="AI attacks and defenses in the build pipeline: training-data poisoning, build provenance, registry hygiene, and the red-team CI gate — each attack taught with the defense that catches it. A free hands-on lesson in the security guidebook, serving CAISP chapter 4.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/ai-pipeline/">
+<meta property="og:title" content="AI attacks and defenses in the build pipeline | Learn Computer Stuff"><meta property="og:description" content="AI attacks and defenses in the build pipeline: training-data poisoning, build provenance, registry hygiene, and the red-team CI gate — each attack taught with the defense that catches it. A free hands-on lesson in the security guidebook, serving CAISP chapter 4.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/ai-pipeline/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"AI attacks and defenses in the build pipeline","item":"https://learncomputerstuff.dev/g/ai-pipeline/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>AI attacks and defenses in the build pipeline</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · AI track</span><h1>AI attacks and defenses in the build pipeline</h1>
+<p class="lede prose">Every model you will ever deploy passed through a pipeline: data was collected, a training or fine-tuning job ran, an artifact was packaged, it landed in a registry, and something deployed it. That pipeline is an attack surface with its own threat model, and it is where the most consequential AI compromises happen — not because the model was clever, but because the build was trusted. ML platform engineers, AI security engineers, and DevSecOps teams own this. CAISP puts it in chapter 4 for a reason: securing the pipeline is the DevOps half of AI security, and everything the track taught about provenance in <a href="/g/supply-chain/"><code>ai-supply-chain</code></a> only works if the pipeline that produces the provenance is itself trustworthy.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · deterministic pipeline simulation, no model, no network</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + pipeline hardening on your own build, each attack paired with its defense)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/supply-chain/"><code>ai-supply-chain</code></a> (hashes, signing, admission policies); <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (the stack you are protecting); <a href="/g/git-github/"><code>a-git-github</code></a> (the artifact pipeline); Python 3</td></tr><tr><th scope="row">Map references</th><td><strong>CAISP chapter 4</strong> (AI Attacks and Defenses Using DevOps); <strong>OWASP LLM Top 10:2026, LLM05</strong> (Data and Model Poisoning) and <strong>LLM04</strong> (Supply Chain); MITRE ATLAS — Training Data Poisoning, AI Supply Chain Compromise, Publish Poisoned AI Artifacts; SLSA; feeds <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a>, <a href="/g/ai-governance/"><code>ai-governance</code></a>.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every model you will ever deploy passed through a pipeline: data was collected, a training or fine-tuning job ran, an artifact was packaged, it landed in a registry, and something deployed it. That pipeline is an attack surface with its own threat model, and it is where the most consequential AI compromises happen — not because the model was clever, but because the build was trusted. ML platform engineers, AI security engineers, and DevSecOps teams own this. CAISP puts it in chapter 4 for a reason: securing the pipeline is the DevOps half of AI security, and everything the track taught about provenance in <a href="/g/supply-chain/"><code>ai-supply-chain</code></a> only works if the pipeline that produces the provenance is itself trustworthy.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have read <a href="/g/supply-chain/"><code>ai-supply-chain</code></a> — you know what a hash proves (content identity), what a signature proves (origin), and what an admission policy enforces.</li>
+<li>You have read <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> — you can draw the six-layer stack and point at its trust boundaries.</li>
+<li>Python 3 on your machine. No model, no GPU, no network: the walkthrough's harness simulates the pipeline deterministically on loopback.</li>
+<li>Safety framing, stated once: this lesson teaches where pipeline attacks <em>enter</em> and how each is <em>detected and stopped</em>. It does not teach attack automation, and nothing here is run against anyone else's infrastructure.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A model pipeline has five stages, and each one has a characteristic attack. Learn them as pairs — attack, then the defense that catches it — because in practice you never meet one without needing the other.</p>
+<p><strong>Stage 1 — Data collection and curation.</strong> The attack is <strong>training-data poisoning</strong>: crafted samples inserted into the training or fine-tuning set so the resulting model behaves the attacker's way on chosen inputs — a backdoor trigger, a biased classifier, a model that leaks on demand. MITRE ATLAS names this directly (Training Data Poisoning), and it sits inside LLM05:2026. The defense is dataset provenance: a hash manifest over every training file, recorded at collection time, re-verified before every training run. A manifest turns "is this dataset the one we approved?" from a hope into a check. Layered on top: source allowlisting (data comes from named, reviewed origins — not "the internet"), duplication and canary checks (a known-clean canary file whose corruption proves tampering), and statistical screening of new batches (poisoning at scale shifts distributions; screening catches the clumsy kind, not the careful kind — say that honestly).</p>
+<p><strong>Stage 2 — Training and fine-tuning.</strong> The attack is <strong>compute and configuration tampering</strong>: a compromised training job, a malicious dependency in the training environment, or a modified checkpoint swapped in mid-run. The defense is build provenance: the training run emits an attestation — <em>this</em> artifact was built from <em>these</em> inputs by <em>this</em> builder at <em>this</em> time — and the registry verifies the attestation before accepting the artifact. This is SLSA's model applied to model builds: provenance answers <em>who built it and from what</em>, which a hash alone cannot. Hermetic builds (no network access during the build, pinned dependencies) shrink what a compromised build can reach.</p>
+<p><strong>Stage 3 — Packaging.</strong> The attack is <strong>artifact substitution</strong>: the model file that reaches the registry is not the one the training job produced — swapped in transit, in storage, or by a compromised packaging step. The defense is signing at the moment of creation: the training job signs the artifact with Sigstore keyless signing (you learned the mechanics in <a href="/g/supply-chain/"><code>ai-supply-chain</code></a> — Fulcio identity, Rekor transparency log), so substitution breaks the signature and the transparency entry won't match.</p>
+<p><strong>Stage 4 — Registry.</strong> The attack is <strong>registry abuse</strong>: mutable tags repointed at a different artifact, stale vulnerable models left downloadable, weak access control letting anyone push. The defense is registry hygiene: immutable tags (a published tag never changes — new artifact, new tag), version pinning by digest everywhere downstream, retention and vulnerability policies, and access control on who can push. A registry is a trust boundary; treat it like one.</p>
+<p><strong>Stage 5 — Deployment.</strong> The attack is <strong>the compromised build pipeline itself</strong> — and this one deserves special attention, because OWASP's LLM04:2026 added it as an explicit scenario: an attacker compromises the CI/CD pipeline (a malicious build dependency, a stolen registry credential), and the resulting backdoored model is built and signed <em>by your own release infrastructure</em>. It passes every provenance and attestation check, because those checks scrutinize externally sourced components, not the builder. The defense is defense in depth around the builder: least-privilege CI credentials (the build job can write to the registry and nothing else), required reviews on pipeline definitions, anomaly detection on build behavior (a build that suddenly exfiltrates is not a build), and — the structural fix — <strong>adversarial testing as a CI gate</strong>: a red-team suite (promptfoo, garak, or your own probes) runs against every candidate model, and new findings block the release. The gate does not trust the pipeline; it tests the product.</p>
+<h3>Worked example: the Meridian support-model pipeline</h3>
+<p>Meridian Analytics (the fictional company from <a href="/g/ai-governance/"><code>ai-governance</code></a>) fine-tunes a support chatbot monthly. Their pipeline, with defenses:</p>
+<ol>
+<li><strong>Data:</strong> fine-tuning pairs collected from support tickets. A manifest (SHA-256 per file) is committed alongside the dataset; the training job refuses to start if verification fails. A canary file — three known-clean examples — is checked first; corruption aborts the run.</li>
+<li><strong>Build:</strong> the training job runs in a hermetic container with pinned dependencies, emits a SLSA-style provenance attestation (source commit, builder identity, input digests), and signs the model with keyless Sigstore.</li>
+<li><strong>Registry:</strong> the signed model and its attestation are pushed under an immutable tag; the registry's admission policy (from <a href="/g/supply-chain/"><code>ai-supply-chain</code></a>) verifies signature + provenance + transparency-log entry before accepting.</li>
+<li><strong>Gate:</strong> the CI red-team suite runs 200 adversarial prompts against the candidate; any <em>new</em> failure vs. the baseline blocks promotion. Findings become regression tests — the suite grows with every incident.</li>
+<li><strong>Deploy:</strong> only promoted, signed, attested artifacts deploy; the deployment manifest pins digests, not tags.</li>
+</ol>
+<p>Now the attacks, one per stage, and what catches each: a poisoned ticket pair fails the manifest check (stage 1); a compromised training dependency can't reach the network in the hermetic build, and its output still faces the red-team gate (stage 2); a swapped artifact fails signature verification (stage 3); a repointed tag is impossible under immutability, and downstream pins digests anyway (stage 4); a fully compromised builder — the LLM04 scenario — produces a signed, attested, backdoored model, and <em>only the adversarial gate</em> catches it, because the gate tests behavior, not provenance. That last sentence is the lesson's core: provenance proves the artifact is the one you built; only testing proves the artifact is the one you want.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> — transcript: <code>runs/ai-pipeline.log</code>. Clean environment: stock Python 3.12, no network, no model, 2026-10-09. The harness (<code>pipeline_demo.py</code>, deterministic) simulates Meridian's five stages: a dataset with a manifest, a build step emitting provenance, a registry with an admission policy, and a red-team gate.</p>
+<ol>
+<li><strong>Manifest the dataset.</strong> Run the harness's <code>manifest</code> command over the toy corpus. Read the manifest: one SHA-256 per file, plus the canary entry. <em>Teaching point:</em> the manifest is the dataset's identity; everything downstream trusts it.</li>
+<li><strong>Verify clean.</strong> Run <code>verify</code> — all files match, canary intact, build proceeds. Note what "proceeds" means here: the harness prints the provenance attestation (source digest, builder id, input digests).</li>
+<li><strong>Poison the data.</strong> Tamper one training file (the harness provides a <code>tamper</code> command that flips a byte and rewrites the file). Re-run <code>verify</code>: the manifest check fails, names the file, and the build aborts. <em>Teaching point:</em> detection is immediate and specific — this is what provenance buys you.</li>
+<li><strong>Forge the provenance.</strong> Restore the dataset, then hand the registry a forged attestation (wrong builder id). Run <code>admit</code>: the registry rejects it — the builder identity doesn't match the expected one. <em>Teaching point:</em> provenance is verified, not trusted.</li>
+<li><strong>Run the red-team gate.</strong> Promote a clean, signed, attested model, then run the gate: 12 adversarial prompts, all pass. Now promote the "compromised-builder" model — signed and attested correctly, but behaviorally backdoored (it complies with a planted instruction on one trigger prompt). Watch the gate catch exactly the trigger prompt, block promotion, and log the finding as a new regression test. <em>Teaching point:</em> this is the only stage that catches the LLM04 scenario, and the lesson says so plainly.</li>
+<li><strong>Read the registry state.</strong> Print the registry: immutable tags, digest pins, the rejected artifacts with reasons. Confirm the refused model is recorded with its reason — a registry that silently drops is an audit gap.</li>
+</ol>
+<h2>5. On your own</h2>
+<p>Extend the harness with a statistical screening step: before the manifest check, compute a simple distribution metric over the training files (e.g., label frequencies, average document length) and flag any batch whose metric shifts more than a threshold you choose from the clean baseline. Then poison the dataset <em>without</em> breaking the manifest (edit a file and re-run <code>manifest</code> to bless the poisoned version — this simulates an attacker who owned the data before the manifest was written) and show that your screening step catches what the manifest cannot.</p>
+<p><strong>Success test:</strong> your screening flags the poisoned batch, misses nothing in the clean baseline across three runs, and you can state in one paragraph why screening is a complement to — never a replacement for — the manifest.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>A hash is not provenance.</strong> The manifest proves the dataset is unchanged since the manifest was written; it says nothing about whether the dataset was clean when written. The On-your-own task exists because this confusion is the single most common pipeline failure.</li>
+<li><strong>Signing without verification is theater.</strong> A signature nobody checks is a sticker. The admission policy is the control; the signature is its input.</li>
+<li><strong>Gates everyone overrides.</strong> A red-team gate with a "skip" button that requires no justification will be skipped exactly when it matters. The gate's override path — who can approve it, what gets recorded — is part of the design, not an afterthought.</li>
+<li><strong>Provenance that trusts the builder.</strong> SLSA provenance attests what the builder <em>claims</em>. A compromised builder claims lies truthfully. This is why the LLM04:2026 scenario is in the lesson: provenance and behavioral testing are complements, and either alone is insufficient.</li>
+<li><strong>Registry hygiene decay.</strong> Immutable tags, digest pinning, and retention policies are easy to set and easy to erode under deadline pressure. The erosion is silent until an incident.</li>
+</ul>
+<h2>7. Read the source</h2>
+<ul>
+<li><strong>SLSA specification</strong> (<a href="https://slsa.dev">slsa.dev</a>) — the provenance model: what an attestation contains, what the levels require, and why "hermetic" and "hosted" matter. Read the overview, then the provenance and build-requirements pages; skim the level definitions. (Fetched 2026-10-09.)</li>
+<li><strong>Sigstore documentation</strong> (<a href="https://docs.sigstore.dev">docs.sigstore.dev</a>) — keyless signing mechanics: Fulcio, Rekor, and the verification checks. You read this in <a href="/g/supply-chain/"><code>ai-supply-chain</code></a>; re-read the verification section with pipeline eyes: <em>what</em> is being signed, and <em>when</em>.</li>
+<li><strong>OWASP LLM Top 10:2026, LLM04 (Supply Chain)</strong> — the compromised-build-pipeline attack scenario and the model-signing/AIBOM defenses. Read the scenario, then the prevention list; note what it assumes about your registry.</li>
+</ul>
+<p>Free resources for going deeper (≤3): the SLSA spec itself; the Sigstore docs; the OWASP GenAI Security Project's LLM04:2026 page.</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An attacker poisons the fine-tuning data <em>before</em> the manifest is written. Which of the five defenses catches it, and why does the manifest not?</li>
+<li>Your pipeline signs every model with keyless Sigstore, and the registry verifies signatures. Walk through the LLM04 compromised-builder scenario: which checks pass, which check catches it, and why?</li>
+<li>A teammate proposes replacing the red-team gate with "we review the training data carefully." Using the manifest/screening distinction from this lesson, explain what that proposal gets wrong.</li>
+<li>The registry uses mutable tags ("latest") and downstream deploys pin tags, not digests. Name two attacks this enables and the two registry-hygiene fixes.</li>
+<li>Your CI credentials can push to the registry <em>and</em> read production secrets. Rewrite the credential scope using least privilege, and state what breaks in the attacker's plan when you do.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the extended harness (your screening step committed), a run log showing the tamper caught, the forged provenance rejected, and the red-team gate blocking the backdoored model — plus a one-page pipeline threat summary naming each stage's attack and its catching defense.</p>
+<p><strong>You can claim:</strong> "I can design and verify the security controls of an ML build pipeline — dataset provenance, build attestation, registry admission, and adversarial gating — and I can explain which attack each control catches and which it doesn't."</p>
+<p><strong>You cannot claim:</strong> experience operating a production ML platform; the ability to detect a careful, adaptive poisoning campaign (screening catches the clumsy kind — the lesson says so); or that any pipeline is "secure" — only that its controls are defined, verified, and tested.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> — the pipeline is one system inside the larger threat model; this lesson's five stages become five elements in its data-flow diagram.</li>
+<li><a href="/g/supply-chain/"><code>ai-supply-chain</code></a> — the companion lesson: provenance and signing mechanics this lesson assumes.</li>
+<li><a href="/g/ai-governance/"><code>ai-governance</code></a> — pipeline controls become the evidence the governance lesson's risk register cites.</li>
+<li><strong>Map refs:</strong> <strong>CAISP chapter 4</strong> (served directly); <strong>OWASP LLM Top 10:2026 LLM04/LLM05</strong>; MITRE ATLAS (Training Data Poisoning, AI Supply Chain Compromise).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

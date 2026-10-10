@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSRF: when the victim&#x27;s browser does the attacker&#x27;s work | Learn Computer Stuff</title>
+<meta name="description" content="CSRF: when the victim&#x27;s browser does the attacker&#x27;s work — token defense, SameSite, and the no-state-changing-GET rule. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/csrf/">
+<meta property="og:title" content="CSRF: when the victim&#x27;s browser does the attacker&#x27;s work | Learn Computer Stuff"><meta property="og:description" content="CSRF: when the victim&#x27;s browser does the attacker&#x27;s work — token defense, SameSite, and the no-state-changing-GET rule. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/csrf/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"CSRF: when the victim's browser does the attacker's work","item":"https://learncomputerstuff.dev/g/csrf/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>CSRF: when the victim&#x27;s browser does the attacker&#x27;s work</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>CSRF: when the victim&#x27;s browser does the attacker&#x27;s work</h1>
+<p class="lede prose">Cross-site request forgery is the attack where the victim's own browser issues the malicious request — authenticated, cookie-attached, indistinguishable from legitimate traffic. It sits in <strong>OWASP Top 10:2025 A01</strong> and carries <strong>CWE-352</strong>. You will meet it in every cookie-sessioned application with state-changing actions: email changes, password changes, transfers, privilege grants. It is also the lesson that teaches the single most repeated rule in web security: <strong>no state changes via GET — ever.</strong> From the defender's side, it is nearly invisible to signature WAFs (the forged request is syntactically identical to a real one), which is why the fix is design, not detection.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo app; browser-click sub-step not run by us</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + live reproduction + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (cookies, same-origin policy, GET vs POST), <a href="/g/idor/"><code>b-idor</code></a> (server-side trust), B-AUTH (authorization discipline: you test only what you are allowed to touch)</td></tr><tr><th scope="row">Map references</th><td>OWASP Top 10:2025 A01 · WSTG-SESS-05 · CWE-352</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Cross-site request forgery is the attack where the victim's own browser issues the malicious request — authenticated, cookie-attached, indistinguishable from legitimate traffic. It sits in <strong>OWASP Top 10:2025 A01</strong> and carries <strong>CWE-352</strong>. You will meet it in every cookie-sessioned application with state-changing actions: email changes, password changes, transfers, privilege grants. It is also the lesson that teaches the single most repeated rule in web security: <strong>no state changes via GET — ever.</strong> From the defender's side, it is nearly invisible to signature WAFs (the forged request is syntactically identical to a real one), which is why the fix is design, not detection.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), and you know what the browser attaches automatically: cookies, including session cookies, on every request to the cookie's domain.</li>
+<li>You know the same-origin policy's shape: one site's script can't <em>read</em> another site's responses — but it can <em>cause</em> the browser to <em>send</em> requests there. That asymmetry is this entire lesson.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy CSRF lab, DVWA's CSRF module, or a bounty program whose scope explicitly includes the asset. The "attacker's page" in this lesson is a local HTML file you open in your own browser against your own lab — never hosted against someone else's site. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl plus a browser with two profiles (or containers) so you can hold a victim session and an attacker page apart.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Three conditions must hold — PortSwigger's framing, worth memorizing:</p>
+<ol>
+<li><strong>A relevant action.</strong> Something the attacker wants done: change an email, change a password, transfer funds.</li>
+<li><strong>Cookie-based session handling.</strong> The application identifies the user <em>solely</em> by the session cookie. No other proof travels with the request.</li>
+<li><strong>No unpredictable request parameters.</strong> Every parameter the action needs is guessable — no per-request secret.</li>
+</ol>
+<p>When all three hold, the attack is one HTML page on the attacker's site:</p>
+<pre><code>&lt;form action=&quot;https://vulnerable-site/email/change&quot; method=&quot;POST&quot;&gt;
+  &lt;input type=&quot;hidden&quot; name=&quot;email&quot; value=&quot;attacker@evil.example&quot;&gt;
+&lt;/form&gt;
+&lt;script&gt;document.forms[0].submit();&lt;/script&gt;</code></pre>
+<p>The victim visits the page (a link, an embedded comment, any lure). The browser submits the form to the vulnerable site — and <strong>automatically attaches the victim's session cookie</strong>, because that's what browsers do with cookies. The vulnerable site sees a well-formed, authenticated request to change the email, and complies. It cannot distinguish this from the victim doing it deliberately, because nothing in the request proves intent — the cookie proves <em>identity</em>, and identity is all the site asked for.</p>
+<p><strong>The state-changing-GET lesson.</strong> If the action also works via GET (<code>/email/change?email=attacker@evil.example</code>), the attack needs no form at all — a single <code>&lt;img src=&quot;...&quot;&gt;</code> tag fires it, and the exploit becomes a URL that can be fed directly to victims. This is why the rule is absolute: GET requests must never change state. A GET that changes state collapses the attacker's work to one line and removes every defense that depends on request shape.</p>
+<p><strong>The token defense — generation, binding, verification.</strong> The synchronizer token pattern breaks condition 3 by adding a per-request secret the attacker's page cannot know:</p>
+<ul>
+<li><strong>Generation:</strong> cryptographically random, unique per session at minimum (per-request tokens are stronger but break back-button flows — know the tradeoff). Never derive it from the user ID or email alone.</li>
+<li><strong>Binding:</strong> the token must be tied to the authenticated session. The naive double-submit pattern (cookie value == request value, no session binding) falls to cookie injection from a sibling subdomain or a network position on plaintext HTTP. The signed variant HMACs session data into the token so a planted cookie can't forge it.</li>
+<li><strong>Verification:</strong> constant-time comparison of the request-supplied token against the session-bound value; **reject on missing <em>or</em> mismatched**; never accept the cookie value as the proof — cookies are auto-sent, and that's the whole vulnerability.</li>
+<li><strong>Transmission:</strong> hidden form field or custom header — never the URL (leaks via history, logs, Referer).</li>
+</ul>
+<p><strong>SameSite: the browser's own checkpoint.</strong> <code>Strict</code> — cookie never sent cross-site (strongest; breaks legitimate cross-site flows like SSO callbacks). <code>Lax</code> — sent on top-level GET navigations, not on POSTs or subrequests; the browser default since 2021. <code>None</code> — sent cross-site, requires <code>Secure</code>. The lesson point: <strong>SameSite=Lax is a baseline, not a complete defense</strong> — GET-based state changes and Lax-bypass techniques (top-level GET with side effects, method override) still get through. Set <code>Lax</code> minimum on session cookies, <code>Strict</code> where flows allow, and keep the token as the real defense.</p>
+<p><strong>Where the other patterns fail.</strong> Custom headers (<code>X-CSRF-Token</code> via JavaScript) are strong for AJAX APIs — cross-site pages can't set custom headers on simple requests — but fail if the API also accepts form-encoded requests without the header, or if CORS is misconfigured. Referer/Origin validation is cheap defense-in-depth but fails when browsers strip Referer (privacy settings, HTTPS→HTTP downgrade) — it must fail <em>closed</em> and never stand alone. Fetch Metadata headers (<code>Sec-Fetch-Site</code>) let the server reject <code>cross-site</code> values on state-changing endpoints — modern and strong where supported, a layer rather than the only one. And the strongest per-action control for high-value operations is user interaction: re-authentication or OTP.</p>
+<p><strong>How defenders see it.</strong> Barely, at the signature layer: the forged request is syntactically identical to a legitimate one, so CSRF is nearly invisible to WAFs. Detection is application-layer: log state-changing requests with missing/invalid tokens (log the <em>event</em>, never the token value), Referer/Origin mismatches on POST endpoints, and GET requests hitting state-changing endpoints. This is why the lesson teaches CSRF as a design flaw, not a payload problem.</p>
+<h3>Worked example: the profile demo</h3>
+<p>A minimal profile app (stdlib Python, local only — the walkthrough runs it). Login at <code>POST /login</code> sets a session cookie; <code>POST /change-email</code> with <code>email=&lt;addr&gt;</code> changes the account email — no token, no Origin check. A second endpoint, <code>GET /change-email-get?email=&lt;addr&gt;</code>, does the same thing via GET, deliberately, so the lesson can demonstrate the rule.</p>
+<p>Baseline: log in as the victim, <code>POST /change-email</code> with the cookie — email changes. The server-side proof: <code>curl -X POST -b victim-cookie /change-email -d email=attacker@evil.example</code> with <em>no token and no Origin header</em> succeeds. If a bare cross-site-shaped request succeeds, the attacker's auto-submit form would too — the form adds nothing the server checks. Then the attacker's page (a local HTML file): open it in the browser while logged in, watch the email change — the browser attached the cookie, the server complied. Then the GET variant: loading <code>&lt;img src=&quot;http://127.0.0.1:8327/change-email-get?email=attacker@evil.example&quot;&gt;</code> changes the email with no form at all.</p>
+<p>The fix, in the same app: per-session synchronizer tokens (cryptographically random, stored server-side in the session), validated with constant-time comparison, rejecting missing <em>or</em> mismatched; the GET variant removed entirely (state changes require POST + token); session cookie set with <code>SameSite=Lax</code>. Re-test: the bare cross-site-shaped POST → <code>403</code>; the attacker's form → <code>403</code> (no valid token); the legitimate in-app form (which carries the token) → <code>200</code>. Defense in depth noted: Origin check and <code>Sec-Fetch-Site</code> validation as additional layers, step-up auth for the password-change equivalent.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-csrf.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo app stands in for the PortSwigger/DVWA targets the reader uses (no Docker on this machine — see gaps).</p>
+<ol>
+<li><strong>Start the vulnerable app.</strong> Save the <code>app.py</code> from this lesson's companion (login, cookie sessions, <code>POST /change-email</code> with no token, <code>GET /change-email-get</code> deliberately) and run it on port 8327. Log in as the victim (<code>POST /login</code>, user <code>victim</code>); capture the session cookie.</li>
+<li><strong>Baseline.</strong> <code>curl -b &lt;cookie&gt; -d &#x27;email=victim@example.com&#x27; localhost:8327/change-email</code> — email changes. This is the control: what legitimate use looks like.</li>
+<li><strong>Server-side proof of CSRF.</strong> <code>curl -X POST -b &lt;cookie&gt; -d &#x27;email=attacker@evil.example&#x27; localhost:8327/change-email</code> with no token, no Referer, no Origin — observe <code>200</code> and the changed email. Write it down: the server accepted a request shaped exactly like a forged one. This is the finding, proven without a browser.</li>
+<li><strong>The attacker's page.</strong> Save the companion's <code>evil.html</code> (auto-submitting form targeting the local app), open it in a browser logged in as the victim — observe the email change to the attacker's address. The browser attached the cookie; the server couldn't tell the difference. (Local file, local app, your own accounts — this is the authorized shape of the exercise. <strong>Update 2026-10-10: now RUN BY US</strong> — headless Chromium via Playwright installed; the attacker's auto-submit page was opened in a victim-logged-in browser context and the email changed from <code>victim@example.com</code> to <code>attacker@evil.example</code> for real. See <code>runs/b-csrf.log</code> re-run entry.)</li>
+<li><strong>The state-changing GET.</strong> <code>curl &#x27;localhost:8327/change-email-get?email=attacker2@evil.example&#x27;</code> — no cookie needed beyond the session, no form, one URL. Write down why this is worse: the exploit is a link, and every GET-based defense assumption collapses.</li>
+<li><strong>Apply the fix.</strong> Patch the app: per-session random tokens issued at login, required on every state-changing POST, constant-time compare, reject missing/mismatched; delete the GET variant; <code>SameSite=Lax</code> on the session cookie. Restart, log in again (new session, new token).</li>
+<li><strong>Verify the fix — four cases.</strong> Bare forged-shaped POST (no token) → <code>403</code>; wrong token → <code>403</code>; missing token → <code>403</code>; legitimate in-app form (fetch the form, extract the token, submit) → <code>200</code> and the email changes. Confirm the <code>Set-Cookie</code> header carries <code>SameSite=Lax</code>.</li>
+<li><strong>Read the defender view.</strong> Open the app's security log: find your token-less POSTs (logged as rejected CSRF events — event logged, token value never logged) and the GET-variant hits. Write the detection rule: alert on state-changing endpoints receiving requests with missing/invalid tokens, and on any GET to a state-changing path.</li>
+</ol>
+<p>No step above is marked "not run by us" — the server-side proof, the browser page (re-ran 2026-10-10 with headless Chromium; the forged POST fired from the attacker's page for real), the GET variant, the fix, and all four verification cases ran locally.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy CSRF lab (the "no defenses" email-change lab is the closest match), or DVWA's CSRF module. First, determine server-side whether the endpoint is vulnerable: replay the state-changing request with curl, stripped of any token/Referer/Origin, and see if it succeeds. Then build the minimal HTML proof (form or single URL) and confirm it in your browser against your own lab account. Then check the GET question: does the action work via GET?</p>
+<p><strong>Success test:</strong> A one-page report: the vulnerable action, the three-condition analysis (relevant action / cookie sessions / no unpredictable parameter), the server-side proof (exact requests), the HTML proof result, the GET finding, the fix (token pattern + SameSite + no-GET, stated as code-level remediation), and the defender detection (which log, which events). If the lab has a token defense, characterize it instead: per-session or per-request, bound to the session or naive double-submit — and say which bypass you'd try first.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>State changes via GET.</strong> The single most repeated rule in this lesson. Every GET-based action is a one-line exploit; fix by requiring POST + token, not by hiding the URL.</li>
+<li><strong>Checking the cookie as the proof.</strong> Comparing the request's token against the <em>cookie</em> value instead of the <em>session</em> value — cookies are auto-sent, so this "validates" the attacker's request. The token must be verified against server-side session state (or a session-bound HMAC).</li>
+<li><strong>Rejecting only mismatches.</strong> Accepting a <em>missing</em> token ("no token, no check") reopens everything. Reject on missing <em>or</em> mismatched.</li>
+<li><strong>Token in the URL.</strong> Leaks via history, logs, Referer — the token becomes the vulnerability. Hidden field or custom header.</li>
+<li><strong>SameSite as the only defense.</strong> Lax is the baseline; GET-based actions and bypass techniques get through. The token is the defense; SameSite is the seatbelt.</li>
+<li><strong>XSS anywhere on the site.</strong> Cross-site scripting defeats every CSRF mitigation — the attacker's script reads the token from the page. CSRF defense assumes XSS is handled; note the dependency in your report.</li>
+<li><strong>Forgetting the login CSRF case.</strong> The login form itself needs a token — otherwise an attacker can log the victim into the <em>attacker's</em> account and harvest what the victim does there.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — CSRF</strong> (<a href="https://portswigger.net/web-security/csrf)">portswigger.net/web-security/csrf)</a> — <em>read</em> fully; the canonical treatment (three conditions, the email-change example, token/SameSite/Referer defenses and their bypass labs). <em>Do</em> the labs after this lesson.</li>
+<li><strong>OWASP CSRF Prevention Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — <em>read</em> the token patterns (synchronizer, signed double-submit) and the defense-in-depth section; <em>note</em> the warning that naive double-submit is bypassable via cookie injection, and that XSS defeats all CSRF mitigations.</li>
+<li><strong>draft-ietf-httpbis-rfc6265bis §5.6.7</strong> (<a href="https://ietf.org">ietf.org</a> — the SameSite attribute; RFC 6265 has no §4.1.2.7) — <em>skim</em> the cookie attribute semantics; cite it when you set the attribute.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger Academy — CSRF labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; no-defense plus token-validation, SameSite, and Referer bypass labs.</li>
+<li><strong>DVWA — CSRF module</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — free; run locally via Docker: the Low→High ladder, and Impossible shows the token implementation.</li>
+<li><strong>MDN — SameSite cookies</strong> (<a href="https://developer.mozilla.org">developer.mozilla.org</a>) — free; the browser-behavior reference for Strict/Lax/None.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why the attacker's auto-submit form succeeds even though the same-origin policy stops the attacker's site from <em>reading</em> the victim's responses.</li>
+<li>A state-changing action works via both POST and GET. Explain why the GET variant is worse for the defender, and state the rule that fixes it.</li>
+<li>A developer validates the CSRF token by comparing the form field against the <code>csrf_token</code> cookie. Explain why this check passes for the attacker's forged request.</li>
+<li>Predict what a defender sees in application logs during a CSRF token-bypass attempt, and explain why a WAF signature is a poor detector for CSRF in general.</li>
+<li>The application sets <code>SameSite=Lax</code> on its session cookie and declares CSRF solved. Explain two attack shapes that still work, and what must be added.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": the vulnerable action, three-condition analysis, server-side proof, HTML proof, GET finding, code-level fix, defender detection.</p>
+<p><strong>Honest claim:</strong> "I can determine server-side whether a cookie-sessioned action is CSRF-vulnerable, demonstrate it with a minimal proof, and verify the synchronizer-token fix."</p>
+<p><strong>Can't claim yet:</strong> "I can bypass CSRF defenses" — token-validation bypasses, SameSite bypasses, and Referer tricks are the PortSwigger bypass labs, not claimed from this lesson.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li>B-VULN second wave: XSS — the class that defeats every mitigation in this lesson; understand the dependency.</li>
+<li><a href="/g/ssrf/"><code>b-ssrf</code></a> — compare: in CSRF the <em>browser</em> makes the forged request, in SSRF the <em>server</em> does. Which trust relationship does each abuse?</li>
+<li>B-DEF (defensive basics) — sit on the other side: write the application-layer alert for your own attack traffic.</li>
+<li>Map refs: <strong>OWASP Top 10:2025 A01</strong>, <strong>WSTG-SESS-05</strong>, <strong>CWE-352</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

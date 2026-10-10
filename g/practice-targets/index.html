@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setting up practice targets locally | Learn Computer Stuff</title>
+<meta name="description" content="Setting up practice targets locally: DVWA, Juice Shop, WebGoat, crAPI and DVGA, one verified command each, bound to localhost — so you never need a live system. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/practice-targets/">
+<meta property="og:title" content="Setting up practice targets locally | Learn Computer Stuff"><meta property="og:description" content="Setting up practice targets locally: DVWA, Juice Shop, WebGoat, crAPI and DVGA, one verified command each, bound to localhost — so you never need a live system. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/practice-targets/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Setting up practice targets locally","item":"https://learncomputerstuff.dev/g/practice-targets/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Setting up practice targets locally</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Setting up practice targets locally</h1>
+<p class="lede prose">Every hands-on lesson in this guidebook needs a target you are allowed to touch, and the answer is always the same: one you run yourself, on your own machine, bound to localhost. This lesson builds that bench of targets once, so every later lesson can say "stand up DVWA" instead of teaching installation for the tenth time. The five local targets plus PortSwigger's hosted labs cover every vulnerability class in Stage B. After this lesson, the sentence "I don't have anything legal to practice on" is never true again — and neither is its evil twin, "so I'll practice on a live site."</p>
+<p class="dateline">Lesson published 2026-10-09 · Procedures verified against the projects&#x27; own READMEs 2026-10-09 · container runs not run by us (no Docker on the build machine)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>2 (operate: stand up and reset every target below)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/linux-cli/"><code>a-linux-cli</code></a>; Docker basics. No Docker on the build machine — the run commands below were verified against each project's own README in-session (2026-10-09); the container runs themselves are marked <strong>not run by us</strong></td></tr><tr><th scope="row">Map references</th><td>feeds every hands-on <code>b-…</code> lesson; <a href="/g/toolbench/"><code>b-toolbench</code></a> phase 13 (local environment).</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every hands-on lesson in this guidebook needs a target you are allowed to touch, and the answer is always the same: one you run yourself, on your own machine, bound to localhost. This lesson builds that bench of targets once, so every later lesson can say "stand up DVWA" instead of teaching installation for the tenth time. The five local targets plus PortSwigger's hosted labs cover every vulnerability class in Stage B. After this lesson, the sentence "I don't have anything legal to practice on" is never true again — and neither is its evil twin, "so I'll practice on a live site."</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><a href="/g/linux-cli/"><code>a-linux-cli</code></a> is complete — you are comfortable with the shell, and you understand what "bind to localhost" means (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>).</li>
+<li>Docker basics: you know what an image and a container are. If you do not have Docker installed, install it from Docker's official documentation (linked below) — the commands below assume the Docker daemon is running.</li>
+<li><a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> is complete — and it applies here with a twist: each of these targets is vulnerable <em>by design</em>, and running one is its own authorization. Your scope is "this container, on my machine, right now." That scope does not extend to your roommate's laptop, your employer's network, or the internet.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A <strong>practice target</strong> is an intentionally vulnerable application you run locally so you can attack it legally. The five below are the standard set — each maintained by its own project, each the primary source for its own setup. The setup commands are quoted from each project's README as fetched in-session on 2026-10-09, not from memory. If a command below ever disagrees with the project's current README, the README wins — re-check at setup time.</p>
+<p><strong>DVWA — Damn Vulnerable Web App.</strong> The classic: PHP and MariaDB, with per-module difficulty levels from low to impossible. The difficulty ladder is the teaching feature — you run the same attack against low (no defense), medium, high, and impossible, and each level shows you what a defense actually does. Serves the injection, access-control, authentication, and XSS lessons.</p>
+<pre><code>git clone https://github.com/digininja/DVWA
+cd DVWA
+docker compose up -d</code></pre>
+<p>Then open <code>http://localhost:4280</code>. Reset: <code>docker compose down</code> (stops and removes the containers; your database changes go with them — that <em>is</em> the reset). Bring it back with <code>docker compose up -d</code> and you are at a clean slate.</p>
+<p><strong>OWASP Juice Shop.</strong> A modern Node.js shop application, gamified: dozens of challenges on a score board, from trivial to genuinely hard. This is where the business-logic, API, and injection lessons live most happily. The README's own run command already binds to loopback:</p>
+<pre><code>docker pull bkimminich/juice-shop
+docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop</code></pre>
+<p>Then <code>http://localhost:3000</code>. The <code>--rm</code> flag removes the container when you stop it — score progress resets, which is the point: you re-earn it. (Scores can be persisted with a volume; the README documents how. For practice, ephemeral is better.)</p>
+<p><strong>OWASP WebGoat.</strong> A Java lessons application with structured lessons (each vulnerability is a taught lesson, not just a target) plus <strong>WebWolf</strong>, a companion "attacker mailbox" that receives the callbacks your attacks trigger. Serves the deserialization, XXE, and authentication lessons especially. Note the timezone flag: the README documents <code>-e TZ=&lt;your-zone&gt;</code> because the JWT lessons are time-sensitive — set it to your host's timezone or the token-expiry lessons will confuse you.</p>
+<pre><code>docker run -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:9090:9090 webgoat/webgoat</code></pre>
+<p>Then <code>http://localhost:8080/WebGoat</code> (the app) and <code>http://localhost:9090/WebWolf</code> (the mailbox). Both ports are loopback-bound in the command above.</p>
+<p><strong>OWASP crAPI — completely ridiculous API.</strong> A full vulnerable API (a car-shop with users, vehicles, and orders) plus a MailHog instance that catches the app's outgoing mail. Purpose-built for API abuse: it is the target the BOLA and API Top 10 lessons were written against.</p>
+<pre><code>docker compose pull
+docker compose -f docker-compose.yml --compatibility up -d</code></pre>
+<p>Then <code>http://localhost:8888</code> (the API) and <code>http://localhost:8025</code> (MailHog — read the password-reset emails your attacks trigger). Reset: <code>docker compose -f docker-compose.yml --compatibility down</code>.</p>
+<p><strong>DVGA — Damn Vulnerable GraphQL Application.</strong> A small GraphQL service built to be attacked: introspection, field-level authorization, batching — the whole GraphQL abuse surface in one container. Port confirmed as <strong>:5013</strong> on the current README (older mirrors say :5000; the project's own page as fetched today says 5013 — trust the README, and this resolves the old gap).</p>
+<pre><code>docker pull dolevf/dvga
+docker run -t -p 127.0.0.1:5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga</code></pre>
+<p>Then <code>http://localhost:5013</code>. Note the deliberate correction in the command above: the README shows <code>-p 5013:5013</code>, which binds the container's port to <em>all</em> host interfaces. The lesson's version binds it to loopback only (<code>127.0.0.1:5013:5013</code>). The <code>-e WEB_HOST=0.0.0.0</code> stays — that is the <em>container-internal</em> bind (the app must listen inside its own network namespace); the <code>-p</code> flag is the <em>host</em> bind, and that is where your safety lives. Understand the difference between those two binds before you run anything else in this lesson.</p>
+<p><strong>PortSwigger Web Security Academy.</strong> Not local, but the sixth target: hosted, free, authorized by design — every lab is its own ephemeral target with defined scope, resettable per lab. Account signup and lab launch are reader-side (your browser, your account). The Academy's front page confirms: free, interactive labs, Burp Community compatible (verified in-session, 2026-10-09). Use it for every vulnerability class alongside the local targets.</p>
+<p><strong>The safety rules for all of the above</strong> (brief §7, non-negotiable):</p>
+<ul>
+<li>Bind everything to localhost / 127.0.0.1. Never expose a vulnerable app to a network — the DVGA correction above is the pattern; apply it everywhere.</li>
+<li>DVWA and WebGoat both warn, in their own documentation, that the running container makes the host vulnerable. Run them only while you are practicing, then <code>compose down</code>. A vulnerable app you forgot about is an attack surface you installed yourself.</li>
+<li>Never scan, probe, or test any live system during setup or practice. If a target needs to be reachable for a technique, the technique waits until you have a local lab for it.</li>
+</ul>
+<p><strong>Resetting, summarized:</strong> DVWA and crAPI reset with <code>compose down</code>; Juice Shop resets by stopping the <code>--rm</code> container; WebGoat resets by stopping and removing the container; DVGA the same; PortSwigger labs reset with the lab's own reset control. "Reset and re-attack" is a core practice loop — a finding you can only demonstrate once, on a dirty database, is not a clean proof.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Procedure verification — no Docker on this machine.</strong> The walkthrough for this lesson is the verification of every setup procedure above against the primary source. Transcript: <code>runs/b-practice-targets.log</code>. Verified 2026-10-09.</p>
+<ol>
+<li><strong>Fetch the canonical READMEs.</strong> All five project pages fetched in-session (HTTP 200): DVWA, Juice Shop, WebGoat, crAPI, DVGA. These are the primary sources; everything below is quoted from them.</li>
+<li><strong>Extract and record the run commands.</strong> Each command in section 3 was extracted from its README's text: DVWA's <code>docker compose up -d</code> with the <code>127.0.0.1:4280:80</code> mapping; Juice Shop's loopback-bound <code>docker run</code>; WebGoat's dual-port command with the <code>-e TZ=</code> note; crAPI's <code>docker compose pull</code> + <code>--compatibility up -d</code>; DVGA's <code>docker pull</code> + <code>docker run -t -p 5013:5013</code>.</li>
+<li><strong>Confirm the ports.</strong> DVWA <code>:4280</code>, Juice Shop <code>:3000</code>, WebGoat <code>:8080</code>/<code>:9090</code>, crAPI <code>:8888</code> + MailHog <code>:8025</code>, DVGA <code>:5013</code> — all confirmed in the READMEs; all distinct, so all five targets can run simultaneously.</li>
+<li><strong>Apply the safety correction.</strong> DVGA's README binds all interfaces; the lesson teaches the loopback override and explains the two-bind distinction (container-internal vs host). This is the lesson's key teaching moment, and it is marked as a lesson decision, not a README quote.</li>
+<li><strong>Container runs: not run by us.</strong> No Docker binary exists on this machine (verified: <code>command -v docker</code> → missing). The commands are verified quotes from the projects' own documentation as fetched today — but the containers were not started here. The reader runs them on their own machine, following <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a>'s rules.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Stand up all five local targets simultaneously, each on its documented localhost port, plus one PortSwigger Academy lab of your choice. For each of the six, write one line: what the target is for (which vulnerability classes it serves). Then attack nothing — this lesson is setup only. Instead, practice the reset: <code>compose down</code> DVWA, restart it, and confirm the login page is clean.</p>
+<p><strong>Success test:</strong> All five local targets respond on their <code>127.0.0.1</code> ports at once (curl each one and record the HTTP status), the PortSwigger lab loads in your browser, and your one-line "what this is for" list covers all six. If any target is reachable on a non-loopback interface of your machine, fix the bind before doing anything else — that misconfiguration is itself the first finding of your practice career, and you found it with <code>ss</code>.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Binding to all interfaces.</strong> The DVGA default (<code>-p 5013:5013</code>) and any command you copy without reading will expose a deliberately vulnerable app to your whole network. Loopback-bind everything, verify with <code>ss -tlnp</code>, and understand the container-internal vs host bind distinction.</li>
+<li><strong>Leaving them running.</strong> A vulnerable app left up "for later" is an installed attack surface. The discipline: start when you practice, <code>down</code> when you stop. Put it in your notes as a checklist item.</li>
+<li><strong>Stale images.</strong> <code>docker pull</code> before you start a new practice cycle — projects fix their own tooling and occasionally their vulnerabilities' difficulty. Practicing against a year-old image teaches last year's app.</li>
+<li><strong>Port conflicts.</strong> Two targets on <code>:3000</code> (Juice Shop and the WebGoat desktop variant) — the documented ports in section 3 are conflict-free; if you improvise, check <code>ss</code> first.</li>
+<li><strong>The WebGoat timezone trap.</strong> JWT lessons failing mysteriously is the classic WebGoat gotcha, documented in its README: set <code>-e TZ=</code> to your host zone. When time-based behavior confuses you, check the clock first — containers and hosts disagree more often than you'd think.</li>
+<li><strong>Practicing on a live system "because the lab didn't have it."</strong> No. The technique waits for a lab. This is hard rule 1 wearing a lab coat: a missing target is not permission.</li>
+<li><strong>Treating PortSwigger labs as unlimited.</strong> Each lab is its own scope and its own ephemeral target. The authorization covers the lab, not <a href="https://portswigger.net">portswigger.net</a> generally, and not the internet beyond it.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — the projects' own READMEs (all fetched in-session, 2026-10-09):</p>
+<ul>
+<li><strong>DVWA</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — <em>read</em> the setup and difficulty-level sections; the README is the authority on <code>compose up</code> and on what each level's defenses do.</li>
+<li><strong>OWASP Juice Shop</strong> (<a href="https://github.com/juice-shop/juice-shop)">github.com/juice-shop/juice-shop)</a> — <em>read</em> the run section and the challenge-hint policy; <em>note</em> how the score board structures practice.</li>
+<li><strong>OWASP WebGoat</strong> (<a href="https://github.com/WebGoat/WebGoat)">github.com/WebGoat/WebGoat)</a> — <em>read</em> the Docker run section including the <code>-e TZ=</code> note; <em>skim</em> the lesson list to map lessons to this guidebook's vulnerability classes.</li>
+<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI)">github.com/OWASP/crAPI)</a> — <em>read</em> the deploy/docker instructions; <em>note</em> the MailHog companion and what it is for.</li>
+<li><strong>DVGA</strong> (<a href="https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application)">github.com/dolevf/Damn-Vulnerable-GraphQL-Application)</a> — <em>read</em> the run section; <em>note</em> the <code>:5013</code> port and the all-interfaces default you will override.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Docker's official install documentation</strong> (<a href="https://docs.docker.com">docs.docker.com</a>) — free; the only install guide this lesson endorses. Install from the vendor, not from a blog's curl pipe.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; the hosted sixth target, each lab its own authorized scope.</li>
+<li><strong>OWASP WSTG v4.2</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/v42/)">owasp.org/www-project-web-security-testing-guide/v42/)</a> — free; once the targets are up, this is the checklist you run against them — the methodology lesson's companion.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain the difference between the container-internal bind (<code>WEB_HOST=0.0.0.0</code> inside DVGA) and the host bind (<code>-p 127.0.0.1:5013:5013</code>), and why getting them confused exposes a vulnerable app to your network.</li>
+<li>Your WebGoat JWT lessons fail while everything else works. Explain the most likely cause, where the README documents it, and the exact flag that fixes it.</li>
+<li>You want to practice the same SQL injection twice to compare your technique. Explain the reset procedure for DVWA and why "reset and re-attack" produces cleaner proof than attacking a dirty database.</li>
+<li>A friend suggests practicing directory brute-forcing against a real company's site "because DVWA doesn't have enough paths." Explain which hard rule this violates and what the lawful alternative is.</li>
+<li>You have all five local targets running and want to add a sixth container from an unrelated tutorial that maps <code>-p 8080:80</code>. Explain what you check first and why.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the six one-line "what this is for" descriptions from "On your own," plus a curl transcript showing all five local targets responding on their <code>127.0.0.1</code> ports, plus your PortSwigger Academy account's lab-completion record (or the lab you chose, launched). The artifact proves the bench exists and is correctly bound.</p>
+<p><strong>Honest claim:</strong> "I can stand up, bind safely, and reset the five standard local practice targets plus PortSwigger labs, and I know which vulnerability classes each one serves."</p>
+<p><strong>Can't claim yet:</strong> "I can find vulnerabilities in them" — that is what the bench is <em>for</em>, and the vulnerability lessons are next.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>The <a href="/g/sqli/"><code>b-sqli</code></a>, <a href="/g/xss/"><code>b-xss</code></a>, <code>b-…</code> vulnerability lessons</strong> — each one names its target from this lesson's bench; re-read the target's README section before you start each one.</li>
+<li><strong><a href="/g/toolbench/"><code>b-toolbench</code></a></strong> (back-link) — phase 13 (local environment): this lesson <em>is</em> that phase, built out.</li>
+<li><strong><a href="/g/methodology/"><code>b-methodology</code></a></strong> (back-link) — the engagement frame; the bench is where its technical phases execute.</li>
+<li><strong><a href="/g/authorization-scope/"><code>b-authorization-scope</code></a></strong> (back-link) — each target is its own written scope; the safety rules here are that lesson applied.</li>
+<li>Map refs: feeds all Stage B hands-on lessons; <a href="/g/toolbench/"><code>b-toolbench</code></a> phase 13.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Windows concepts for security | Learn Computer Stuff</title>
+<meta name="description" content="Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson&#x27;s concepts in Windows form, taught from Microsoft&#x27;s own docs with exact reader procedures. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/windows-concepts/">
+<meta property="og:title" content="Windows concepts for security | Learn Computer Stuff"><meta property="og:description" content="Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson&#x27;s concepts in Windows form, taught from Microsoft&#x27;s own docs with exact reader procedures. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/windows-concepts/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Windows concepts for security","item":"https://learncomputerstuff.dev/g/windows-concepts/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Windows concepts for security</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>Windows concepts for security</h1>
+<p class="lede prose">The servers you will attack in Stage B are Linux. The <em>victims</em> in Stage C and D are very often Windows: the workstation that got phished, the domain controller, the server running the business application. Incident response, malware analysis, and SOC triage all assume you can navigate a Windows machine the way <a href="/g/linux-cli/"><code>a-linux-cli</code></a> taught you to navigate Linux — and the concepts transfer directly, because both systems answer the same questions: where is configuration stored, what is running, who did what, and where is it written down. The answers just live in different places with different names. This lesson is that translation table, taught from Microsoft's own documentation. Nothing below was executed on the build machine — there is no Windows here — so every hands-on step is written as an exact procedure for <em>your</em> Windows VM, marked <strong>not run by us</strong>.</p>
+<p class="dateline">Lesson published 2026-10-09 · Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>2 (recognize and operate guided — every hands-on step below was <strong>not run by us</strong>; no Windows machine exists on the build bench. Run them on your own Windows VM to reach level 3)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/linux-cli/"><code>a-linux-cli</code></a> (the same concepts in Linux form — this lesson is the translation)</td></tr><tr><th scope="row">Map references</th><td>Stage A foundation; pairs with <a href="/g/linux-cli/"><code>a-linux-cli</code></a>; feeds <a href="/g/log-sources/"><code>c-log-sources</code></a> (Windows event IDs) and <a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> (Windows-native analysis).</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The servers you will attack in Stage B are Linux. The <em>victims</em> in Stage C and D are very often Windows: the workstation that got phished, the domain controller, the server running the business application. Incident response, malware analysis, and SOC triage all assume you can navigate a Windows machine the way <a href="/g/linux-cli/"><code>a-linux-cli</code></a> taught you to navigate Linux — and the concepts transfer directly, because both systems answer the same questions: where is configuration stored, what is running, who did what, and where is it written down. The answers just live in different places with different names. This lesson is that translation table, taught from Microsoft's own documentation. Nothing below was executed on the build machine — there is no Windows here — so every hands-on step is written as an exact procedure for <em>your</em> Windows VM, marked <strong>not run by us</strong>.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>A Windows machine you own: a VM (VirtualBox/UTM/Hyper-V) or a spare laptop. Never practice on someone else's system.</li>
+<li><a href="/g/linux-cli/"><code>a-linux-cli</code></a> finished — this lesson constantly says "the Windows equivalent of <em>that Linux thing</em>."</li>
+<li>PowerShell (ships with Windows — no install). You will use PowerShell, not CMD: it is the shell Microsoft documents and the one every modern tool speaks.</li>
+<li>Administrator access on your VM for the log-reading steps (Windows, like Linux, gates its security logs behind privilege).</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The registry: configuration as a database.</strong> Linux scatters configuration across text files in <code>/etc</code>; Windows centralizes it in the registry — a hierarchical database of keys, subkeys, and values. The top level has five hives (Microsoft's "Registry Hives" reference, fetched 2026-10-09): <code>HKEY_LOCAL_MACHINE</code> (HKLM — the whole machine: hardware, drivers, services, machine-wide software), <code>HKEY_CURRENT_USER</code> (HKCU — the signed-in user's settings; a live view into that user's branch under <code>HKEY_USERS</code>), <code>HKEY_USERS</code> (all loaded user profiles), <code>HKEY_CLASSES_ROOT</code> (file associations — a merged view of machine and user classes), and <code>HKEY_CURRENT_CONFIG</code> (the current hardware profile, assembled at boot). The security-relevant fact Microsoft's own page states plainly: most hive files live in <code>%SystemRoot%\System32\Config</code> (SAM, SECURITY, SOFTWARE, SYSTEM), while each user's hive is their <code>NTUSER.DAT</code>. Two things follow that matter for security work: first, <em>persistence</em> — malware and legitimate software alike register themselves to start at boot via <code>Run</code> keys under HKLM or HKCU, which is why "check the Run keys" is a first-response reflex; second, <em>evidence</em> — the registry records what was installed, what ran, and who logged on, which is why forensic analysis reads hives from disk images.</p>
+<p><strong>Values have types.</strong> <code>REG_SZ</code> (string), <code>REG_DWORD</code> (32-bit number), <code>REG_BINARY</code>, <code>REG_MULTI_SZ</code> (string list), <code>REG_QWORD</code>, <code>REG_EXPAND_SZ</code> (string with expandable <code>%variables%</code>). When you read a value, the type tells you how to interpret the bytes — a <code>REG_DWORD</code> of <code>1</code> under a policy key usually means "enabled." Misreading the type is the registry equivalent of misreading a permission bit.</p>
+<p><strong>Services: the Windows daemon.</strong> Linux has systemd units; Windows has services — background processes managed by the Service Control Manager. <code>Get-Service</code> lists them; each has a name, display name, status (Running/Stopped), and start type (Automatic/Manual/Disabled). The security angle is identical to Linux daemons: a service runs with an <em>account</em> (LocalSystem is effectively root — maximum privilege), starts automatically, and is a persistence mechanism. An unfamiliar service set to Automatic, running as LocalSystem, pointing at an executable in a user-writable directory, is the Windows shape of "investigate this now." The registry backs this too: service definitions live under <code>HKLM\SYSTEM\CurrentControlSet\Services</code>.</p>
+<p><strong>Event logs: where Windows writes everything down.</strong> Linux has <code>/var/log</code> and the journal; Windows has the Event Log — structured records in channels, each event with an ID, a provider, and XML details. The three classic channels: <strong>Application</strong>, <strong>System</strong>, and <strong>Security</strong>. The Security channel is the crown jewel: logon events (4624 success, 4625 failure — the pair every SOC analyst knows), account management (4720 created, 4726 deleted), privilege use (4672), and 1102 (the audit log was cleared — the "someone is covering tracks" event). <a href="/g/log-sources/"><code>c-log-sources</code></a> builds the full ID vocabulary on this foundation; this lesson is where you learn the log <em>exists</em> and how to query it.</p>
+<p><strong>PowerShell: the shell that returns objects.</strong> This is the deep difference from bash. Where Linux pipes <em>text</em> (<code>ps | grep</code>), PowerShell pipes <em>objects</em> with named properties: <code>Get-WinEvent -LogName Security -MaxEvents 10</code> returns event objects, and <code>| Select-Object TimeCreated, Id, Message</code> picks properties — no <code>cut -d&#x27; &#x27; -f7</code> fragility, because fields are named, not positional. Microsoft's <code>Get-WinEvent</code> documentation (fetched 2026-10-09) shows the query patterns: <code>-ListLog *</code> inventories the logs; <code>-FilterHashtable @{LogName=&#x27;Security&#x27;; ID=4625}</code> filters server-side (fast) instead of pulling everything and filtering client-side (slow) — the exact performance discipline <a href="/g/log-sources/"><code>c-log-sources</code></a>' awk pipelines teach for Linux logs. Verbs are standardized (<code>Get-</code>, <code>Set-</code>, <code>Start-</code>, <code>Stop-</code>), so <code>Get-Service</code>, <code>Get-Process</code>, <code>Get-EventLog</code> are guessable once you know the pattern.</p>
+<p><strong>The translation table.</strong> Keep this beside you until it's reflex:</p>
+<p>| Linux (<a href="/g/linux-cli/"><code>a-linux-cli</code></a>) | Windows (this lesson) | Same question |</p>
+<p>|---|---|---|</p>
+<p>| <code>/etc</code> text files | Registry hives | Where is configuration? |</p>
+<p>| systemd services | Windows services (<code>Get-Service</code>) | What runs at boot, as whom? |</p>
+<p>| <code>/var/log</code>, <code>journalctl</code> | Event Log (<code>Get-WinEvent</code>) | Who did what, when? |</p>
+<p>| <code>ps</code>, <code>kill</code> | <code>Get-Process</code>, <code>Stop-Process</code> | What is running now? |</p>
+<p>| file permissions (rwx) | NTFS ACLs | Who can touch this file? |</p>
+<p>| <code>sudo</code> / setuid | "Run as administrator" / UAC | How does privilege escalate? |</p>
+<p><strong>NTFS permissions and UAC, briefly.</strong> Windows files carry access-control <em>lists</em> (who: allow/deny) rather than the triple-bitmask — finer-grained, harder to read at a glance, same purpose. Privilege escalation prompts through UAC (User Account Control): the "do you want to allow this" dialog is the boundary between your user token and the administrator token. Malware's first job is often getting past it silently — which is why unexpected UAC prompts are a detection signal, not an annoyance.</p>
+<h3>Worked example: reading the machine (procedure)</h3>
+<p>On your Windows VM, as Administrator, in PowerShell — each step marked <strong>not run by us</strong> (no Windows on the build bench):</p>
+<ol>
+<li><strong>Inventory the logs.</strong> <code>Get-WinEvent -ListLog * | Select-Object LogName, RecordCount, IsEnabled | Format-Table -AutoSize</code> — the Windows equivalent of <code>ls /var/log/</code>. Note which logs are enabled and which have records.</li>
+<li><strong>Read the registry's shape.</strong> Open <code>regedit</code>, navigate <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services</code> — count the subkeys (each is a service definition). Then <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> — the current user's persistence point. <em>Look, don't change.</em></li>
+<li><strong>List services as objects.</strong> <code>Get-Service | Where-Object {$_.Status -eq &#x27;Running&#x27;} | Select-Object Name, DisplayName, StartType</code> — compare against the registry count from step 2. Same data, two views.</li>
+<li><strong>Query failed logons.</strong> <code>Get-WinEvent -FilterHashtable @{LogName=&#x27;Security&#x27;; ID=4625} -MaxEvents 5 | Select-Object TimeCreated, Message</code> — the exact command Microsoft's own community uses for this question. If your VM has no failures yet, deliberately mistype your password at the lock screen once, then re-run: <em>cause</em> the event, then <em>find</em> it. That loop — act, then detect — is the whole of defensive learning.</li>
+<li><strong>Check a process.</strong> <code>Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 Name, Id, CPU</code> — the <code>ps</code> equivalent, with objects instead of text columns.</li>
+</ol>
+<h2>4. Walkthrough</h2>
+<p><strong>Not run by us</strong> — no Windows machine exists on the build bench, and this lesson will not invent command output. The transcript (<code>runs/a-windows-concepts.log</code>) records the in-session verification that <em>was</em> possible: both Microsoft documentation pages fetched and their key claims confirmed (registry hive definitions and supporting-file table; <code>Get-WinEvent</code> syntax, <code>-FilterHashtable</code> filtering, and the 4624/4625 logon event IDs). Every hands-on step below is an exact procedure for your own Windows VM.</p>
+<ol>
+<li><strong>Verify the hive table.</strong> Open Microsoft's "Registry Hives" page (link in §7). Confirm the five hives and their supporting files match the table in §3. This is primary-source reading as a lab exercise.</li>
+<li><strong>Inventory event logs</strong> — <code>Get-WinEvent -ListLog *</code> on your VM (Administrator PowerShell). Record which of Application/System/Security has the highest <code>RecordCount</code>.</li>
+<li><strong>Find the Run keys</strong> — in <code>regedit</code>, visit both <code>HKLM\...\Run</code> and <code>HKCU\...\Run</code>. List every value. For each, note the executable path and ask: do I know what this is?</li>
+<li><strong>Generate and find a 4625</strong> — mistype your password once at the lock screen, then run the <code>Get-WinEvent -FilterHashtable @{LogName=&#x27;Security&#x27;; ID=4625}</code> query. Confirm your attempt appears with the right timestamp.</li>
+<li><strong>Compare service views</strong> — count subkeys under the Services registry key; count <code>Get-Service</code> output. They should agree; if they don't, you have found something worth understanding.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> On your Windows VM: (a) export the list of Automatic-start services to a CSV (<code>Get-Service | Where-Object {$_.StartType -eq &#x27;Automatic&#x27;} | Export-Csv auto.csv</code>), open it, and identify every service whose executable path you cannot explain — research each one until you can; (b) find the most recent 4624 (successful logon) in your Security log and identify the logon type; (c) pick one registry value under <code>HKCU</code> and trace what application behavior it controls (change nothing — read only).</p>
+<p><strong>Success test:</strong> Your service list has no unexplained entries; you can state what logon type your 4624 was and what that type means; your registry trace names the application and the setting.</p>
+<p><strong>Hints:</strong> <code>Get-WinEvent -FilterHashtable @{LogName=&#x27;Security&#x27;; ID=4624} -MaxEvents 1 | Format-List -Property *</code> shows all properties including Logon Type. Service executable paths: <code>Get-CimInstance Win32_Service | Select-Object Name, PathName</code>.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Editing the registry to "fix" things.</strong> The registry has no undo and no validation — a wrong value can make the machine unbootable. Read freely; change only with a backup (<code>reg export</code>) and a reason. Tutorials that tell you to delete keys are telling you to risk the OS.</li>
+<li><strong>Disabling UAC.</strong> The prompt is the privilege boundary made visible. Disabling it for convenience removes the one interactive check between you and silent elevation.</li>
+<li><strong>Running everything as Administrator.</strong> The Windows twin of running as root: it hides permission errors and makes every mistake system-wide. Elevate per-task, not per-session.</li>
+<li><strong>Trusting the GUI alone.</strong> Event Viewer shows the same data <code>Get-WinEvent</code> returns, but the GUI doesn't scale and doesn't script. Learn the cmdlet form from the start — your future SIEM queries are the same shape.</li>
+<li><strong>Assuming "Windows is different" means "the concepts don't transfer."</strong> Every row of the translation table is the same question. The analyst who knows <em>what to ask</em> learns the new names in a day; the one who memorized commands starts over.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — Microsoft documents its own system:</p>
+<ul>
+<li><strong>Registry Hives</strong> (<a href="https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives">learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives</a> — verified 2026-10-09) — <em>read</em> the hive definitions and the supporting-files table; this is the authoritative statement of what lives where on disk.</li>
+<li><strong>Get-WinEvent</strong> (<a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent">learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent</a> — verified 2026-10-09) — <em>read</em> the Description and the <code>-FilterHashtable</code>/<code>-FilterXPath</code> parameter sets; <em>skim</em> the examples. This is the cmdlet reference for every log query in this lesson.</li>
+<li><strong>Registry Hives reference, reread</strong> (<a href="https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives">learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives</a> — verified 2026-10-09) — the old Microsoft Learn registry tour module is retired; the reference page above is the authoritative replacement. Re-read it now that you know what to look for: which hive a persistence key lives in, and why.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Microsoft Learn — PowerShell modules</strong> (<a href="https://learn.microsoft.com/powershell">learn.microsoft.com/powershell</a> — the docs hub, verified via the Get-WinEvent page 2026-10-09) — the reference for every cmdlet in this lesson; learn to read a cmdlet page the way you learned to read a man page.</li>
+<li><strong>The Ultimate Windows Event Log guide</strong> — deliberately <em>not</em> listed: most online "complete event ID" lists are unverified aggregations. Use <a href="/g/log-sources/"><code>c-log-sources</code></a> in this program instead, which builds its ID table from primary sources.</li>
+<li><em>(Third slot intentionally empty — the two Microsoft primary documents above plus the docs hub are the authoritative core; padding the list would dilute it.)</em></li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li><code>HKCU</code> is described as "a shortcut." Explain, precisely, what it is a shortcut <em>to</em>, and why editing <code>HKCU\Software\...</code> and the corresponding <code>HKU\&lt;SID&gt;\Software\...</code> key shows the same data.</li>
+<li>A service runs as LocalSystem with StartType Automatic and its executable in <code>C:\Users\Public\</code>. Name the three facts that make this worth investigating, in the order you'd check them.</li>
+<li>Why is <code>-FilterHashtable @{LogName=&#x27;Security&#x27;; ID=4625}</code> preferable to <code>Get-WinEvent -LogName Security | Where-Object {$_.Id -eq 4625}</code>? (Two reasons: performance and one more.)</li>
+<li>Event 1102 appears in the Security log. What does it mean, and why does its <em>presence</em> matter more than most events' presence?</li>
+<li>Translate this Linux triage pipeline into its PowerShell equivalent, naming what changes about the data between the pipes: <code>grep &#x27;Failed password&#x27; /var/log/auth.log | cut -d&#x27; &#x27; -f11 | sort | uniq -c | sort -rn</code>.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> A "Windows first-look" report on your VM: the Automatic-service inventory with every entry explained, the Run-key contents with verdicts, and the three most recent 4624/4625 events interpreted (who, when, what logon type). Written up, with the commands you ran.</p>
+<p><strong>Honest claim:</strong> "I can navigate a Windows system's configuration, services, and event logs from PowerShell and explain what I find — demonstrated on my own VM, report linked here."</p>
+<p><strong>You cannot yet claim:</strong> forensic analysis of a compromised Windows host (disk images, timeline analysis, malware behavior) — that's <a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> and Stage D incident-response work, which build on this foundation.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/log-sources/"><code>c-log-sources</code></a> — the full Windows event-ID vocabulary (4624/4625/4720/1102 and friends) in the SOC context.</li>
+<li><a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> — Windows-native analysis: the registry and services knowledge becomes persistence-hunting.</li>
+<li><a href="/g/soc-triage/"><code>c-soc-triage</code></a> — where the 4625 query becomes an alert you triage.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

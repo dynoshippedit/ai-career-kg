@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prompt injection, the #1 LLM risk | Learn Computer Stuff</title>
+<meta name="description" content="Prompt injection, the #1 LLM application risk (OWASP LLM Top 10 2026, LLM01:2026): mechanism, code-level defenses and detection. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/prompt-injection/">
+<meta property="og:title" content="Prompt injection, the #1 LLM risk | Learn Computer Stuff"><meta property="og:description" content="Prompt injection, the #1 LLM application risk (OWASP LLM Top 10 2026, LLM01:2026): mechanism, code-level defenses and detection. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/prompt-injection/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Prompt injection, the #1 LLM risk","item":"https://learncomputerstuff.dev/g/prompt-injection/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Prompt injection, the #1 LLM risk</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · AI track</span><h1>Prompt injection, the #1 LLM risk</h1>
+<p class="lede prose">Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications — <strong>LLM01</strong> in both the 2025 and 2026 editions — because it is the failure mode from which the others follow: if an attacker can make the model follow their instructions instead of yours, every downstream control (tool permissions, output handling, data boundaries) is suddenly negotiable. It appears in MITRE ATLAS as technique <strong>AML.T0051</strong>. It is the first thing a CAISP candidate meets in chapter 3, the first thing a red team tries against any LLM app, and the mechanism behind the real incidents you have read about — assistants tricked by webpages they summarized, agents manipulated through the tickets they processed. If you build, buy, or secure anything with an LLM in it, this is the threat model you learn first.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough steps 1–4 run 2026-10-09 · step 5 (live model) not run by us</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + demonstrated defense + detection)</td></tr><tr><th scope="row">Prerequisites</th><td>how LLM applications are built (tokens, system prompts, retrieval/RAG, tool calling — the <code>ai-01</code> lesson); Stage B injection mindset; Python 3</td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM01:2026</strong> (edition released 2026-08-04 — always name the edition; codes were renumbered from 2025); <strong>MITRE ATLAS AML.T0051</strong>; <strong>CAISP chapter 3</strong>.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<div class="note"><strong>Edition note.</strong> The project brief for this guidebook names "LLM01:2025." Verification during research (2026-10-09, against the official OWASP GenAI Security Project repository) confirmed the current edition is <strong>2026</strong>, released 2026-08-04, with renumbered codes. This lesson teaches the 2026 edition. The brief discrepancy is logged in <code>gaps.md</code>.</div>
+<h2>1. Where this shows up</h2>
+<p>Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications — <strong>LLM01</strong> in both the 2025 and 2026 editions — because it is the failure mode from which the others follow: if an attacker can make the model follow their instructions instead of yours, every downstream control (tool permissions, output handling, data boundaries) is suddenly negotiable. It appears in MITRE ATLAS as technique <strong>AML.T0051</strong>. It is the first thing a CAISP candidate meets in chapter 3, the first thing a red team tries against any LLM app, and the mechanism behind the real incidents you have read about — assistants tricked by webpages they summarized, agents manipulated through the tickets they processed. If you build, buy, or secure anything with an LLM in it, this is the threat model you learn first.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG) adds documents, the model produces text, and tool/function calling lets that text cause actions (the <code>ai-01</code> lesson).</li>
+<li>Python 3 on your machine. No model is required for the mechanism and defense portions — the walkthrough's harness is deterministic. The live red-team step needs a local model (Ollama + an open-weight model, your own machine, your own data only).</li>
+<li>Safety framing for this lesson: we teach the attack concept, what defenders see, detection, and defenses together. No exploits for real products, no automation for attacking systems you do not own. Every hands-on step runs against code and models you control.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A language model reads a <strong>context window</strong>: one long stream of text containing everything it should consider — the system instructions, the retrieved documents, the conversation history, the user's latest message. Here is the fact the entire vulnerability class rests on: <strong>nothing in that stream reliably marks which parts are instructions and which parts are data</strong>. The model was trained to follow instructions found in text, and text is all it gets. A line that says "ignore previous instructions" works the same whether it came from the developer, the user, or a webpage the retriever fetched — the model has no trustworthy provenance channel for "who said this."</p>
+<p>Two delivery routes, same mechanism:</p>
+<ul>
+<li><strong>Direct injection (jailbreaking).</strong> The attacker is the user and types the malicious instruction directly: the classic "ignore your instructions and…" The defense conversation here is about instruction hierarchy and input handling — but note the uncomfortable truth: the user's text <em>is</em> supposed to contain instructions ("summarize this"), so distinguishing legitimate from malicious user instructions is genuinely hard.</li>
+<li><strong>Indirect injection.</strong> The attacker never talks to the model. They plant the instruction where the app will retrieve it: a webpage, a document in the RAG corpus, a ticket, an email the assistant summarizes. The user asks an innocent question; the retriever fetches the poisoned content; the instruction rides into the context window inside "data." This is the more dangerous route because the victim user did nothing wrong and input validation on <em>their</em> text cannot stop it.</li>
+</ul>
+<p>Why it matters more every year: <strong>agentic amplification</strong>. A chatbot that only returns text can be tricked into saying things. An agent with tools — <code>refund_order</code>, <code>send_email</code>, <code>run_query</code> — turns tricked text into actions: the injection stops being a content problem and becomes an authorization problem. LLM01:2026 explicitly notes this amplification, and it is why the defenses below are architectural, not linguistic.</p>
+<p>The defenses, in order of reliability:</p>
+<ol>
+<li><strong>Least privilege for tools.</strong> The model should never hold a capability the application would not grant the user directly. Read-only tools by default; destructive tools behind explicit human approval. Enforced in <em>code</em>, where the model cannot argue with it.</li>
+<li><strong>Separate trusted instructions from untrusted data.</strong> Delimit retrieved content, keep system instructions out of retrievable stores, never let tool output become an instruction source without scrutiny. This raises the bar; it does not create a boundary (see the mechanism above — be honest about that).</li>
+<li><strong>Human-in-the-loop for consequential actions.</strong> Refunds, deletions, external sends, access grants — a person confirms. This converts "the model was tricked" from an incident into a blocked attempt.</li>
+<li><strong>Input/output handling.</strong> Treat model output like any untrusted input before it touches a shell, SQL, the DOM, or another tool (this is LLM10:2026, Improper Output Handling — the companion risk).</li>
+</ol>
+<p>Detection — what defenders see: <strong>anomalous tool calls</strong> (a read-only support session suddenly invoking a refund), <strong>instruction-override patterns in logs</strong> (phrasing like "ignore previous instructions" appearing in retrieved content or tool inputs), and <strong>privilege anomalies</strong> (actions the session's user could not perform themselves). Prompt injection is hard to prevent completely and quite feasible to detect and contain — that asymmetry is the defender's strategy.</p>
+<h3>Worked example: the poisoned knowledge base</h3>
+<p>A minimal support assistant (the walkthrough's deterministic harness — no model, every output computed). The app assembles its prompt as: system instructions + retrieved knowledge-base documents + the user's question. One document in the corpus contains, buried in otherwise legitimate text, an instruction to issue a refund and disclose internal notes.</p>
+<p>Step through what the harness shows: the assembled prompt contains the injected instruction verbatim — <code>injected instruction present in context window: True</code>. The user typed nothing malicious; the attack arrived via retrieval. Then the defense: the app's tool policy, enforced in code, denies <code>refund_order</code> without human approval while allowing the read-only <code>lookup_order</code> — the injection's desired action is blocked regardless of what any model would have emitted. Finally the detection: scanning the tool-call log flags the refund attempt because it was triggered by retrieved-document content. Mechanism, defense, detection — each demonstrated, each reproducible, none requiring a model. The live-model version (does a real model actually follow the planted instruction? how do the defenses change its behavior?) is the walkthrough's final step, on the reader's own machine.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Partially run by us</strong> — transcript: <code>runs/ai-prompt-injection.log</code>. Clean environment: stock Python 3.12, no model, no network, 2026-10-09. Steps 1–4 ran deterministically; step 5 (live model) is marked <strong>not run by us</strong> — no local model exists on this machine.</p>
+<ol>
+<li><strong>Inspect prompt assembly.</strong> Run the lesson's <code>demo.py</code>. Read the assembled prompt and confirm the injected instruction from the "retrieved" document is present in the context window verbatim. Say the mechanism out loud: one text stream, no provenance.</li>
+<li><strong>Trace the indirect route.</strong> Note that the simulated user message is innocent. Identify every place in a real RAG app where attacker-influenceable content enters the window: documents, webpages, tickets, tool outputs, conversation history from other users.</li>
+<li><strong>Enforce the tool policy in code.</strong> Read the <code>policy_check</code> function: destructive tools require <code>approved_by_human</code>. Run the three cases (denied without approval, allowed with approval, read-only allowed). <em>Teaching point:</em> this policy survives any prompt injection because the model never evaluates it.</li>
+<li><strong>Build the detection.</strong> Run the log scan: the override-phrasing pattern plus the "destructive tool triggered by doc content" rule flags the injected attempt and only that attempt. Consider the false-positive surface: legitimate documents that quote instruction-like language.</li>
+<li><strong>Live red-team — NOT RUN BY US.</strong> On your machine: serve an open-weight model locally with Ollama; build the same support-assistant shape (system prompt + local RAG over your own documents + one read-only tool); attack it with promptfoo's prompt-injection plugins or garak's probes — first with a direct injection, then by planting an injected document in your own corpus (indirect). Record which injections succeed. Then apply the hardening from steps 1–4 (delimit untrusted content, constrain tools, add the approval gate) and re-run: record the delta. No cloud models, no one else's systems — your model, your machine, your documents.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take any LLM app you have built or been given (local model only), threat-model its prompt-injection surface: list every untrusted content source that can reach the context window, every tool the model can invoke, and the worst action each tool enables. Then implement the two highest-value defenses from §3 and demonstrate — with before/after evidence — that a previously successful injection now fails or is blocked.</p>
+<p><strong>Success test:</strong> A before/after red-team report: the injections attempted (direct and indirect), which succeeded before hardening, the defenses applied, the re-run results, and a written residual-risk statement (what still could get through and why). If your report claims "prompt injection is now impossible," it fails — the mechanism section says why.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"The system prompt says not to, so we're safe."</strong> The system prompt is text in the same stream as the attack. It is a request, not a boundary. Every incident in this class is a team learning that sentence the expensive way.</li>
+<li><strong>Blocklists of phrases.</strong> Attackers paraphrase; "ignore previous instructions" has infinite rewordings, and indirect injection does not need those words at all. Blocklists are a speed bump with a maintenance cost.</li>
+<li><strong>Asking the model to detect injection.</strong> A second model call "checking" whether the input is malicious is itself prompt-injectable — the checker reads the same poisoned stream.</li>
+<li><strong>Secrets in the system prompt.</strong> System prompts are extractable (LLM07 in 2025; LLM08 Hidden Context Exposure in 2026). Anything the model can read, an attacker can ask for. Never put credentials, internal notes, or private data where the model can see them.</li>
+<li><strong>Agents with standing destructive authority.</strong> The catastrophic version is not a chatbot saying something bad — it is an agent with a refund tool, a delete tool, or an email tool and no approval gate. Scope tools per task, expire credentials, confirm consequences.</li>
+<li><strong>Logging prompts without thinking.</strong> Prompt logs containing user PII, secrets, or poisoned content become a data store with its own disclosure risk (LLM02:2026). Log carefully, retain briefly, restrict access.</li>
+<li><strong>Treating 2025 codes as current.</strong> The codes were renumbered in the 2026 edition (released 2026-08-04). Citing "LLM01:2025" in 2026+ documentation sends readers to the wrong list. Name the edition, every time.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>OWASP Top 10 for LLM Applications 2026 — LLM01 Prompt Injection</strong> (<a href="https://github.com/GenAI-Security-Project/GenAI-LLM-Top10">github.com/GenAI-Security-Project/GenAI-LLM-Top10</a>, <code>2026/final/LLM01_PromptInjection.md</code>) — <em>read</em> fully; it is the canonical entry. <em>Note</em> the 2026 list order: LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure, LLM03 Excessive Agency, LLM04 Supply Chain, LLM05 Data and Model Poisoning, LLM06 Unbounded Consumption, LLM07 Misinformation, LLM08 Hidden Context Exposure, LLM09 Vector and Embedding Weaknesses, LLM10 Improper Output Handling.</li>
+<li><strong>MITRE ATLAS — AML.T0051</strong> (<a href="https://atlas.mitre.org">atlas.mitre.org</a>; technique data mirrored at <a href="https://github.com/mitre-atlas)">github.com/mitre-atlas)</a> — <em>read</em> the technique page: the tactic/technique structure is how defenders catalog this. <em>Skim</em> the linked case studies.</li>
+<li><strong>NIST AI 600-1, Generative AI Profile</strong> (<a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, July 2024) — <em>skim</em> the risk categories covering information security and prompt injection; <em>read</em> the MAP-function guidance for scoping an AI risk review.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP GenAI Security Project documentation</strong> (<a href="https://genai.owasp.org">genai.owasp.org</a>) — free; the project's guidance library beyond the Top 10, including agentic-AI material.</li>
+<li><strong>garak documentation</strong> (<a href="https://github.com/NVIDIA/garak)">github.com/NVIDIA/garak)</a> — free; the LLM vulnerability scanner's probe catalog is a practical taxonomy of injection techniques — run it against your own local model only.</li>
+<li><strong>promptfoo documentation</strong> (<a href="https://promptfoo.dev">promptfoo.dev</a>) — free; red-teaming framework with prompt-injection plugins; the CI-integration docs show how to make red-teaming a build gate.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why a transformer-based app cannot reliably distinguish instructions from data in its context window — and why that makes indirect injection possible even with perfect input validation on the user's message.</li>
+<li>An agent has two tools: <code>search_orders</code> (read-only) and <code>issue_refund</code> (destructive). A poisoned document in the RAG corpus instructs the agent to refund an order. Explain which defense from §3 blocks the harm even if the model fully complies with the injected instruction — and why that defense had to be implemented in code rather than in the prompt.</li>
+<li>Predict what a defender sees in the logs when an indirect injection succeeds against an agent: name two specific anomalies, and explain why a signature on the phrase "ignore previous instructions" would miss most real attempts.</li>
+<li>A vendor tells you their app is safe because "we scan all user inputs for prompt-injection patterns." Explain the two flaws in that claim, referencing direct vs indirect injection.</li>
+<li>You are writing the residual-risk statement for your hardened app. Explain, honestly, what your defenses cannot prevent — and why "the model might still be tricked, but the blast radius is contained" is the correct security claim.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the before/after red-team report from §5: injections attempted (direct + indirect) against your own local app, pre-hardening results, defenses applied, post-hardening results, and the residual-risk statement.</p>
+<p><strong>Honest claim:</strong> "I can demonstrate prompt injection (direct and indirect) against an LLM app I control, implement code-level defenses that contain it, and detect injection attempts in tool-call logs."</p>
+<p><strong>Can't claim yet:</strong> "I can secure an LLM application against prompt injection" — the mechanism section establishes this as an open problem; the honest claim is defense-in-depth with stated residual risk, which is exactly what the artifact shows.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>ai-03a — Data risks (LLM02/LLM05/LLM09:2026)</strong> — disclosure, poisoning, and vector-store weaknesses: what the injected content can also do besides hijack instructions.</li>
+<li><strong>ai-03b — System risks (LLM04/LLM10/LLM08:2026)</strong> — supply chain, output handling, hidden context exposure.</li>
+<li><strong>ai-03c — Agency risks (LLM03/LLM06/LLM07:2026)</strong> — excessive agency is where injection becomes action.</li>
+<li><strong>ai-04 — Attacks and defenses in the pipeline</strong> — red-teaming as a CI gate: your before/after report becomes a regression test.</li>
+<li><strong>ai-05 — Threat modeling AI systems</strong> — STRIDE + ATLAS over your app's data flow.</li>
+<li>Map refs: <strong>OWASP LLM Top 10:2026</strong> (this lesson = LLM01); <strong>CAISP ch. 3</strong>; ATLAS <strong>AML.T0051</strong>; the governance half connects to <strong>CAISP ch. 7</strong> and <strong>NIST AI RMF</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

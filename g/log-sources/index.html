@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Log Sources That Matter | Learn Computer Stuff</title>
+<meta name="description" content="Log sources that matter: endpoint, network, identity, email, cloud — what each sees, what goes blind without it, and cross-source correlation. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/log-sources/">
+<meta property="og:title" content="Log Sources That Matter | Learn Computer Stuff"><meta property="og:description" content="Log sources that matter: endpoint, network, identity, email, cloud — what each sees, what goes blind without it, and cross-source correlation. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/log-sources/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Log Sources That Matter","item":"https://learncomputerstuff.dev/g/log-sources/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Log Sources That Matter</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage C · Professional</span><h1>Log Sources That Matter</h1>
+<p class="lede prose">Triage told you <em>what to decide</em>; this lesson tells you <em>where to look</em>. Every investigation is a question aimed at a log source: "who logged in where" goes to identity logs, "what did the process do" goes to endpoint telemetry, "where did the bytes go" goes to the wire. Pick the wrong source and you stare at the right question with no data. This is the daily vocabulary of the SOC analyst and DFIR paths (<code>/r/soc-analyst/</code>, <code>/r/dfir/</code>), and it is what makes the difference between an analyst who queries and one who <em>knows where the answer lives</em>.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · fictional sample logs parsed with CLI tools</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>C (Professional)</td></tr><tr><th scope="row">Level</th><td>3 (source selection + live parsing + blind-spot reasoning)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/linux-cli/"><code>a-linux-cli</code></a> (command line), <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> (what the network telemetry describes)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Triage told you <em>what to decide</em>; this lesson tells you <em>where to look</em>. Every investigation is a question aimed at a log source: "who logged in where" goes to identity logs, "what did the process do" goes to endpoint telemetry, "where did the bytes go" goes to the wire. Pick the wrong source and you stare at the right question with no data. This is the daily vocabulary of the SOC analyst and DFIR paths (<code>/r/soc-analyst/</code>, <code>/r/dfir/</code>), and it is what makes the difference between an analyst who queries and one who <em>knows where the answer lives</em>.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You parse text with the command line without thinking about it (<a href="/g/linux-cli/"><code>a-linux-cli</code></a>): <code>grep</code>, <code>awk</code>, <code>sort</code>, <code>uniq -c</code>.</li>
+<li>You know what a TCP connection looks like (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>): 5-tuple, ports, what encryption hides and what it doesn't.</li>
+<li>Accept the premise you will use for the rest of your career: <strong>one log source never tells the story.</strong> Every conclusion in this lesson is cross-source.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>NIST SP 800-92's framing still holds: log management is infrastructure — collect, store, analyze, dispose — and its hard problems are volume, immutability, inconsistent formats, review discipline, and retention. The defender's version is simpler. For each source: what it records, what question it answers, what goes blind without it.</p>
+<p><strong>Endpoint — Windows Security log.</strong> The native identity telemetry. The event IDs you must know cold: <strong>4624</strong> successful logon (check the Logon Type — 2 interactive, 3 network, 10 RDP, 11 cached), <strong>4625</strong> failed logon (brute force, spray), <strong>4648</strong> explicit-credential logon (RunAs, lateral movement), <strong>4672</strong> special privileges assigned (admin-level logon), <strong>4688</strong> process creation — but only with command lines if process-creation auditing is deliberately enabled (default off), <strong>4720/4728/4732</strong> account and group changes (rogue accounts, privilege escalation), <strong>4768/4769/4771</strong> Kerberos ticket traffic (ticket abuse), <strong>1102</strong> audit log cleared — anti-forensics, almost always hostile, <strong>4104</strong> PowerShell Script Block Logging — the de-obfuscated script content. Blind without it: identity. No 4624/4625 and "who logged in where" is unanswerable.</p>
+<p><strong>Endpoint — Sysmon.</strong> The kernel-driver telemetry that makes Windows actually observable. The IDs that matter: <strong>1</strong> ProcessCreate (full command line, parent, hashes), <strong>3</strong> NetworkConnect (process → IP:port — C2 attribution), <strong>8</strong> CreateRemoteThread (process injection), <strong>10</strong> ProcessAccess (LSASS access — credential dumping), <strong>11</strong> FileCreate (dropped payloads), <strong>12/13</strong> registry (Run-key persistence), <strong>22</strong> DNS query (per-process DNS — DGA, DNS C2), <strong>23</strong> FileDelete (anti-forensics). The industry starting config is SwiftOnSecurity's sysmon-config — broad includes, tuned excludes. Every exclude you write is a decision about what you will never see; config tuning <em>is</em> detection tuning at the source.</p>
+<p><strong>Endpoint — EDR.</strong> Adds what logs can't: live process trees, memory context, behavioral blocking, remote response (isolate, kill, quarantine). In triage terms, EDR answers "what is happening <em>right now</em> on this box" while logs answer "what happened." Free lab: Wazuh agents or Velociraptor.</p>
+<p><strong>Network — firewall, proxy, DNS, IDS, flow.</strong> The firewall records allowed/denied 5-tuples (what crossed boundaries). The proxy records full URLs per user (phishing clicks, downloads). DNS query logs record every name resolution (DGA, DNS tunneling, beaconing to rare domains). Suricata/Snort/Zeek give signature and protocol-anomaly detection — Zeek's conn/dns/http/ssl/files logs are the network equivalent of Sysmon. NetFlow/IPFIX records 5-tuple plus bytes, packets, and timing with no payload — and that is enough: <strong>timing and volume survive encryption</strong>, so beaconing intervals and exfil sizes are visible even when TLS hides everything else. Blind without the wire: encrypted traffic is a black box and lateral movement is invisible.</p>
+<p><strong>Identity — AD and Entra ID.</strong> Domain controllers emit the 4624/4625/4768 stream; Entra ID sign-in logs add interactive vs. non-interactive type, device join state, IP geolocation, MFA result, conditional-access decisions, and anomaly detections. The impossible-travel triage runs entirely on this source. Blind without it: every identity attack is invisible.</p>
+<p><strong>Email gateway.</strong> Sender, recipients, subject, attachment hashes, URLs, verdicts. Answers "how did it get in" — the initial-access question for most intrusions.</p>
+<p><strong>Cloud audit.</strong> AWS CloudTrail records every API call — who (IAM principal), what action, on which resource, from which IP, with what result. Azure Activity Log covers control-plane operations. Blind without it: cloud control-plane attacks are invisible. Free lab: your own account's audit trail plus Prowler/ScoutSuite against your own account.</p>
+<h3>Worked example: one intrusion, five sources</h3>
+<p>At 03:01, an external IP fails logons against six users on <code>DC-01</code> — eighteen 4625s in eighteen minutes (identity source). At 03:19, <code>t.nguyen</code> succeeds from that same IP (identity + the spray's payoff). At 03:21, <code>WS-4417</code> logs 4688: PowerShell with <code>-EncodedCommand</code>, and 4104 shows the de-obfuscated content (endpoint source). The DNS log shows <code>WS-4417</code> bursting queries for twelve nonsense domains (network source: DGA-shaped). The firewall shows twelve small, uniform outbound flows to one rare IP (network source: beacon-shaped). At 03:25, event 1102: the audit log is cleared on <code>WS-4417</code> (endpoint source: anti-forensics). No single source proves the intrusion. Together they are a timeline: spray → compromise → execution → C2 → cover-up. That is the whole lesson in one paragraph.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/c-log-sources.log</code>. Clean environment: stock Python 3.12.3 plus coreutils (<code>awk</code>, <code>grep</code>, <code>sort</code>), 2026-10-09. The logs are <strong>fictional samples generated locally for teaching</strong> — 62 security events, 42 DNS queries, 37 firewall flows, all invented values. They stand in for the Windows Event Logs, DNS logs, and firewall exports you would pull from a real environment or a home lab (Wazuh, Security Onion).</p>
+<ol>
+<li><strong>Take the census.</strong> <code>awk -F, &#x27;NR&gt;1{print $3}&#x27; security_events.csv | sort | uniq -c | sort -rn</code> — count events by ID. You see 41× 4624, 18× 4625, and single 4688/4104/1102s. The census is always step one: know what the source <em>saw</em> before you ask what it <em>means</em>.</li>
+<li><strong>Find the spray.</strong> Count 4625s by source IP: all 18 come from one IP, <code>203.0.113.99</code>. Eighteen failures, six users, eighteen minutes — that is the password-spray shape, not user error (user error clusters on one account).</li>
+<li><strong>Check for the payoff.</strong> List sprayed users, then check for any 4624 from the attacker IP: <code>t.nguyen</code> succeeded at 03:19. A spray with no success is reconnaissance; a spray <em>with</em> success is a compromise. Write both lists down — the delta between them is the incident.</li>
+<li><strong>Read the endpoint tells.</strong> The 4688 shows PowerShell <code>-EncodedCommand</code> under <code>t.nguyen</code> on <code>WS-4417</code>; 4104 gives the de-obfuscated content. Note the dependency: 4688 is only this useful because command-line auditing was enabled — on a default build, this field is empty and the lesson is "turn it on."</li>
+<li><strong>Pivot to DNS.</strong> Count queries per host: <code>WS-4417</code> asked for twelve distinct nonsense domains (<code>xq1000zv9q.example</code> …) while the clean host asked for one intranet name thirty times. Twelve rare domains from one host in minutes is the DGA shape.</li>
+<li><strong>Pivot to the firewall.</strong> Filter small flows: twelve uniform 210-byte outbound flows from <code>10.0.4.77</code> to one rare IP. Small, uniform, periodic — the beacon shape from the triage lesson, confirmed at a second source.</li>
+<li><strong>Note the anti-forensics.</strong> <code>grep &quot;,1102,&quot;</code> — the audit log was cleared at 03:25. 1102 is almost never benign; it also tells you the timeline <em>after</em> 03:25 is incomplete, which bounds what you can claim.</li>
+<li><strong>Write the source map.</strong> One page: for each of the five sources, what it contributed, what question it answered, and what would have been blind without it. Then add the blind-spot column: this environment had no proxy (no URLs), no EDR (no process tree), no email gateway (no initial-access vector) — name what you <em>couldn't</em> see.</li>
+</ol>
+<p>No step above is marked "not run by us" — the census, the spray detection, the payoff check, the pivots, and the blind-spot analysis all ran against the labeled fictional samples.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Add a Sysmon-style <code>sysmon.csv</code> sample of your own invention (20+ events: process creates with parents, two network connects, one registry Run-key write) describing a <em>different</em> intrusion story than the walkthrough's. Then answer, using only your new file plus the walkthrough's logs: which process is the initial execution, what is its parent (and why the parent matters), and which event is the persistence mechanism.</p>
+<p><strong>Success test:</strong> A one-page source map for your story naming the initial-access, execution, and persistence events by ID, plus one blind spot your invented sources leave (something you <em>cannot</em> answer from the logs you made).</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Treating absence as evidence.</strong> "No 4625s" can mean no spray — or no log forwarding. Before concluding anything from a quiet source, verify the source is <em>healthy</em> (recent events, expected volume).</li>
+<li><strong>Logon Type blindness.</strong> 4624 type 3 (network) from an external IP is lateral movement or spray-payoff; 4624 type 2 (interactive) at 3 AM is a human at a keyboard. Same ID, different meaning — read the fields, not just the ID.</li>
+<li><strong>Trusting the hostname.</strong> DHCP reassignment and spoofing mean "WS-4417" is a label, not an identity. Correlate host with IP and time before you isolate the wrong machine.</li>
+<li><strong>Ignoring clock skew.</strong> A timeline built from sources with unsynchronized clocks puts effect before cause. NTP health is an investigation prerequisite, not trivia.</li>
+<li><strong>Over-reading the DGA shape.</strong> Twelve rare domains can also be a misconfigured app or a CDN's domain sharding. The shape is a hypothesis; the process behind it (from Sysmon 1/22) is the verdict.</li>
+<li><strong>Keeping logs you can't parse.</strong> A source with no documented schema, no time format, and no retention policy is a write-only archive. If you can't query it under pressure, you don't have it.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (<a href="https://doi.org/10.6028/NIST.SP.800-92)">doi.org/10.6028/NIST.SP.800-92)</a> — <em>read</em> the infrastructure functions and the five challenges (volume, immutability, formats, review, retention); <em>note</em> the 2006 date and check the r1 draft status before citing anything newer.</li>
+<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/)">attack.mitre.org/tactics/enterprise/)</a> — <em>read</em> the 15 tactics; <em>note</em> v19.2 split Defense Evasion into <strong>Stealth</strong> (TA0005) and <strong>Defense Impairment</strong> (TA0112) — stale 14-tactic lists mislead.</li>
+<li><strong>SwiftOnSecurity sysmon-config</strong> (<a href="https://github.com/SwiftOnSecurity/sysmon-config)">github.com/SwiftOnSecurity/sysmon-config)</a> — <em>read</em> the config itself as the industry's starting answer to "what should an endpoint record"; <em>study</em> how excludes are written, because each one is a visibility decision.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Wazuh</strong> (<a href="https://wazuh.com">wazuh.com</a>) — free XDR: agents plus manager plus dashboard; generates the endpoint and identity telemetry in this lesson against your own lab VMs.</li>
+<li><strong>Security Onion</strong> (<a href="https://securityonion.net">securityonion.net</a>) — free NSM distro: Zeek and Suricata sensors generating the network telemetry in this lesson.</li>
+<li><strong>Velociraptor</strong> (docs.velociraptor.app) — free endpoint collection and hunting; the tool for asking a fleet "which of you has seen this" during scoping.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Eighteen 4625s from one IP against six users, then one 4624 for one of those users from the same IP. Explain why the 4624 changes the incident classification — and what the eighteen 4625s alone would have been.</li>
+<li>A 4688 event shows <code>powershell.exe</code> launched but the command-line field is empty. Explain what configuration is missing, why it defaults off, and what investigation question becomes unanswerable without it.</li>
+<li>Name the two network sources that can reveal beaconing even when all traffic is TLS-encrypted, and explain <em>why</em> encryption doesn't hide what each of them sees.</li>
+<li>Event 1102 appears on a host mid-timeline. Explain what it tells you about the attacker's behavior <em>and</em> what it tells you about the limits of your own timeline.</li>
+<li>Your SIEM has no proxy logs and no EDR. An analyst asks "which user clicked the phishing link?" Explain why this question is unanswerable from your sources, which source would answer it, and how you would work around the gap today.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the source map from walkthrough step 8 plus your invented Sysmon story: per source, what it contributed, what it answered, and the blind-spot column naming what you couldn't see.</p>
+<p><strong>Honest claim:</strong> "Given a set of log sources, I can select the right source for each investigation question, parse it with CLI tools, correlate across sources into a timeline, and state what remains blind."</p>
+<p><strong>Can't claim yet:</strong> "I can design a logging architecture" — collection engineering, retention policy, and pipeline reliability are the detection-engineering discipline (<a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> and the D track).</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> — turn what the logs show into rules that fire on it: the detection side of every pattern in this lesson.</li>
+<li><a href="/g/incident-response/"><code>c-incident-response</code></a> — where correlated timelines go: the IR report is built from exactly this kind of cross-source work.</li>
+<li><a href="/g/session-auth/"><code>b-session-auth</code></a>, <a href="/g/command-injection/"><code>b-command-injection</code></a>, <a href="/g/xss/"><code>b-xss</code></a> — the attack lessons whose telemetry you just learned to read; revisit each "how defenders see it" section with source names attached.</li>
+<li>Map refs: <strong>Stage C · Professional</strong>; NICE <strong>Protection and Defense</strong>; the <code>/r/soc-analyst/</code> and <code>/r/dfir/</code> paths.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-c/">Stage C · Professional</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

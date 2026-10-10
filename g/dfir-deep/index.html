@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DFIR deep: disk, memory, network forensics | Learn Computer Stuff</title>
+<meta name="description" content="DFIR deep: disk, memory and network forensics — the order of volatility, evidence handling, timeline construction from labeled data, and hypothesis-driven threat hunting. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/dfir-deep/">
+<meta property="og:title" content="DFIR deep: disk, memory, network forensics | Learn Computer Stuff"><meta property="og:description" content="DFIR deep: disk, memory and network forensics — the order of volatility, evidence handling, timeline construction from labeled data, and hypothesis-driven threat hunting. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/dfir-deep/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"DFIR deep: disk, memory, network forensics","item":"https://learncomputerstuff.dev/g/dfir-deep/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>DFIR deep: disk, memory, network forensics</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage D · Specialist</span><h1>DFIR deep: disk, memory, network forensics</h1>
+<p class="lede prose">Triage ends with a decision: close it, or escalate it. Everything in this lesson is the escalation side — the work that begins when an alert becomes an incident and someone has to answer, with evidence, <em>what happened on this machine</em>. That someone might be an internal incident responder, a consultant called in after a breach, or a SOC analyst who pulled the thread far enough that the ticket became a case. The three questions are always the same: what did the attacker do, what did they touch, and how do we know. Forensics is the discipline of answering those questions without destroying the answers in the process.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · labeled synthetic evidence; tool runs on real images are reader-side in their own lab</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>D (Specialist)</td></tr><tr><th scope="row">Level</th><td>3 (evidence handling + timeline construction from labeled data; tool runs on real images are reader-side in their own lab)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/incident-response/"><code>c-incident-response</code></a> (the lifecycle this lesson serves), <a href="/g/log-sources/"><code>c-log-sources</code></a> (where evidence lives), <a href="/g/linux-cli/"><code>a-linux-cli</code></a> (the tools that touch it), <a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> (what the implant looks like when you find it)</td></tr><tr><th scope="row">Map references</th><td>serves the Stage D DFIR specialist track; feeds detection engineering (<a href="/g/sigma-detection/"><code>c-sigma-detection</code></a>).</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Triage ends with a decision: close it, or escalate it. Everything in this lesson is the escalation side — the work that begins when an alert becomes an incident and someone has to answer, with evidence, <em>what happened on this machine</em>. That someone might be an internal incident responder, a consultant called in after a breach, or a SOC analyst who pulled the thread far enough that the ticket became a case. The three questions are always the same: what did the attacker do, what did they touch, and how do we know. Forensics is the discipline of answering those questions without destroying the answers in the process.</p>
+<p>The three evidence domains divide by where the traces live. <strong>Disk forensics</strong> reads what the filesystem remembers: files, metadata, logs, and the operating system's own record-keeping. <strong>Memory forensics</strong> reads what was true while the machine was running: processes, connections, injected code, credentials that never touch disk. <strong>Network forensics</strong> reads what moved between machines: packet captures, flow records, DNS logs. Each domain has tools, each has blind spots, and the professional read is knowing which domain answers the question in front of you — and what to do when the answer you need lives in a domain you haven't collected.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><strong>Authorization and safety:</strong> forensic analysis in this lesson is performed exclusively on labeled synthetic data you generate yourself, and on your own machine's own logs. Real forensic work happens on <em>copies</em> — you never analyze the original evidence, and you never run a suspect artifact on a machine you care about. The write-blocker concept below exists precisely because investigators learned this the expensive way.</li>
+<li>You know the incident lifecycle (<a href="/g/incident-response/"><code>c-incident-response</code></a>): forensics is the investigation phase, and its output feeds containment, eradication, and the post-incident report.</li>
+<li>You can read logs and sort timelines (<a href="/g/log-sources/"><code>c-log-sources</code></a>, <a href="/g/linux-cli/"><code>a-linux-cli</code></a>).</li>
+<li>You know what an implant looks like when you find one (<a href="/g/malware-analysis/"><code>d-malware-analysis</code></a>) — forensics is how you find where it has been.</li>
+<li>Tooling: a shell, <code>sort</code>, <code>awk</code>, <code>grep</code> — the walkthrough builds timelines from labeled data with nothing else.</li>
+</ul>
+<h2>3. How it works</h2>
+<h3>The order of volatility and why copies come first</h3>
+<p>Digital evidence decays in a known order, from most to least volatile: CPU registers and cache, RAM, network state, running processes, then disk, then backups and archives. You collect in that order because you can only lose what you never captured — reboot a machine and the memory evidence is gone forever, while the disk largely survives. This is why incident playbooks say <em>do not reboot the suspect machine</em> until memory is captured.</p>
+<p>And the first rule of handling what you collect: <strong>analyze the copy, never the original.</strong> A forensic image is a bit-for-bit duplicate of the storage, hashed at acquisition time (SHA-256), with the hash recorded. Every later claim — "this file existed at this time" — traces back to that hash. Hardware write blockers enforce the discipline physically: they sit between the analyst's machine and the evidence drive and refuse all write commands at the bus level. The concept survives even when you work on copies: the copy is sacred, the working analysis happens on a second copy, and anything that modifies the evidence modifies your credibility.</p>
+<h3>Disk forensics: what the filesystem remembers</h3>
+<p>A file is not just its contents. Every file carries metadata — creation, modification, access times — and the operating system keeps journals of what happened to files independently of the files themselves. The artifacts that matter most on Windows: the <strong>MFT</strong> (Master File Table — every file's record, including deleted ones whose records haven't been reused yet), the <strong>USN journal</strong> (a running log of file changes), <strong>prefetch</strong> (records of programs executed, with run counts and last-run times), <strong>event logs</strong> (authentication, service installs, the 1102 anti-forensics tell), <strong>registry hives</strong> (persistence locations — Run keys, services), <strong>LNK files</strong> (shortcuts that remember where a file lived and when it was opened), and <strong>browser history</strong>. The professional read is not "check each artifact" but "reconstruct the sequence": prefetch says the program ran at 02:14, the USN journal says a file was created at 02:15, the registry says a Run key appeared at 02:16 — that is a timeline, and timelines are what turn artifacts into a story.</p>
+<h3>Memory forensics: what was true while it ran</h3>
+<p>Disk shows what persisted. Memory shows what <em>happened</em>. Processes, their network connections, injected code, credentials in cleartext — much of it never touches disk, by design (fileless techniques exist precisely to defeat disk forensics). The standard workflow, taught against the Volatility framework, runs in an order: <strong>image info</strong> (what profile/OS this dump is), <strong>pslist</strong> (every process — compare against what <em>should</em> be running; the process that doesn't belong is the lead), <strong>netscan</strong> (which process holds which connection — the process-to-network binding disk forensics can't give you), <strong>malfind</strong> (memory regions that are executable but not backed by a file on disk — the classic injected-code tell). Each step narrows the search: list everything, bind processes to network, then look for the thing hiding from the list. The worked example below follows exactly this narrowing.</p>
+<h3>Network forensics: what moved</h3>
+<p>Packets are the one record neither endpoint fully controls. <strong>Full packet capture</strong> (PCAP) is the richest and the most expensive — it sees payloads, which is why retention is usually short and why it is also the most sensitive to handle. <strong>Zeek logs</strong> (formerly Bro) are the professional compromise: connection summaries, DNS logs, HTTP logs, file hashes seen on the wire — structured, queryable, and small enough to keep for months. <strong>NetFlow/IPFIX</strong> records are the coarsest: who talked to whom, when, how much — enough to see beaconing (the regular timing from <a href="/g/redteam-concepts/"><code>d-redteam-concepts</code></a>) and exfiltration (the volume spike) without any payload at all. The three nest: NetFlow finds the <em>interesting</em> conversation, Zeek describes it, PCAP proves it. The discipline from the log-sources lesson applies: DNS logs catch the DGA-shaped burst, firewall flows catch the beacon shape, and the absence of a log where you expect one is itself a finding (the 1102 problem, at network scale).</p>
+<h3>Threat hunting: hypothesis before data</h3>
+<p>Alerting asks "did something bad happen?" Hunting asks "if the adversary did X, what would it look like in data source Y?" — and then goes looking. The hypothesis comes first, always: an untested hypothesis is a fishing expedition, and fishing expeditions produce false positives that burn the team's credibility. A hunt hypothesis has three parts: the <strong>technique</strong> (from ATT&amp;CK — the behavior language from <a href="/g/redteam-concepts/"><code>d-redteam-concepts</code></a>), the <strong>expected evidence</strong> (what the technique must leave in which data source — it cannot <em>not</em> leave it), and the <strong>scope</strong> (which systems, which time window). You run the hypothesis against telemetry, document what you found <em>and what you didn't</em> — a negative result is a result, and it tells you where your visibility is blind. The hunts that find something become detections: the hypothesis, hardened with thresholds and tested against benign data, graduates into a Sigma rule (<a href="/g/sigma-detection/"><code>c-sigma-detection</code></a>). That pipeline — hypothesis → hunt → detection — is the whole detection-engineering loop, and forensics is what you do when the loop fires.</p>
+<h3>Worked example: the narrowing, end to end</h3>
+<p>A fictional workstation, WS-4417 — the same machine the incident-response lesson's worked case investigated. The alert said beaconing; forensics answers what happened.</p>
+<p><strong>Disk:</strong> prefetch shows <code>updater-svc.exe</code> ran 214 times with a last run at 02:14 — a "service" with a userland name and a 2 AM schedule. The USN journal shows <code>C:\Users\j.chen\AppData\Roaming\updater-svc.exe</code> created at 02:11. A Run key points at it. Three artifacts, one sequence: dropped at 02:11, first ran at 02:14, persisted via the registry.</p>
+<p><strong>Memory:</strong> pslist shows <code>updater-svc.exe</code> as PID 4412 with a parent of <code>explorer.exe</code> — services don't spawn from Explorer. Netscan binds PID 4412 to a connection to an external IP on port 443, every 60 seconds. Malfind flags an executable region in that process not backed by any file — injected code. The process is lying about what it is, and memory proves it.</p>
+<p><strong>Network:</strong> Zeek's connection log shows the 60-second rhythm from this host going back nine days — the beaconing the SOC lesson's decision tree escalated. DNS logs show no DGA burst (the C2 used a single domain — a finding about the <em>adversary's</em> tradecraft, not just ours). NetFlow shows 4.2 MB outbound in the last hour against a 60-second baseline — the exfiltration window, and the clock for scoping what left.</p>
+<p>Each domain confirmed the others and added what the others couldn't see. That is the professional standard: no single artifact carries the conclusion; the conclusion is the point where independent domains agree.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/d-dfir-deep.log</code>. Clean environment: stock Python 3.12 and coreutils, 2026-10-09. All evidence below is synthetic and labeled — generated for this exercise, describing a fictional intrusion on a fictional host. No real system was analyzed.</p>
+<p>The walkthrough builds the core forensic skill — timeline construction — from three labeled evidence files: a synthetic auth log, a synthetic web-access log, and a synthetic "artifact list" standing in for disk findings. Steps: (1) generate the labeled evidence; (2) normalize all three to a common timeline format (timestamp, source, event); (3) merge and sort into a single super-timeline; (4) read the timeline as a sequence and write the three-sentence story it tells; (5) extract IOCs (IPs, usernames, file paths) into a findings list; (6) hash the evidence files and record the hashes as the chain-of-custody anchor; (7) write the findings memo — what happened, what was touched, how we know, and the honest limits (what the labeled data cannot prove).</p>
+<h2>5. On your own</h2>
+<p>Build the same pipeline against a second labeled evidence set you generate yourself — different attack shape (this time make it a credential-spray followed by a data-staging event, not a beacon). Produce the merged timeline, the IOC list, and the findings memo. Success test: a stranger reading only your memo can state the attacker's sequence, the compromised account, and the exfiltration window — and can point at the timeline lines that prove each claim. Then, in your own lab: install SIFT Workstation or Autopsy, load a published training image (HTB Sherlocks, SANS challenge), and build a real timeline with a real tool — the walkthrough taught you what the tool is <em>for</em>.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Analyzing the original.</strong> Opening the suspect drive read-write, booting the suspect machine "to take a look," running the sample on the analyst workstation. Every one of these modifies the evidence and ends the investigation's credibility. Copies first, always.</li>
+<li><strong>No hash, no chain.</strong> An image without a recorded acquisition hash is a story, not evidence. Hash at acquisition, re-verify before analysis, and record both.</li>
+<li><strong>Timeline timezone errors.</strong> UTC vs local vs the attacker's timezone — a timeline built in mixed timezones convicts the wrong sequence. Normalize everything to UTC at ingest and say so.</li>
+<li><strong>Single-artifact conclusions.</strong> Prefetch says the program ran; it does not say it was malicious. The conclusion lives where independent domains agree — the worked example's standard.</li>
+<li><strong>Confirmation bias.</strong> Deciding it is ransomware in the first hour and then only collecting ransomware evidence. The hypothesis discipline from threat hunting applies to investigations too: write down what would <em>disprove</em> your theory and go look for it.</li>
+<li><strong>Destroying evidence by investigating.</strong> The classic: the responder logs into the compromised machine with the domain admin account to "check something" — creating new logons, new artifacts, new confusion, and handing the attacker fresh credentials. Read-only, from copies, or not at all.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Read the primary material in this order — each entry says what to read and what to skip:</p>
+<ol>
+<li><strong>NIST SP 800-86, Guide to Integrating Forensic Techniques into Incident Response</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — read chapters 1–3 for the forensic process model and the collection/handling discipline; skim the tool catalog (it ages, the process doesn't). This is the process spine this lesson follows.</li>
+<li><strong>Volatility 3 documentation</strong> (<a href="https://volatilityfoundation.org">volatilityfoundation.org</a>) — read the plugin workflow pages (imageinfo → pslist → netscan → malfind); skip API internals until you write plugins. The command sequence is the memory-forensics lesson in miniature.</li>
+<li><strong>SANS SIFT Workstation documentation</strong> (<a href="https://sans.org/tools/sift-workstation)">sans.org/tools/sift-workstation)</a> — read the tool list and what each tool answers; this is your lab shopping list, organized by evidence domain.</li>
+</ol>
+<p>Then at most three free resources, each genuinely free: <strong>Autopsy</strong> (free, open-source disk forensics — your first real tool), <strong>Eric Zimmerman's tools</strong> (free Windows artifact parsers — the MFT/USN/prefetch readers), <strong>Wireshark</strong> (free — the network domain's microscope, from <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> onward).</p>
+<h2>8. Check yourself</h2>
+<p>Answer in your own words — no peeking at section 3:</p>
+<ol>
+<li>A responder reboots the suspect workstation "to see if the alert clears" before anyone captures memory. Name the two things destroyed and explain, using the order of volatility, why disk imaging afterward cannot recover them.</li>
+<li>Prefetch shows <code>invoice-tool.exe</code> ran 40 times. Explain why this is <em>not</em> by itself evidence of malice, and name two other artifacts whose agreement would change your assessment.</li>
+<li>In the Volatility workflow, what question does <code>netscan</code> answer that <code>pslist</code> cannot — and why does that make it the step that catches the liar process?</li>
+<li>Zeek logs show a host beaconing every 60 seconds to one domain; NetFlow shows 4.2 MB outbound in the last hour against that baseline. Explain which of the three network evidence tiers (PCAP / Zeek / NetFlow) found each fact, and what PCAP would add that the other two cannot.</li>
+<li>Write a one-paragraph hunt hypothesis for credential dumping (ATT&amp;CK T1003): the technique, the expected evidence in a specific data source, and the scope. Then state what a negative result would tell you.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the merged super-timeline, the IOC list, and the findings memo from the walkthrough and your On-your-own case — committed to your evidence repo with the acquisition hashes recorded.</p>
+<p><strong>Honest claim:</strong> "I can take labeled multi-source evidence, normalize it to UTC, build a merged timeline, and write a findings memo where every claim points at timeline lines." <strong>What you cannot claim:</strong> court-ready forensic expertise, tool certifications, or that you can attribute an intrusion to an actor — timeline construction is the foundation skill, not the profession. The profession adds real tools on real images (your lab), chain-of-custody procedure, and report writing under review.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> — the sample the timeline points at: what it does, statically and dynamically.</li>
+<li><a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> — the hunt that found something becomes the rule that fires next time.</li>
+<li><a href="/g/incident-response/"><code>c-incident-response</code></a> — the findings memo becomes the investigation section of the IR report.</li>
+<li><a href="/g/redteam-concepts/"><code>d-redteam-concepts</code></a> — read the adversary's side of the artifacts: what each of your findings looked like from the operator's seat, and which of them they tried to prevent.</li>
+</ul>
+<p><em>Walkthrough transcript: <code>runs/d-dfir-deep.log</code> · Evidence in this lesson is synthetic and labeled unless a step says otherwise.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-d/">Stage D · Specialist</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

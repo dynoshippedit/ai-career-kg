@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linux command line for security work | Learn Computer Stuff</title>
+<meta name="description" content="Linux command line for security work: files, permissions, processes, logs, pipes and SSH keys — the instrument every later lesson assumes. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/linux-cli/">
+<meta property="og:title" content="Linux command line for security work | Learn Computer Stuff"><meta property="og:description" content="Linux command line for security work: files, permissions, processes, logs, pipes and SSH keys — the instrument every later lesson assumes. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/linux-cli/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Linux command line for security work","item":"https://learncomputerstuff.dev/g/linux-cli/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Linux command line for security work</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>Linux command line for security work</h1>
+<p class="lede prose">Every tool in this program runs on Linux, and every one of them is driven from the command line. The walkthroughs in <a href="/g/dns-depth/"><code>a-dns-depth</code></a> and <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> were shell sessions; the servers you will attack and defend in Stage B are Linux machines; the logs you will triage as a SOC analyst are Linux logs; the cloud instances in Stage D are Linux. "Learn the command line" is not a prerequisite chore — it is the job's primary instrument. A practitioner who fumbles the shell fumbles everything downstream, and a practitioner fluent in it can investigate any unfamiliar system, because the shell is the one interface every Linux machine shares.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local scratch dir; shell ran as root (flagged in-lesson)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (operate — you can navigate, inspect, and control a Linux system from the shell, unaided)</td></tr><tr><th scope="row">Prerequisites</th><td>None. This is the bench everything else runs on; if you arrived from <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>, you already know why the machine matters</td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds every later lesson (all walkthroughs assume this).</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every tool in this program runs on Linux, and every one of them is driven from the command line. The walkthroughs in <a href="/g/dns-depth/"><code>a-dns-depth</code></a> and <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> were shell sessions; the servers you will attack and defend in Stage B are Linux machines; the logs you will triage as a SOC analyst are Linux logs; the cloud instances in Stage D are Linux. "Learn the command line" is not a prerequisite chore — it is the job's primary instrument. A practitioner who fumbles the shell fumbles everything downstream, and a practitioner fluent in it can investigate any unfamiliar system, because the shell is the one interface every Linux machine shares.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>Any Linux terminal: your own VM, WSL2, or a container. The walkthrough ran on Ubuntu with bash 5.2, coreutils 9.4, OpenSSH 9.6.</li>
+<li>Work as a normal user where you can. The walkthrough shell ran as root (a container), and the transcript says so wherever it changes what you see — root bypasses permission checks, which hides the very errors this lesson teaches you to read.</li>
+<li>Nothing to install. Everything below ships with the OS.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>The shell is a conversation with the kernel, mediated by programs. <code>ls</code> is a program; <code>cd</code> is built into the shell; the pipe <code>|</code> is the shell connecting one program's output to another's input. Internalize that split and the command line stops being incantations: every command is either a program you can inspect (<code>which</code>, <code>man</code>, the binary itself) or a shell feature you can look up (<code>help</code>).</p>
+<p><strong>Files.</strong> Everything is a file: regular files, directories, devices (<code>/dev/sda</code>), process information (<code>/proc/&lt;pid&gt;/</code>), even the kernel log. <code>ls -la</code> shows the truth about a directory: permissions, owner, group, size, timestamps. Learn to read that line the way a pilot reads instruments — in security work, a wrong permission bit <em>is</em> the vulnerability. <code>stat</code> spells out what <code>ls</code> abbreviates.</p>
+<p><strong>Permissions are a bitmask.</strong> Three triples — owner, group, other — each read/write/execute (<code>rwx</code>). Octal is the compact form: <code>r=4, w=2, x=1</code>, so <code>755</code> is <code>rwxr-xr-x</code> and <code>600</code> is <code>rw-------</code>. Directories need <code>x</code> to enter and <code>r</code> to list — a directory with <code>x</code> but not <code>r</code> lets you open files you can name but not browse, a subtlety that matters for web roots. New files don't get 666/777; the <strong>umask</strong> subtracts bits (umask <code>022</code> → files <code>644</code>, directories <code>755</code>). The walkthrough machine's umask was <code>0007</code> → files <code>660</code>: group-only, no world access. Default-deny arithmetic, applied at creation.</p>
+<p><strong>Users, groups, and the setuid exception.</strong> Every process runs as a user; every file has an owner and a group. The permission triples are evaluated against <em>who you are</em> — which is why running as root teaches you nothing about permissions: root bypasses the checks. The exception that matters: the <strong>setuid</strong> bit. A setuid program runs with its <em>owner's</em> privileges, not yours — that's how <code>sudo</code> and <code>passwd</code> work, and it's a classic privilege-escalation target: a setuid binary owned by root with a flaw <em>is</em> a root shell waiting to happen. <code>find / -perm -4000</code> is one of the first commands run on any unfamiliar Linux box, offensive or defensive.</p>
+<p><strong>Processes.</strong> Programs in motion. <code>ps</code> shows them; <code>pgrep</code> finds them by name; <code>kill</code> sends them signals. Signals are the vocabulary: <code>TERM</code> (15, the default — "please stop"), <code>KILL</code> (9 — unblockable, no cleanup), <code>HUP</code>, <code>USR1/2</code>. A process that ignores TERM but dies to KILL told you something about its signal handling. Parent/child (<code>PPID</code>), sessions, and job control (<code>&amp;</code>, <code>jobs</code>, <code>fg</code>) complete the picture: the <code>&amp;</code> in the walkthrough put <code>sleep</code> in the background of <em>that shell</em>, and <code>kill %1</code> would have worked too.</p>
+<p><strong>Logs.</strong> The machine's memory. <code>journalctl</code> (systemd's journal), <code>/var/log/</code> (the classic files: auth, syslog, application logs), <code>dmesg</code> (kernel ring buffer — needs privilege, as the walkthrough shows). In Stage B's defensive lessons and Stage D's forensics, these are the primary sources. Learn now where they live so later you're reading, not searching.</p>
+<p><strong>Pipes and redirection.</strong> The shell's superpower: <code>|</code> chains programs into pipelines, <code>&gt;</code>/<code>&gt;&gt;</code> redirect to files, <code>&lt;</code> feeds files in. <code>grep</code> filters, <code>cut</code>/<code>awk</code> extract fields, <code>sort | uniq -c | sort -rn</code> counts and ranks — the walkthrough's one-liner (<code>grep &#x27;^web&#x27; hits.log | cut -d&#x27; &#x27; -f2 | sort | uniq -c | sort -rn</code>) is the exact shape of SOC triage: filter, extract, count, rank. On real access logs, that pipeline answers "what is this attacker doing" in seconds. <code>awk</code> deserves special mention: it's a whole language hiding as a field extractor, and fluency with <code>-F</code> and <code>{print $N}</code> pays off daily.</p>
+<p><strong>SSH.</strong> The secure remote shell, and the key lesson is <em>keys, not passwords</em>. <code>ssh-keygen -t ed25519</code> makes a keypair: the private key stays on your machine (permissions 600 — the OS enforces this), the public key is one line appended to <code>~/.ssh/authorized_keys</code> on the server. Authentication becomes a challenge-response the server verifies against the public key — no password crosses the network, none can be brute-forced. <code>ssh -G</code> shows your effective client config; <code>/etc/ssh/sshd_config</code> on the server is where <code>PasswordAuthentication no</code> lives — the single most impactful hardening line on any Linux server, and the reason this lesson teaches key generation before anything else about SSH.</p>
+<h3>Worked example: reading a machine like an investigator</h3>
+<p>From the walkthrough (§4): in <code>/tmp/cliwalk</code>, <code>plans.txt</code> is created (note its initial mode <code>660</code> — the umask at work), tightened to <code>600</code>, then to <code>000</code>. As root, <code>cat</code> still succeeds — the transcript flags this explicitly: <em>running as root hides permission errors</em>. On your machine as a normal user, <code>000</code> gives <code>Permission denied</code>, and that error is information: it tells you the check happens per-triple against your identity. <code>id</code> shows who you are; <code>find /usr/bin -perm -4000</code> lists the setuid binaries (<code>chfn</code>, <code>mount</code>, <code>newgidmap</code>…) — each one a program that will run as its owner. A <code>sleep 300</code> backgrounded, found via <code>ps</code> and <code>pgrep</code>, and killed with SIGTERM. The hits.log pipeline counts status codes by frequency. An ed25519 keypair generated, the public key displayed as the single line a server needs. Each command is small; the skill is chaining them without hesitation on a machine you've never seen before.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-linux-cli.log</code>. Clean environment: Ubuntu container, bash 5.2.21, coreutils 9.4, OpenSSH 9.6p1, scratch dir <code>/tmp/cliwalk</code>, 2026-10-09. This shell ran as <strong>root</strong>; the transcript marks every place that changes the output.</p>
+<ol>
+<li><strong>Read a directory listing like an instrument.</strong> <code>echo &#x27;secret plans&#x27; &gt; plans.txt &amp;&amp; ls -la</code> — name every column. Then <code>stat -c &#x27;%a %U:%G %n&#x27; plans.txt</code>: octal mode, owner, group.</li>
+<li><strong>Change permissions and feel the bitmask.</strong> <code>chmod 600</code>, <code>chmod 000</code> — as root, <code>cat</code> still works; the transcript explains why and what a normal user would see. Restore to <code>644</code>. Run <code>umask</code> and compute the default mode for a new file yourself before reading the explanation.</li>
+<li><strong>Meet the user database and setuid.</strong> <code>id</code>, <code>head -3 /etc/passwd</code> (name, <code>x</code>, uid, gid, home, shell — say what the <code>x</code> means), <code>find /usr/bin -perm -4000 | head -5</code>. For one binary, explain <em>why</em> it needs to run as its owner.</li>
+<li><strong>Start, find, and stop a process.</strong> <code>sleep 300 &amp;</code>, <code>ps -o pid,ppid,user,etime,cmd -p $!</code>, <code>pgrep -a &#x27;sleep 300&#x27;</code>, <code>kill $!</code>, verify it's gone. Name the signal you sent.</li>
+<li><strong>Find the logs.</strong> <code>ls /var/log/</code>, <code>journalctl --no-pager -n 3</code>, <code>dmesg | tail -2</code> — note which one failed and why (privilege), and where you'd look for SSH login attempts on a real server (<code>/var/log/auth.log</code> or the journal).</li>
+<li><strong>Build the triage pipeline.</strong> Create <code>hits.log</code>, then <code>grep &#x27;^web&#x27; hits.log | cut -d&#x27; &#x27; -f2 | sort | uniq -c | sort -rn</code>. Explain what each stage of the pipe does. Then <code>awk -F: &#x27;{print $7}&#x27; /etc/passwd | sort | uniq -c | sort -rn</code> — shells in use on the system.</li>
+<li><strong>Make an SSH keypair.</strong> <code>ssh-keygen -t ed25519 -f labkey -N &#x27;&#x27; -C &#x27;guidebook-lab&#x27;</code> — read the public key aloud as three fields. <code>ssh -G localhost | grep -iE &#x27;^(user|port|identityfile)&#x27;</code> — your effective client config. Note: no <code>sshd_config</code> on this machine (no sshd); on yours, read every uncommented line.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> On your own machine as a <em>normal user</em> (not root): create a directory <code>~/clilab</code> containing a file <code>secret.txt</code> with mode <code>600</code> and a subdirectory <code>shared</code> with mode <code>755</code> containing <code>note.txt</code> mode <code>644</code>. Then, as that user: (a) prove you can read <code>secret.txt</code> but a <em>different</em> local user cannot (use <code>su</code>/<code>sudo -u</code> if you have a second account, or reason it out from the triples and state the answer); (b) find all setuid binaries on the system and pick one — explain in two sentences why it legitimately needs the bit; (c) write a one-liner that lists the five largest files under <code>/var/log</code>.</p>
+<p><strong>Success test:</strong> The three modes are exactly as specified (<code>stat</code> output to prove it); your setuid explanation names the privileged operation the program must perform; the one-liner runs without errors and its output is sorted by size.</p>
+<p><strong>Hints:</strong> <code>du -b</code> gives bytes; <code>sort -n</code> sorts numerically. For (a), the permission check is owner → group → other, first match wins.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Running everything as root.</strong> The walkthrough did it (container); you shouldn't. Root hides permission errors, makes every mistake catastrophic (<code>rm -rf</code> with no safety net), and teaches you nothing about the access model you're supposed to be learning. Use a normal user and <code>sudo</code> deliberately.</li>
+<li><strong>Permission triples misread.</strong> <code>777</code> "to make it work" is how web shells get uploaded. If a tutorial tells you to chmod 777, the tutorial is wrong — find the <em>actual</em> owner/group mismatch instead.</li>
+<li><strong><code>kill -9</code> as a first resort.</strong> SIGKILL denies the process cleanup: corrupted files, held locks, orphaned children. TERM first; KILL when TERM fails and you know why.</li>
+<li><strong>Piping curl to shell.</strong> <code>curl URL | sudo bash</code> executes unaudited code as root — the exact opposite of everything this program teaches. Download, read, then run.</li>
+<li><strong>Private keys with bad permissions or in repos.</strong> SSH refuses keys readable by others (and tells you so — read the error). A private key committed to git is compromised the moment it's pushed; the fix is rotation, not deletion (history remembers).</li>
+<li><strong>Trusting <code>ps</code> output at face value on a suspect box.</strong> Rootkits hide processes. <code>ps</code> is a starting point; cross-check with <code>/proc</code> and network state (<code>ss -tlnp</code>) — Stage D teaches the full paranoia.</li>
+<li><strong>Forgetting which machine you're on.</strong> An <code>rm</code>, a <code>chmod -R</code>, a <code>kill</code> in the wrong terminal is the classic self-inflicted incident. The prompt shows hostname for a reason — customize yours to make production unmistakable.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — the shell's documentation <em>is</em> the machine:</p>
+<ul>
+<li><strong>Man pages</strong> (<code>man ls</code>, <code>man chmod</code>, <code>man ssh</code>, <code>man sshd_config</code>, <code>man journalctl</code>) — <em>read</em> the DESCRIPTION and EXAMPLES sections; <em>skim</em> the option lists; <em>skip</em> nothing permanently — the man page is the reference you return to for years. No fetch needed: they ship with the OS.</li>
+<li><strong>OpenSSH manual pages</strong> (<a href="https://openssh.com/manual.html">openssh.com/manual.html</a> — verified 2026-10-09) — the project's own docs: <code>ssh(1)</code>, <code>ssh-keygen(1)</code>, <code>sshd_config(5)</code>. <em>Read</em> ssh-keygen's key-type notes; <em>skim</em> sshd_config's authentication section.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OverTheWire: Bandit</strong> (<a href="https://overthewire.org/wargames/bandit">overthewire.org/wargames/bandit</a> — verified 2026-10-09) — SSH-based wargame for absolute beginners; each level <em>requires</em> the commands this lesson teaches. Start at level 0 today.</li>
+<li><strong>Linux Journey</strong> (<a href="https://linuxjourney.com">linuxjourney.com</a>, now on LabEx — verified free and open-source 2026-10-09) — structured reading on the filesystem, permissions, processes, and users; the concepts Bandit makes you exercise.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A file has mode <code>640</code>, owned by <code>root:adm</code>. You are user <code>ops</code>, in group <code>adm</code>. Can you read it? Write it? Explain which triple applies and why the other two don't.</li>
+<li><code>umask</code> returns <code>027</code>. A program creates a file requesting mode <code>666</code>. What mode does the file get? Show the arithmetic.</li>
+<li><code>ps</code> shows a process, but <code>kill &lt;pid&gt;</code> reports "No such process" a second later. Explain what happened — and why <code>kill -9</code> would not have helped.</li>
+<li>You find a setuid-root binary in <code>/opt/vendor/bin</code> that you don't recognize. Name the two questions you ask before deciding whether it's legitimate, and the command that tells you when it was installed.</li>
+<li>Explain why appending your <em>public</em> key to a server's <code>authorized_keys</code> is safe to do over an untrusted channel, but sending the <em>private</em> key anywhere is not — using the word "challenge" correctly.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a published "Bandit notes" page (Markdown in your new git repo — see <a href="/g/git-github/"><code>a-git-github</code></a>): one entry per Bandit level you complete, each naming the command you learned, what it does, and the exact invocation that beat the level. Plus: your hardened SSH client config (<code>~/.ssh/config</code> with key-only defaults) documented with one line per option.</p>
+<p><strong>Honest claim:</strong> "I can navigate, inspect, and control a Linux system from the shell, chain tools into pipelines, manage permissions and processes, and use SSH keys correctly."</p>
+<p><strong>Can't claim yet:</strong> "I can administer or harden a server" — that needs the SSH <em>server</em> side, package management, and services (a later Stage A lesson); this one built fluency, not administration.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/git-github/"><code>a-git-github</code></a> — next: your Bandit notes and every later artifact live in version control — learn the tool before you need it.</li>
+<li><a href="/g/http-depth/"><code>a-http-depth</code></a> — the Stage A milestone lesson: the shell runs the lab server whose traffic you'll narrate packet by packet.</li>
+<li>Every Stage B lesson: their walkthroughs assume this lesson's fluency without re-teaching it. If a later walkthrough's commands feel like incantations, come back here.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

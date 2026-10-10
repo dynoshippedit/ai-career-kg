@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now | Learn Computer Stuff</title>
+<meta name="description" content="CWE, CAPEC, CISA KEV, EPSS — and where enrichment comes from now that NVD enriches only prioritized CVEs. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/vuln-ecosystem/">
+<meta property="og:title" content="The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now | Learn Computer Stuff"><meta property="og:description" content="CWE, CAPEC, CISA KEV, EPSS — and where enrichment comes from now that NVD enriches only prioritized CVEs. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/vuln-ecosystem/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"The surrounding catalogs: CWE, CAPEC, KEV, EPSS \u2014 and where enrichment comes from now","item":"https://learncomputerstuff.dev/g/vuln-ecosystem/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage C · Professional</span><h1>The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now</h1>
+<p class="lede prose">A CVE record tells you a flaw exists. It does not tell you what to do first. Every security team on earth faces the same queue — thousands of CVEs, finite patching windows — and the industry built four catalogs to answer "what first," each answering a different question. This lesson is where they come together: the weakness taxonomy, the attack-pattern catalog, the exploited-in-the-wild list, and the exploitation forecast. It also teaches the 2026 change that rearranged where all of this data comes from: NIST no longer enriches every CVE, so the professional has to know which source each field comes from and what "no data" actually means.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · live EPSS, CISA KEV CSV, three-method ranking comparison</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>C (Professional)</td></tr><tr><th scope="row">Level</th><td>3 (prioritize a vulnerability queue using the catalogs together, and defend the ranking)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/cvss/"><code>c-cvss</code></a> (severity), <a href="/g/cve-program/"><code>c-cve-program</code></a> (records)</td></tr><tr><th scope="row">Map references</th><td>Stage C — the prioritization lesson; the other half of the stage's "professional" claim.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>A CVE record tells you a flaw exists. It does not tell you what to do first. Every security team on earth faces the same queue — thousands of CVEs, finite patching windows — and the industry built four catalogs to answer "what first," each answering a different question. This lesson is where they come together: the weakness taxonomy, the attack-pattern catalog, the exploited-in-the-wild list, and the exploitation forecast. It also teaches the 2026 change that rearranged where all of this data comes from: NIST no longer enriches every CVE, so the professional has to know which source each field comes from and what "no data" actually means.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can score severity by hand (<a href="/g/cvss/"><code>c-cvss</code></a>) and read CVE records (<a href="/g/cve-program/"><code>c-cve-program</code></a>).</li>
+<li>You accept the lesson's central discipline: <strong>no single number prioritizes anything</strong>. CVSS answers "how bad," EPSS answers "how likely," KEV answers "is it happening." A queue sorted by one of them is a guess with arithmetic.</li>
+<li>Primary sources: <strong><a href="https://cwe.mitre.org">cwe.mitre.org</a></strong>, <strong><a href="https://first.org/epss">first.org/epss</a></strong>, <strong>CISA's KEV catalog</strong>, and the U.S. Commerce OIG report OIG-26-020-I (2026-05-26) for the NVD change — all fetched on 2026-10-09.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>CWE — the weakness vocabulary.</strong> The Common Weakness Enumeration is MITRE's catalog of <em>what went wrong in the code</em>: the root-cause types. CWE-79 is Cross-site Scripting, CWE-89 is SQL Injection, CWE-352 is Cross-Site Request Forgery, CWE-787 is Out-of-bounds Write. Every finding you write up should carry its CWE — it is the shared vocabulary that scanners, employers, and other researchers all speak. MITRE publishes the <strong>CWE Top 25</strong> (current edition: <strong>2025</strong>, computed from 39,080 CVE records): the most dangerous weakness types by prevalence and severity, led by CWE-79, CWE-89, CWE-352, CWE-862 (Missing Authorization), CWE-787. There is also a Top 10 KEV Weaknesses (weaknesses ranked by presence in exploited CVEs) and an "On the Cusp" list. Use: when you map each of your Stage B findings to its CWE, you are building the taxonomy your future employer queries.</p>
+<p><strong>CAPEC — the attack-pattern catalog.</strong> Where CWE names the weakness, the Common Attack Pattern Enumeration and Classification names <em>how the weakness gets attacked</em>: the attacker's-side patterns, mapped to CWEs. In a write-up, the CWE names the root cause and the CAPEC entry names the attack pattern — together they say "this kind of flaw, exploited this kind of way." (Catalog-level treatment here; the lesson sends you to <a href="https://capec.mitre.org">capec.mitre.org</a> for the patterns in your write-ups.)</p>
+<p><strong>CISA KEV — what is being exploited right now.</strong> The Known Exploited Vulnerabilities catalog lists CVEs with <em>reliable evidence of active exploitation in the wild</em>, each with remediation guidance and a due date. A CVE is added only with a valid ID, exploitation evidence, and clear remediation. Under federal Binding Operational Directive 26-04, agencies must remediate KEV entries — which makes KEV membership the industry's strongest "fix now" signal. Anyone can nominate an exploited CVE. Each entry also carries a known-ransomware-use field. Use: KEV membership outranks every score. A CVSS 5.5 in KEV beats a CVSS 9.8 that nobody is touching — because the question "is it happening" dominates "how bad."</p>
+<p><strong>EPSS — what will probably be exploited soon.</strong> The Exploit Prediction Scoring System, maintained by FIRST's EPSS Special Interest Group, is a data-driven model estimating the <strong>probability (0–1) that a CVE will be exploited in the wild in the next 30 days</strong>, published daily with ranking percentiles for every CVE, freely available via API, CSV, and GitHub. EPSS answers "how likely" where CVSS answers "how bad." The professional move is combining them: high CVSS <em>and</em> high EPSS is the patch-first set; high CVSS with near-zero EPSS can wait behind medium CVSS with high EPSS.</p>
+<p><strong>Where enrichment comes from now.</strong> This is the 2026 change the whole lesson is built around. The National Vulnerability Database used to enrich every CVE with a NIST CVSS score, a CWE classification, and CPE product mappings. It no longer does. On <strong>April 15, 2026</strong>, NIST moved to risk-based enrichment: it now enriches only <strong>prioritized</strong> CVEs — those in CISA's KEV catalog, those affecting software the federal government uses, and those in critical software as defined by Executive Order 14028 — with KEV entries targeted for enrichment within one business day. Everything else is published but marked <strong>"Not Scheduled"</strong>: no NIST score, no NIST CWE, no NIST product mapping. The unenriched backlog is being reclassified the same way. NIST also no longer issues its own severity score when the submitting CNA already scored the CVE, and anyone can request enrichment of a specific CVE via nvd@nist.gov.</p>
+<p>The sourcing is worth stating precisely, because the lesson's honesty depends on it: the April 15, 2026 change was announced by NIST's Harold Booth at VulnCon26 and reported consistently across industry outlets; it is <strong>government-confirmed via the U.S. Commerce OIG's evaluation report OIG-26-020-I</strong> (May 26, 2026), which states that NIST "publicly announced updates to NVD operations, on April 15, 2026" and "will only enrich vulnerabilities that meet its new criteria, meaning it will no longer assign a score for each vulnerability." There is no NIST-direct announcement page this lesson could find — so the lesson describes the policy as government-confirmed via OIG, not NIST-direct. That distinction is the site's "no verification URL, no row" rule applied to itself.</p>
+<p><strong>What this means for you, practically.</strong> Severity, weakness, and product data for a CVE now come from up to three places, in this order: (1) the <strong>CNA's own record</strong> — its CVSS, its CWE, its affected-product list, as published by the assigner. This is now the <em>default</em> source of truth for most CVEs. (2) <strong>NVD enrichment</strong> — but only for prioritized CVEs. (3) <strong>ADP containers and community sources</strong> for the rest. And the cardinal rule: <strong>"no NVD score" means "not yet analyzed," never "not serious."</strong> The absence of enrichment is a statement about NIST's queue, not about the vulnerability.</p>
+<h3>Worked example: three CVEs, three rankings</h3>
+<p>Fetched live on 2026-10-09 (transcript: <code>runs/c-vuln-ecosystem.log</code>):</p>
+<p>| CVE | CVSS v3.1 | EPSS (30-day) | EPSS percentile | KEV |</p>
+<p>|---|---|---|---|---|</p>
+<p>| CVE-2021-44228 (Log4Shell) | 10.0 | 0.99999 | 100th | <strong>Yes</strong> |</p>
+<p>| CVE-2022-41741 (NGINX mp4) | 7.0 | 0.00794 | 55th | No |</p>
+<p>| CVE-2023-3089 (OpenShift FIPS) | 7.5 | 0.00520 | 42nd | No |</p>
+<p>Three rankings of the same three flaws:</p>
+<ul>
+<li><strong>CVSS-only:</strong> 44228 (10.0) → 3089 (7.5) → 41741 (7.0). Clean, defensible, and wrong about what matters: it treats a 7.5 nobody is exploiting as more urgent than a 7.0 nobody is exploiting, based on decimal dust.</li>
+<li><strong>EPSS-only:</strong> 44228 (0.99999) → 41741 (0.00794, 55th percentile) → 3089 (0.00520, 42nd). Note the reversal: EPSS says 41741 is <em>more</em> likely to be exploited than 3089, disagreeing with CVSS's order. The probabilities are all small except 44228's — which is the point: EPSS separates "the one" from "the rest."</li>
+<li><strong>KEV-first:</strong> 44228 first, by a mile — it is under active exploitation with a federal due date. The other two are not scheduled for KEV-driven remediation at all.</li>
+</ul>
+<p>All three agree 44228 is first. They disagree about the order of the rest — and the disagreement is the lesson: a CVSS-only queue patches 3089 before 41741; an EPSS-informed queue reverses them; a KEV-first queue does not care about either until 44228 is handled. The SOC you will work in uses all three, in that order of authority: KEV membership, then EPSS, then CVSS.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Runnable.</strong> Transcript: <code>runs/c-vuln-ecosystem.log</code> (2026-10-09).</p>
+<ol>
+<li><strong>Pull EPSS for three CVEs.</strong> <code>curl &quot;https://api.first.org/data/v1/epss?cve=CVE-2021-44228&quot;</code> — the run recorded epss, percentile, and date for all three. Note the date on the response: EPSS is daily data; a score without its date is stale on arrival.</li>
+<li><strong>Check KEV membership.</strong> Download the CISA KEV CSV (the run: 1,051,684 bytes, fetched 2026-10-09) and grep for each CVE ID. Record yes/no — and for the yes, read the due date and the known-ransomware-use field.</li>
+<li><strong>Assemble the comparison.</strong> Build the three-row table above: CVSS (from the record or <a href="/g/cvss/"><code>c-cvss</code></a>), EPSS + percentile, KEV yes/no. This table is the prioritization input — everything before it was data collection.</li>
+<li><strong>Rank three ways and defend one.</strong> Write the CVSS-only, EPSS-only, and KEV-first rankings in one paragraph each, then state which ranking your (fictional) SOC should actually use and why. The run's conclusion: KEV-first, because exploitation evidence dominates both severity and probability estimates.</li>
+<li><strong>Trace field provenance for one CVE.</strong> For CVE-2022-41741: where did its CVSS come from (CNA record or NVD enrichment)? Its CWE? Its product mapping? Write each field's source. This is the post-2026 skill: knowing <em>who said it</em>, not just what was said.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take five CVEs from your own Stage B lab work (or five from the KEV catalog if you have none). For each, record: the CWE, the CVSS-B vector and score, the EPSS score and percentile with its date, and KEV membership. Rank them three ways (CVSS-only, EPSS-only, KEV-first) and write one paragraph on how the ranking changes between methods — and which ranking a SOC should actually use, defended in two sentences.</p>
+<p><strong>Success test:</strong> Your three rankings differ in at least one position (if they do not, your sample was too tame — pick harder CVEs). Your defended ranking cites exploitation evidence or probability, not just severity. Every EPSS score carries its date.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Sorting by CVSS alone.</strong> The most common professional error in prioritization. CVSS was never designed to rank queues — it measures technical severity, and severity without likelihood or exposure is half the question.</li>
+<li><strong>Reading "Not Scheduled" as "not serious."</strong> The post-2026 trap. An unenriched CVE is one NIST has not analyzed, full stop. Some of the worst flaws in the next year will sit in that bucket.</li>
+<li><strong>EPSS without the date.</strong> A 30-day forecast read six months later is not data — it is a souvenir. EPSS scores decay; always record the fetch date.</li>
+<li><strong>KEV as a complete list.</strong> KEV lists what CISA has <em>confirmed</em> exploited with remediation guidance. Absence from KEV is not evidence of absence of exploitation — it is evidence of absence of confirmation.</li>
+<li><strong>CWE as decoration.</strong> Mapping every finding to CWE-79 because "it was kind of XSS" corrupts the taxonomy you will later query. The Top 25 is computed from these mappings; sloppy mapping makes the industry's statistics lie.</li>
+<li><strong>Treating the catalogs as competing.</strong> They answer different questions. The failure mode is picking a favorite; the skill is combining them in the right order of authority.</li>
+</ul>
+<h2>7. Read the source</h2>
+<ol>
+<li><strong>CWE Top 25 (2025)</strong> (<a href="https://cwe.mitre.org/top25/)">cwe.mitre.org/top25/)</a> — the current edition, its 39,080-record dataset, and the per-weakness pages for the CWEs in your findings. Read the methodology note so you know what the ranking actually measures.</li>
+<li><strong>FIRST EPSS</strong> (<a href="https://first.org/epss)">first.org/epss)</a> — what the model predicts (probability of exploitation in the next 30 days), the daily publication, the free data access. Read the documentation; query the API.</li>
+<li><strong>CISA KEV catalog</strong> (<a href="https://cisa.gov/known-exploited-vulnerabilities-catalog)">cisa.gov/known-exploited-vulnerabilities-catalog)</a> — the addition criteria (valid ID + exploitation evidence + remediation guidance), the due dates, the nomination process. Download the CSV.</li>
+<li><strong>Commerce OIG report OIG-26-020-I</strong> (<a href="https://oversight.gov">oversight.gov</a>, 2026-05-26) — the government confirmation of the NVD policy change. Read the findings on enrichment prioritization.</li>
+</ol>
+<p>Free resources (≤3): the <strong>EPSS API documentation</strong> (<a href="https://api.first.org">api.first.org</a>) — your programmatic access; <strong>CAPEC</strong> (<a href="https://capec.mitre.org">capec.mitre.org</a>) — the attack-pattern side of your write-ups; the <strong>NVD dashboard</strong> (<a href="https://nvd.nist.gov">nvd.nist.gov</a>) — to see "Not Scheduled" with your own eyes and practice reading past it.</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A CVE has CVSS 9.8, EPSS 0.001 (12th percentile), and is not in KEV. Another has CVSS 6.5, EPSS 0.42 (93rd percentile), and is not in KEV. Your patch window covers one. Which one, and what is the two-sentence defense you give your manager?</li>
+<li>You open an NVD page and see no NIST CVSS score, no CWE, and a "Not Scheduled" label. List the three places you look next, in order, and what each can give you.</li>
+<li>Why does KEV membership outrank a higher CVSS score in every serious prioritization scheme? What question does KEV answer that CVSS cannot?</li>
+<li>A colleague sorts the queue by CVSS and calls it "risk-based prioritization." Using the three-CVE worked example, show the concrete decision this gets wrong.</li>
+<li>The OIG report confirms NIST's April 2026 change but you cannot find a NIST-direct announcement page. How do you describe the policy's sourcing in a write-up without overstating it?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the five-CVE prioritization comparison with the three rankings and your defended recommendation, published on your blog or GitHub. This is the artifact a SOC hiring manager actually wants to see: not that you know the catalogs exist, but that you can combine them into a decision.</p>
+<p><strong>Honest claims after this lesson:</strong> you can prioritize any vulnerability queue using CWE, CVSS, EPSS, and KEV together; you can trace every field to its source; you know what "Not Scheduled" means and does not mean. <strong>Cannot yet claim:</strong> that your ranking is optimal — prioritization is judgment under uncertainty, and the honest claim is that your method is sound and auditable, not that it is right.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/cvd/"><code>c-cvd</code></a> and <a href="/g/cve-program/"><code>c-cve-program</code></a> feed this lesson: the records and disclosures you produce are the inputs this lesson prioritizes.</li>
+<li><a href="/g/soc-triage/"><code>c-soc-triage</code></a> and <a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> consume it: triage is prioritization under time pressure, and this lesson is the slow version.</li>
+<li>Stage E's risk assessment (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>) takes this further: prioritization across an organization, with owners and decisions.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-c/">Stage C · Professional</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

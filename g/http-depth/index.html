@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTTP in depth | Learn Computer Stuff</title>
+<meta name="description" content="HTTP in depth: requests, responses, cookies, JWTs and TLS — explained byte by byte, with every walkthrough step run locally. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/http-depth/">
+<meta property="og:title" content="HTTP in depth | Learn Computer Stuff"><meta property="og:description" content="HTTP in depth: requests, responses, cookies, JWTs and TLS — explained byte by byte, with every walkthrough step run locally. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/http-depth/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"HTTP in depth","item":"https://learncomputerstuff.dev/g/http-depth/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>HTTP in depth</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>HTTP in depth</h1>
+<p class="lede prose">Everything above this lesson assumes HTTP and almost nothing below it explains it. Web vulnerability work (Stage B) is the art of sending requests a developer did not expect and reading responses the developer did not intend — you cannot do that if the request line, the headers, and the status code are magic. Traffic analysis (Stage C) is reading packet captures full of HTTP. Incident response (Stage D) is reconstructing what an attacker did from web-server logs, which are HTTP in shorthand. Authentication, sessions, APIs, and the entire AI-application stack (system prompts travel inside HTTP POST bodies) all sit on this protocol. Learn it once, properly, and every later lesson gets shorter.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only, nothing external touched</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism — you can explain every byte on the wire)</td></tr><tr><th scope="row">Prerequisites</th><td>Linux command line basics (Stage A shell lesson), Python 3 and curl installed</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Everything above this lesson assumes HTTP and almost nothing below it explains it. Web vulnerability work (Stage B) is the art of sending requests a developer did not expect and reading responses the developer did not intend — you cannot do that if the request line, the headers, and the status code are magic. Traffic analysis (Stage C) is reading packet captures full of HTTP. Incident response (Stage D) is reconstructing what an attacker did from web-server logs, which are HTTP in shorthand. Authentication, sessions, APIs, and the entire AI-application stack (system prompts travel inside HTTP POST bodies) all sit on this protocol. Learn it once, properly, and every later lesson gets shorter.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>A Linux shell with <code>curl</code> and <code>python3</code> (verify: <code>curl --version</code>, <code>python3 --version</code>).</li>
+<li>You can read a little Python — the demo server in the walkthrough is ~60 lines.</li>
+<li>No account, no cloud, no browser needed. Everything runs on <code>127.0.0.1</code>.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>HTTP is a <strong>stateless request/response protocol</strong>: the client sends a text message describing what it wants, the server sends a text message back, and then — as far as the protocol is concerned — they forget each other. Every "session," "login," and "shopping cart" you have ever used is a trick built on top of this amnesia. Understanding HTTP means understanding exactly what is in those two messages and what each piece is allowed to mean.</p>
+<p>A request has three parts. The <strong>request line</strong>: a method, a target, and the protocol version, e.g. <code>POST /login HTTP/1.1</code>. The <strong>headers</strong>: <code>Name: value</code> lines carrying metadata — what kind of body this is, who is asking, what credentials they present. Then a blank line, then the optional <strong>body</strong>: the actual payload. A response mirrors it: a <strong>status line</strong> (<code>HTTP/1.1 200 OK</code>), headers, a blank line, a body.</p>
+<p>The method is the verb and it carries a contract. <strong>GET</strong> retrieves; it must not change anything (safe) and repeating it must be harmless (idempotent). <strong>POST</strong> submits data for processing — the catch-all for "do something." <strong>PUT</strong> replaces the resource at the target, <strong>DELETE</strong> removes it, <strong>PATCH</strong> partially modifies. <strong>HEAD</strong> and <strong>OPTIONS</strong> ask questions about a resource without fetching it. The contract matters for security: a state-changing action reachable by GET can be triggered by a mere link or image load (this is the entire basis of CSRF, Stage B). Servers are allowed to refuse methods — the correct refusal is <code>405 Method Not Allowed</code>, ideally with an <code>Allow</code> header naming what is accepted.</p>
+<p>Status codes are grouped by their first digit, and the group tells you the story before you read anything else. <strong>2xx</strong> — done, here is your answer. <strong>3xx</strong> — look elsewhere; the <code>Location</code> header says where. <strong>4xx</strong> — you asked wrong (400 bad request, 401 unauthenticated, 403 authenticated-but-forbidden, 404 not found). <strong>5xx</strong> — the server failed itself. Two distinctions carry security weight. First, <strong>401 vs 403</strong>: 401 means "I don't know who you are — authenticate" (it usually arrives with a <code>WWW-Authenticate</code> header); 403 means "I know who you are and the answer is no." Confusing them leaks information about what exists. Second, <strong>404 vs 403 on a hidden resource</strong>: a 403 confirms the thing exists, a 404 pretends it doesn't — which one a server returns is a deliberate information-disclosure decision.</p>
+<p>Headers are where the real work happens. A few you must know cold:</p>
+<ul>
+<li><code>Host</code> — names the server the client wants (one IP can serve many sites; without this the server cannot route).</li>
+<li><code>Content-Type</code> / <code>Content-Length</code> — describe the body. <code>Content-Type: application/json</code> tells the server to parse the body as JSON; a mismatch between what the header claims and what the body contains is a classic parser-confusion bug.</li>
+<li><code>Set-Cookie</code> (response) / <code>Cookie</code> (request) — the amnesia workaround. The server says <code>Set-Cookie: session=abc; HttpOnly; Path=/</code>, and the browser dutifully returns <code>Cookie: session=abc</code> on every later request. Attributes are the security policy: <code>HttpOnly</code> hides the cookie from JavaScript (blunts XSS theft), <code>Secure</code> restricts it to HTTPS, <code>SameSite</code> controls whether it is sent on cross-site requests (the CSRF defense).</li>
+<li><code>Authorization</code> — carries credentials per request, e.g. <code>Bearer &lt;token&gt;</code>. Unlike cookies, nothing sends it automatically; the client code must attach it.</li>
+<li><code>Location</code> — the redirect target for 3xx responses.</li>
+<li><code>WWW-Authenticate</code> — accompanies 401, naming the acceptable auth schemes.</li>
+</ul>
+<p>Because the protocol forgets, <strong>sessions are a server-side fiction maintained with client-side tokens</strong>. Two designs dominate. The <strong>opaque session cookie</strong>: the cookie is a random string, meaningless by itself; the server looks it up in a store. Steal the string and you are the user (session hijacking) — which is why the cookie attributes and TLS matter. The <strong>JWT</strong>: the token carries its own claims — three base64url segments separated by dots, <code>header.payload.signature</code>. The header names the algorithm (<code>HS256</code>), the payload carries claims (<code>sub</code> for subject, <code>iat</code>/<code>exp</code> for issued-at/expiry), and the signature is a MAC or digital signature over the first two segments. The critical insight: <strong>a JWT is signed, not encrypted</strong> — anyone can read the payload; the signature only proves it was issued by someone holding the key. And a signature that is never verified is decoration. Servers that accept <code>alg=none</code>, or that verify an HMAC with the public RSA key, have turned their session mechanism into a suggestion box (Stage B covers the attacks; this lesson covers the structure that makes them possible).</p>
+<p>Below HTTP sits <strong>TLS</strong>, and the layering is the point. HTTP does not know or care whether its bytes are encrypted; TLS wraps the entire HTTP conversation — request line, headers, body, everything — in an encrypted tunnel negotiated before the first HTTP byte flows. The handshake (TLS 1.3, RFC 8446) establishes the protocol version, the cipher, the server's identity via its certificate, and the session keys, in roughly one round trip. What TLS protects: everything above TCP. What it does not protect: the fact that you talked to the server at all (IP addresses and timing are visible), and anything the endpoints themselves mishandle. "HTTPS" is just HTTP inside that tunnel — which is why a plain-HTTP request to a TLS port fails with silence, as the walkthrough shows.</p>
+<p>Finally, versions. <strong>HTTP/1.1</strong> (text messages, one request at a time per connection, keep-alive), <strong>HTTP/2</strong> (multiplexed binary frames over one TCP connection), <strong>HTTP/3</strong> (same idea over QUIC/UDP). RFC 9110 defines the <strong>semantics</strong> — methods, status codes, fields — shared by all three; the version changes the transport syntax, not the meaning. When a lesson says "send a GET," the semantics are identical whether the bytes are HTTP/1.1 text or HTTP/3 frames.</p>
+<h3>Worked example: one login, end to end</h3>
+<p>Run the demo server from the walkthrough (<code>python3 server.py</code>, port 8321) and follow a single login the way the protocol sees it. The client sends:</p>
+<pre><code>POST /login HTTP/1.1
+Host: 127.0.0.1:8321
+Content-Type: application/json
+Content-Length: 38
+
+{&quot;user&quot;:&quot;alice&quot;,&quot;pass&quot;:&quot;wonderland&quot;}</code></pre>
+<p>The server checks the credentials and answers:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Set-Cookie: session=alice-sess-abc; HttpOnly; Path=/
+Content-Length: ...
+
+{&quot;token&quot;:&quot;&lt;header&gt;.&lt;payload&gt;.&lt;signature&gt;&quot;}</code></pre>
+<p>Two session mechanisms are issued at once: an opaque cookie and a JWT. Decode the JWT (base64url-decode each segment — the walkthrough does this in Python): the header says <code>{&quot;alg&quot;:&quot;HS256&quot;,&quot;typ&quot;:&quot;JWT&quot;}</code>, the payload says <code>{&quot;sub&quot;:&quot;alice&quot;,&quot;iat&quot;:...,&quot;exp&quot;:...}</code>. Recompute the HMAC-SHA256 over <code>header.payload</code> with the server's secret and compare — it matches, so the token is genuine. Now flip one character of the payload and recompute: the signature no longer matches, and any server that actually verifies will reject it. That is the whole of JWT security in one motion: <strong>readable by all, trustworthy only if verified, worthless if not</strong>. Reproduce every step of this against your own running server before moving on — the walkthrough below is that reproduction.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-http-depth.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, OpenSSL, loopback only, 2026-10-09.</p>
+<ol>
+<li><strong>Start the lab server.</strong> Save the <code>server.py</code> from this lesson's companion (a ~60-line stdlib HTTP server with <code>/</code>, <code>/login</code>, <code>/echo</code>, <code>/old</code>, <code>/new</code>, <code>/private</code>, <code>/admin</code> routes) and run <code>python3 server.py</code>. Confirm <code>curl -s -o /dev/null -w &quot;%{http_code}&quot; http://127.0.0.1:8321/</code> returns <code>200</code>.</li>
+<li><strong>Read a raw response.</strong> <code>curl -s -i http://127.0.0.1:8321/</code> — identify the status line, each header, the blank line, the body. Note the <code>Server</code> and <code>Date</code> headers: the server volunteers information; real servers volunteer more (version strings are reconnaissance).</li>
+<li><strong>Follow a redirect.</strong> <code>curl -s -i http://127.0.0.1:8321/old</code> returns <code>301</code> with <code>Location: /new</code>. Predict, then verify with <code>curl -s http://127.0.0.1:8321/new</code>. <em>Teaching point:</em> the client decides whether to follow — <code>curl</code> without <code>-L</code> does not. Redirects are client behavior, not protocol magic.</li>
+<li><strong>Map the status codes.</strong> Request <code>/nope</code> (404), <code>/admin</code> (403), <code>/private</code> (401 + <code>WWW-Authenticate</code>). Say out loud which of 401/403/404 you got and why each is the correct code for that situation.</li>
+<li><strong>Provoke a 405.</strong> <code>curl -s -i -X PUT http://127.0.0.1:8321/</code> — read the <code>Allow</code> header. Then try <code>DELETE</code> and <code>PATCH</code>: same result. <em>Teaching point:</em> method handling is per-route server logic; "the API supports PUT" is a claim you test, not a fact you assume.</li>
+<li><strong>Log in and capture both session mechanisms.</strong> <code>curl -s -i -X POST http://127.0.0.1:8321/login -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;user&quot;:&quot;alice&quot;,&quot;pass&quot;:&quot;wonderland&quot;}&#x27;</code> — find the <code>Set-Cookie</code> header and the JWT in the JSON body. Then repeat with a wrong password: <code>401</code>.</li>
+<li><strong>Dissect the JWT.</strong> Split the token on <code>.</code>, base64url-decode the first two segments, read the claims (<code>sub</code>, <code>iat</code>, <code>exp</code>). Recompute the HMAC-SHA256 signature with the lab secret and confirm it matches; tamper with one payload character and confirm the signature check now fails. (The lab secret is printed in the transcript for reproducibility; on a real system the secret is the entire security of the scheme.)</li>
+<li><strong>Echo and Content-Type.</strong> <code>curl -s -X POST http://127.0.0.1:8321/echo -H &#x27;Content-Type: text/plain&#x27; -d &#x27;hello body&#x27;</code> — the body round-trips. Now send JSON with <code>Content-Type: text/plain</code> and consider: the server echoes bytes, but a real app would <em>parse</em> by the header — header/body mismatch is where parser differentials live.</li>
+<li><strong>Add TLS.</strong> Generate a throwaway self-signed certificate (<code>openssl req -x509 -newkey rsa:2048 -nodes -subj &quot;/CN=127.0.0.1&quot;</code>), wrap the server with Python's <code>ssl</code> module on port 8443. Observe the negotiated parameters with <code>openssl s_client -connect 127.0.0.1:8443</code> (TLS 1.3, <code>TLS_AES_256_GCM_SHA384</code> in our run). Fetch with <code>curl -sk https://127.0.0.1:8443/</code> — <code>-k</code> skips certificate verification, which is why the self-signed cert is accepted; on the real internet <code>-k</code> is how you volunteer for interception.</li>
+<li><strong>Prove the layering.</strong> <code>curl --max-time 5 http://127.0.0.1:8443/</code> — plain HTTP against the TLS port fails (000, handshake failed). The TLS handshake happens <em>before</em> any HTTP byte; there is no graceful "please speak TLS" fallback.</li>
+</ol>
+<p>No step above is marked "not run by us" — every command ran against the local lab server and the transcript records the real output.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Extend the lab server with a <code>/profile</code> endpoint that returns a JSON greeting for the logged-in user. It must read the JWT from the <code>Authorization: Bearer &lt;token&gt;</code> header, verify the signature and the <code>exp</code> claim, and reject bad tokens. Then, with curl only: (a) show a valid login reaching <code>/profile</code> successfully, (b) show a tampered token being rejected, (c) show an expired token being rejected (hint: mint one with <code>exp</code> in the past), (d) show the missing-header case.</p>
+<p><strong>Success test:</strong> Four request/response pairs, each with the correct status code (200 / 401 / 401 / 401) and a response body that does not leak <em>why</em> the token failed beyond what 401 already says. If your error messages distinguish "bad signature" from "expired" from "missing," you have built a username-enumeration-style oracle for tokens — fix it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Trusting the client.</strong> Every header, cookie, method, and body byte is attacker-controlled. The server that treats <code>Cookie: role=admin</code> as authoritative has no authorization — it has a suggestion box. (Stage B makes a career of this.)</li>
+<li><strong>Cookies without attributes.</strong> A session cookie missing <code>HttpOnly</code> is stealable by any XSS; missing <code>Secure</code> travels over HTTP; missing <code>SameSite</code> rides along on cross-site requests. The attributes are not hygiene — they are the session's armor.</li>
+<li><strong>JWTs accepted without verification.</strong> <code>alg=none</code> accepted, signature unchecked, <code>exp</code> ignored, or the key confused (verifying an HMAC with a public RSA key). A bearer token is not a JWT until you have identified the format <em>and</em> validated it per RFC 7519 §7.2.</li>
+<li><strong>Information in status codes and errors.</strong> 403-vs-404 choices, verbose 500 stack traces, <code>Server</code> banners with version numbers — each is a free answer to a reconnaissance question.</li>
+<li><strong>Method confusion.</strong> State-changing GETs (CSRF bait), or routes that enforce authorization on POST but forget the same path answers to PUT/DELETE.</li>
+<li><strong>HTTP where HTTPS belongs.</strong> Credentials, cookies, or tokens over plain HTTP are readable by anyone on the path. HSTS and redirect-to-HTTPS exist because one stray <code>http://</code> link is enough.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — read with a purpose, skip without guilt:</p>
+<ul>
+<li><strong>RFC 9110, HTTP Semantics</strong> (<a href="https://rfc-editor.org/rfc/rfc9110)">rfc-editor.org/rfc/rfc9110)</a> — <em>read</em> §9 (methods) and §15 (status codes); <em>skim</em> the field registry sections; <em>skip</em> the ABNF grammar on first pass. This is the shared meaning of all HTTP versions.</li>
+<li><strong>RFC 6265, HTTP State Management Mechanism</strong> (<a href="https://rfc-editor.org/rfc/rfc6265)">rfc-editor.org/rfc/rfc6265)</a> — <em>read</em> §4 (Set-Cookie semantics, the attributes); <em>skim</em> §5 (user-agent processing); <em>skip</em> the date-parsing algorithm unless you implement cookies.</li>
+<li><strong>RFC 8446, The Transport Layer Security (TLS) Protocol Version 1.3</strong> (<a href="https://rfc-editor.org/rfc/rfc8446)">rfc-editor.org/rfc/rfc8446)</a> — <em>read</em> the handshake overview (§2); <em>skip</em> the cryptographic details — know what the handshake achieves, not the math.</li>
+<li><strong>RFC 7519, JSON Web Token</strong> (<a href="https://rfc-editor.org/rfc/rfc7519)">rfc-editor.org/rfc/rfc7519)</a> — <em>read</em> §3–4 (structure and claims) and §7.2 (validation); <em>skim</em> §11 (security considerations); <em>skip</em> the JWE appendices until you need encryption.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>MDN Web Docs — HTTP</strong> (<a href="https://developer.mozilla.org">developer.mozilla.org</a>) — the best free guided tour; read the "Messages," "Methods," and "Status codes" articles after the RFCs to consolidate.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; the request-smuggling and auth labs in Stage B will assume everything in this lesson.</li>
+<li><strong>curl documentation</strong> (<code>curl --help</code>, <a href="https://curl.se/docs)">curl.se/docs)</a> — free; the tool you will use for the next hundred lessons deserves an hour of manual reading.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why HTTP is called stateless, and name the two mechanisms from this lesson that applications layer on top to fake state. Which one requires server-side storage?</li>
+<li>A server returns <code>403</code> for <code>/admin</code> when you request it unauthenticated, and <code>404</code> for <code>/admin_backup</code> under the same conditions. Predict what an attacker learns from each response, and explain which behavior you would choose for a sensitive path and why.</li>
+<li>You intercept a JWT and can read <code>{&quot;sub&quot;:&quot;admin&quot;}</code> in the payload. Explain, precisely, why you still cannot forge an admin token — and name the single server-side mistake that would let you.</li>
+<li><code>curl -k https://example.com</code> succeeds where <code>curl https://example.com</code> fails with a certificate error. Explain what <code>-k</code> disabled, what attack it re-enables, and why the walkthrough used it anyway.</li>
+<li>A form's "delete account" button issues <code>GET /account/delete</code>. Explain the vulnerability class this enables (you will meet it by name in Stage B) and the one-line method-level fix.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a lab notebook (Markdown) containing: the full login exchange from the worked example (request + response with headers), the decoded JWT header and payload with the signature verification shown, the TLS negotiation line from step 9, and your answers to the four "On your own" probes with their status codes.</p>
+<p><strong>Honest claim:</strong> "I can read any HTTP request/response and explain every line, mint and verify a JWT by hand, and describe what TLS does and does not protect."</p>
+<p><strong>Can't claim yet:</strong> "I can find or exploit HTTP-level vulnerabilities" — that is Stage B, and this lesson deliberately built no vulnerable app.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>Stage B web vulnerability lessons</strong> (B-VULN-01 through B-VULN-16) — every one of them is "send an unexpected HTTP message, read the response." IDOR (<a href="/g/idor/"><code>b-idor</code></a>) is the immediate next step.</li>
+<li><strong>Stage B defensive basics</strong> (B-DEF) — reading web logs and writing detections assumes you can parse what you just learned to produce.</li>
+<li><strong>Stage D DFIR track</strong> — reconstructing attacks from access logs is this lesson applied to someone else's traffic.</li>
+<li>Map refs: this lesson is pre-map foundations; the authorization half of it feeds <strong>CISSP 5.4</strong> (authorization mechanisms) via Stage B, and the TLS half feeds <strong>CISSP 4.3</strong> (secure communication channels) via Stage E.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

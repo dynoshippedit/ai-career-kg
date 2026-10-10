@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The security guidebook | Learn Computer Stuff</title>
+<meta name="description" content="A free, hands-on cybersecurity program: run the commands, reproduce the findings, fix the flaws. Fifty-three lessons live now — Stage A foundations, the Stage A remainder, pilots, the Stage B mechanics wave, the Stage B web-vulnerability wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave, and the AI security track.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/">
+<meta property="og:title" content="The security guidebook | Learn Computer Stuff"><meta property="og:description" content="A free, hands-on cybersecurity program: run the commands, reproduce the findings, fix the flaws. Fifty-three lessons live now — Stage A foundations, the Stage A remainder, pilots, the Stage B mechanics wave, the Stage B web-vulnerability wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave, and the AI security track.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <span>Security guidebook</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">New · hands-on, free, no account needed</span><h1>The security guidebook</h1>
+<p class="lede prose">A complete cybersecurity education, taught the way the work actually happens: you run the commands, reproduce the findings, fix the flaws, and write the reports — every walkthrough executed and dated, every claim checked against its source. Fifty-three lessons are live now: the Stage A foundations, the Stage A remainder (Python, reading code, Windows, OSINT), the pilots, the Stage B mechanics wave (authorization, methodology, toolbench, practice targets), the Stage B web-vulnerability wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave (red team, malware, cloud, AppSec), the Stage D wave 2 (exploit concepts, DFIR deep), the Stage C remainder (public track record, AI tooling), and the AI security track; the full program builds out from here, stage by stage.</p>
+<p class="dateline">Published 2026-10-09 · walkthroughs run 2026-10-09</p>
+<div class="note"><span class="eyebrow">How a lesson is built</span>
+<p class="prose">Every lesson follows the same ten parts: where it shows up, what you need first, how it works, a guided walkthrough, work on your own, where it goes wrong, the primary sources, check-yourself questions, a proof-of-skill artifact, and where it leads next. If a step could not be run, the lesson says so on the page.</p></div>
+</section>
+<section><h2>The lessons</h2>
+<div class="grid">
+<a class="door" href="/g/http-depth/"><h3>HTTP in depth</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Everything above this lesson assumes HTTP and almost nothing below it explains it. Web vulnerability work (Stage B) is the art of sending requests a developer did not expect and reading responses the developer did not…</p></a><a class="door" href="/g/idor/"><h3>IDOR: Insecure Direct Object References</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>IDOR is the single highest-yield vulnerability class for a beginning bounty hunter: it is common, it is usually simple to prove, and its impact writes itself ("one user reads another user's data"). It sits inside…</p></a><a class="door" href="/g/risk-assessment/"><h3>Risk assessment as a worked case</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Risk assessment is the decision-making engine of every security program: it is how an organization decides what to fix first, what to accept, and what to explain to its leadership. In the CISSP it anchors Domain 1…</p></a><a class="door" href="/g/prompt-injection/"><h3>Prompt injection, the #1 LLM risk</h3><p><span class="eyebrow">AI track</span></p><p>Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications — <strong>LLM01</strong> in both the 2025 and 2026 editions — because it is the failure mode from which the others follow: if an attacker…</p></a><a class="door" href="/g/dns-depth/"><h3>DNS in depth</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Nothing on a network happens before DNS. The login flow this whole stage builds toward starts with a name typed into a client, and the first question the machine asks is "what address is that?" — answered by DNS, before…</p></a><a class="door" href="/g/tcpip-ports/"><h3>TCP/IP and ports</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every connection you will ever investigate or exploit is TCP (or UDP) to an IP address and a port. The SOC analyst triaging "suspicious outbound connection" is reading exactly the states this lesson teaches: who…</p></a><a class="door" href="/g/linux-cli/"><h3>Linux command line for security work</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every tool in this program runs on Linux, and every one of them is driven from the command line. The walkthroughs in <a href="/g/dns-depth/"><code>a-dns-depth</code></a> and <a…</p></a><a class="door" href="/g/git-github/"><h3>Git and GitHub</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every artifact this program asks you to produce — lab notebooks, Bandit notes, tools, reports, disclosures — lives in a git repository, and the public ones live on GitHub. That is not administrative overhead; it is the…</p></a><a class="door" href="/g/sqli/"><h3>SQL injection: when your input becomes the query</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>SQL injection is the oldest injection class on the web and still one of the most damaging: it sits inside <strong>OWASP Top 10:2025 A05 — Injection</strong> and carries its own weakness ID, <strong>CWE-89</strong>. You…</p></a><a class="door" href="/g/command-injection/"><h3>OS command injection: when your input reaches a shell</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>OS command injection is SQL injection's sibling one layer down: instead of the database executing your input as code, the <strong>operating system</strong> does. It sits inside <strong>OWASP Top 10:2025 A05 —…</p></a><a class="door" href="/g/ssrf/"><h3>SSRF: when the server fetches what you tell it to</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Server-side request forgery is the vulnerability where the <em>attacker</em> doesn't make the request — the <strong>server</strong> does, on the attacker's behalf, to a destination the attacker chose. It sits in…</p></a><a class="door" href="/g/csrf/"><h3>CSRF: when the victim&#x27;s browser does the attacker&#x27;s work</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Cross-site request forgery is the attack where the victim's own browser issues the malicious request — authenticated, cookie-attached, indistinguishable from legitimate traffic. It sits in <strong>OWASP Top 10:2025…</p></a><a class="door" href="/g/xss/"><h3>Cross-site scripting: when the browser can&#x27;t tell your code from the attacker&#x27;s</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Every application that renders user input in a page can carry XSS, which makes it the most common web vulnerability class you will meet in bounty programs and penetration tests. It sits in <strong>OWASP Top 10:2025 A05…</p></a><a class="door" href="/g/business-logic/"><h3>Business-logic flaws: when the code works and the rules don&#x27;t</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Business-logic flaws are the highest-creativity class in bounty work: no injection, no misconfiguration, just the application's own rules failing when a user deviates from the expected path. They sit in <strong>OWASP…</p></a><a class="door" href="/g/session-auth/"><h3>Broken authentication and session management: proving who you are, and staying proven</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Authentication is the gate every other control stands behind: if an attacker can become the victim, authorization checks are answering the wrong question. It sits in <strong>OWASP Top 10:2025 A07 — Authentication…</p></a><a class="door" href="/g/security-headers/"><h3>Security headers and browser defenses: telling the browser what &quot;safe&quot; means</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Security headers are the cheapest defense-in-depth in web security: a handful of response headers that change how the browser treats your pages — blocking inline scripts, upgrading connections to HTTPS, refusing to be…</p></a><a class="door" href="/g/bug-bounty/"><h3>Bug bounty mechanics: how authorized testing is actually offered to beginners</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Every vulnerability class you have learned to find and fix has to be <em>found somewhere legal</em> before any of it matters. Bug bounty programs are the market where that happens: an organization publishes what you may…</p></a><a class="door" href="/g/soc-triage/"><h3>SOC Triage: From Alert to Decision</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Every alert a security operations center produces lands on a human who has minutes — not hours — to decide what it means. That decision is triage: turning a detection's hypothesis into a classification and a routing…</p></a><a class="door" href="/g/log-sources/"><h3>Log Sources That Matter</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Triage told you <em>what to decide</em>; this lesson tells you <em>where to look</em>. Every investigation is a question aimed at a log source: "who logged in where" goes to identity logs, "what did the process do" goes…</p></a><a class="door" href="/g/sigma-detection/"><h3>Writing Detections with Sigma</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Every alert triage ever performed started as a detection someone wrote. Detection engineering is the discipline of turning "we should notice when X happens" into a tested, tuned rule that fires on X and stays quiet on…</p></a><a class="door" href="/g/incident-response/"><h3>Incident Response Basics</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Triage ends with "confirmed incident" — and then a different discipline takes over. Incident response is the structured work of containing, eradicating, and recovering from a security incident without making it worse:…</p></a><a class="door" href="/g/cvd/"><h3>Coordinated vulnerability disclosure</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Everything before this lesson taught you to find flaws on targets you are allowed to touch. The moment you find a real flaw in software you do not own, you have a second problem: telling the people who can fix it…</p></a><a class="door" href="/g/cve-program/"><h3>The CVE Program</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>A CVE ID is the closest thing the security field has to a permanent public record of a vulnerability — and of who found it. When a hiring manager, a bounty platform, or a program like Anthropic's Cyber Verification…</p></a><a class="door" href="/g/cvss/"><h3>CVSS v3.1 and v4.0, scored by hand</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Every prioritization decision in security runs through a CVSS score: the scanner output you triage, the KEV catalog's urgency, the vendor advisory's headline number, the risk register's "High." Most practitioners treat…</p></a><a class="door" href="/g/vuln-ecosystem/"><h3>The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>A CVE record tells you a flaw exists. It does not tell you what to do first. Every security team on earth faces the same queue — thousands of CVEs, finite patching windows — and the industry built four catalogs to…</p></a><a class="door" href="/g/iam/"><h3>Identity and access management: who gets in, and to what</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Every security incident is, at its core, an identity question: somebody (or something) did something, and the system decided — correctly or not — that they were allowed to. IAM is the discipline that makes those…</p></a><a class="door" href="/g/crypto-applied/"><h3>Applied cryptography: what the primitives do, and how they break</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Cryptography is the one part of security where the math is essentially never the problem and the <em>use</em> of the math is almost always the problem. Nobody breaks AES; they store the key next to the data, or use ECB…</p></a><a class="door" href="/g/sdlc/"><h3>Secure SDLC: catching the vulnerability before it ships</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Every vulnerability in Stage B was a decision somebody made under schedule pressure — and a secure SDLC is the organizational machinery for making those decisions differently. It shows up in the AppSec engineer's…</p></a><a class="door" href="/g/bcp-drp/"><h3>Business continuity and disaster recovery: deciding what survives the outage</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Risk assessment asks "what could go wrong"; business continuity answers "when it does, what do we do Monday morning." It is the discipline behind every RTO/RPO pair in a vendor questionnaire, every tabletop exercise…</p></a><a class="door" href="/g/llm-architecture/"><h3>How LLM applications are built and where they are attacked</h3><p><span class="eyebrow">AI track</span></p><p>Every AI security task you will ever do starts at a whiteboard with boxes and arrows: where does user input enter, where does retrieved content enter, what can the model touch, and where is the boundary between…</p></a><a class="door" href="/g/llm-top10/"><h3>The OWASP LLM Top 10 beyond prompt injection</h3><p><span class="eyebrow">AI track</span></p><p>Prompt injection is the risk everyone has heard of; the other nine are the risks that actually fill incident reports. When a vendor says "our model doesn't leak training data," that is a claim about LLM02. When a team…</p></a><a class="door" href="/g/supply-chain/"><h3>AI supply chain security</h3><p><span class="eyebrow">AI track</span></p><p>Every model you have ever downloaded is someone else's build artifact, produced on someone else's infrastructure, from data you have never seen. The question "is this model what it claims to be?" is the entire lesson,…</p></a><a class="door" href="/g/ai-governance/"><h3>Governing AI</h3><p><span class="eyebrow">AI track</span></p><p>Someone has to answer "is this safe to ship, and who says so?" — that someone is you if you work GRC, security leadership, or AI security engineering at any organization large enough to have a risk committee. The answer…</p></a><a class="door" href="/g/redteam-concepts/"><h3>Red team operations: concepts</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>A red team is hired to act like an adversary so the defenders can practice on something real. The job needs a shared language for "what the adversary did," and that language is MITRE ATT&amp;CK. You will meet it in…</p></a><a class="door" href="/g/malware-analysis/"><h3>Malware analysis: concepts</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>Every SOC alert that says "suspicious file" ends with someone answering one question: <em>what does this program do?</em> Malware analysts answer it for incident response (what did it do here?), for threat intel (what…</p></a><a class="door" href="/g/cloud-security/"><h3>Cloud security: concepts</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>Most "cloud breaches" are not breaks of the cloud — they are misconfigurations by the customer: a storage bucket left public, a firewall rule opened to the world, an access key committed to a repo, a trail left…</p></a><a class="door" href="/g/appsec/"><h3>Application security: concepts</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>Someone has to make sure the software gets <em>built</em> securely, not just tested after release. Application security is that discipline: threat modeling before code, scanners and reviews during development,…</p></a><a class="door" href="/g/authorization-scope/"><h3>Authorization, scope, and the hard rules</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>This is the lesson that gates everything after it. Every hands-on lesson in Stage B — every lab you stand up, every PortSwigger exercise, every bounty report you will ever write — assumes you can state, in writing, what…</p></a><a class="door" href="/g/methodology/"><h3>Engagement methodology: WSTG, PTES, and NIST SP 800-115</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Authorization tells you what you may touch. Methodology tells you what to do with it, in what order, and what each step produces. Without a methodology you poke at random: you find the easy bugs, miss the structural…</p></a><a class="door" href="/g/toolbench/"><h3>The toolbench: fifteen phases, one question each</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Every engagement in the methodology lesson runs on tools, and every tool in this lesson exists to answer exactly one question. Beginners collect tools; professionals collect answers. The difference shows up in the…</p></a><a class="door" href="/g/practice-targets/"><h3>Setting up practice targets locally</h3><p><span class="eyebrow">Stage B · Practitioner</span></p><p>Every hands-on lesson in this guidebook needs a target you are allowed to touch, and the answer is always the same: one you run yourself, on your own machine, bound to localhost. This lesson builds that bench of targets…</p></a><a class="door" href="/g/python-security/"><h3>Python for security tooling</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every tool you will meet in Stage B is, under the hood, a program that opens connections, sends crafted input, and parses what comes back — and an enormous share of them are Python scripts. <a…</p></a><a class="door" href="/g/reading-code/"><h3>Reading code through a vulnerability</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every vulnerability you will ever find is a story about input: where it enters, what touches it, and where it lands. Source code is where that story is written down — and the ability to <em>read</em> it, following one…</p></a><a class="door" href="/g/windows-concepts/"><h3>Windows concepts for security</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>The servers you will attack in Stage B are Linux. The <em>victims</em> in Stage C and D are very often Windows: the workstation that got phished, the domain controller, the server running the business application.…</p></a><a class="door" href="/g/osint-research/"><h3>OSINT and research discipline</h3><p><span class="eyebrow">Stage A · Foundations</span></p><p>Every authorized engagement in <a href="/g/methodology/"><code>b-methodology</code></a> begins with reconnaissance — and the first half of reconnaissance never touches the target at all. OSINT (open-source intelligence)…</p></a><a class="door" href="/g/ai-pipeline/"><h3>AI attacks and defenses in the build pipeline</h3><p><span class="eyebrow">AI track</span></p><p>Every model you will ever deploy passed through a pipeline: data was collected, a training or fine-tuning job ran, an artifact was packaged, it landed in a registry, and something deployed it. That pipeline is an attack…</p></a><a class="door" href="/g/threat-modeling-ai/"><h3>Threat modeling AI systems</h3><p><span class="eyebrow">AI track</span></p><p>Before anyone writes a control, someone has to answer: what are we actually afraid of, <em>here</em>, in <em>this</em> system? That answer is a threat model, and for AI systems it is a distinct skill — not because the…</p></a><a class="door" href="/g/security-program/"><h3>Running a security program</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Someone has to own security as a whole — not the vulnerabilities, the tools, or the incidents, but the <em>program</em>: the direction, the resources, the proof it works. That someone is the security program lead (a…</p></a><a class="door" href="/g/board-communication/"><h3>Board-level communication</h3><p><span class="eyebrow">Stage E · Expert</span></p><p>Every security program eventually faces its real audience: people who control the budget, accept the risk, and do not read firewall logs. The board memo, the quarterly briefing, the incident call where you have ninety…</p></a><a class="door" href="/g/dfir-deep/"><h3>DFIR deep: disk, memory, network forensics</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>Triage ends with a decision: close it, or escalate it. Everything in this lesson is the escalation side — the work that begins when an alert becomes an incident and someone has to answer, with evidence, <em>what…</p></a><a class="door" href="/g/exploit-concepts/"><h3>Exploit development and reverse engineering: concepts</h3><p><span class="eyebrow">Stage D · Specialist</span></p><p>Every memory-safety CVE you have ever read — the buffer overflow in the CVE record, the use-after-free in the Project Zero write-up — is the same story at the bottom: a program written in an unsafe language mishandled…</p></a><a class="door" href="/g/public-track-record/"><h3>Building a public track record: write-ups that teach</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>The guidebook's thesis, stated in the brief and repeated in every stage, is that skill should leave <strong>public, verifiable evidence</strong>: lab artifacts, reports, disclosed findings, CVE credits, detection work,…</p></a><a class="door" href="/g/ai-tooling/"><h3>AI tooling professionals use: the Cyber Verification Program as the worked example</h3><p><span class="eyebrow">Stage C · Professional</span></p><p>Frontier AI models ship with conservative safeguards, and those safeguards block legitimate security work — malware analysis looks like malware creation to a classifier, authorized penetration testing looks like attack…</p></a>
+</div>
+<p class="muted" style="margin-top:1rem">Reading order: DNS → TCP/IP → Linux CLI → Windows concepts → Git &amp; GitHub → HTTP in depth → Python for security → Reading code → OSINT &amp; research discipline → Authorization &amp; scope → Methodology → Toolbench → Practice targets → IDOR → SQL injection → Command injection → SSRF → CSRF → XSS → Business-logic flaws → Session &amp; auth → Security headers → Bug bounty mechanics → SOC triage → Log sources → Sigma detection → Incident response → Coordinated disclosure → CVE Program → CVSS → Vulnerability ecosystem → IAM → Applied crypto → Secure SDLC → BCP/DR. AI track: Prompt injection → LLM architecture → LLM Top 10 → Supply chain → AI governance → AI pipeline → AI threat modeling. Risk assessment → IAM → Applied crypto → Secure SDLC → BCP/DR → Security program → Board communication. Stage D wave 1: Red team concepts → Malware analysis → Cloud security → AppSec. Stage D wave 2: Exploit concepts → DFIR deep. Stage C remainder: Vulnerability ecosystem → Public track record → AI tooling. AI track: Prompt injection → LLM architecture → LLM Top 10 → Supply chain → AI governance → AI pipeline → AI threat modeling.</p>
+</section>
+<section><h2>The stages</h2>
+<div class="grid">
+<a class="door" href="/g/stage-a/"><h3>Stage A — Foundations</h3><p><span class="eyebrow">Novice to grounded</span></p><p>The login-to-render path, packet by packet…</p></a>
+<a class="door" href="/g/stage-b/"><h3>Stage B — Practitioner</h3><p><span class="eyebrow">First valid finding</span></p><p>Authorized testing, vulnerability classes, triage-ready reports…</p></a>
+<a class="door" href="/g/stage-c/"><h3>Stage C — Professional</h3><p><span class="eyebrow">Disclosure and credit</span></p><p>Coordinated disclosure, CVE records, detection work…</p></a>
+<a class="door" href="/g/stage-d/"><h3>Stage D — Specialist</h3><p><span class="eyebrow">One track, deep</span></p><p>Red team, DFIR, AppSec, exploit dev, malware, cloud…</p></a>
+<a class="door" href="/g/stage-e/"><h3>Stage E — Expert</h3><p><span class="eyebrow">Breadth and leadership</span></p><p>CISSP domains, governance, running a security program…</p></a>
+</div>
+<p class="muted" style="margin-top:1rem">Each stage page states the stage's goal, its milestone, and what a reader can and cannot honestly claim after it.</p>
+</section>
+<section><h2>Role paths</h2>
+<div class="grid">
+<a class="door" href="/g/paths/"><h3>All eight role paths</h3><p><span class="eyebrow">Pick the job, follow the plan</span></p><p>SOC analyst, security analyst, pentester, AppSec, DFIR, cloud security, IAM, GRC — each with ordered lessons, checkpoints, and a level-4 capstone…</p></a>
+</div>
+</section>
+<section><h2>Knowledge maps</h2>
+<div class="grid">
+<a class="door" href="/g/map-cissp/"><h3>CISSP knowledge map</h3><p><span class="eyebrow">Every objective, 1.1 to 8.5</span></p><p>Each objective points to the lesson that teaches it — or is logged as a gap…</p></a>
+<a class="door" href="/g/map-caisp/"><h3>CAISP knowledge map</h3><p><span class="eyebrow">Seven chapters</span></p><p>Each chapter points to the lessons that teach it…</p></a>
+</div>
+</section>
+<section><h2>How we verify</h2>
+<p class="prose">The same rules as the rest of this site: <a href="/method/">no verification URL, no row</a>. Every walkthrough command was executed in a clean local environment and the transcript kept; where a step could not run — no Docker, no local model, no packet capture, no UDP loopback on the build machine — the lesson marks it <strong>not run by us</strong> instead of pretending.</p>
+</section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

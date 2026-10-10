@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloud security: concepts | Learn Computer Stuff</title>
+<meta name="description" content="Cloud security: the shared-responsibility line, IAM policies read as code, the classic misconfigurations, and posture auditing with Prowler and ScoutSuite — policies analyzed for real with Cloudsplaining. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/cloud-security/">
+<meta property="og:title" content="Cloud security: concepts | Learn Computer Stuff"><meta property="og:description" content="Cloud security: the shared-responsibility line, IAM policies read as code, the classic misconfigurations, and posture auditing with Prowler and ScoutSuite — policies analyzed for real with Cloudsplaining. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/cloud-security/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Cloud security: concepts","item":"https://learncomputerstuff.dev/g/cloud-security/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Cloud security: concepts</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage D · Specialist</span><h1>Cloud security: concepts</h1>
+<p class="lede prose">Most "cloud breaches" are not breaks of the cloud — they are misconfigurations by the customer: a storage bucket left public, a firewall rule opened to the world, an access key committed to a repo, a trail left disabled. Cloud security work is therefore mostly <em>configuration</em> work: knowing the shared-responsibility line, reading identity policies the way you read code, and auditing an estate against a benchmark with tooling. Every cloud role — engineer, auditor, responder — starts from this lesson.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local IAM policy analysis with Cloudsplaining; live-account scanning is reader-side in their own account</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>D (Specialist)</td></tr><tr><th scope="row">Level</th><td>3 (classify responsibility, read and fix IAM policies with tooling, audit a fictional estate against a benchmark — live-account scanning is reader-side in your own account)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> (what a security group actually filters), <a href="/g/ssrf/"><code>b-ssrf</code></a> (the cloud-metadata angle), <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (how to write a finding so it gets fixed)</td></tr><tr><th scope="row">Map references</th><td>serves the Stage D cloud-security specialist track; cloud logging feeds <a href="/g/log-sources/"><code>c-log-sources</code></a>; the posture assessment is the track's level-4 capstone input.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Most "cloud breaches" are not breaks of the cloud — they are misconfigurations by the customer: a storage bucket left public, a firewall rule opened to the world, an access key committed to a repo, a trail left disabled. Cloud security work is therefore mostly <em>configuration</em> work: knowing the shared-responsibility line, reading identity policies the way you read code, and auditing an estate against a benchmark with tooling. Every cloud role — engineer, auditor, responder — starts from this lesson.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><strong>Authorization:</strong> everything hands-on here runs against files on your own machine (IAM policies you write) or your <em>own</em> cloud lab account with a read-only audit role. You never scan, audit, or test an account you don't own — a misconfigured bucket belonging to someone else is a finding for <em>their</em> disclosure process, not your playground. Prowler and ScoutSuite steps are reader-side against your own account; this lesson marks them and gives the exact commands.</li>
+<li>You understand what a firewall rule filters (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>) and why instance metadata matters (<a href="/g/ssrf/"><code>b-ssrf</code></a>).</li>
+<li>You can write a finding with root cause and remediation (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>) — every misconfiguration below becomes one.</li>
+<li>Tooling: Python 3, the <code>cloudsplaining</code> package (used in the walkthrough; install command in the lesson). No cloud account needed for the walkthrough.</li>
+</ul>
+<h2>3. How it works</h2>
+<h3>The shared-responsibility line</h3>
+<p>Every major provider publishes the same deal with different words. AWS's phrasing is the clearest: AWS takes **security <em>of</em> the cloud<strong> — the hardware, software, networking, and facilities that run the services. You take </strong>security <em>in</em> the cloud<strong> — what you put there and how you configure it. The line moves with the service model: on EC2 (infrastructure as a service) you own the guest OS, patching, the application, and the security-group firewall rules; on S3 or DynamoDB (abstracted services) AWS owns everything up to the API, and you own your data, its encryption, its classification, and who may touch it via IAM. Then there are </strong>shared controls<strong>, where both sides implement their own half — patch management (AWS patches the infrastructure, you patch your guest OS), configuration management, training — and </strong>inherited controls** you get for free, like physical security of the data centers. The professional habit: for any breach scenario, first ask <em>which side of the line it sits on</em>, because that decides who fixes it.</p>
+<h3>Cloud IAM: the policy is the perimeter</h3>
+<p>In the cloud there is no network edge to hide behind — identity <em>is</em> the perimeter. An IAM policy is a JSON document with an effect (<code>Allow</code>/<code>Deny</code>), actions, and resources. Three ideas do most of the work. <strong>Least privilege</strong>: a principal gets exactly the permissions its job needs, nothing more — the sentence is easy, the practice is a continuous negotiation. <strong>Policy evaluation logic</strong>: an explicit <code>Deny</code> beats any <code>Allow</code>; without any <code>Allow</code>, the default is deny. <strong>Privilege-escalation paths</strong>: over-broad permissions compose — <code>iam:PassRole</code> plus <code>ec2:RunInstances</code> can become full admin, because the role you pass might be the admin role. This is why policy review is reading, not skimming: the dangerous policies are the ones that <em>look</em> narrow.</p>
+<h3>The classic misconfigurations</h3>
+<p>Each of these has the same shape — how it happens, how attackers find it, how defenders detect it:</p>
+<ul>
+<li><strong>Public storage bucket.</strong> Happens with one checkbox or one policy statement. Found by scanners that enumerate predictable bucket names. Detected by the provider's own access logging and by posture tools flagging <code>public-read</code>.</li>
+<li><strong>Security group open to 0.0.0.0/0.</strong> Happens during debugging ("just open it temporarily") and stays. Found by port-scanning the estate's public IPs. Detected by posture checks on ingress rules.</li>
+<li><strong>Disabled audit trail.</strong> CloudTrail (AWS), Activity Log (Azure), Audit Logs (GCP) are the control plane's memory — who called which API, when, from where. Disabled, there is no record of the attacker's API calls. Attackers disable it first (Defense Impairment, <a href="/g/redteam-concepts/"><code>d-redteam-concepts</code></a>). Detected by the <em>absence</em> check: the posture tool asks "is the trail on in every region?"</li>
+<li><strong>Long-lived credentials.</strong> Access keys that never rotate, committed to repos, embedded in apps. Found by secret scanners and by the provider's own credential reports. The fix is roles and short-lived credentials, not better-hidden keys.</li>
+<li><strong>Overly permissive IAM.</strong> <code>Action: &quot;*&quot;</code> on <code>Resource: &quot;*&quot;</code> — the policy that ends every argument. Found by policy analyzers; exploited via escalation paths.</li>
+</ul>
+<h3>Auditing with tooling: Prowler and ScoutSuite</h3>
+<p>Two free tools do the heavy lifting, and they answer different questions. <strong>Prowler</strong> (open-source, Apache-2.0; verified 2026-10-09) runs hundreds of CIS-benchmark-mapped checks against your account and reports pass/fail per check — it answers <em>"what violates the benchmark?"</em> <strong>ScoutSuite</strong> (open-source, GPL-2.0; verified 2026-10-09) takes a point-in-time snapshot of the whole account and renders it as a browsable HTML report — it answers <em>"what does this estate actually look like?"</em> The workflow the lesson teaches: run Prowler for the check list, run ScoutSuite for the picture, then <strong>verify every automated finding by hand</strong> in the console before writing it up — the brief's rule that automated findings are confirmed by hand applies to cloud posture exactly as it does to vulnerability scanners. A finding the tool misread (a bucket that looks public but isn't, an open rule scoped to a load balancer) is a false positive you own if you report it.</p>
+<h3>Cloud logging: the control plane remembers</h3>
+<p>CloudTrail / Activity Log / Audit Logs record API calls — the <em>management</em> plane, not the data plane. Attacker actions look like API calls: <code>CreateAccessKey</code>, <code>PutBucketPolicy</code>, <code>StopLogging</code>, <code>AssumeRole</code> from a new IP. Detection is log logic: alert on high-risk API calls, on calls from impossible geographies, on the trail going silent. The responder's first question in a cloud incident is always "show me the API history" — which is why the disabled-trail misconfiguration is the one that blinds everything downstream.</p>
+<h3>Worked example: the bucket, end to end</h3>
+<p>Fictional company Northwind Traders, fictional estate. Posture scan flags: S3 bucket <code>northwind-invoices</code> with a policy granting <code>s3:GetObject</code> to <code>Principal: &quot;*&quot;</code>. Classification: customer-side (data + permissions are <em>in</em> the cloud). Mechanism: one policy statement made every object world-readable; bucket names are guessable, so discovery is trivial. Impact in business terms: customer invoices readable by anyone who guesses the name — the disclosure write-up from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> applies directly. Remediation: remove the wildcard principal, scope to the application's IAM role, enable access logging, add the posture check to the recurring scan. Verification: re-run the check, attempt anonymous <code>GetObject</code> (denied), confirm the invoice app still reads via its role (the fix must not break the app — the lesson from <a href="/g/idor/"><code>b-idor</code></a> carries over). One misconfiguration, one finding, one fix, one verification — that is the unit of cloud security work.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/d-cloud-security.log</code>. Clean environment: stock Python 3.12, <code>cloudsplaining</code> in a venv, no cloud account, 2026-10-09. The live-account scanning steps are reader-side and marked.</p>
+<p><strong>Step 1 — Write three policies.</strong> Create <code>policies/</code>: <code>correct.json</code> (a deployment role allowed <code>s3:GetObject</code>/<code>s3:PutObject</code> on one bucket prefix only), <code>overbroad.json</code> (same role plus <code>iam:PassRole</code> on <code>*</code>), <code>broken.json</code> (<code>Action: &quot;*&quot;</code> on <code>Resource: &quot;*&quot;</code>):</p>
+<pre><code>mkdir -p ~/tmp-guidebook/cloud/policies &amp;&amp; cd ~/tmp-guidebook/cloud</code></pre>
+<p><strong>Step 2 — Analyze them with Cloudsplaining.</strong> Cloudsplaining's <code>scan</code> expects an IAM <em>account authorization details</em> file (the shape of <code>aws iam get-account-authorization-details</code>), not bare policies — wrap the three policies in a minimal fixture with one role (<code>account-details.json</code>; the log shows the fixture). Then scan:</p>
+<pre><code>/tmp/yaravenv/bin/cloudsplaining scan -i account-details.json -o results-acct -s</code></pre>
+<p>Expected: <code>demo-correct</code> reports zero escalation findings; <code>demo-overbroad</code> flags <code>CreateEC2WithExistingIP</code> via <code>iam:PassRole</code> + <code>ec2:RunInstances</code> — the exact escalation path from the lesson; <code>demo-broken</code> flags multiple escalation methods (<code>CreateAccessKey</code>, <code>CreateLoginProfile</code>, …). The tool reads the policy the way the lesson teaches you to read it — the walkthrough is the habit, automated. (First attempt at bare-policy scanning failed honestly in the log: wrong input shape, corrected.)</p>
+<p><strong>Step 3 — Classify responsibility.</strong> Five fictional scenarios; write the classification with one line of reasoning each: (1) hypervisor vulnerability in the provider's fleet → provider; (2) EC2 instance unpatched for six months → customer; (3) S3 bucket policy with wildcard principal → customer; (4) provider employee accesses customer data → provider (physical/personnel controls are inherited); (5) customer disables CloudTrail, attacker wipes logs → customer — and note the shared-control nuance: the <em>capability</em> to log is the provider's, the <em>decision</em> to enable it is yours.</p>
+<p><strong>Step 4 — The misconfiguration log.</strong> Write the fictional before/after for the worked example's bucket: the offending policy statement, the fixed statement, the verification commands and their expected outputs. No CLI here by design — the artifact is the finding write-up, and the log records its authoring.</p>
+<p><strong>Step 5 — Posture scan (reader-side).</strong> Against <strong>your own</strong> lab account with a read-only audit role: <code>prowler aws</code> (Prowler CLI — install via pip per the project's docs; verify the version with <code>prowler --version</code>), then <code>python scout.py aws</code> (ScoutSuite). Remediate the top 5 findings, re-run, and record the delta. Running these here is <strong>not run by us</strong> — there is no cloud account on this machine, and scanners run only against accounts you own.</p>
+<p><strong>Step 6 — Verify by hand.</strong> Pick two findings from any scan output (or the walkthrough's policies) and confirm each in the provider console before writing it up. The log records the checklist; the habit is the deliverable.</p>
+<h2>5. On your own</h2>
+<p>Take the <code>overbroad.json</code> policy from the walkthrough and write the privilege-escalation path it enables as a three-step chain (which API calls, in which order, ending in what permission). Then write the minimal fixed policy. Success test: Cloudsplaining reports no escalation findings on your fixed policy, and a second reader can follow your three steps without asking what any call does.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Scanning someone else's account.</strong> "It's just a read-only scan" is not authorization. The scanner authenticates as <em>you</em> against <em>their</em> estate — that is the line.</li>
+<li><strong>Trusting the scanner's verdict.</strong> A bucket flagged public that serves only through CloudFront with an origin-access identity is not public. Every automated finding gets a console check before it becomes a report line.</li>
+<li><strong>The temporary rule.</strong> Security groups opened "just for debugging" are the most common finding in every estate audit because temporary has no expiry date. The fix is process (time-boxed rules, reviewed weekly), not memory.</li>
+<li><strong>Keys in code.</strong> Rotation doesn't help if the new key goes to the same repo. The fix is eliminating the long-lived credential, not managing it better.</li>
+<li><strong>Confusing the shared line.</strong> "The provider handles security" is the sentence behind most cloud breaches. The provider handles <em>their</em> half. Your half is the larger one in practice.</li>
+<li><strong>Tool version drift.</strong> Prowler's check counts move fast (hundreds of checks across providers at the time of writing) — record the tool version and the benchmark edition with every assessment.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary, in this order:</p>
+<ol>
+<li><strong>AWS Shared Responsibility Model</strong> (<a href="https://aws.amazon.com/compliance/shared-responsibility-model/)">aws.amazon.com/compliance/shared-responsibility-model/)</a> — read the "Security of the Cloud" vs "Security in the Cloud" split, then the inherited/shared/customer control examples. One page; it is the whole mental model.</li>
+<li><strong>Prowler repository</strong> (<a href="https://github.com/prowler-cloud/prowler)">github.com/prowler-cloud/prowler)</a> — read the README's description and the check/framework table to see what an assessment covers; note the CLI-first workflow.</li>
+<li><strong>ScoutSuite repository</strong> (<a href="https://github.com/nccgroup/ScoutSuite)">github.com/nccgroup/ScoutSuite)</a> — read the description: point-in-time, API-gathered, offline-after-collection, HTML report. Understand <em>why</em> that shape fits audits.</li>
+</ol>
+<p>Free resources for going deeper (at most three):</p>
+<ul>
+<li><strong>CIS Benchmarks</strong> (free PDFs) — the actual check definitions behind Prowler's CIS-mapped checks; name the benchmark edition you audit against. <em>For: knowing what each check asserts.</em></li>
+<li><strong>Cloudsplaining</strong> (open-source IAM policy analyzer) — the walkthrough's tool; run it on every policy you write. <em>For: the reading habit, automated.</em></li>
+<li><strong>Stratus Red Team</strong> (<a href="https://github.com/DataDog/stratus-red-team)">github.com/DataDog/stratus-red-team)</a> — cloud adversary emulation for a dedicated sandbox account; the "what to look for" catalog for the detection half. <em>For: learning cloud attack paths safely, sandbox-only.</em></li>
+</ul>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A startup runs its app on EC2, stores uploads in S3, and uses a managed database. A breach exposes the uploads. List every layer of the stack and mark each "provider" or "customer" — then say which single misconfiguration is the most likely cause and why.</li>
+<li>A policy allows <code>s3:*</code> on <code>arn:aws:s3:::app-bucket/*</code> but nothing else. Is this least privilege? What breaks if you narrow it to <code>s3:GetObject</code>, and what risk remains if you don't?</li>
+<li>CloudTrail is enabled but the attacker deleted the log files from the S3 bucket. Which half of the shared model failed, and what control would have preserved the evidence?</li>
+<li>Prowler flags 40 findings; ScoutSuite's HTML shows 3 of them are on resources scheduled for deletion next week. How do you prioritize, and what do you write for the 3?</li>
+<li>Your scan finds an access key last used 400 days ago. Walk through the response: verify, assess, remediate, and prevent — in that order.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a posture mini-assessment of the walkthrough's fictional estate: the three analyzed policies with Cloudsplaining output, the five scenario classifications, and the bucket finding written as a full report entry (root cause, impact in business terms, remediation, verification).</p>
+<p><strong>You can honestly claim:</strong> you can classify cloud responsibility, read IAM policies for escalation paths, run posture tooling, and write cloud findings that get fixed. <strong>You cannot yet claim:</strong> you have assessed a real estate — that needs your own lab account and the reader-side scan, with findings verified by hand.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/log-sources/"><code>c-log-sources</code></a> — cloud audit logs as a detection source; this lesson's logging section is the reason those logs exist.</li>
+<li><a href="/g/incident-response/"><code>c-incident-response</code></a> — the cloud incident: API history first, containment second.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the finding write-up format this lesson reuses.</li>
+<li>Map: Stage D cloud track (responsibility → IAM → misconfigurations → posture assessment with Prowler/ScoutSuite → cloud logging → attack-path concepts) → level-4 capstone: full CIS-benchmark assessment of a lab account, published.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-d/">Stage D · Specialist</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CVSS v3.1 and v4.0, scored by hand | Learn Computer Stuff</title>
+<meta name="description" content="CVSS v3.1 and v4.0 scored by hand: the metric groups, three official calibration cases, and where the versions disagree — including E:U collapsing 7.7 to 5.2. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/cvss/">
+<meta property="og:title" content="CVSS v3.1 and v4.0, scored by hand | Learn Computer Stuff"><meta property="og:description" content="CVSS v3.1 and v4.0 scored by hand: the metric groups, three official calibration cases, and where the versions disagree — including E:U collapsing 7.7 to 5.2. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/cvss/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"CVSS v3.1 and v4.0, scored by hand","item":"https://learncomputerstuff.dev/g/cvss/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>CVSS v3.1 and v4.0, scored by hand</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage C · Professional</span><h1>CVSS v3.1 and v4.0, scored by hand</h1>
+<p class="lede prose">Every prioritization decision in security runs through a CVSS score: the scanner output you triage, the KEV catalog's urgency, the vendor advisory's headline number, the risk register's "High." Most practitioners treat the score as weather — a number that arrives. This lesson makes you the meteorologist: you will compute the number yourself, in both current versions, and know exactly which judgment each decimal place rests on. That matters because the score is not a measurement — it is a structured argument, and arguments can be wrong in instructive ways. When a vendor disputes your severity rating during a disclosure (and they will), the person who can defend the vector metric by metric wins.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · v3.1 equations and FIRST&#x27;s v4.0 reference implementation reproduced all published scores</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>C (Professional)</td></tr><tr><th scope="row">Level</th><td>3 (score any CVE by hand in both versions and defend the vector)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/cve-program/"><code>c-cve-program</code></a> (you can read a CVE record — the metrics block is what you are about to fill)</td></tr><tr><th scope="row">Map references</th><td>Stage C — severity scoring, the language every downstream catalog speaks.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every prioritization decision in security runs through a CVSS score: the scanner output you triage, the KEV catalog's urgency, the vendor advisory's headline number, the risk register's "High." Most practitioners treat the score as weather — a number that arrives. This lesson makes you the meteorologist: you will compute the number yourself, in both current versions, and know exactly which judgment each decimal place rests on. That matters because the score is not a measurement — it is a structured argument, and arguments can be wrong in instructive ways. When a vendor disputes your severity rating during a disclosure (and they will), the person who can defend the vector metric by metric wins.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read a CVE record's metrics block (<a href="/g/cve-program/"><code>c-cve-program</code></a>).</li>
+<li>You understand the vulnerability you are scoring — scoring what you do not understand produces confident nonsense.</li>
+<li>Primary references: the <strong>FIRST CVSS v3.1 specification</strong> and the <strong>FIRST CVSS v4.0 specification</strong> (version 1.2) plus its <strong>official examples document</strong> (version 1.8). This lesson's calibration vectors and scores were verified against the examples document on 2026-10-09.</li>
+<li>Tools for this lesson: a local v3.1 scorer (the walkthrough runs one) and FIRST's reference v4.0 implementation (the walkthrough runs that too). The reader's check is the FIRST web calculator.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>CVSS answers one question: <em>how bad is this vulnerability, technically?</em> Not how likely it is to be exploited (that is EPSS's question — see <a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a>), not whether it is being exploited (that is KEV's question). Severity: the intrinsic technical characteristics, scored 0.0–10.0, always published with the <strong>vector string</strong> that produced it. A score without a vector is an opinion; a vector is an auditable argument.</p>
+<p><strong>v3.1: three metric groups.</strong> Base (the intrinsic properties — always scored), Temporal (what changes over time), Environmental (what changes for a specific deployer).</p>
+<ul>
+<li><strong>Base metrics</strong> (prefix <code>CVSS:3.1</code>): Attack Vector <code>AV</code> (N etwork / A djacent / L ocal / P hysical — how the attacker reaches it), Attack Complexity <code>AC</code> (L ow / H igh), Privileges Required <code>PR</code> (N one / L ow / H igh), User Interaction <code>UI</code> (N one / R equired), Scope <code>S</code> (U nchanged / C hanged — does exploitation escape into another security authority?), and the impact triad Confidentiality / Integrity / Availability <code>C/I/A</code> (H igh / L ow / N one each).</li>
+<li><strong>Temporal metrics</strong>: Exploit Code Maturity <code>E</code>, Remediation Level <code>RL</code>, Report Confidence <code>RC</code> — the score <em>as of now</em>. Rarely published in practice, which v4.0 noticed.</li>
+<li><strong>Environmental metrics</strong>: Confidentiality/Integrity/Availability Requirements <code>CR/IR/AR</code> plus Modified Base metrics — the score <em>for your environment</em>.</li>
+</ul>
+<p>The Base score comes from specified equations: exploitability from AV·AC·PR·UI, impact from C·I·A, combined with a round-up rule (the spec's Roundup: the smallest number to one decimal place at or above the computed value). Scope Changed uses a different impact formula — getting the scope judgment right is the highest-leverage decision in v3.1 scoring.</p>
+<p><strong>v4.0: four metric groups.</strong> Base, <strong>Threat</strong>, Environmental, <strong>Supplemental</strong>. Two changes from v3.x, and both are conceptual, not cosmetic:</p>
+<ol>
+<li><strong>Threat replaced Temporal.</strong> The time dimension is now a first-class group containing Exploit Maturity <code>E</code> (U nreported / P roof-of-concept / A ttacked). v3.1 <em>had</em> temporal metrics but almost nobody published them; v4.0's design forces the question: a vulnerability with no known exploit scores lower, visibly, on the record.</li>
+<li><strong>Supplemental was added</strong> — metrics that never change the score, only annotate it (Safety, Automatable, Recovery, Value Density, Vulnerability Response Effort, Provider Urgency). Context the score cannot carry.</li>
+</ol>
+<p>The v4.0 Base metrics rename the impact triad into two systems: the <strong>vulnerable system</strong> (VC/VI/VA — what happens to the system with the flaw) and the <strong>subsequent system</strong> (SC/SI/SA — what happens to what it can reach afterward), replacing v3.1's single Scope bit with a real impact model. New metric <strong>Attack Requirements</strong> <code>AT</code> (N one / P resent) captures target-specific preconditions that v3.1 smeared into Attack Complexity. User Interaction is refined to None / Passive / Active.</p>
+<p>v4.0 scoring is not equations but <strong>MacroVectors</strong>: each vector maps to an equivalence class (EQ1–EQ6), the class has a lookup-table score, and the vector's score interpolates within the class. The reference implementation is public (FIRST's cvss-v4-calculator) — the walkthrough runs it verbatim.</p>
+<p><strong>Nomenclature</strong> tells you what a number claims: <code>CVSS-B</code> (Base only), <code>CVSS-BT</code> (+Threat), <code>CVSS-BE</code> (+Environmental), <code>CVSS-BTE</code> (all three). A bare "7.3" is meaningless until you know which of these it is. Base assumes worst-case Threat and Environmental defaults; consumers refine downward or upward.</p>
+<h3>The three calibration cases (from FIRST's official examples, v1.8)</h3>
+<p><strong>CVE-2022-41741</strong> (NGINX mp4 module — attacker-controlled memory disclosure via the mp4 module):</p>
+<ul>
+<li>v3.1: <code>CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H</code> → <strong>7.0</strong></li>
+<li>v4.0 Base: <code>CVSS:4.0/AV:L/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</code> → <strong>7.3</strong></li>
+<li><em>Where they disagree:</em> v3.1 says Attack Complexity High; v4.0 splits that judgment — AC:Low (the attack itself is not complex) with AT:Present (it needs a specific target precondition: the mp4 module handling attacker media). The new AT metric says what v3.1 could only mumble. Score moves 7.0 → 7.3: same severity band, better argument.</li>
+</ul>
+<p><strong>CVE-2020-3549</strong> (Cisco Firepower Management Center — static credentials in the sftunnel service):</p>
+<ul>
+<li>v3.1: <code>CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H</code> → <strong>8.1</strong></li>
+<li>v4.0 Base: <code>CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</code> → <strong>7.7</strong></li>
+<li>v4.0 Base+Threat with Exploit Maturity Unreported: same vector + <code>/E:U</code> → <strong>5.2</strong></li>
+<li><em>Where they disagree:</em> twice. First, the Base refinement (AC:H→AC:L/AT:P, UI:N→UI:P — the attacker needs a user to do something passive) drops 8.1 → 7.7. Second, and this is the big one: adding the Threat group with no known exploit drops 7.7 → <strong>5.2</strong>. v3.1's Temporal group could have done this, but nobody published Temporal vectors; v4.0 makes the time dimension visible on the record. A "High" becomes a "Medium" the moment you ask "is anyone actually exploiting this?" — which is exactly the question a defender needs answered.</li>
+</ul>
+<p><strong>CVE-2023-3089</strong> (OpenShift — FIPS crypto mode bypass):</p>
+<ul>
+<li>v3.1: <code>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N</code> → <strong>7.5</strong></li>
+<li>v4.0 Base: <code>CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:L/VA:L/SC:N/SI:N/SA:N</code> → <strong>8.3</strong></li>
+<li>v4.0 Base+Environmental: + <code>/CR:H/IR:L/AR:L/MAV:N/MAC:H/MVC:H/MVI:L/MVA:L</code> → <strong>8.1</strong></li>
+<li><em>Where they disagree:</em> v3.1's single impact triad (C:H/I:N/A:N) cannot express that the <em>vulnerable</em> system's confidentiality is fully lost while integrity and availability are only lightly touched — v4.0's split VC/VI/VA says exactly that, and the score rises 7.5 → 8.3. The Environmental refinement then <em>lowers</em> it slightly (8.3 → 8.1) because this deployer's integrity/availability requirements are Low. Direction matters: v4.0 Base can score <em>higher</em> than v3.1 when the impact model is more expressive.</li>
+</ul>
+<h2>4. Walkthrough</h2>
+<p><strong>Fully runnable.</strong> Transcript: <code>runs/c-cvss.log</code> (2026-10-09; python3 3.12.3, node v24.20.0).</p>
+<ol>
+<li><strong>Run the v3.1 scorer.</strong> A local implementation of the FIRST v3.1 Base equations (<code>cvss31.py</code> in the run scratch). Feed it the three calibration vectors. The run: all three computed scores matched the published scores exactly (7.0, 8.1, 7.5). <em>Correction logged in the transcript:</em> the first implementation rounded to five decimals; the spec's Roundup means one decimal place — fixed, then matched.</li>
+<li><strong>Run the v4.0 reference implementation.</strong> FIRST publishes its calculator logic (cvss-v4-calculator, BSD-2-Clause); the run executes it verbatim under node against the five calibration vectors (three Base, one +Threat, one +Environmental). The run: all five matched the published scores exactly (7.3, 7.7, 5.2, 8.3, 8.1), with the MacroVector shown for each.</li>
+<li><strong>Hand-score one vector yourself.</strong> Take CVE-2022-41741's v4.0 vector. For each metric, write one sentence of justification from the vulnerability description (e.g., "AV:L — the attacker needs local ability to supply media to the mp4 module"). Then run your vector through the reference implementation. If your score differs from 7.3, your justification is wrong somewhere — find the metric, not an excuse.</li>
+<li><strong>Write the disagreement analysis.</strong> For CVE-2020-3549, write the paragraph: why v3.1 says 8.1, why v4.0 Base says 7.7, and why adding E:U collapses it to 5.2. Name the mechanism (Threat group as first-class time dimension), not just the numbers.</li>
+<li><strong>State the nomenclature.</strong> For each of your scores, write whether it is CVSS-B, -BT, -BE, or -BTE — and what a consumer who only reads the number would wrongly assume.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick a CVE from the KEV catalog that has both a v3.1 and a v4.0 vector on its record (the catalog is in <a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a>'s walkthrough). Score it by hand in both versions — metric-by-metric justifications, assembled vectors — then verify against the FIRST web calculator. Write the disagreement paragraph: where the versions differ and which version's argument you find more honest, and why.</p>
+<p><strong>Success test:</strong> Your hand-computed vectors match the calculator's scores to the decimal. Your disagreement paragraph names specific metrics (not "v4.0 is stricter") and takes a defensible position on which version argues better for <em>this</em> vulnerability.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Scoring the description instead of the vulnerability.</strong> Advisory prose exaggerates; the metrics must come from the technical facts. "Could allow" is not "does allow."</li>
+<li><strong>The Scope reflex (v3.1).</strong> Flipping Scope to Changed because the impact <em>sounds</em> big, without identifying the second security authority. If you cannot name the subsequent system, Scope is Unchanged.</li>
+<li><strong>Confusing AT with AC (v4.0).</strong> Attack Complexity is about the attacker's effort; Attack Requirements is about the target's preconditions. A attack that is trivial <em>if</em> the target runs a specific module is AC:L, AT:P — not AC:H.</li>
+<li><strong>Publishing Threat scores as Base scores.</strong> A CVSS-BTE 5.2 next to a CVSS-B 7.7 without labels is a lie by omission. The nomenclature exists because the number alone misleads.</li>
+<li><strong>Treating the score as a risk rating.</strong> CVSS measures technical severity. A 9.8 nobody can reach and a 7.5 under active exploit are different planets — likelihood and exposure live in the next lesson, not in this one.</li>
+<li><strong>Calculator worship.</strong> The calculator computes; you judge. If the vector the calculator confirms does not match your understanding of the flaw, the flaw description needs re-reading, not the calculator.</li>
+</ul>
+<h2>7. Read the source</h2>
+<ol>
+<li><strong>FIRST CVSS v4.0 Specification Document</strong> (version 1.2, <a href="https://first.org/cvss/v4.0/specification-document)">first.org/cvss/v4.0/specification-document)</a> — the metric definitions and the MacroVector scoring description. Read the Base, Threat, Environmental, and Supplemental sections; skim the scoring math, then run the reference implementation.</li>
+<li><strong>FIRST CVSS v4.0 Examples Document</strong> (version 1.8, <a href="https://first.org/cvss/v4.0/examples)">first.org/cvss/v4.0/examples)</a> — the official worked examples with v3.x comparisons. Study all three calibration cases above; they are the answer key for your hand-scoring.</li>
+<li><strong>FIRST CVSS v3.1 Specification</strong> (<a href="https://first.org/cvss/v3.1/)">first.org/cvss/v3.1/)</a> — the equations. Read the Base scoring section; you implemented it in the walkthrough.</li>
+</ol>
+<p>Free resources (≤3): the <strong>FIRST v4.0 web calculator</strong> (<a href="https://first.org/cvss/calculator/4.0)">first.org/cvss/calculator/4.0)</a> — your verification tool; the <strong>cvss-v4-calculator repository</strong> (<a href="https://github.com/FIRSTdotorg/cvss-v4-calculator)">github.com/FIRSTdotorg/cvss-v4-calculator)</a> — the reference implementation the walkthrough ran; the <strong>v3.1 user guide</strong> (<a href="https://first.org/cvss/v3.1/user-guide)">first.org/cvss/v3.1/user-guide)</a> — scoring judgment guidance.</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A vulnerability's v4.0 Base vector scores 7.7; adding <code>/E:U</code> drops it to 5.2. Explain the mechanism — what does the Threat group know that the Base group does not, and why did v3.1 fail to make this visible in practice?</li>
+<li>You score AV:N/AC:L/PR:N/UI:N with VC:H/VI:N/VA:N and no subsequent-system impact. A colleague argues Scope should be Changed "because confidentiality loss is total." What is wrong with their argument, and how does v4.0's model handle this case without a Scope bit?</li>
+<li>Two vectors differ only in AT:N vs AT:P. In plain language, what fact about the world changed between them — and which v3.1 metric was doing double duty before AT existed?</li>
+<li>A vendor publishes "CVSS 5.2" for a flaw you scored CVSS-B 7.7. List the two most likely innocent explanations before assuming bad faith.</li>
+<li>Why must every published score carry its vector string? Give the concrete failure mode of a score without one, using the CVE-2023-3089 Environmental refinement as your example.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your three hand-scored calibration vectors with metric-by-metric justifications, the run output showing they match the published scores, and the disagreement analysis for CVE-2020-3549. This is the document you show a vendor when they dispute your severity.</p>
+<p><strong>Honest claims after this lesson:</strong> you can score any CVE by hand in v3.1 and v4.0, defend every metric choice in writing, and explain exactly where and why the versions disagree. <strong>Cannot yet claim:</strong> that your score is <em>right</em> in any absolute sense — CVSS is an argument framework, and two honest scorers can differ by a metric. What you can claim is that your argument is complete and checkable.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a> — the score is one input. Likelihood (EPSS), exploitation evidence (KEV), and weakness types (CWE) are the others — and where each comes from now.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> reuses this lesson's discipline: severity is an input to risk, never the whole of it.</li>
+<li>Every Stage D track reads CVSS daily; scoring by hand is what makes you trust — and question — the numbers.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-c/">Stage C · Professional</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Building a public track record: write-ups that teach | Learn Computer Stuff</title>
+<meta name="description" content="Building a public track record: write-ups that teach — root cause first, mechanism re-derivable, honest impact — the Project Zero bar, one finding in two formats. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/public-track-record/">
+<meta property="og:title" content="Building a public track record: write-ups that teach | Learn Computer Stuff"><meta property="og:description" content="Building a public track record: write-ups that teach — root cause first, mechanism re-derivable, honest impact — the Project Zero bar, one finding in two formats. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/public-track-record/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Building a public track record: write-ups that teach","item":"https://learncomputerstuff.dev/g/public-track-record/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Building a public track record: write-ups that teach</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage C · Professional</span><h1>Building a public track record: write-ups that teach</h1>
+<p class="lede prose">The guidebook's thesis, stated in the brief and repeated in every stage, is that skill should leave <strong>public, verifiable evidence</strong>: lab artifacts, reports, disclosed findings, CVE credits, detection work, capstones. This is the lesson that teaches how to make that evidence <em>count</em> — how to write a finding so that a stranger, reading it a year later, can see exactly what you proved and how. The formats differ — a research write-up, a bug bounty report, a CVE request, a conference talk — but the bar is one: <strong>mechanism first, claims checkable, limits stated.</strong> A write-up that meets the bar is a credential no issuer can revoke, because it doesn't depend on any issuer at all.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked write-up authored and reviewed 2026-10-09 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>C (Professional)</td></tr><tr><th scope="row">Level</th><td>3 (worked write-up authored to the bar; publication is reader-side)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/cvd/"><code>c-cvd</code></a> (the disclosure path), <a href="/g/cve-program/"><code>c-cve-program</code></a> (the permanent record), <a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a> (how findings get ranked), <a href="/g/methodology/"><code>b-methodology</code></a> (the engagement the finding came from)</td></tr><tr><th scope="row">Map references</th><td>serves the Stage C professional-recognition track — this lesson is the recognition pathway's keystone: every earlier stage's proof artifacts become entries here.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The guidebook's thesis, stated in the brief and repeated in every stage, is that skill should leave <strong>public, verifiable evidence</strong>: lab artifacts, reports, disclosed findings, CVE credits, detection work, capstones. This is the lesson that teaches how to make that evidence <em>count</em> — how to write a finding so that a stranger, reading it a year later, can see exactly what you proved and how. The formats differ — a research write-up, a bug bounty report, a CVE request, a conference talk — but the bar is one: <strong>mechanism first, claims checkable, limits stated.</strong> A write-up that meets the bar is a credential no issuer can revoke, because it doesn't depend on any issuer at all.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have findings worth writing about — from the Stage B labs, the practice targets, the disclosure lessons. If your evidence folder is empty, this lesson still works (the walkthrough uses the SQL-injection lab finding), but the On-your-own step assumes you have at least one real finding of your own.</li>
+<li>You know the disclosure path (<a href="/g/cvd/"><code>c-cvd</code></a>): nothing in this lesson changes the 90-day discipline — you write the finding up <em>after</em> the timeline allows publication, never before.</li>
+<li>You know what a CVE record contains (<a href="/g/cve-program/"><code>c-cve-program</code></a>): the write-up and the CVE entry are companions, not substitutes.</li>
+<li>Honesty prerequisites, non-negotiable: you will state what you proved versus what you assumed, you will not inflate impact, and you will never publish someone else's finding as your own.</li>
+</ul>
+<h2>3. How it works</h2>
+<h3>What makes a write-up teach</h3>
+<p>Study the write-ups the field respects and the same anatomy appears every time:</p>
+<ol>
+<li><strong>Root cause first.</strong> One paragraph, before any exploitation detail: what was wrong, in what component, and why it was wrong. The Project Zero discipline — crash → root cause → primitive — exists because readers who understand the cause can find the <em>class</em>; readers who only see the exploit can only replay the <em>instance</em>.</li>
+<li><strong>The mechanism from first principles.</strong> Not "I ran tool X and got a shell" but the chain of reasoning: what the code did, what assumption it made, how the assumption was violated, what that violation bought. The reader should be able to re-derive your finding, not just re-run it.</li>
+<li><strong>Confirmation.</strong> How you verified it — the request/response pair, the second account, the fixed-build retest. A finding with one observation is a hypothesis; the write-up shows the work that promoted it.</li>
+<li><strong>Honest impact.</strong> What you proved (data read, in this table, with these rows) versus what you assumed (and therefore don't claim). Inflated impact is the fastest way to lose a reader's trust permanently.</li>
+<li><strong>The fix and its verification.</strong> What the correct fix is, why weaker fixes fail, and the retest that proves the fix holds. A write-up without the fix is a weapon with documentation.</li>
+<li><strong>Dead ends, briefly.</strong> What you tried that didn't work — one or two lines. It teaches the search strategy, and it signals that the author actually did the work.</li>
+</ol>
+<h3>The formats and what each demands</h3>
+<ul>
+<li><strong>The research write-up</strong> (blog, Project Zero style): mechanism-first, full technical depth, aimed at peers. The bar is novelty of understanding — a new class, a new technique, a surprising interaction. Length is whatever the mechanism needs.</li>
+<li><strong>The bounty report</strong>: one page, structured for triage — summary, impact, reproduction steps (exact), the fix. The reader is a tired triager with fifty reports in the queue; clarity is respect. Reproduction steps must work <em>exactly as written</em> — every failed repro burns your reputation with that program.</li>
+<li><strong>The CVE request</strong>: the permanent record (<a href="/g/cve-program/"><code>c-cve-program</code></a>) — product, versions, the independently-fixable flaw, references. Dry by design; the write-up is where the story lives.</li>
+<li><strong>The talk</strong>: the write-up performed — narrative arc, one mechanism per talk, the demo that proves it. Same bar, different medium.</li>
+</ul>
+<h3>The Project Zero bar, concretely</h3>
+<p>Google's Project Zero publishes under a 90-day disclosure policy (90 days to fix, then details publish; a 2026 "Reporting Transparency" trial announces the report's existence within a week). But the policy isn't the lesson — the <em>writing</em> is. Read any two posts and notice: the root cause stated in one paragraph before any exploitation detail; the dead ends documented; the closing recommendations aimed at the <em>systemic</em> fix (the whole class), not just the instance. James Kettle's HTTP/2 research is the other template: novel mechanism → real-world validation against real stacks → open tooling and free labs so readers can learn. In both cases the write-up <em>teaches the class</em>, and the specific bugs are evidence for the lesson.</p>
+<h3>Worked example: one finding, two formats</h3>
+<p>Take the SQL-injection lab finding from <a href="/g/sqli/"><code>b-sqli</code></a> — the quote probe that returned a 500, the UNION read across tables, the parameterized-query fix. As a <strong>research-style write-up</strong>, it opens with the root cause paragraph: <em>the search endpoint built its query by concatenating the <code>q</code> parameter into the SQL string, so attacker-controlled text became query syntax — the code/data boundary from <a href="/g/sqli/"><code>b-sqli</code></a> section 3, violated at line 41.</em> Then the mechanism (how the 500 confirmed injectability, how ORDER BY counted columns, how the UNION crossed tables), the confirmation (the fixed build's four verification cases), the honest impact (table contents read in the lab; no claim about production data), the fix (parameterized queries; why escaping is weaker), the dead ends (the first UNION attempt failed on column-count mismatch — corrected, logged).</p>
+<p>As a <strong>one-page bounty report</strong>, the same finding compresses: title, severity with the CVSS reasoning, three exact reproduction steps (the curl commands, verbatim), the observed vs expected behavior, the suggested fix. Everything the triager needs, nothing they don't. Compare the two: the write-up teaches the <em>class</em> (string-built queries), the report <em>routes</em> the instance. Both meet the bar; they serve different readers.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Authored by us</strong> — transcript: <code>runs/c-public-track-record.log</code>. No command line in this lesson by design: the work is writing, and the walkthrough is the worked example above plus a self-review checklist, executed against the <a href="/g/sqli/"><code>b-sqli</code></a> lab finding.</p>
+<p>Steps: (1) re-read the <a href="/g/sqli/"><code>b-sqli</code></a> run log and extract the finding's facts — separating <em>observed</em> (the 500, the UNION output, the 4.0s timing) from <em>inferred</em>; (2) draft the root-cause paragraph — one paragraph, no exploitation detail allowed; (3) draft the mechanism section — the chain a stranger could re-derive; (4) draft the honest-impact statement — what was proven in the lab, what is not claimed; (5) draft the fix and verification — parameterized queries, the four retest cases; (6) compress the same finding into the one-page bounty format — title, severity, exact repro steps, fix; (7) run the self-review checklist: root cause first? mechanism re-derivable? every claim checkable? impact honest? dead ends noted? fix verified? disclosure timeline respected? The checklist answers are recorded in the log. Publication of your own write-up is reader-side — this walkthrough builds the muscle, not the audience.</p>
+<h2>5. On your own</h2>
+<p>Take one finding of your own — a Stage B lab result, a practice-target chain, a disclosure-lesson exercise — and write it twice: the mechanism-first write-up and the one-page bounty report. Run the self-review checklist from the walkthrough on both. Then publish the write-up (your blog, a GitHub repo, the bounty platform's disclosure — wherever your track record lives). Success test: a peer who has never seen your lab can read the write-up and state the root cause, the confirmation, and the fix — and can point at the exact lines that prove each. That published URL is the first entry in your public track record, and the artifact this lesson's Prove-it section asks for.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Hype over mechanism.</strong> "Critical 0-day!!" for a finding whose impact section can't name the data at risk. The field has a long memory for inflated severity; one hype write-up costs more credibility than ten quiet ones earn.</li>
+<li><strong>Claiming unproven impact.</strong> "Could lead to full database compromise" when you read one table. State what you proved; mark the rest as untested. The honest-impact discipline from section 3 is the whole game.</li>
+<li><strong>Publishing before the timeline allows.</strong> The disclosure lesson's clock governs: vendor deadline first, publication after. A write-up that burns a vendor mid-patch is not research, it's an attack with footnotes.</li>
+<li><strong>Publishing pwn.college solutions.</strong> Their no-solutions rule is explicit (<a href="/g/exploit-concepts/"><code>d-exploit-concepts</code></a>). Mechanics in your own words: yes. Flags, solution scripts, challenge write-ups: no. Violating a community's stated rule in your first public artifact is a remarkable way to start.</li>
+<li><strong>The write-up as bragging.</strong> If the reader learns nothing they can reuse, it's a trophy, not a track record. The test from section 1: a year later, a stranger, the mechanism re-derivable.</li>
+<li><strong>Plagiarism, including self-plagiarism of others' work.</strong> Findings are yours or they aren't. Reproducing someone else's published technique without credit is the end of the track record before it starts.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Read the primary material in this order:</p>
+<ol>
+<li><strong>Google Project Zero blog</strong> (<a href="https://googleprojectzero.blogspot.com">googleprojectzero.blogspot.com</a>) — read any two recent posts end to end with a pencil: mark where the root-cause paragraph lands, where the dead ends are documented, where the systemic recommendation appears. Study the <em>structure</em>, not just the bugs. (Verified active 2026-10-09.)</li>
+<li><strong>James Kettle, "HTTP/2: The Sequel is Always Worse"</strong> (<a href="https://portswigger.net/research/http2">portswigger.net/research/http2</a> — PortSwigger Research, presented Black Hat USA 2021) — read for the research-write-up template: novel mechanism → validation against real stacks → open tooling and free labs. Notice how the tooling section makes the finding <em>reusable</em>.</li>
+<li><strong>CERT Guide to Coordinated Vulnerability Disclosure</strong> (<a href="https://cert.org">cert.org</a>) — re-read the publication-timing section from <a href="/g/cvd/"><code>c-cvd</code></a>: the write-up's release date is a disclosure decision, not a marketing decision.</li>
+</ol>
+<p>Then at most three free resources, each genuinely free: <strong>PortSwigger Web Security Academy</strong> (free — the lab findings you'll write up first), <strong>the CVE Program's request documentation</strong> (<a href="https://cve.org">cve.org</a> — the permanent-record companion to every write-up), <strong>your own evidence repo</strong> (free — where every artifact this program produced already lives).</p>
+<h2>8. Check yourself</h2>
+<p>Answer in your own words — no peeking at section 3:</p>
+<ol>
+<li>Explain the difference between teaching the <em>class</em> and replaying the <em>instance</em> — and why the Project Zero root-cause-first discipline serves the former.</li>
+<li>A lab finding let you read one table via UNION injection. Write the honest-impact statement: what you claim, and the two things you explicitly do not claim.</li>
+<li>Your bounty report's reproduction steps fail on the triager's machine because you omitted a setup step. Explain what this costs you beyond this one report.</li>
+<li>Why does the disclosure timeline govern the write-up's publication date — and what does publishing mid-patch turn the write-up into?</li>
+<li>A peer's write-up opens with three paragraphs of exploit output before stating what was wrong. Rewrite its opening as the root-cause paragraph the bar demands.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the published write-up URL plus the one-page bounty-format version — the first entry in your public track record.</p>
+<p><strong>Honest claim:</strong> "I can write a vulnerability finding so that a stranger can re-derive the mechanism, check every claim, and verify the fix." <strong>What you cannot claim:</strong> that the finding is novel, that a vendor will act on it, or that one write-up makes you a researcher. The track record is built one honest entry at a time; this lesson is the first entry's template, and the brief's recognition pathway is the reason every earlier stage ended in an artifact.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/cvd/"><code>c-cvd</code></a> — the write-up's release is a disclosure decision: the timeline, the negotiation, the publication.</li>
+<li><a href="/g/cve-program/"><code>c-cve-program</code></a> — the permanent record that companions the write-up.</li>
+<li><a href="/g/ai-tooling/"><code>c-ai-tooling</code></a> — where the track record becomes professional evidence: what the field accepts as proof of skill, and how it's sorted.</li>
+<li><a href="/g/exploit-concepts/"><code>d-exploit-concepts</code></a> — when the finding graduates to original research: the capstone write-up series, mechanics-first, under the community's rules.</li>
+</ul>
+<p><em>Walkthrough transcript: <code>runs/c-public-track-record.log</code> · The bar: mechanism first, claims checkable, limits stated.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-c/">Stage C · Professional</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

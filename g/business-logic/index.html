@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business-logic flaws: when the code works and the rules don&#x27;t | Learn Computer Stuff</title>
+<meta name="description" content="Business-logic flaws: map the workflow, violate its assumptions — price tampering, coupon races and negative quantities, with server-side fixes and business-anomaly detection. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/business-logic/">
+<meta property="og:title" content="Business-logic flaws: when the code works and the rules don&#x27;t | Learn Computer Stuff"><meta property="og:description" content="Business-logic flaws: map the workflow, violate its assumptions — price tampering, coupon races and negative quantities, with server-side fixes and business-anomaly detection. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/business-logic/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Business-logic flaws: when the code works and the rules don't","item":"https://learncomputerstuff.dev/g/business-logic/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Business-logic flaws: when the code works and the rules don&#x27;t</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Business-logic flaws: when the code works and the rules don&#x27;t</h1>
+<p class="lede prose">Business-logic flaws are the highest-creativity class in bounty work: no injection, no misconfiguration, just the application's own rules failing when a user deviates from the expected path. They sit in <strong>OWASP Top 10:2025 A06 — Insecure Design</strong> and are tested per <strong>WSTG-BUSL</strong>. Scanners cannot find them — there is no malicious syntax to match — which is exactly why they pay: the entire signature layer is blind to a request that is perfectly well-formed and completely wrong.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo shop (price tamper, coupon race, negative quantity)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (methodology + live workflow abuse + server-side fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/idor/"><code>b-idor</code></a>, <a href="/g/sqli/"><code>b-sqli</code></a>, <a href="/g/xss/"><code>b-xss</code></a> (the full wave-1 set — this is the synthesis lesson), B-AUTH (authorization discipline)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Business-logic flaws are the highest-creativity class in bounty work: no injection, no misconfiguration, just the application's own rules failing when a user deviates from the expected path. They sit in <strong>OWASP Top 10:2025 A06 — Insecure Design</strong> and are tested per <strong>WSTG-BUSL</strong>. Scanners cannot find them — there is no malicious syntax to match — which is exactly why they pay: the entire signature layer is blind to a request that is perfectly well-formed and completely wrong.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have finished the wave-1 lessons above; every one of them taught you to distrust one thing the client controls, and this lesson generalizes that into a method.</li>
+<li><strong>Authorization:</strong> the walkthrough abuses a demo shop on your own loopback interface, plus PortSwigger's business-logic labs (permission granted by design). The discipline from the research holds: one tampered purchase proves the flaw — you never actually steal, never touch a real store's checkout, never replay against a production coupon system.</li>
+<li>Tooling: Python 3 (stdlib only), curl. Paper or a text file for the state-machine map — you will draw before you touch.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Every other class in this wave is about the application <em>mishandling input</em>. Business-logic flaws are about the application <em>doing exactly what it was coded to do</em>, where what it was coded to do is wrong. The vulnerability is not in a line of code but in an <strong>assumption</strong> nobody wrote down: users will use the browser UI (so client-side controls suffice), steps happen in order, numbers are positive, coupons apply once, the total on the receipt is the total the server computed.</p>
+<p>The finding methodology is a discipline, not a trick. Run it in this order on every workflow you test:</p>
+<p><strong>1. State-machine mapping.</strong> Enumerate every state of the workflow and every transition between states, then draw it. Cart → checkout → payment → fulfillment, with the arrows labeled. The flaws live in the transitions the designers didn't draw: can checkout be reached without a cart? Can payment be revisited after fulfillment? Can the same state be entered twice?</p>
+<p><strong>2. Workflow-step analysis.</strong> For each step ask four questions: can it be <em>skipped</em>, <em>repeated</em>, <em>reordered</em>, or <em>revisited</em>? Repeat gives you coupon reuse and double-spend. Skip gives you checkout without payment. Reorder gives you confirmation before payment. Revisit gives you replaying a completed step against changed state.</p>
+<p><strong>3. Trust-boundary review.</strong> Mark every value the client supplies that the server <em>uses</em>: price, quantity, discount, currency, user ID, step index, the total itself. Each one is a candidate for tampering. The rule that kills the whole class: <strong>the server re-derives every money value from its own data and never accepts a client-computed amount.</strong> A price in a POST body is not a price; it is a suggestion from a stranger.</p>
+<p><strong>4. Numeric edge fuzzing.</strong> For every numeric field, try <code>-1</code>, <code>0</code>, <code>0.0001</code>, absurdly large values, and negative discounts. Watch the computed total. Applications that never considered a negative quantity will happily subtract it.</p>
+<p><strong>5. Race/parallelism check.</strong> Where two requests touch the same balance, coupon, or stock count, fire them concurrently. If the check ("is this coupon unused?") and the action ("mark it used") are two separate steps, the second request slips between them.</p>
+<h3>Worked example: the demo shop</h3>
+<p>The shop has three items with server-side prices (mug 12.00, shirt 25.00, sticker 3.00), a cart, a coupon box, and a checkout that charges the total. Mapping the workflow surfaces three assumptions in the first pass: (a) the client sends the <em>price</em> with each add-to-cart request and the server trusts it; (b) the coupon <code>SAVE10</code> ("10 off, single use") is validated by checking a flag and then, separately, applying the discount; (c) quantity is a number the client chooses and the server multiplies.</p>
+<p>Each assumption is a finding waiting for a request. Change the price parameter on add-to-cart: the server charges the tampered price — excessive trust in client-side controls, the canonical PortSwigger lab. Apply <code>SAVE10</code> in two sessions <em>before either checks out</em>: the coupon endpoint checks the single-use flag but only consumes the coupon at checkout, so both sessions see "unused" and both get the discount — a check-then-act race that sequential testing misses. Set quantity to <code>-1</code>: the line total goes negative and drags the order total down — the server never asked whether a quantity can be negative.</p>
+<p>None of these requests looks malicious. There is no <code>&lt;script&gt;</code>, no <code>&#x27; OR 1=1</code>, no <code>../</code>. A WAF sees a well-formed POST and waves it through. That is the entire point of the class, and the entire reason the defender's detection has to be <em>business</em> telemetry — reconciliation, not signatures.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-business-logic.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo shop (<code>logic-demo.py</code>, stdlib only) implements the cart/coupon/checkout workflow above on 127.0.0.1:18093. No real money, no real store, nothing external.</p>
+<p><strong>Step 1 — start the demo and map the workflow.</strong> Run <code>python3 logic-demo.py 18093 &amp;</code>. Before touching it, draw the state machine from the lesson's worked example: browse → add → coupon → checkout → receipt. Write the three assumptions down (client price trusted; coupon check-then-apply; quantity unvalidated). The map comes before the requests — that ordering <em>is</em> the methodology.</p>
+<p><strong>Step 2 — baseline: a honest purchase.</strong> <code>curl -s -c jar -X POST -d &quot;item=mug&amp;price=12.00&amp;qty=1&quot; http://127.0.0.1:18093/cart/add</code> then <code>curl -s -b jar -X POST http://127.0.0.1:18093/cart/checkout</code>. Receipt shows <code>total=12.00</code>. This is the control: the workflow behaving as designed.</p>
+<p><strong>Step 3 — violate assumption (a): tamper the price.</strong> <code>curl -s -c jar2 -X POST -d &quot;item=mug&amp;price=0.01&amp;qty=1&quot; http://127.0.0.1:18093/cart/add</code> then checkout with <code>-b jar2</code>. Receipt: <code>total=0.01</code>. The server charged the client-supplied price. One tampered purchase proves it; the finding is complete.</p>
+<p><strong>Step 4 — violate assumption (b): the coupon race.</strong> The coupon endpoint <em>checks</em> the single-use flag but only <em>consumes</em> the coupon at checkout — a check-then-act gap. Two sessions, interleaved: session A adds a shirt and applies <code>SAVE10</code> → <code>discount=10.00</code> (no checkout yet); session B adds a shirt and applies the same <code>SAVE10</code> → <code>discount=10.00</code> again, because the flag still reads unused; then both check out → two receipts at <code>total=15.00</code>. The single-use coupon paid out twice. The methodology's race check (step 5 of "How it works") is what finds this: sequential testing would have missed it, because a lone second order <em>is</em> correctly rejected once the first checks out.</p>
+<p><strong>Step 5 — violate assumption (c): negative quantity.</strong> <code>curl -s -c jar4 -X POST -d &quot;item=sticker&amp;price=3.00&amp;qty=-1&quot; …/cart/add</code>, checkout. Receipt: <code>total=-3.00</code>. The shop owes <em>you</em> three dollars. The server multiplied without asking whether quantities can be negative.</p>
+<p><strong>Step 6 — the fix, all three.</strong> Restart with <code>FIXED=1</code>: prices are looked up server-side by item id (the client's price field is ignored), the coupon is consumed atomically in the same operation that validates it (second use → <code>already used</code>), quantity is coerced to an integer ≥ 1. Re-run steps 3–5: tampered price → charged 12.00; second <code>SAVE10</code> → rejected; qty=-1 → rejected with <code>invalid quantity</code>. The receipt totals reconcile with the server's own price table in every case.</p>
+<p><strong>Step 7 — defender: read the order log.</strong> The vulnerable run's order log shows the three abuses as <em>business</em> anomalies, not attack signatures: <code>total=0.01</code> on a 12.00 item, <code>coupon SAVE10 used 2 times</code>, <code>total=-3.00</code>. Detection here is reconciliation rules: alert on any order with total ≤ 0, any coupon used more times than its limit, any line total that doesn't equal quantity × server price. Write these as the detection half of your report — the developer fixes the code, the defender watches the ledger.</p>
+<p><strong>Step 8 — stop the demo.</strong> <code>pkill -f logic-demo.py</code>; verify with <code>pgrep -f &quot;logic-demo.py&quot;</code> (excluding the shell's own match) that nothing remains.</p>
+<h2>5. On your own</h2>
+<p>Take the fixed demo shop and find a <em>fourth</em> assumption the walkthrough didn't violate. Candidates the methodology suggests: the currency parameter (is there one? what happens if you add it?), revisiting checkout twice for the same cart (double-charge or double-fulfillment?), applying the coupon <em>after</em> checkout. <strong>Success test:</strong> you can state the assumption in one sentence, demonstrate the violation with one request sequence, and name the server-side rule that would stop it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Testing the UI instead of the workflow.</strong> The browser enforces order, positivity, and single-use — the server must too. Every logic test worth running bypasses the UI and talks to the endpoints directly. If your "test" is clicking buttons, you tested the theater, not the play.</li>
+<li><strong>Stopping at the first abuse.</strong> Workflows have multiple assumptions; the methodology's five steps exist because one tampered price doesn't imply the coupon is safe. Map first, then violate <em>each</em> assumption.</li>
+<li><strong>Calling it "low severity" because there's no RCE.</strong> A price-tampering flaw that lets anyone buy inventory at a cent is a direct financial loss. Severity follows business impact — argue it in money, units, or accounts affected, not in exploit sophistication.</li>
+<li><strong>Fixing the client.</strong> Disabling the price field in JavaScript, hiding the coupon box after use, setting <code>min=&quot;1&quot;</code> on the quantity input — none of these is a fix. The client is the attacker's machine. Every rule must be enforced server-side.</li>
+<li><strong>Race-condition hand-waving.</strong> "We check the coupon flag" is not a fix if check and consume are separate operations. Atomicity — one indivisible validate-and-consume — is the fix; rate limiting only narrows the window.</li>
+<li><strong>WAF as detection.</strong> There is nothing to signature-match. Teams that rely on WAF logs for logic flaws will find them in the chargeback reports instead. Detection is reconciliation: totals, counts, state transitions.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents — read in this order:</p>
+<ol>
+<li><strong>PortSwigger Web Security Academy — Business logic vulnerabilities</strong> (<a href="https://portswigger.net/web-security/logic-flaws)">portswigger.net/web-security/logic-flaws)</a>: definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). <em>Verified in night research 2026-10-09; re-fetch at build time before linking.</em></li>
+<li><strong>OWASP Top 10:2025 — A06 Insecure Design</strong> (<a href="https://owasp.org/Top10/2025/)">owasp.org/Top10/2025/)</a>: what "insecure design" means as a category and why logic flaws live there rather than under Injection. <em>Verified in-session 2026-10-09.</em></li>
+<li><strong>WSTG business-logic testing</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/">owasp.org/www-project-web-security-testing-guide/</a> — WSTG-BUSL): the test-case checklist form of this lesson's methodology. Skim the test IDs; use as a checklist on your next workflow.</li>
+</ol>
+<p>Free resources for going deeper (≤3): <strong>PortSwigger business-logic labs</strong> (the hands-on companion); <strong>Juice Shop logic challenges</strong> ("Payback Time" negative-quantity, "Christmas Special" — gamified, free); <strong>disclosed HackerOne logic-flaw reports</strong> (read for how impact is argued in money terms — study the reasoning, never the payload).</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A checkout accepts <code>{&quot;item&quot;: &quot;mug&quot;, &quot;price&quot;: 12.00, &quot;qty&quot;: 2}</code>. The developer fixes price tampering by removing the price field from the HTML form. Why is the vulnerability still present, and what is the correct fix?</li>
+<li>A coupon is validated (<code>if not used: apply_discount(); mark_used()</code>). Two requests arrive simultaneously and both get the discount. Explain the interleaving, then name the fix that makes the violation impossible rather than merely unlikely.</li>
+<li>Why can't a WAF or signature-based IDS detect a negative-quantity order? What <em>can</em> detect it, and where does that detection live?</li>
+<li>Draw the state machine for "apply coupon → checkout → receipt" and mark three transitions the designer probably didn't draw. For each, name the abuse.</li>
+<li>A bug-bounty report says "I bought a $25 shirt for $0.01 by editing the price parameter." What three facts must the report establish for the triager to reproduce it, and what is the honest severity argument?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a workflow-abuse write-up against a lab target (PortSwigger business-logic lab or the local demo): the intended flow as a state-machine diagram, the abused flow as a request sequence, the financial or logical impact stated concretely, and the server-side rule that stops it — plus the defender's reconciliation rule that would catch it in the logs.</p>
+<p><strong>After this lesson you can honestly claim:</strong> you can systematically map a web workflow, violate each of its assumptions with minimal proof-of-concept requests, and specify server-side fixes plus business-anomaly detection. <strong>You cannot yet claim:</strong> your methodology covers concurrency attacks at scale — race conditions get their own second-wave lesson — or that you can assess workflows you can't see, like multi-service checkout pipelines.</p>
+<h2>10. Leads to</h2>
+<p>Next: <a href="/g/session-auth/"><code>b-session-auth</code></a> (the other half of "who are you and what may you do" — authentication and session flaws), then <a href="/g/security-headers/"><code>b-security-headers</code></a> (the browser-defense layer that shrinks every class's blast radius). Map refs: <strong>OWASP Top 10:2025 A06 — Insecure Design</strong>; WSTG-BUSL; CWE-840/CWE-841; feeds Stage C disclosure write-ups (a logic flaw is only a finding once it's written up).</p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

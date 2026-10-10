@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IDOR: Insecure Direct Object References | Learn Computer Stuff</title>
+<meta name="description" content="IDOR: how a missing authorization check lets one user read another&#x27;s data — reproduced locally, fixed, and verified. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/idor/">
+<meta property="og:title" content="IDOR: Insecure Direct Object References | Learn Computer Stuff"><meta property="og:description" content="IDOR: how a missing authorization check lets one user read another&#x27;s data — reproduced locally, fixed, and verified. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/idor/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"IDOR: Insecure Direct Object References","item":"https://learncomputerstuff.dev/g/idor/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>IDOR: Insecure Direct Object References</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>IDOR: Insecure Direct Object References</h1>
+<p class="lede prose">IDOR is the single highest-yield vulnerability class for a beginning bounty hunter: it is common, it is usually simple to prove, and its impact writes itself ("one user reads another user's data"). It sits inside <strong>OWASP Top 10:2025 A01 — Broken Access Control</strong> and has an API twin, <strong>BOLA</strong> (Broken Object Level Authorization, API1:2023 in the OWASP API Security Top 10). The testing methodology cites it as <strong>WSTG-ATHZ-04</strong>. You will meet it in bug bounty programs, in penetration-test reports, in API security reviews, and — from the other side — in every access-log triage you ever do as a defender. The mechanism in this lesson is also the template for the whole Broken Access Control family: the server trusts a client-supplied identifier and never asks "is this yours?"</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + live reproduction + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (HTTP in depth), B-AUTH (authorization discipline: you test only what you are allowed to touch, with accounts you own), an interception proxy or curl</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>IDOR is the single highest-yield vulnerability class for a beginning bounty hunter: it is common, it is usually simple to prove, and its impact writes itself ("one user reads another user's data"). It sits inside <strong>OWASP Top 10:2025 A01 — Broken Access Control</strong> and has an API twin, <strong>BOLA</strong> (Broken Object Level Authorization, API1:2023 in the OWASP API Security Top 10). The testing methodology cites it as <strong>WSTG-ATHZ-04</strong>. You will meet it in bug bounty programs, in penetration-test reports, in API security reviews, and — from the other side — in every access-log triage you ever do as a defender. The mechanism in this lesson is also the template for the whole Broken Access Control family: the server trusts a client-supplied identifier and never asks "is this yours?"</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You have <strong>two test accounts you own</strong> on whatever target you practice against — the entire lesson is comparing what account A can see versus what account B can see. Never use someone else's account or data.</li>
+<li>Your scope is written down and the target authorizes your testing: your own local lab, a PortSwigger Academy lab, or a bounty program whose scope explicitly includes the asset. IDOR testing without authorization is not research; re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl is enough for this lesson; an interception proxy (Burp Community) makes it faster later.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>An <strong>object</strong> is anything the application stores per-user or per-tenant: invoices, orders, medical records, chat transcripts, files, API resources. A <strong>direct object reference</strong> is when the client names the object it wants with an identifier — <code>invoice?id=1043</code>, <code>/api/vehicle/8812/location</code>, a filename in a URL — and the server fetches it directly. The reference becomes <strong>insecure</strong> when the server uses that client-supplied identifier <em>without checking that the requesting identity is allowed to see that object</em>.</p>
+<p>Walk the mechanism slowly, because the subtlety is where the bugs live. Authentication answers "who are you" — and in every IDOR the victim <em>is</em> authenticated. The server knows the request comes from alice. It takes <code>id=1043</code> from the query string, looks up invoice 1043, finds bob's invoice, and returns it with <code>200 OK</code>. No error, no anomaly, no failed check — because there was no check. The flaw is not the identifier scheme. Sequential IDs (<code>1042</code>, <code>1043</code>) make the flaw <em>easy to find</em>, but replacing them with unguessable UUIDs does not fix it — it only hides it. An attacker who obtains one UUID (from a shared link, a log, a referer header) walks straight through. <strong>Obscurity of the identifier is not authorization.</strong> The fix is always the same shape: on every object access, the server must verify ownership (or permission) <em>against the authenticated identity</em>, and deny by default.</p>
+<p>Two directions of escalation ride on this one missing check. <strong>Horizontal</strong>: alice reads bob's data — same privilege level, different owner. This is the classic IDOR and the bounty bread-and-butter. <strong>Vertical</strong>: a low-privilege user reaches an object or function reserved for a higher role — e.g., changing <code>userId</code> to the administrator's ID on a profile endpoint that also returns admin-only fields. PortSwigger's framing is worth internalizing: IDOR is one example of the general class "the application uses user-supplied input to access objects directly," and the same missing-check shape produces both escalations.</p>
+<p>Where do the identifiers hide? Everywhere the client gets a say: URL paths (<code>/users/9912</code>), query parameters (<code>?id=</code>), POST bodies (<code>{&quot;orderId&quot;:…}</code>), headers, and API versions of all of these. The testing habit is mechanical: for every identifier your account legitimately touches, ask "what happens if I substitute an identifier belonging to my <em>other</em> account?" You need two accounts precisely so the answer is checkable without touching anyone else's data.</p>
+<p>How defenders see it, so you can write it up properly: one session touching many sequential or foreign object IDs in the access logs — a spread of IDs no legitimate user browses. WAF signatures are nearly useless here (the requests are well-formed); detection is behavioral, per-session ID spread and rate. When you report, the evidence is the request/response pair: your session, the foreign ID, the other user's data returned with 200.</p>
+<h3>Worked example: the invoice demo</h3>
+<p>A minimal shop app (stdlib Python, local only — the walkthrough runs it). Two users, alice and bob, each with two invoices: alice owns 1041–1042, bob owns 1043–1044. Login issues a bearer token; <code>GET /invoices</code> lists your own; <code>GET /invoice?id=N</code> fetches one by ID.</p>
+<p>As alice, list your invoices — 1041, 1042, correct. Now change the parameter: <code>GET /invoice?id=1043</code>. The server responds <code>200 OK</code> with <code>{&quot;owner&quot;:&quot;bob&quot;,&quot;item&quot;:&quot;Monitor&quot;,&quot;total&quot;:&quot;249.99&quot;}</code>. That response <em>is</em> the vulnerability: an authenticated user asked for another tenant's object by changing one digit, and the server complied. Confirm the ownership independently — log in as bob and see 1043 in his list — so the report states a fact, not an inference.</p>
+<p>The fix, in the same app: before serving, compare the invoice's owner against the authenticated user and return <code>403</code> on mismatch. Re-test three cases: alice→1043 now gets <code>403</code>; alice→1042 still gets <code>200</code> (legitimate access unbroken — a fix that breaks the app is not a fix); alice→9999 gets <code>404</code>. Note the 403-vs-404 decision from <a href="/g/http-depth/"><code>a-http-depth</code></a>: here 403 is chosen deliberately to distinguish "exists but not yours" from "does not exist" — either is defensible, but it must be a <em>decision</em>, recorded, because it leaks existence either way.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-idor.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo app stands in for the PortSwigger/DVWA/crAPI targets the reader uses (no Docker on this machine — see gaps).</p>
+<ol>
+<li><strong>Start the vulnerable app.</strong> Save the <code>app.py</code> from this lesson's companion (two users, four invoices, bearer-token auth, <code>GET /invoice?id=</code> with no ownership check) and run it on port 8322. Confirm it answers.</li>
+<li><strong>Establish the baseline as alice.</strong> Log in (<code>POST /login</code>, alice's credentials), capture the token, <code>GET /invoices</code> — record that alice owns 1041 and 1042. This is your control: what legitimate access looks like.</li>
+<li><strong>Substitute the identifier.</strong> <code>GET /invoice?id=1043</code> with alice's token. Observe <code>200 OK</code> returning bob's invoice. Write down, verbatim, the request and the response — this pair is the finding.</li>
+<li><strong>Confirm ownership independently.</strong> Log in as bob, <code>GET /invoices</code> — 1043 and 1044 are his. The finding is now a fact: cross-tenant read, no guessing involved.</li>
+<li><strong>Check the unauthenticated case.</strong> Same request with no token: <code>401</code>. Note that authentication works fine — this was never an authentication bug. Say it out loud: the app knew exactly who was asking and answered anyway.</li>
+<li><strong>Apply the fix.</strong> Patch the <code>/invoice</code> handler: deny by default unless <code>invoice.owner == authenticated_user</code>. Restart the app.</li>
+<li><strong>Verify the fix — three cases.</strong> alice→1043: <code>403</code> (blocked). alice→1042: <code>200</code> (her own data still works). alice→9999: <code>404</code> (missing objects still 404, not 403 — the error handling did not regress).</li>
+<li><strong>Write the mini-report.</strong> One page: title, severity reasoning, reproduction steps (exact requests), impact (what an attacker gains: any authenticated user reads any invoice), remediation (server-side ownership check, deny by default), evidence (the request/response pair from step 3).</li>
+</ol>
+<p>No step above is marked "not run by us" — the vulnerable behavior, the fix, and all three verification cases ran locally and the transcript records the real output.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy access-control lab, DVWA at low difficulty, or crAPI's BOLA challenges. Using two accounts you own, find and document one IDOR-class issue (it may be the lab's intended vulnerability). Then, for the same endpoint, determine whether the application also fails the <em>write</em> direction: can account A modify or delete account B's object, not just read it?</p>
+<p><strong>Success test:</strong> A one-page report in the anatomy from walkthrough step 8, with request/response evidence for the read case and a clear yes/no (with evidence) for the write case. If your report cannot distinguish "the object exists but is protected" from "the object does not exist," say so — that ambiguity is itself a finding about error handling.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Checking on the list page but not the direct fetch.</strong> The app filters <code>/invoices</code> to your own but serves <code>/invoice?id=</code> to anyone. Every object access needs the check, not just the convenient ones.</li>
+<li><strong>Client-side "protection."</strong> Hiding the ID in JavaScript, disabling the button, or removing the link — the endpoint still answers direct requests. If the server doesn't enforce it, it isn't enforced.</li>
+<li><strong>Unguessable IDs as the fix.</strong> UUIDs, hashes, "random" filenames: they slow discovery, they are not authorization. One leaked link reopens everything.</li>
+<li><strong>Checking identity but not ownership.</strong> "Is the user logged in?" is not "is this the user's object?" — the vulnerable app in this lesson passed the first check perfectly.</li>
+<li><strong>IDOR in writes.</strong> Testers check reads and stop. The same missing check on update/delete endpoints turns data exposure into data destruction.</li>
+<li><strong>Mass assignment / over-posting.</strong> The API silently accepts extra fields (<code>{&quot;role&quot;:&quot;admin&quot;}</code>) — the object-reference flaw's cousin, same root cause: the server trusts the client's description of what should happen.</li>
+<li><strong>Fixing with 404-for-everything.</strong> Returning 404 for "not yours" avoids confirming existence but complicates legitimate debugging and can still be distinguished by timing — pick deliberately, document the choice.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — IDOR</strong> (<a href="https://portswigger.net/web-security/access-control/idor)">portswigger.net/web-security/access-control/idor)</a> — <em>read</em> fully; it is short and it is the canonical explanation (direct DB references, static-file references, horizontal vs vertical escalation).</li>
+<li><strong>OWASP Top 10:2025 — A01 Broken Access Control</strong> (<a href="https://owasp.org/Top10/2025)">owasp.org/Top10/2025)</a> — <em>read</em> the A01 entry; <em>note</em> that the 2025 edition folds SSRF into A01 — the category is "the server does something for you that it shouldn't," and IDOR is its most common shape.</li>
+<li><strong>OWASP WSTG — WSTG-ATHZ-04</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide)">owasp.org/www-project-web-security-testing-guide)</a> — <em>read</em> the test procedure; this is the checklist form of the walkthrough above. <em>Skip</em> the other ATHZ tests until the next lesson.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger Academy — Access Control labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; the IDOR labs are the hands-on companion to this lesson.</li>
+<li><strong>OWASP Cheat Sheet Series — Access Control</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side: deny-by-default, centralized authorization.</li>
+<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI)">github.com/OWASP/crAPI)</a> — free; run locally via Docker and work the vehicle/order BOLA challenges (<code>GET /identity/api/v2/vehicle/{id}/location</code> with two users) — IDOR's API twin.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why replacing sequential invoice IDs with unguessable UUIDs does not fix an IDOR, and name the one change that does.</li>
+<li>An endpoint returns <code>200</code> with another user's data when you substitute their ID, but returns <code>401</code> when you drop your token. Explain why this is an authorization failure and not an authentication failure.</li>
+<li>Predict the server behavior you would expect, as a defender, in the access logs of an application under active IDOR probing — and explain why a WAF signature is a poor detector for it.</li>
+<li>You find that <code>GET /invoice?id=</code> is protected but <code>PUT /invoice?id=</code> with a JSON body is not. Explain the impact difference between the read and write variants, and which one you would report as higher severity.</li>
+<li>A developer proposes fixing the lesson's demo by removing the <code>id</code> parameter and only serving "the current invoice." Explain why this is not a fix for any application with more than one object per user.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page mini-report from walkthrough step 8 (or the "On your own" report against a real lab target): title, severity with reasoning, exact reproduction requests, impact stated concretely, remediation, and the request/response evidence pair.</p>
+<p><strong>Honest claim:</strong> "I can demonstrate, with evidence, that one authenticated user can access another's object through a client-supplied identifier, and I can verify the server-side fix."</p>
+<p><strong>Can't claim yet:</strong> "I can find authorization flaws in general" — function-level bypasses, privilege escalation, and API authorization are the next lessons.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>B-VULN-02 — Broken access control (general)</strong> — IDOR as one member of the family: missing function-level checks, role tampering, forced browsing.</li>
+<li><strong>B-VULN-05 — API abuse / BOLA</strong> — the same flaw through API-shaped endpoints (API1:2023).</li>
+<li><strong>B-DEF — Defensive basics</strong> — sit on the other side: given your own attack traffic, write the detection (per-session ID spread).</li>
+<li><strong>B-BOUNTY — Bug bounty mechanics</strong> — this lesson's report format is the dry run for a real submission.</li>
+<li>Map refs: <strong>OWASP Top 10:2025 A01</strong>, <strong>WSTG-ATHZ-04</strong>, <strong>CISSP 5.4</strong> (authorization mechanisms and models, via Stage E).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

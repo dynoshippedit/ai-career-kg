@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TCP/IP and ports | Learn Computer Stuff</title>
+<meta name="description" content="TCP/IP and ports: the handshake, connection states, what a port really is — observed live with ss on loopback. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/tcpip-ports/">
+<meta property="og:title" content="TCP/IP and ports | Learn Computer Stuff"><meta property="og:description" content="TCP/IP and ports: the handshake, connection states, what a port really is — observed live with ss on loopback. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/tcpip-ports/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"TCP/IP and ports","item":"https://learncomputerstuff.dev/g/tcpip-ports/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>TCP/IP and ports</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>TCP/IP and ports</h1>
+<p class="lede prose">Every connection you will ever investigate or exploit is TCP (or UDP) to an IP address and a port. The SOC analyst triaging "suspicious outbound connection" is reading exactly the states this lesson teaches: who connected to whom, on what port, and whether the handshake completed. The penetration tester whose scan shows "port 8080 open" is reading a completed handshake. The incident responder deciding whether data left the network is asking whether a connection was ever ESTABLISHED. Ports are also the first access-control boundary you will meet — a firewall is, at its simplest, a list of which ports may complete handshakes. Learn what a port really is now, and "open port," "listening service," and "connection" stop being vocabulary and become things you can observe.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; UDP + packet-capture steps not run by us</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism — you can explain the handshake, read connection states, and say what a port is without hand-waving)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/dns-depth/"><code>a-dns-depth</code></a> (names resolve to addresses; this lesson moves bytes to those addresses)</td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds <a href="/g/http-depth/"><code>a-http-depth</code></a>, Stage B (every vulnerability lesson opens connections), Stage D (network forensics reads these states).</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every connection you will ever investigate or exploit is TCP (or UDP) to an IP address and a port. The SOC analyst triaging "suspicious outbound connection" is reading exactly the states this lesson teaches: who connected to whom, on what port, and whether the handshake completed. The penetration tester whose scan shows "port 8080 open" is reading a completed handshake. The incident responder deciding whether data left the network is asking whether a connection was ever ESTABLISHED. Ports are also the first access-control boundary you will meet — a firewall is, at its simplest, a list of which ports may complete handshakes. Learn what a port really is now, and "open port," "listening service," and "connection" stop being vocabulary and become things you can observe.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>A terminal with <code>python3</code> and <code>ss</code> (verify: <code>ss --version</code>). The walkthrough's listener is a ~15-line Python server on <code>127.0.0.1</code>.</li>
+<li><a href="/g/dns-depth/"><code>a-dns-depth</code></a> done — you know how a name becomes an address; the address is where this lesson starts.</li>
+<li>No packet capture on the build machine: the tcpdump/Wireshark step is marked not-run and given as the reader's exercise.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Two machines, one problem: deliver a stream of bytes, in order, without loss, over a network that drops, duplicates, and reorders packets. TCP's answer has three parts — the handshake, the stream, and the port numbers that make it all addressable.</p>
+<p><strong>A port is an address within a host.</strong> An IP address gets the packet to the right machine; the port gets it to the right <em>conversation</em> on that machine. The pair (IP, port) on each end — the <strong>socket pair</strong>, four numbers total — identifies one connection uniquely, which is why one web server can hold ten thousand simultaneous connections on port 443: the clients' ephemeral ports differ. Ports are 16-bit numbers. Below 1024 are the <strong>privileged</strong> (well-known) ports — binding them requires privilege, a relic of the era when port numbers authenticated the <em>sender</em> (only root could bind below 1024, so a connection <em>from</em> a low port meant "this came from a privileged process"). Above that: registered ports (1024–49151, convention, e.g. 8080, 8443) and the <strong>ephemeral</strong> range (the kernel picks these for outgoing connections — <code>32768–60999</code> on the walkthrough machine). The <code>/etc/services</code> registry maps numbers to names, but it is convention, not enforcement: anything may listen on any unprivileged port, and malware counts on you assuming otherwise.</p>
+<p><strong>The three-way handshake</strong> exists because both sides must agree on where the byte stream starts. A opens with <strong>SYN</strong> ("I want to talk; my sequence starts at X"). B replies <strong>SYN-ACK</strong> ("agreed; my sequence starts at Y; I acknowledge your X"). A sends <strong>ACK</strong> ("I acknowledge your Y"). Only then is the connection <strong>ESTABLISHED</strong> and application data flows. Two details with security weight. First, sequence numbers are randomized per connection (RFC 9293) — predictable sequence numbers were the 1990s' remote-hijacking primitive (the Mitnick/Shimomura attack), and the fix was cryptographic randomness in the initial sequence number. Second, a SYN to a closed port gets a <strong>RST</strong> (reset), not silence — and that difference is the entire basis of port scanning: SYN-scan sends SYNs and reads RST-vs-SYN-ACK as closed-vs-open, never completing the handshake.</p>
+<p><strong>The stream</strong> is TCP's promise: bytes arrive in order, without gaps or duplicates, or the connection tells you it failed. Sequence and acknowledgment numbers track every byte; lost segments are retransmitted; the receiver's <strong>window</strong> advertises how much it can accept (flow control). For security work, the stream abstraction is what lets every higher protocol — TLS, HTTP, SSH — pretend the network is a reliable pipe. When that pretense breaks (RST injection, sequence prediction), the pipe itself is the attack surface.</p>
+<p><strong>Closing is a negotiation</strong>, not an event. Each side sends <strong>FIN</strong> ("I'm done sending") and the other ACKs it; the connection is fully closed only after both FINs. A side that FINs first and sees the full exchange parks in <strong>TIME_WAIT</strong> so late duplicate packets can't corrupt the <em>next</em> connection reusing the port — which is why a restarted server can briefly report "address already in use" (SO_REUSEADDR exists for exactly this). The half-close states in the walkthrough (FIN-WAIT-2, CLOSE-WAIT) are what you see when one side said goodbye and the other hasn't answered yet.</p>
+<p><strong>UDP</strong> is the deliberate absence of all this: no handshake, no sequence numbers, no connection — just addressed datagrams. DNS uses UDP first (fast, one question one answer) with TCP fallback. The price of no handshake is no authenticity, which is why <a href="/g/dns-depth/"><code>a-dns-depth</code></a>'s poisoning discussion lives where it does.</p>
+<p>Above TCP sits IP (RFC 791 for v4, RFC 8200 for v6): the header carries source and destination addresses, and TCP's checksum even covers a <strong>pseudo-header</strong> of IP fields so a misrouted segment fails validation. One IP mechanic you will trip over constantly: <strong>NAT</strong> (network address translation). Your home router gives your machine a private address (192.168.x.x, 10.x.x.x) and rewrites it to the router's public address on the way out, tracking the mapping by port. Inbound SYNs to your machine die at the router unless port-forwarded — which is why your walkthrough listener is reachable on loopback but not from the internet, and why "the server can't reach my lab" is almost always NAT, not a firewall rule you wrote. The layering is the point of the whole stage: IP gets it to the host, TCP gets it to the conversation, and the application protocol — next lesson — decides what the conversation means.</p>
+<h3>Worked example: one connection, observed three ways</h3>
+<p>From the walkthrough (§4): a Python server listens on <code>127.0.0.1:18443</code>. <code>ss -tln</code> shows it in LISTEN — the kernel, not the application, is now answering SYNs. A client connects; <code>ss -tn</code> shows two ESTABLISHED rows: <code>127.0.0.1:37494 → 127.0.0.1:18443</code> (client, ephemeral port from the kernel's range) and the mirror (server side, on 18443). The handshake completed inside <code>create_connection()</code>, before any application byte moved. Binding 18443 a second time fails with <code>EADDRINUSE</code> — one owner per port. Binding port 80 as the unprivileged <code>nobody</code> user fails with <code>Permission denied</code> — the privileged-port rule, demonstrated rather than asserted. The client closes; the server holds; <code>ss</code> shows FIN-WAIT-2/CLOSE-WAIT — the half-close. Both close; the first closer lands in TIME-WAIT for 60 seconds. Every state has a name, every name was observed, and a packet capture (your exercise, step 8) would show you the SYN/SYN-ACK/ACK/FIN segments behind each one.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-tcpip-ports.log</code>. Clean environment: stock Python 3.12, <code>ss</code> (iproute2 6.1.0), loopback only, 2026-10-09. Two steps marked not-run (UDP datagrams — sandbox blocks UDP loopback; packet capture — no tcpdump here).</p>
+<ol>
+<li><strong>Open a listener and see LISTEN.</strong> Start the background Python server on <code>127.0.0.1:18443</code>; <code>ss -tln | grep 18443</code>. The kernel holds the port now — SYNs get SYN-ACKs before your code runs.</li>
+<li><strong>Connect and see ESTABLISHED.</strong> Connect with Python, hold the socket; <code>ss -tn | grep 18443</code> shows both directions. Name the ephemeral port and say which range it came from.</li>
+<li><strong>Bind it twice.</strong> A second <code>bind()</code> on 18443 → <code>OSError: [Errno 98] Address already in use</code>. One owner per address+port.</li>
+<li><strong>Try a privileged port without privilege.</strong> <code>setpriv --reuid=nobody ... bind((&#x27;127.0.0.1&#x27;,80))</code> → <code>Permission denied</code>. Read <code>/proc/sys/net/ipv4/ip_local_port_range</code> and match step 2's ephemeral port to the range.</li>
+<li><strong>UDP — not run by us.</strong> Sandbox blocks UDP loopback. On your machine, run the two one-liners in the log: a UDP server printing <code>recvfrom</code>, a client <code>sendto</code>-ing one datagram. Note there is nothing to <code>ss</code> for: no handshake, no ESTABLISHED.</li>
+<li><strong>Close and watch the states.</strong> Client closes while the server holds: FIN-WAIT-2/CLOSE-WAIT — the half-close, named. Then the both-close demo: the first closer sits in TIME-WAIT (<code>ss -tna</code>), 60s on this machine. Explain what TIME_WAIT protects against.</li>
+<li><strong>Read the registry.</strong> <code>grep -E &#x27;^(http|https|domain|ssh)[[:space:]]&#x27; /etc/services</code> — convention, not enforcement.</li>
+<li><strong>Capture it.</strong> <strong>Update 2026-10-10: now RUN BY US</strong> — tcpdump 4.99.4 installed (via .deb; this container has no <code>tcpdump</code> user so capture needs <code>-Z root</code>). <code>tcpdump -Z root -i lo -n &#x27;tcp port 18445&#x27;</code> during a loopback connect showed the full exchange on the wire: <code>[S]</code> SYN, <code>[S.]</code> SYN-ACK, <code>[.]</code> ACK, <code>[P.]</code> data each way, <code>[F.]</code> FIN each way with final ACKs — 10 packets. See <code>runs/a-tcpip-ports.log</code> re-run entry. On your machine: <code>sudo tcpdump -i lo -n &#x27;tcp port 18443&#x27;</code> while repeating step 2. Match each packet (SYN, SYN-ACK, ACK, FIN) to the <code>ss</code> states above.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write a minimal port scanner in Python (stdlib only): for ports 1–1024 on <code>127.0.0.1</code>, attempt <code>connect_ex</code> with a short timeout and report which ports complete the handshake. Run it against your walkthrough listener on 18443 (add that port to the range) and against a port you know is closed.</p>
+<p><strong>Success test:</strong> The scanner reports 18443 as open and the closed port as closed, with no exceptions and a runtime you can explain (hint: why is it slow? what would you change — and what does that change cost in accuracy?).</p>
+<p><strong>Hints:</strong> <code>connect_ex</code> returns an errno instead of raising — 0 means the handshake completed. Think about what a RST vs a timeout tells you, and why scanning a <em>remote</em> host you don't own would be a different legal universe from scanning loopback.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"Open port" ≠ "vulnerable service."</strong> A completed handshake says a program is listening, nothing more. Scanners report candidates; humans confirm findings. (The brief's hard rule, restated at the transport layer.)</li>
+<li><strong>Assuming the port number identifies the service.</strong> Anything can listen on 8080; malware does. Banner-grab and fingerprint — never trust the number.</li>
+<li><strong>Forgetting the ephemeral side.</strong> Incident responders who log only the server port lose the client identity. A connection is four numbers; record all four.</li>
+<li><strong>TIME_WAIT exhaustion.</strong> A scanner or proxy opening thousands of short connections can fill the ephemeral range with TIME_WAIT sockets — a self-inflicted denial of service with a one-line cause.</li>
+<li><strong>Half-open confusion.</strong> FIN-WAIT and CLOSE-WAIT in <code>ss</code> output are normal mid-close states, not attacks — but a <em>pile</em> of CLOSE-WAIT sockets means the application stopped closing connections, which is a bug or a resource-exhaustion attack in progress.</li>
+<li><strong>UDP's honesty problem.</strong> No handshake means no proof anyone is listening — a UDP "scan" that reports "open" often means "no RST came back," which also means "firewall ate it." Treat UDP results as weaker evidence, always.</li>
+<li><strong>Scanning outside your scope.</strong> Everything in step 5's "on your own" runs on loopback. Pointing a scanner at someone else's host without written authorization is the CFAA-shaped mistake this program exists to prevent — the authorization lesson (Stage B) gates all of it.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — read with a purpose, skip without guilt:</p>
+<ul>
+<li><strong>RFC 9293, Transmission Control Protocol</strong> (<a href="https://rfc-editor.org/rfc/rfc9293">rfc-editor.org/rfc/rfc9293</a>, obsoletes 793, Aug 2022) — <em>read</em> §3.1 (header format — ports, sequence numbers, flags; the diagram is the lesson), §3.4 (sequence numbers), §3.5 (establishing a connection — the handshake, normative), §3.6 (closing); <em>skim</em> §3.7–3.8 (segmentation, retransmission — concepts); <em>skip</em> §3.9–3.10 (API/event processing — implementer material).</li>
+<li><strong>RFC 791 (IPv4)</strong> and <strong>RFC 8200 (IPv6)</strong> headers — <em>read</em> just the header diagrams (addresses, protocol/next-header fields); the lesson needs the layering, not the full texts.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Practical Networking</strong> (<a href="https://practicalnetworking.net">practicalnetworking.net</a>) — free; the clearest plain-language walkthroughs of the handshake, sequence numbers, and the OSI/TCP-IP model framing. Read the TCP articles after RFC 9293 §3.5.</li>
+<li><em>(Second slot intentionally empty — RFC 9293 plus one guide is the right depth. A Wireshark lab list goes in the directory, not the lesson.)</em></li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li><code>ss -tn</code> shows <code>SYN-SENT</code> for a connection that never becomes ESTABLISHED. Explain what the kernel is waiting for, and name two different reasons it might wait forever.</li>
+<li>A scanner reports port 8080 "open" on a target. Explain, using the handshake, what the scanner actually observed — and why that observation alone is not a vulnerability.</li>
+<li>Two connections share server port 443 but have different client ports. Explain why the server can tell them apart, and what would break if the client ports were also identical.</li>
+<li>After a benchmark, <code>ss</code> shows thousands of sockets in TIME_WAIT and new connections fail. Explain the mechanism and two ways to relieve it (one kernel-side, one application-side).</li>
+<li>A firewall blocks all inbound SYNs to port 22 but the admin can still SSH <em>out</em>. Explain what the firewall is distinguishing, using connection states and direction.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a lab notebook containing: the <code>ss</code> outputs from steps 1, 2, and 6 with every column and state explained; the <code>EADDRINUSE</code> and <code>Permission denied</code> errors with the kernel rule each demonstrates; and your port-scanner script with its open/closed results and your explanation of its speed.</p>
+<p><strong>Honest claim:</strong> "I can read TCP connection states, explain the handshake and teardown packet by packet, and say what a port number does and doesn't guarantee."</p>
+<p><strong>Can't claim yet:</strong> "I can find vulnerabilities in network services" — that is Stage B, on authorized targets; this lesson built the observation skill every such lesson assumes.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/linux-cli/"><code>a-linux-cli</code></a> — next: you've seen the wire; now learn to read your own machine's side of it (<code>ss</code>, <code>netstat</code>'s successor, lives here).</li>
+<li><a href="/g/http-depth/"><code>a-http-depth</code></a> — after the CLI: the handshake gets you a reliable pipe; HTTP is what applications say over it. The Stage A milestone (narrating a login packet by packet) is assessed there.</li>
+<li><a href="/g/idor/"><code>b-idor</code></a> and the Stage B vulnerability lessons (later): every one of them opens connections to authorized targets — the states in this lesson are what "the request went through" looks like from below.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

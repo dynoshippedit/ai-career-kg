@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI supply chain security | Learn Computer Stuff</title>
+<meta name="description" content="AI supply chain security: provenance, hashes, CycloneDX AIBOMs, Sigstore keyless signing, and the pickle hazard — demonstrated locally. A free hands-on lesson in the security guidebook, serving CAISP chapter 6.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/supply-chain/">
+<meta property="og:title" content="AI supply chain security | Learn Computer Stuff"><meta property="og:description" content="AI supply chain security: provenance, hashes, CycloneDX AIBOMs, Sigstore keyless signing, and the pickle hazard — demonstrated locally. A free hands-on lesson in the security guidebook, serving CAISP chapter 6.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/supply-chain/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"AI supply chain security","item":"https://learncomputerstuff.dev/g/supply-chain/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>AI supply chain security</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · AI track</span><h1>AI supply chain security</h1>
+<p class="lede prose">Every model you have ever downloaded is someone else's build artifact, produced on someone else's infrastructure, from data you have never seen. The question "is this model what it claims to be?" is the entire lesson, and it is asked in more places than people realize: pulling weights from a hub before fine-tuning, vendoring a dataset for training, adding a plugin to an agent, deploying a container that serves the model, auditing a vendor who says their model is "certified clean." CAISP devotes its sixth chapter to this because the AI supply chain has every classic supply-chain failure — typosquatting, compromised publishers, tampered artifacts, unvetted dependencies — plus two AI-specific ones: weight files that execute code on load, and training data that implants behavior. This lesson teaches provenance as a discipline: how to know what you have, how to prove it has not changed, and what a poisoned upstream looks like to a defender.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough steps 1–5 run 2026-10-09 · step 6 (live keyless signing) not run by us</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + provenance verification on your own artifacts + admission policy)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (where weights enter the stack); <a href="/g/llm-top10/"><code>ai-llm-top10</code></a> (LLM04:2026, expanded here); <a href="/g/git-github/"><code>a-git-github</code></a> (hashes, commits, remotes)</td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM04:2026</strong> (edition released 2026-08-04 — always name the edition); <strong>CAISP chapter 6</strong>.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every model you have ever downloaded is someone else's build artifact, produced on someone else's infrastructure, from data you have never seen. The question "is this model what it claims to be?" is the entire lesson, and it is asked in more places than people realize: pulling weights from a hub before fine-tuning, vendoring a dataset for training, adding a plugin to an agent, deploying a container that serves the model, auditing a vendor who says their model is "certified clean." CAISP devotes its sixth chapter to this because the AI supply chain has every classic supply-chain failure — typosquatting, compromised publishers, tampered artifacts, unvetted dependencies — plus two AI-specific ones: weight files that execute code on load, and training data that implants behavior. This lesson teaches provenance as a discipline: how to know what you have, how to prove it has not changed, and what a poisoned upstream looks like to a defender.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (you know where the weights sit in the stack) and <a href="/g/llm-top10/"><code>ai-llm-top10</code></a> (LLM04:2026 is this lesson's headline risk).</li>
+<li>Python 3 and OpenSSL on your machine. No model download needed — the walkthrough builds a fake model directory and treats it as the artifact under test. The live-signing step uses Sigstore's keyless flow against the public Rekor log; it needs network and an OIDC identity, so it is marked <strong>not run by us</strong> here with the exact reader procedure.</li>
+<li>Safety framing: you will deliberately craft a malicious pickle file <em>on your own machine, in a scratch directory, labeled as a hazard demo</em> — the classic <code>__reduce__</code> demonstration. This is the standard teaching demo for deserialization risk, contained to your own files. Nothing leaves your machine.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Supply-chain security is one question asked at every handoff: <strong>did this artifact come from who I think, and is it bit-for-bit what they published?</strong> Three mechanisms answer it, from weakest to strongest.</p>
+<p><strong>Hashes: identity of content.</strong> A SHA-256 hash names <em>content</em>, not intent — if the bytes change by one bit, the hash changes completely. Pinning a model to a commit hash (not a branch name, not "latest") means you always get the same bytes. Verifying the hash after download means the bytes survived transit. What hashes do <em>not</em> tell you: whether the publisher was trustworthy in the first place. A hash of a poisoned model is a perfectly valid hash of a poisoned model. Hashes answer "did it change," never "should I trust it."</p>
+<p><strong>Provenance: identity of origin.</strong> Provenance records <em>how</em> the artifact was produced: which source commit, which build steps, which identity ran them. SLSA (Supply-chain Levels for Software Artifacts) standardizes this as signed build provenance: the builder attests "I built these bytes from this source with these steps," and you verify the attestation instead of trusting the artifact alone. For models, the equivalents are: the publisher's verified identity on the hub, the training-data references, and the framework versions — recorded in a machine-readable bill of materials.</p>
+<p><strong>Signatures: binding the two together.</strong> A signature says "this identity vouches for these bytes." Traditional signing drowns in key management — whose key, where is it stored, was it revoked. Sigstore's keyless flow removes the long-lived key: you authenticate with an OIDC identity (your GitHub Actions workflow, your email), the Fulcio certificate authority issues a short-lived certificate bound to that identity, you sign with an ephemeral key that is discarded after one use, and the signing event is recorded in Rekor, an append-only transparency log anyone can audit. Verification checks four things: the signature matches the bytes, the certificate's identity is the expected publisher, the certificate chains to Sigstore's root of trust, and the signing event is present in Rekor. Unsigned artifact, unexpected identity, missing log entry — any one of them fails closed.</p>
+<p><strong>The AIBOM.</strong> A CycloneDX bill of materials extended to machine-learning components: for each model, the hash, the source URL, the framework and version, the dataset references, and the license. The walkthrough generates one for a fake model directory. The defender's use: when a vulnerability lands in a framework version or a dataset is found poisoned, the AIBOM answers "are we exposed?" in minutes instead of weeks. The OpenSSF model-signing work and CycloneDX's ML component support are converging on this as the standard shape — cite the spec, not a vendor.</p>
+<p><strong>The weight-format hazard.</strong> Model weights ship in formats, and some formats are programs. Python's pickle — still common in the ecosystem via <code>.pkl</code>/<code>.pt</code> conventions and legacy loaders — executes arbitrary code during deserialization by design: a crafted file runs attacker code the moment you <em>load</em> it, before any model inference happens. The defense hierarchy: prefer safe formats (safetensors and friends, which store tensors as data, not code); never unpickle a file you did not create or verify; treat weight files with the same suspicion as executables. The walkthrough demonstrates the mechanism on a labeled local file so you respect it, then shows the safe-format alternative.</p>
+<p><strong>What a poisoned upstream looks like to a defender.</strong> You rarely catch the poisoning; you catch its <em>traces</em>: a model whose hash does not match the publisher's published value; a new "official-looking" publisher account with a similar name; an artifact with no signature where the publisher normally signs; dependencies in the serving container that changed without a corresponding release; evaluation metrics that shifted on a narrow slice of inputs (the backdoor signature from LLM05:2026). Detection is provenance monitoring: watch the identities and hashes, not just the behavior.</p>
+<h3>Worked example: the three-handoff model</h3>
+<p>A team fine-tunes a base model and ships it. Three handoffs, three questions:</p>
+<ol>
+<li><strong>Hub → team.</strong> They download <code>acme-corp/support-7b</code>. Provenance check: is the publisher the verified <code>acme-corp</code> org or <code>acme_corp</code> (typosquat)? Is the download pinned to a commit hash, and does the hash of the bytes match? Is there a signature, and does it verify?</li>
+<li><strong>Team → registry.</strong> After fine-tuning, they push to their internal registry. Provenance created: the AIBOM records the base model's hash, the fine-tuning dataset's hash and source, the framework version, and the training script's commit. The registry signs the artifact keyless; the Rekor entry is the public witness.</li>
+<li><strong>Registry → production.</strong> The deploy job verifies before serving: signature valid, identity expected, hash matches the AIBOM, framework version not on the known-vulnerable list. Any check fails → the deploy stops. That policy, written as code in the pipeline, is the lesson's real product.</li>
+</ol>
+<h2>4. Walkthrough</h2>
+<p><strong>Partially run by us</strong> — transcript: <code>runs/ai-supply-chain.log</code>. Clean environment: stock Python 3.12, OpenSSL, no network, 2026-10-09. Steps 1–5 ran locally; step 6 (live keyless signing against Rekor) is marked <strong>not run by us</strong>.</p>
+<ol>
+<li><strong>Build the artifact.</strong> Run the harness: it creates <code>model_dir/</code> with three fake weight shards, a <code>config.json</code>, and a <code>README.md</code>. This directory stands in for a downloaded model.</li>
+<li><strong>Hash everything.</strong> Run the harness's <code>hash</code> command: SHA-256 per file, written to <code>SHA256SUMS</code>. Re-run it: identical output. <em>Teaching point:</em> the hash names the bytes. Now you have something tampering cannot survive silently.</li>
+<li><strong>Tamper and detect.</strong> Append one byte to a shard. Re-run verification: it names the exact file whose hash changed. Restore the file. <em>Teaching point:</em> detection is mechanical and total — but only if you kept the reference hashes somewhere the attacker cannot rewrite.</li>
+<li><strong>Write the AIBOM.</strong> Run the harness's <code>aibom</code> command: it emits <code>bom.json</code> in the CycloneDX shape — one component per file with hash, plus model-level metadata (name, source URL, framework, dataset reference, license). Read it: this is the document a vulnerability scanner consumes.</li>
+<li><strong>Demonstrate the pickle hazard — labeled, local, contained.</strong> The harness writes <code>evil.pkl</code>, a deliberately crafted pickle whose payload creates a marker file when <em>loaded</em>. Load it with <code>pickle.load</code> in the scratch directory: the marker appears. Then load the safe-format equivalent (a JSON tensor stub): no code runs, ever. Delete both files. <em>Teaching point:</em> the danger is not the model — it is the <em>loader</em>. Prefer formats that cannot execute.</li>
+<li><strong>Keyless signing — NOT RUN BY US.</strong> On your machine, with network: install cosign; <code>cosign sign-blob --yes bom.json</code> using your OIDC identity (GitHub Actions or email); then <code>cosign verify-blob</code> against the expected identity, and check the Rekor entry. Record the four verification checks from §3 and confirm each passes. Then write the admission policy from §5 of the worked example as a script that refuses any model directory without a verified signature — that policy is your artifact's companion.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take any model artifact on your machine (a real download, or the walkthrough's <code>model_dir</code>). Produce its AIBOM (hashes, source, framework, dataset reference), verify it, tamper one file, and show the verification catching it. Then write the admission policy: a script that takes a model directory and exits non-zero unless every file's hash matches the AIBOM and the AIBOM itself carries a signature from an expected identity (stub the signature check with a comment marking where cosign verification plugs in, until you complete step 6 above).</p>
+<p><strong>Success test:</strong> The tamper is caught and named; the policy script refuses the tampered directory and accepts the clean one; the stub comment says exactly which cosign command fills it. If your policy trusts the hub's web page instead of hashes and signatures, it fails.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Trusting the hub UI.</strong> Badges, download counts, and "verified" checkmarks are UI, not provenance. The checks that matter are the commit hash, the publisher identity, and the signature — all verifiable offline from the bytes.</li>
+<li><strong>"Latest" as a pin.</strong> Branch names and tags move. An attacker who compromises a publisher's account does not need to poison every version — just the one your pipeline pulls next Tuesday. Pin the hash.</li>
+<li><strong>Signing without verifying.</strong> A signature nobody checks is theater. The admission policy in §5 is the part most teams skip: the signature must gate the deploy, in code, with failure closed.</li>
+<li><strong>The README hash.</strong> A hash printed on the same page as the download, served by the same compromised host, verifies nothing. Reference hashes must come through a separate trust path — the transparency log exists for exactly this reason.</li>
+<li><strong>Pickle "just this once."</strong> Every incident in this class starts with a legacy loader and a deadline. Migrate to safe tensor formats; quarantine anything you must unpickle (isolated machine, no network, no credentials).</li>
+<li><strong>Forgetting the data.</strong> Datasets are supply chain too — a poisoned fine-tuning set is LLM05 wearing LLM04's clothes. Hash and pin datasets with the same discipline as weights.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>CycloneDX Specification — Object Model Overview</strong> (<a href="https://cyclonedx.org/specification/overview/)">cyclonedx.org/specification/overview/)</a> — <em>read</em> the Components section (it covers machine-learning models explicitly) and <em>skim</em> the rest; <em>note</em> the recognized predicate type <code>https://cyclonedx.org/bom</code> for attestations.</li>
+<li><strong>Sigstore documentation — Overview</strong> (<a href="https://docs.sigstore.dev">docs.sigstore.dev</a>) — <em>read</em> fully: keyless signing, Fulcio, Rekor, and the four verification checks. <em>Then</em> read the cosign sign/verify pages when you do walkthrough step 6.</li>
+<li><strong>SLSA specification</strong> (<a href="https://slsa.dev">slsa.dev</a>) — <em>skim</em> the "about" page and the provenance model; you are learning the vocabulary (attestation, provenance, levels), not implementing SLSA on day one.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OpenSSF model-signing project</strong> (<a href="https://github.com/sigstore/model-transparency)">github.com/sigstore/model-transparency)</a> — free; where model-specific signing is being built — read the README and the threat model.</li>
+<li><strong>Hugging Face model-card and commit-hash documentation</strong> (huggingface.co/docs) — free; how pinning and provenance actually look on the hub you will use.</li>
+<li><strong>OWASP LLM04:2026</strong> (<a href="https://github.com/GenAI-Security-Project/GenAI-LLM-Top10">github.com/GenAI-Security-Project/GenAI-LLM-Top10</a>, <code>2026/final/LLM04_SupplyChain.md</code>) — free; the Top 10 entry this lesson expands, with its own prevention checklist.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A team downloads a model by tag (<code>v2.1</code>), checks the SHA-256 printed on the hub page, and it matches. Explain the two distinct attacks this workflow still permits, and what pinning to a commit hash plus signature verification would close.</li>
+<li>Explain why a transparency log (Rekor) is necessary even when every artifact is signed — what attack does the log prevent that signatures alone do not?</li>
+<li>A <code>.pt</code> file from an unverified publisher arrives for fine-tuning. Explain the exact mechanism by which loading it could compromise the training machine, and the two mitigations in order of preference.</li>
+<li>Your AIBOM lists framework version X, and a vulnerability is later found in X's model loader. Explain the two questions the AIBOM answers in the first ten minutes of triage, and which question it cannot answer.</li>
+<li>A vendor says their model registry "signs all models." List the four verification checks from §3 and explain which one fails if the team never wrote the admission policy.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the AIBOM (<code>bom.json</code>) for a model directory, the verification transcript (clean accept + tamper caught and named), and the admission-policy script from §5.</p>
+<p><strong>Honest claim:</strong> "I can establish provenance for a model artifact — hashes, AIBOM, signature verification — and enforce an admission policy that refuses unverified models."</p>
+<p><strong>Can't claim yet:</strong> "My supply chain is secure" — provenance proves <em>identity and integrity</em>, not <em>benevolence</em>. A signed, hashed, perfectly-provenanced model can still be backdoored (LLM05:2026); that is what evaluation and monitoring are for.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong><a href="/g/ai-governance/"><code>ai-governance</code></a></strong> — the supply-chain controls become governance evidence: provenance records are what auditors ask for.</li>
+<li><strong><a href="/g/llm-top10/"><code>ai-llm-top10</code></a></strong> — re-read LLM04:2026 and LLM05:2026 with provenance vocabulary; notice where they overlap and where they split.</li>
+<li><strong><a href="/g/prompt-injection/"><code>ai-prompt-injection</code></a></strong> — the other end of the lifecycle: supply chain secures what you <em>deploy</em>; prompt-injection defenses secure what you <em>run</em>.</li>
+<li>Map refs: <strong>OWASP LLM Top 10:2026, LLM04:2026</strong>; <strong>CAISP ch. 6</strong>; CycloneDX and Sigstore as the standards spine; SLSA for build provenance.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

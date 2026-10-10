@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reading code through a vulnerability | Learn Computer Stuff</title>
+<meta name="description" content="Reading code through a vulnerability: tracing untrusted input from a JavaScript form to a SQL query — source, path, sink — with the injection located by reading. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/reading-code/">
+<meta property="og:title" content="Reading code through a vulnerability | Learn Computer Stuff"><meta property="og:description" content="Reading code through a vulnerability: tracing untrusted input from a JavaScript form to a SQL query — source, path, sink — with the injection located by reading. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/reading-code/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Reading code through a vulnerability","item":"https://learncomputerstuff.dev/g/reading-code/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Reading code through a vulnerability</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>Reading code through a vulnerability</h1>
+<p class="lede prose">Every vulnerability you will ever find is a story about input: where it enters, what touches it, and where it lands. Source code is where that story is written down — and the ability to <em>read</em> it, following one value from the browser to the database, is what separates "ran a scanner" from "understood the flaw." Scanners flag candidates; readers confirm them. In bug bounty work, the disclosed reports worth studying all read like code traces: "the <code>user</code> parameter flows from the route handler into this query builder unescaped." This lesson teaches exactly that move, in the two languages web vulnerabilities live in: enough JavaScript to follow client-side behavior, and enough SQL to see how a query is built and where user input enters it. You are not learning to write applications. You are learning to <em>interrogate</em> them.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (apply — you can trace untrusted input through unfamiliar source and name where it becomes dangerous)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (requests/responses), <a href="/g/python-security/"><code>a-python-security</code></a> (reading scripts), <a href="/g/sqli/"><code>b-sqli</code></a> (recommended — the vulnerability family this lesson traces)</td></tr><tr><th scope="row">Map references</th><td>Stage A foundation; the reading half of <a href="/g/python-security/"><code>a-python-security</code></a>; direct prerequisite for every Stage B web-vulnerability lesson.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every vulnerability you will ever find is a story about input: where it enters, what touches it, and where it lands. Source code is where that story is written down — and the ability to <em>read</em> it, following one value from the browser to the database, is what separates "ran a scanner" from "understood the flaw." Scanners flag candidates; readers confirm them. In bug bounty work, the disclosed reports worth studying all read like code traces: "the <code>user</code> parameter flows from the route handler into this query builder unescaped." This lesson teaches exactly that move, in the two languages web vulnerabilities live in: enough JavaScript to follow client-side behavior, and enough SQL to see how a query is built and where user input enters it. You are not learning to write applications. You are learning to <em>interrogate</em> them.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>The read-first discipline from <a href="/g/python-security/"><code>a-python-security</code></a>: imports first, entry point second, outward into functions.</li>
+<li>Enough HTTP to know what a form submission becomes on the wire (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>A text editor and Python 3 (for the SQL half — SQLite ships with Python, no database to install).</li>
+<li>The two snippet files from the walkthrough are yours to keep: a 20-line login form (<code>login.html</code>) and a query builder (<code>querybuilder.py</code>).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Code reading is not code writing done slowly. Writing asks "what should this do"; reading asks "what does this <em>actually</em> do to my input." The technique is always the same, in any language: <strong>find where untrusted input enters, then follow it</strong> — through assignments, function calls, string operations — until it reaches something that <em>acts</em> on it (a query, a shell, a page render). That endpoint is the sink; the entry is the source; everything between is the path. A vulnerability is a path from source to sink with no adequate check in between. Hold that frame and unfamiliar code stops being a wall of text and becomes a map with a route highlighted.</p>
+<p><strong>Enough JavaScript to follow a form.</strong> You need surprisingly little. <code>document.getElementById(&quot;user&quot;).value</code> reads what the user typed — that is a <em>source</em>, and the walkthrough's snippet labels it (A). <code>addEventListener(&quot;submit&quot;, ...)</code> runs code when the form submits; <code>e.preventDefault()</code> stops the browser's default submission so the script can take over. <code>fetch(&quot;/api/login&quot;, {method: &quot;POST&quot;, body: JSON.stringify({user, pw})})</code> sends the values to the server — a <em>trust boundary crossed</em> (C). <code>await</code> pauses until the response arrives; <code>document.body.innerHTML = ...</code> writes server data into the page — a potential <em>sink</em> (E). That is the whole vocabulary the walkthrough needs: read input, handle an event, send it, render the answer. When you read real client code later, you will meet frameworks and bundlers, but the question never changes: where does input enter, and where does it go?</p>
+<p><strong>The client is not a security boundary.</strong> The walkthrough's form does zero validation before sending (D) — and that is <em>fine</em>, because client-side validation is user experience, not security. Anything the browser sends can be re-sent by curl with different values. This is the single most important thing JavaScript reading teaches you: the client is the attacker's machine. Every check that matters must also exist on the server. When you read client code and find the "validation," your next question is always "and where is it enforced server-side?"</p>
+<p><strong>Enough SQL to read a query.</strong> A query has clauses, and you read them in execution order, not written order: <code>FROM users</code> (which table), <code>WHERE name = &#x27;alice&#x27; AND pw = &#x27;s3cret&#x27;</code> (which rows — the filter), <code>SELECT *</code> (which columns, evaluated last). The <code>WHERE</code> clause is where input lands and therefore where you look. In the walkthrough's vulnerable builder, the query is assembled by <em>string concatenation</em>: <code>&quot;SELECT ... &#x27;&quot; + user + &quot;&#x27; ...&quot;</code>. The quotes are part of the query's <em>syntax</em>, and the input is dropped between them — so input containing a quote character doesn't stay data; it becomes <em>structure</em>. That is the entire mechanism of SQL injection, visible in one line: code and data share a channel, and the boundary between them is a quote character the attacker controls.</p>
+<p><strong>Placeholders keep the boundary.</strong> The safe builder returns <code>(&quot;SELECT ... WHERE name = ? AND pw = ?&quot;, (user, pw))</code> — the query text and the values travel <em>separately</em> to the database, which never confuses them. Note what the walkthrough proved: with hostile input <code>&#x27; OR &#x27;1&#x27;=&#x27;1</code>, the vulnerable builder produced <code>WHERE name = &#x27;&#x27; OR &#x27;1&#x27;=&#x27;1&#x27; AND pw = &#x27;x&#x27;</code> (the input rewrote the logic), while the safe builder kept the hostile string as a single inert value. Two builders, same input, different universes — and the difference is visible in the source before anything runs.</p>
+<p><strong>Reading order for unfamiliar code.</strong> Imports (capabilities) → entry point (where execution starts) → the request path (follow one input end to end) → the sinks (queries, renders, shell calls — read each one's inputs). Annotate as you go: mark every source with "input enters here," every sink with "this acts on it," and draw the path between. The walkthrough's (A)–(G) labels are training wheels for exactly this habit.</p>
+<h3>Worked example: the full trace</h3>
+<p>The walkthrough's two files are one application split across the trust boundary. Follow <code>user</code> from keystroke to database:</p>
+<ol>
+<li><strong>(A)</strong> <code>document.getElementById(&quot;user&quot;).value</code> — the value leaves the input field and enters JavaScript. Source identified.</li>
+<li><strong>(D)</strong> <code>JSON.stringify({user, pw})</code> — packaged into the request body. No validation, no encoding — the client adds nothing.</li>
+<li><strong>(C)</strong> <code>fetch(&quot;/api/login&quot;, ...)</code> — crosses the network to the server. Trust boundary one.</li>
+<li><strong>(F)</strong> <code>&quot;... name = &#x27;&quot; + user + &quot;&#x27; ...&quot;</code> — the server concatenates the value into SQL text. Trust boundary two, and the fatal one: the value is now <em>part of the command</em>.</li>
+<li>With benign input the query filters correctly; with <code>&#x27; OR &#x27;1&#x27;=&#x27;1</code> the query's <em>logic</em> changes — proven by the transcript, not asserted.</li>
+</ol>
+<p>Three hops, zero checks. Every web vulnerability you will study in Stage B is this shape with different syntax at (F): a shell command, an HTML page, a file path, a server-side request. Learn the shape once.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-reading-code.log</code>. Clean environment: Python 3.12.3, scratch dir <code>/tmp/codewalk</code>, 2026-10-09. Both snippets are labeled teaching files, fictional throughout.</p>
+<ol>
+<li><strong>Inventory the files.</strong> <code>ls -la</code> — two files, <code>login.html</code> (891 bytes) and <code>querybuilder.py</code> (566 bytes). Small enough to read whole; that is the point.</li>
+<li><strong>Read the JavaScript entry point.</strong> <code>grep -n &quot;getElementById\|fetch\|JSON.stringify&quot; login.html</code> — five lines locate every input source and the network crossing. Read those lines first, then the ten lines around them.</li>
+<li><strong>Trace the benign input.</strong> <code>python3 querybuilder.py alice s3cret</code> → <code>SELECT * FROM users WHERE name = &#x27;alice&#x27; AND pw = &#x27;s3cret&#x27;</code>. Say aloud which characters came from the query template and which came from input.</li>
+<li><strong>Trace the hostile input.</strong> <code>python3 querybuilder.py &quot;&#x27; OR &#x27;1&#x27;=&#x27;1&quot; x</code> → <code>WHERE name = &#x27;&#x27; OR &#x27;1&#x27;=&#x27;1&#x27; AND pw = &#x27;x&#x27;</code>. Point at the exact character where input stopped being data and became structure (the first <code>&#x27;</code>). This is the vulnerability, located by reading.</li>
+<li><strong>Read the safe builder.</strong> Same hostile input through <code>build_query_safe</code> → the query keeps its <code>?</code> placeholders and the hostile string travels as a tuple value. The fix is visible in the source: separation of code and data.</li>
+<li><strong>Count the trust boundaries.</strong> DOM → network → SQL string: three hops, zero checks. Write that sentence down — it is the report format in miniature.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take this fictional snippet (a search feature) and produce a written trace:</p>
+<pre><code>def search(q):
+    sql = &quot;SELECT title, body FROM articles WHERE title LIKE &#x27;%&quot; + q + &quot;%&#x27;&quot;
+    return db.execute(sql)</code></pre>
+<p>(a) Mark the source, the sink, and the path between them. (b) Give one benign input and show the query it builds. (c) Give one hostile input (a single quote plus SQL syntax) and show the query it builds — then state in one sentence what the query now <em>does</em> that the author didn't intend. (d) Rewrite the function with placeholders.</p>
+<p><strong>Success test:</strong> Your trace names the exact character where input becomes structure; your hostile input is syntactically valid SQL, not hand-waving; your rewrite keeps the <code>LIKE &#x27;%...%&#x27;</code> behavior (hint: the <code>%</code> wildcards belong in the <em>value</em>, not the query text).</p>
+<p><strong>Hints:</strong> The <code>%</code> signs are part of the intended pattern match — concatenate them onto the value in Python, not into the SQL string.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Reading the client and stopping.</strong> Finding "no validation in the JS" is not a vulnerability — it's normal. The flaw, if any, is server-side. Client reading tells you what the server <em>expects</em>; it never tells you what the server <em>enforces</em>.</li>
+<li><strong>Assuming frameworks protect you.</strong> ORMs, templating engines, and frameworks have safe defaults <em>until you bypass them</em> — raw queries, <code>innerHTML</code>, string-built commands. When reading framework code, look for the escape hatches; that's where the bugs live.</li>
+<li><strong>Trusting comments.</strong> Comments describe intent; code describes behavior. When they disagree, the code is the truth and the comment is the bug report.</li>
+<li><strong>Skimming the boring parts.</strong> Input handling lives in validation helpers, middleware, and utility functions — the unglamorous code nobody reads. Read it anyway; that's where the missing check is.</li>
+<li><strong>Confusing "I see the bug" with "I proved it."</strong> Reading locates the candidate; the walkthrough's query-printing <em>proves</em> the mechanism. In Stage B, the proof is a reproduction against a running target — reading gets you to the right ten lines, execution confirms them.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>The snippets themselves</strong> — re-read them after the lesson; you will see more the second time. That improvement <em>is</em> the skill developing.</li>
+<li><strong>SQLite language reference</strong> (<a href="https://sqlite.org/lang.html">sqlite.org/lang.html</a> — lead, verify at build time) — the SQL dialect the labs use. <em>Read</em> the <code>SELECT</code> page's clause list; <em>skim</em> the expression syntax.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong><a href="https://javascript.info">javascript.info</a> — The Modern JavaScript Tutorial</strong> (<a href="https://javascript.info">javascript.info</a> — verified 2026-10-09) — <em>read</em> Part 1 (the language) through functions; <em>skim</em> the Browser/DOM part for <code>getElementById</code>, events, and <code>fetch</code>. You need the reading vocabulary, not the writing fluency.</li>
+<li><strong>SQLBolt</strong> (<a href="https://sqlbolt.com">sqlbolt.com</a> — verified 2026-10-09) — interactive in-browser SQL lessons through joins. <em>Do</em> the exercises through lesson 6 — exactly the reading level Stage B's SQLi lesson assumes.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — verified 2026-10-09) — the lab environment where this lesson's traces become live reproductions in <a href="/g/sqli/"><code>b-sqli</code></a> and friends. Read-only source study now; hands-on there.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>In the walkthrough's vulnerable builder, which single character is the boundary between code and data — and who controls it?</li>
+<li>The login form validates nothing client-side. Explain why that is <em>not</em> the vulnerability, and where the vulnerability actually is.</li>
+<li>Your teammate says "the ORM handles it, we don't need to review the queries." Name two ways ORM-using code still ends up with injectable SQL.</li>
+<li>Trace <code>q = &quot;x&#x27; UNION SELECT password FROM users -- &quot;</code> through the On-your-own <code>search()</code> function. What does the final query do?</li>
+<li>You find <code>element.innerHTML = location.hash.slice(1)</code> in client code. Mark source, sink, and path — and state what you'd check server-side (if anything).</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> A published code trace: take one open-source web application (Juice Shop's source is local and readable — <a href="/g/practice-targets/"><code>b-practice-targets</code></a> shows the setup), pick one request handler, and write up the full source→sink trace for one user-controlled parameter: the entry point, every function it passes through, the sink it reaches, and your verdict (safe / unsafe / needs-runtime-proof) with reasons. 300–500 words, file and line references.</p>
+<p><strong>Honest claim:</strong> "I can trace untrusted input through source I didn't write and say where it becomes dangerous — demonstrated on a published trace of a real handler."</p>
+<p><strong>You cannot yet claim:</strong> finding vulnerabilities in unfamiliar production code unaided — that needs the Stage B vulnerability classes (<a href="/g/sqli/"><code>b-sqli</code></a> onward) plus runtime confirmation. This lesson is the reading half; Stage B is the proving half.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/sqli/"><code>b-sqli</code></a> — the vulnerability class this lesson traced, now with live reproduction and the full attacker/defender frame.</li>
+<li><a href="/g/xss/"><code>b-xss</code></a> — the same source→sink shape with an HTML sink instead of a SQL one.</li>
+<li><a href="/g/command-injection/"><code>b-command-injection</code></a> — the same shape with a shell sink.</li>
+<li><a href="/g/business-logic/"><code>b-business-logic</code></a> — where reading alone isn't enough: the flaw is in the workflow, not the syntax.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

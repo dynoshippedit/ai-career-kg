@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DNS in depth | Learn Computer Stuff</title>
+<meta name="description" content="DNS in depth: the resolution chain, message format, record types, caching and DNSSEC — every step run locally against a toy authoritative server. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/dns-depth/">
+<meta property="og:title" content="DNS in depth | Learn Computer Stuff"><meta property="og:description" content="DNS in depth: the resolution chain, message format, record types, caching and DNSSEC — every step run locally against a toy authoritative server. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/dns-depth/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"DNS in depth","item":"https://learncomputerstuff.dev/g/dns-depth/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>DNS in depth</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>DNS in depth</h1>
+<p class="lede prose">Nothing on a network happens before DNS. The login flow this whole stage builds toward starts with a name typed into a client, and the first question the machine asks is "what address is that?" — answered by DNS, before a single TCP packet moves. As a defender you will read DNS logs more than almost any other telemetry: every malware callback, every phishing page load, every data-theft trickle leaves a DNS question first, because the attacker also needs names to become addresses. As an attacker (authorized, in a lab) you will meet DNS as both a target — cache poisoning, tunneling — and a tool — subdomain enumeration is DNS questions asked cleverly. This lesson is the naming layer of the stack. <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> is the transport layer underneath it.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; TCP form of DNS used (sandbox blocks UDP)</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism — you can explain every section of a DNS message and trace a name from keystroke to answer)</td></tr><tr><th scope="row">Prerequisites</th><td>A terminal you can type in. The shell itself gets its deep treatment in <a href="/g/linux-cli/"><code>a-linux-cli</code></a> — read it alongside this lesson if commands feel unfamiliar</td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds Stage B (SSRF via DNS rebinding, subdomain enumeration) and Stage E.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Nothing on a network happens before DNS. The login flow this whole stage builds toward starts with a name typed into a client, and the first question the machine asks is "what address is that?" — answered by DNS, before a single TCP packet moves. As a defender you will read DNS logs more than almost any other telemetry: every malware callback, every phishing page load, every data-theft trickle leaves a DNS question first, because the attacker also needs names to become addresses. As an attacker (authorized, in a lab) you will meet DNS as both a target — cache poisoning, tunneling — and a tool — subdomain enumeration is DNS questions asked cleverly. This lesson is the naming layer of the stack. <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> is the transport layer underneath it.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>A terminal with <code>python3</code> (verify: <code>python3 --version</code>). No <code>dig</code> needed — the walkthrough uses a small stdlib DNS client you can read line by line, which teaches more than <code>dig</code> output anyway.</li>
+<li>Everything runs on <code>127.0.0.1</code>. The toy authoritative server answers only for <code>lab.example</code>, a name that exists nowhere else. Nothing leaves your machine except the read-only lookups your OS already performs.</li>
+<li>Optional: <a href="/g/linux-cli/"><code>a-linux-cli</code></a> open in another tab for the shell concepts.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>IP addresses route packets; humans remember names. DNS is the distributed database that translates between them — and "distributed" is the whole design. No single machine holds all names. Instead, the namespace is a tree, and each branch is owned by whoever runs that zone.</p>
+<p>Read a name right to left. In <code>web.lab.example.</code>, the trailing dot is the <strong>root</strong> — the top of the tree, served by the root nameservers. <code>example</code> is a <strong>top-level domain (TLD)</strong>; <code>lab</code> is a <strong>zone</strong> someone administers; <code>web</code> is a host inside it. A <strong>zone</strong> is the unit of authority: the set of names one organization is responsible for answering. The server that holds a zone's data is <strong>authoritative</strong> for it — its answer is the truth, not a guess. Your machine's <strong>stub resolver</strong> (the small client in every OS) never walks the tree itself; it asks one question of a <strong>recursive resolver</strong> — usually your ISP's or your company's — and that resolver does the walking: root, then TLD, then authoritative, following <strong>referrals</strong> ("I don't know, but the <code>.example</code> servers are over there") until it gets an answer. The eight-step version of this walk is described well in Cloudflare's DNS learning articles (see §7); the shape to internalize is <em>iterative descent with caching at every level</em>.</p>
+<p>What travels on the wire is a <strong>DNS message</strong> (RFC 1035 §4.1), and it has four sections you must be able to read cold:</p>
+<ul>
+<li><strong>Header</strong> — an ID (matches question to answer), flags, and four counts: how many questions, answers, authority records, and additional records follow. Two flags carry security meaning you will meet again: the <code>rcode</code> field (<code>NOERROR</code>, <code>NXDOMAIN</code>, <code>SERVFAIL</code> — three very different failures) and, in DNSSEC, the <code>ad</code> (authenticated data) flag.</li>
+<li><strong>Question</strong> — the name, the query type (<code>QTYPE</code>: A, AAAA, MX, …), and the class (almost always <code>IN</code>, Internet).</li>
+<li><strong>Answer</strong> — the <strong>resource records (RRs)</strong> that answer the question. Each RR has a name, type, class, <strong>TTL</strong> (time-to-live, in seconds), and the data itself (<code>RDATA</code>).</li>
+<li><strong>Authority / Additional</strong> — who is authoritative, and helpful extras (like the IP of the nameserver just named, so you don't need a second lookup to continue the chase).</li>
+</ul>
+<p>The record types you must know (RFC 1035 §3.3): <strong>A</strong> (IPv4 address), <strong>AAAA</strong> (IPv6), <strong>CNAME</strong> (alias — "this name is really that name; go ask again"), <strong>MX</strong> (mail exchanger), <strong>NS</strong> (the nameservers for a zone — the delegation mechanism itself), <strong>PTR</strong> (reverse lookup: address → name, used in the <code>in-addr.arpa</code> zone), <strong>SOA</strong> (start of authority: the zone's metadata), <strong>TXT</strong> (free text — SPF, DKIM, domain verification, and, in attacker hands, a covert channel).</p>
+<p>Two mechanics make DNS fast and make it dangerous. First, <strong>caching</strong>: every answer carries a TTL, and every resolver along the path may serve the cached copy until it expires. This is why DNS changes take time to propagate — and why a poisoned cache entry persists: the attacker only needs to win once per TTL window. Second, <strong>transport</strong>: DNS normally rides <strong>UDP</strong> (one question, one answer, no handshake — fast), with <strong>TCP fallback</strong> for large answers and zone transfers (RFC 1035 §4.2). UDP's lack of a handshake is exactly what made classic cache-poisoning attacks possible: forging a reply is cheap when there is no connection to hijack. (The 2008 Kaminsky attack is the famous demonstration — understand <em>that unauthenticated UDP was the flaw</em>, not the exploit code.)</p>
+<p><strong>DNSSEC</strong> is the fix for authenticity, and you must understand precisely what it does and does not do. It adds signatures (<code>RRSIG</code> records) over the data, with keys (<code>DNSKEY</code>) linked up the tree through delegation-signer (<code>DS</code>) records — a <strong>chain of trust from the root's key down to the zone</strong>. A validating resolver checks the signatures and sets the <code>ad</code> flag. What it fixes: forged answers. What it does <em>not</em> fix: privacy (queries and answers are still plaintext — that needs DoT/DoH, a different lesson), or the last mile between the stub resolver and your application.</p>
+<p>One more resolution source lives <em>before</em> DNS: <strong><code>/etc/hosts</code></strong> (and its Windows equivalent). The OS checks local files before asking the network. Malware has abused this for decades — a hosts-file entry silently redirects a name without touching DNS at all. When a name resolves strangely, check the files first.</p>
+<h3>Worked example: one name, end to end</h3>
+<p>From the walkthrough (§4): the toy server is authoritative for <code>lab.example</code>. Ask for <code>web.lab.example.</code> type A. The question section names the name and type; the answer section returns one RR: <code>web.lab.example. ttl=300 A 127.0.0.1</code>. Ask for <code>alias.lab.example.</code> and the answer is a CNAME pointing at <code>web.lab.example.</code> — the resolver's job is now to issue a <em>second</em> query for the target, which is why CNAME chains cost round trips. Ask for a name that doesn't exist and the header comes back with <code>rcode=NXDOMAIN</code> and zero answers: the server is authoritative and <em>certain</em> the name doesn't exist — different from <code>SERVFAIL</code> ("I tried and failed"), a distinction that matters when you're debugging or detecting.</p>
+<p>Now map that onto the real world. When you type a public name, your stub resolver asks your recursive resolver; the recursor walks root → TLD → authoritative, caching each step by its TTL; the final A record comes home and your application opens a TCP connection to it. That connection is <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>; what the application says over it is <a href="/g/http-depth/"><code>a-http-depth</code></a>. The three lessons are one story told in order.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-dns-depth.log</code>. Clean environment: stock Python 3.12, loopback only, 2026-10-09. This sandbox blocks UDP loopback, so the toy server and the lesson's stdlib client speak the TCP form of DNS (RFC 1035 §4.2) on <code>127.0.0.1:53535</code>; the message format on the wire is identical. <strong>Update 2026-10-10:</strong> every query step re-ran with real <code>dig</code> 9.18.39 (<code>+tcp -p 53535 @127.0.0.1</code>) — A, CNAME, TXT, NS, and NXDOMAIN all corroborated; see the re-run entry in the log.</p>
+<ol>
+<li><strong>See what your machine knows without DNS.</strong> <code>getent hosts localhost</code> — the answer comes from <code>/etc/hosts</code>, no query sent. Read the top of <code>/etc/hosts</code> and note: files beat the network.</li>
+<li><strong>Start the toy authoritative server</strong> (<code>python3 toy_dns.py</code> — ~90 lines of stdlib, in the transcript header). It serves only <code>lab.example</code>.</li>
+<li><strong>Ask an A question and read the sections.</strong> <code>python3 dnsq.py web.lab.example. 1 --tcp</code> — identify the header (id, rcode, counts), the question, and the answer RR. Point at the TTL and say what it controls.</li>
+<li><strong>Chase a CNAME.</strong> <code>python3 dnsq.py alias.lab.example. 1 --tcp</code> — the answer names another name, not an address. Issue the follow-up query yourself and note that a resolver does this automatically.</li>
+<li><strong>Read TXT and NS.</strong> Query type 16 and type 2 for <code>lab.example.</code> — TXT carries arbitrary text (here an SPF record); NS names the zone's servers (delegation made visible).</li>
+<li><strong>Ask for something that doesn't exist.</strong> <code>python3 dnsq.py nosuchhost.lab.example. 1 --tcp</code> — <code>rcode=NXDOMAIN</code>, zero answers. Say out loud why NXDOMAIN differs from SERVFAIL.</li>
+<li><strong>Reverse it.</strong> <code>python3 -c &quot;import socket; print(socket.gethostbyaddr(&#x27;127.0.0.1&#x27;))&quot;</code> — the PTR direction: addresses have names too.</li>
+<li><strong>Watch caching logic.</strong> Query the A record twice; both carry <code>ttl=300</code>. Explain to yourself why a real resolver would only send the first query.</li>
+<li><strong>DNSSEC — not run by us.</strong> Verifying a real chain needs a validating resolver and a signed zone. On your own machine: <code>dig +dnssec example.com</code> and look for <code>RRSIG</code> records and the <code>ad</code> flag.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Extend the toy server with two records: an MX record for <code>lab.example.</code> pointing at <code>mail.lab.example.</code> with preference 10, and an A record for <code>mail.lab.example.</code>. Then answer, with query transcripts: (a) where does mail for <code>lab.example.</code> go? (b) what does a query for <code>mail.lab.example.</code> type MX return, and why is the rcode not an error?</p>
+<p><strong>Success test:</strong> Two transcripts showing the MX answer (with the preference value visible in the RDATA) and the follow-up A query, plus one paragraph explaining why MX exists as a separate type instead of reusing A.</p>
+<p><strong>Hints:</strong> The MX RDATA is a 2-byte preference followed by an encoded domain name — look at how the CNAME RDATA is built in <code>toy_dns.py</code>. For (b), think about what "authoritative and certain" means when the name exists but the type doesn't.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>NXDOMAIN is not SERVFAIL is not timeout.</strong> NXDOMAIN: authoritative "no." SERVFAIL: "I broke trying." Timeout: "nobody answered." Misreading these sends debugging in exactly the wrong direction — and in detection, a burst of NXDOMAINs is the classic signature of malware's domain-generation algorithm (DGA) fishing for its controller.</li>
+<li><strong>TTL blindness.</strong> Assuming a DNS change is instant. It isn't; caches at four levels each honor the TTL. During incident response, "we fixed the record" means nothing until the longest TTL in the chain dies.</li>
+<li><strong>Trusting DNS answers.</strong> Without DNSSEC, any answer is an assertion by whoever replied fastest. Cache poisoning, on-path injection, and rogue resolvers all exploit this. DNSSEC fixes authenticity, not privacy — know which problem each tool solves.</li>
+<li><strong>TXT as a junk drawer.</strong> SPF, DKIM, verification tokens — and attacker-controlled text. A TXT record is data, not a trust signal; reading it as one is how domain-verification bypasses happen.</li>
+<li><strong>CNAME chains and loops.</strong> Every CNAME is another query (latency, another cache entry) and a misconfigured pair can loop. Resolvers cap the chase; know the cap exists.</li>
+<li><strong>The hosts file shadow.</strong> A name resolving "wrong" with clean DNS means checking <code>/etc/hosts</code> — and on a compromised box, the hosts file is a persistence mechanism, not a misconfiguration.</li>
+<li><strong>DNS as a covert channel.</strong> DNS tunneling (data encoded in queries to an attacker-controlled authoritative server) exfiltrates through the one protocol every firewall allows. Defenders: monitor query volume, label entropy, and TXT-heavy patterns per domain — this is Stage D detection work, built on this lesson.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — read with a purpose, skip without guilt:</p>
+<ul>
+<li><strong>RFC 1034, Domain Names — Concepts and Facilities</strong> (<a href="https://rfc-editor.org/rfc/rfc1034)">rfc-editor.org/rfc/rfc1034)</a> — <em>read</em> the concept sections on the name space, zones, and the resolver/name-server split. This is the vocabulary; 1035 is the machinery.</li>
+<li><strong>RFC 1035, Domain Names — Implementation and Specification</strong> (<a href="https://rfc-editor.org/rfc/rfc1035)">rfc-editor.org/rfc/rfc1035)</a> — <em>read</em> §2.1–2.2 (overview, common configurations — the diagrams of who asks whom), §3.2–3.3 (RR definitions and the standard types), §4.1 (message format — match each field to the walkthrough output), §4.2 (transport — UDP normally, TCP when); <em>skim</em> §6–7 (server/resolver implementation); <em>skip</em> §5 (master file syntax) until you run a real nameserver.</li>
+<li><strong>RFC 4033–4035, DNSSEC</strong> (<a href="https://rfc-editor.org">rfc-editor.org</a>) — <em>read</em> 4033 §2–3 (what DNSSEC adds: RRSIG, DNSKEY, DS, the chain of trust) when you do step 9 on your own machine; <em>skip</em> the cryptographic details.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Cloudflare Learning Center — DNS</strong> (<a href="https://cloudflare.com/learning/dns/what-is-dns)">cloudflare.com/learning/dns/what-is-dns)</a> — the clearest free walkthrough of the 8-step resolution chain, recursive vs authoritative servers, and caching; read after the RFCs to consolidate.</li>
+<li><em>(Second slot intentionally empty — the RFCs plus one guide are the right depth here. A DNSSEC visualization tool goes in the directory, not the lesson.)</em></li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Your stub resolver asks for <code>shop.example.com</code>. List every server the recursive resolver contacts in the worst case (nothing cached), and name what each one returns — a referral or an answer.</li>
+<li>A response has <code>rcode=NXDOMAIN</code> with <code>an=0</code>. A colleague says "DNS is down." Explain precisely what is wrong with that conclusion and what you would check next.</li>
+<li>You add a CNAME <code>www</code> → <code>web</code> and an A record for <code>web</code>. A user reports the site is slow to first byte but fast after. Explain using TTLs and the CNAME chase.</li>
+<li>An attacker can see but not modify your DNS traffic. Which of these does DNSSEC protect you against: (a) the attacker forging an answer, (b) the attacker learning which names you look up? Explain what each protection would actually require.</li>
+<li><code>getent hosts payroll</code> returns an address, but <code>dig payroll</code> (against your resolver) returns NXDOMAIN. Explain the discrepancy and name the security-relevant reason to check the local answer first on a suspect machine.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a lab notebook containing: the annotated message-section dissection from step 3 (every field named), the CNAME chase from step 4 as two transcripts, and a hand-drawn diagram of the full resolution chain for a public name (stub → recursor → root → TLD → authoritative) with where caching happens at each level.</p>
+<p><strong>Honest claim:</strong> "I can read a DNS message field by field, trace a name through the resolution chain, and explain what TTL, CNAME, NXDOMAIN, and DNSSEC do and don't guarantee."</p>
+<p><strong>Can't claim yet:</strong> "I can run or attack DNS infrastructure" — operating a real nameserver and the offensive/defensive DNS work are later lessons; this one built the mental model and the reading skill.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> — next: the name resolved to an address; now learn what actually crosses the wire to that address (the handshake, ports, connections).</li>
+<li><a href="/g/http-depth/"><code>a-http-depth</code></a> — after TCP: DNS answers <em>where</em>, HTTP answers <em>what</em> — the three lessons together narrate one page load, the Stage A milestone.</li>
+<li>Stage B (later): subdomain enumeration is DNS asked at scale; DNS rebinding turns this lesson's mechanics into an SSRF primitive — you will meet both with authorization and a lab.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

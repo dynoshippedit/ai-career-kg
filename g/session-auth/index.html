@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Broken authentication and session management: proving who you are, and staying proven | Learn Computer Stuff</title>
+<meta name="description" content="Broken authentication and session management: fixation, predictable tokens, missing rate limits — reproduced locally, fixed, with MFA as the structural answer. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/session-auth/">
+<meta property="og:title" content="Broken authentication and session management: proving who you are, and staying proven | Learn Computer Stuff"><meta property="og:description" content="Broken authentication and session management: fixation, predictable tokens, missing rate limits — reproduced locally, fixed, with MFA as the structural answer. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/session-auth/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Broken authentication and session management: proving who you are, and staying proven","item":"https://learncomputerstuff.dev/g/session-auth/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Broken authentication and session management: proving who you are, and staying proven</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Broken authentication and session management: proving who you are, and staying proven</h1>
+<p class="lede prose">Authentication is the gate every other control stands behind: if an attacker can become the victim, authorization checks are answering the wrong question. It sits in <strong>OWASP Top 10:2025 A07 — Authentication Failures</strong>, tested per <strong>WSTG-ATHN</strong>. You meet it in bounty programs (login, reset, and session endpoints are always in scope and always attacked), in SOC work (authentication logs are the highest-volume telemetry you will ever triage), and in AppSec reviews (session handling is where homegrown auth goes wrong).</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + local reproduction of fixation, token-predictability and missing rate-limit + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (cookies, Set-Cookie semantics), <a href="/g/csrf/"><code>b-csrf</code></a> (what the session cookie carries), B-AUTH (authorization discipline)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Authentication is the gate every other control stands behind: if an attacker can become the victim, authorization checks are answering the wrong question. It sits in <strong>OWASP Top 10:2025 A07 — Authentication Failures</strong>, tested per <strong>WSTG-ATHN</strong>. You meet it in bounty programs (login, reset, and session endpoints are always in scope and always attacked), in SOC work (authentication logs are the highest-volume telemetry you will ever triage), and in AppSec reviews (session handling is where homegrown auth goes wrong).</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read Set-Cookie headers and cookie attributes cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You understand the authentication/authorization split from <a href="/g/idor/"><code>b-idor</code></a>: this lesson is the <em>who are you</em> half.</li>
+<li><strong>Authorization and scope, stated plainly:</strong> the walkthrough attacks a login app on your own loopback interface with accounts you created. Credential stuffing, password spraying, and brute force are taught here as <em>concepts with defenses</em> — you do not run them against any real system, any account that isn't yours, or any target outside written scope. "It was only a few login attempts" is not a defense; rate-limiting exists precisely because those attempts are attacks.</li>
+<li>Tooling: Python 3 (stdlib only), curl.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Authentication answers "who are you"; the <em>session</em> is how the server remembers the answer between requests. HTTP is stateless, so after a successful login the server hands the client a <strong>session token</strong> (usually a cookie) and keeps the mapping server-side: token → identity. Every later request presents the token, and the server trusts it. That trust is the entire attack surface of this lesson. There are four ways it breaks:</p>
+<p><strong>1. The token is guessable (token hygiene).</strong> A session id of <code>sess-1001</code>, <code>sess-1002</code> is a counter, not a secret — the attacker doesn't steal a session, they <em>enumerate</em> it. Session tokens must be generated by a cryptographic random source, long enough to be unguessable (128 bits is the working minimum), and created fresh at login. The same rule covers password-reset tokens: unguessable, single-use, expiring. A reset link that stays valid forever is a second password that travels by email.</p>
+<p><strong>2. The token doesn't change at login (session fixation).</strong> If the server accepts a session id the <em>client</em> chose — or keeps the pre-login session id after authentication — the attacker plants a known session id in the victim's browser (a crafted link setting the cookie, a subdomain writing it), waits for the victim to log in, and then uses the same id. The victim authenticated <em>the attacker's session</em>. The fix is one line of discipline with a memorable shape: <strong>the session id must be rotated at every privilege change</strong> — login, logout, privilege escalation. A post-login session id must never equal the pre-login one.</p>
+<p><strong>3. The gate has no brakes (missing rate limiting).</strong> Without rate limiting, lockout, or anomaly detection on login and reset endpoints, the attacker gets unlimited guesses. Two concepts, kept distinct: <strong>brute force</strong> guesses passwords for one account (defeated by lockout + slow, expensive verification); <strong>credential stuffing</strong> replays username/password pairs leaked from <em>other</em> breaches (defeated by rate limiting + breach-password screening, because the passwords are correct — the account is just reused). The defense is never "complexity requirements" alone; it is making each guess expensive and few.</p>
+<p><strong>4. One factor isn't enough (MFA as the structural fix).</strong> A password is "something you know," and everything knowable is phishable, leakable, and stuffable. Multi-factor authentication adds a second, independent factor — "something you have" (a TOTP authenticator app, a hardware key) or "something you are." MFA doesn't fix broken session handling, but it structurally defeats credential stuffing: the stuffed password alone is no longer sufficient. Note the honest limit, which the walkthrough states plainly: MFA protects <em>authentication</em>, not the <em>session</em> — a stolen post-login session cookie bypasses MFA entirely, which is why token hygiene and cookie flags still matter.</p>
+<h3>Worked example: the demo login</h3>
+<p>The demo app has <code>/login</code> (username + password, accounts <code>alice</code>/<code>wonderland-42</code> and <code>bob</code>/<code>builder-99</code> — local only, created for this lesson). On success it sets <code>sid</code> and serves <code>/dashboard</code>. Three flaws, each visible in one response header or one behavior:</p>
+<ul>
+<li><code>Set-Cookie: sid=s1001</code> — sequential. Log in as alice, note <code>s1001</code>; log in as bob, note <code>s1002</code>. The next session id is predictable: request <code>/dashboard</code> with <code>sid=s1003</code> and watch what happens.</li>
+<li>Log in <em>with</em> a planted cookie (<code>Cookie: sid=ATTACKER-KNOWN</code> sent to <code>/login</code>): after successful login the response sets no new <code>sid</code> — the session keeps the planted id. Fixation works.</li>
+<li>Twenty rapid login attempts with wrong passwords: all return <code>401</code>, none returns <code>429</code>, no lockout, no delay. The gate has no brakes.</li>
+</ul>
+<p>The fixed build: <code>sid</code> is 32 hex chars from a cryptographic RNG, rotated on every login (the response always sets a new one), and <code>/login</code> rate-limits to 5 attempts per minute per IP with <code>429</code> beyond that. Each fix is verified by re-running the exact probe that demonstrated the flaw.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-session-auth.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo (<code>auth-demo.py</code>, stdlib only) runs the login app above on 127.0.0.1:18095. Both accounts are local, created for this lesson, and exist nowhere else.</p>
+<p><strong>Step 1 — start the demo.</strong> Run <code>python3 auth-demo.py 18095 &amp;</code>; binds 127.0.0.1:18095.</p>
+<p><strong>Step 2 — baseline: log in as alice.</strong> <code>curl -s -c jar -X POST -d &quot;user=alice&amp;pass=wonderland-42&quot; http://127.0.0.1:18095/login</code>. Response: <code>ok</code>, and the jar holds <code>sid=s1001</code>. <code>curl -s -b jar http://127.0.0.1:18095/dashboard</code> → <code>dashboard for alice</code>. The session mechanism works as designed.</p>
+<p><strong>Step 3 — token predictability.</strong> Log in as bob (<code>-c jar2</code>): <code>sid=s1002</code>. Sequential. Now, with a <em>fresh</em> jar, request the dashboard with the predicted next id: <code>curl -s -b &lt;(echo &#x27;127.0.0.1 FALSE / FALSE 0 sid s1003&#x27;) http://127.0.0.1:18095/dashboard</code> — in the transcript this is done with an explicit <code>Cookie: sid=s1003</code> header. If any session had been created in between, <code>s1003</code> would be live. The point stands regardless of the hit: the id space is enumerable, so the attacker doesn't need to steal anything.</p>
+<p><strong>Step 4 — session fixation.</strong> Send a login request carrying a planted session id: <code>curl -s -c jar3 -b &quot;sid=PLANTED-BY-ATTACKER&quot; -X POST -d &quot;user=alice&amp;pass=wonderland-42&quot; http://127.0.0.1:18095/login</code>. Inspect jar3: the <code>sid</code> is still <code>PLANTED-BY-ATTACKER</code> — the server kept the attacker-chosen id across the privilege change. Anyone holding that id now shares alice's session. This is the fixation, proven in one response.</p>
+<p><strong>Step 5 — no brakes.</strong> Twenty wrong-password attempts in a loop: <code>for i in $(seq 1 20); do curl -s -o /dev/null -w &quot;%{http_code} &quot; -X POST -d &quot;user=alice&amp;pass=wrong-$i&quot; http://127.0.0.1:18095/login; done</code>. All twenty return <code>401</code>. No <code>429</code>, no lockout, no growing delay. Count the codes in the transcript: twenty 401s, zero consequences.</p>
+<p><strong>Step 6 — the fix, all three.</strong> Restart with <code>FIXED=1</code>. Log in as alice: <code>sid</code> is now 32 hex characters (e.g. <code>9f2c…</code>), different on every login — rotation verified by logging in twice and comparing. Fixation re-test: planted <code>sid=PLANTED-BY-ATTACKER</code> → after login the jar holds a fresh random id; the planted value is dead. Rate-limit re-test: the sixth rapid attempt returns <code>429</code>; the response includes <code>Retry-After</code>. The login also sets <code>HttpOnly; SameSite=Lax</code> on the cookie (the flags lesson is <a href="/g/security-headers/"><code>b-security-headers</code></a>; here they are noted as present).</p>
+<p><strong>Step 7 — MFA, the structural fix (concept + enrollment shape).</strong> The demo does not implement real MFA — a toy second factor would teach the wrong lesson. Instead: the fixed app's <code>/login</code> response includes <code>mfa-required: true</code> for alice, documenting the enrollment contract the lesson teaches: the server stores a per-user TOTP secret (never the code), verification is a time-windowed check of a 6-digit code from the user's authenticator app, and recovery codes are single-use. <strong>Not run by us:</strong> enrolling a real authenticator app — the reader does this against their own accounts (GitHub, their password manager) as the lesson's "on your own" task. The honest limit is stated on the page: MFA defeats credential stuffing; it does not protect a stolen session cookie.</p>
+<p><strong>Step 8 — defender: read the auth log.</strong> The vulnerable run's log shows the three abuses in their natural telemetry: the fixation as a <code>sid</code> value that appears <em>before</em> any login and persists after one; the brake-less run as twenty <code>401</code>s from one IP in seconds; the predictable ids as a visible sequence. Detection rules write themselves: alert on &gt;N failed logins per IP per minute, on session ids presented before authentication, on <code>sid</code> values with low entropy. This is the highest-volume log source in any SOC — which is why the rules must be tuned, not just written.</p>
+<p><strong>Step 9 — stop the demo.</strong> <code>pkill -f auth-demo.py</code>; verify no demo processes remain.</p>
+<h2>5. On your own</h2>
+<p>Pick one account you own (your password manager, your GitHub, your email): enroll a TOTP authenticator app, store the recovery codes offline, and then answer from the service's own documentation — not from memory: does it rate-limit login attempts, does it notify on new sign-ins, and what does its password-reset flow expire? <strong>Success test:</strong> you can describe the service's actual controls, with the documentation pages cited, and name one control it lacks that this lesson taught.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Confusing authentication with authorization.</strong> This lesson is <em>who are you</em>; <a href="/g/idor/"><code>b-idor</code></a> is <em>what may you do</em>. A perfect login flow with no object-level checks is still fully vulnerable — the two halves are independent and both are required.</li>
+<li><strong>"The password policy is strong, so we're fine."</strong> Complexity rules don't stop credential stuffing (the passwords are <em>correct</em>) and don't slow brute force (that's rate limiting's job). Teach the threat each control addresses, or you'll deploy the wrong one.</li>
+<li><strong>Session id in the URL.</strong> Tokens in query strings leak via history, logs, proxy logs, and Referer headers. Cookies with <code>Secure; HttpOnly; SameSite</code> exist for this reason — a token that travels in the URL is a token published.</li>
+<li><strong>Rotation theater.</strong> Regenerating the session id but keeping the old one valid, or rotating only sometimes, preserves the fixation window. The test is absolute: post-login id ≠ pre-login id, and the old id is dead.</li>
+<li><strong>MFA as a talisman.</strong> MFA on login with session cookies that never expire, tokens without HttpOnly, and no rotation is a locked front door with the windows open. The session is the authentication after login — protect it like one.</li>
+<li><strong>Lockout as a DoS vector.</strong> Aggressive lockout ("5 failures locks the account") lets anyone deny service to any user by trying their username. Prefer progressive delays + alerting over hard lockout, or lock the <em>source</em>, not the <em>account</em>.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents — read in this order:</p>
+<ol>
+<li><strong>PortSwigger Web Security Academy — Authentication vulnerabilities</strong> (<a href="https://portswigger.net/web-security/authentication)">portswigger.net/web-security/authentication)</a>: the flaw families — brute force, MFA bypass logic, password-reset poisoning, session handling. Read the topic page fully; work the labs (free). <em>Verified in-session 2026-10-09.</em></li>
+<li><strong>OWASP Authentication Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>): the control catalog — password storage, lockout, MFA, reset flows. Use as the checklist your implementations are graded against. <em>Slug unverified at build — confirm the exact cheat-sheet URL before linking; control content corroborated by the PortSwigger page.</em></li>
+<li><strong>RFC 6265 §4 — HTTP State Management Mechanism</strong> (<a href="https://rfc-editor.org/rfc/rfc6265)">rfc-editor.org/rfc/rfc6265)</a>: what a cookie <em>is</em> — attributes, <code>Set-Cookie</code> semantics, the security considerations section. Read §4.1 and the security section; skim the rest. <em>Verified in the pilot (sources.csv).</em></li>
+</ol>
+<p>Free resources for going deeper (≤3): <strong>PortSwigger authentication labs</strong> (brute-force, 2FA bypass, reset-token labs — the hands-on companion); <strong>the <a href="/g/security-headers/"><code>b-security-headers</code></a> lesson</strong> (cookie flags as deployed defense); <strong>your own services' security docs</strong> (the "on your own" task — primary sources for how production auth actually behaves).</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A server accepts <code>sid</code> values chosen by the client and keeps them across login. Explain the fixation attack end to end: what the attacker plants, when, and what they gain — then state the one-line fix.</li>
+<li>Why does credential stuffing defeat even a perfect password-complexity policy? Name the two controls that actually address it and what each one does.</li>
+<li>A login endpoint returns <code>429</code> after 5 rapid failures from one IP. An attacker spreads attempts across 1,000 IPs, one attempt each. What broke, and what detection or control addresses the distributed version?</li>
+<li>MFA is enabled and the attacker still hijacks the account without touching the password or the second factor. Describe a mechanism by which this is possible, referencing this lesson's session material.</li>
+<li>A password-reset token never expires and is accepted multiple times. Name three distinct abuses this enables, and the three token properties that would prevent them.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> a session-security assessment of a lab target (the local demo or a PortSwigger auth lab): token entropy judgment (with the evidence — sequential? length? charset?), the fixation test result (pre-login id vs post-login id), the rate-limit test result (attempt count vs first <code>429</code>), cookie flags observed, and the fix verification for each — written as the authentication section of a real assessment report.</p>
+<p><strong>After this lesson you can honestly claim:</strong> you can assess a login and session implementation for the four breakages in this lesson, prove each locally, and specify the fix. <strong>You cannot yet claim:</strong> your assessments cover federation (OAuth/OIDC flows are a second-wave lesson) or that you can review MFA implementations for bypass logic — PortSwigger's 2FA-bypass labs are the next step, done by hand.</p>
+<h2>10. Leads to</h2>
+<p>Next: <a href="/g/security-headers/"><code>b-security-headers</code></a> (cookie flags and browser defenses as the deployed layer for everything this lesson proved). Map refs: <strong>OWASP Top 10:2025 A07 — Authentication Failures</strong>; WSTG-ATHN; CWE-287 (improper authentication), CWE-384 (session fixation); feeds Stage C disclosure (auth findings are the most common first CVE) and the SOC-analyst path (auth logs are the triage bread and butter).</p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Identity and access management: who gets in, and to what | Learn Computer Stuff</title>
+<meta name="description" content="Identity and access management: the joiner-mover-leaver lifecycle, assurance levels, federation, RBAC/ABAC, privileged access — with a full access review worked case. A free lesson in the security guidebook, serving CISSP objectives 5.1–5.5.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/iam/">
+<meta property="og:title" content="Identity and access management: who gets in, and to what | Learn Computer Stuff"><meta property="og:description" content="Identity and access management: the joiner-mover-leaver lifecycle, assurance levels, federation, RBAC/ABAC, privileged access — with a full access review worked case. A free lesson in the security guidebook, serving CISSP objectives 5.1–5.5.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/iam/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Identity and access management: who gets in, and to what","item":"https://learncomputerstuff.dev/g/iam/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Identity and access management: who gets in, and to what</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Identity and access management: who gets in, and to what</h1>
+<p class="lede prose">Every security incident is, at its core, an identity question: somebody (or something) did something, and the system decided — correctly or not — that they were allowed to. IAM is the discipline that makes those decisions deliberate: who exists in your systems, how they prove who they are, what they may touch, and how that access ends. It shows up in the joiner-mover-leaver tickets nobody wants to own, in the quarterly access reviews auditors demand, in the SSO rollout that finally kills the password spreadsheet, and in the breach report that begins "the attacker used a legitimate account." GRC analysts live here; so do IAM engineers, cloud architects, and every CISO explaining to a board why a departed employee still had VPN access.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-09 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design an identity lifecycle and run an access review that holds up)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (authentication schemes), <a href="/g/linux-cli/"><code>a-linux-cli</code></a> (users, groups, permissions), <a href="/g/session-auth/"><code>b-session-auth</code></a> (what broken auth looks like); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objectives 5.1–5.5</strong> — access control, identification/authentication strategy, federated identity, authorization models, the provisioning lifecycle. (Objective 5.6, implementing authentication systems, is taught hands-on in Stage A and Stage D.)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every security incident is, at its core, an identity question: somebody (or something) did something, and the system decided — correctly or not — that they were allowed to. IAM is the discipline that makes those decisions deliberate: who exists in your systems, how they prove who they are, what they may touch, and how that access ends. It shows up in the joiner-mover-leaver tickets nobody wants to own, in the quarterly access reviews auditors demand, in the SSO rollout that finally kills the password spreadsheet, and in the breach report that begins "the attacker used a legitimate account." GRC analysts live here; so do IAM engineers, cloud architects, and every CISO explaining to a board why a departed employee still had VPN access.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You understand authentication schemes (Basic, Bearer, JWT structure, OAuth 2.0/OIDC flows) from <a href="/g/http-depth/"><code>a-http-depth</code></a>, and users/groups/permissions from <a href="/g/linux-cli/"><code>a-linux-cli</code></a>.</li>
+<li>You have seen authentication fail in <a href="/g/session-auth/"><code>b-session-auth</code></a> — this lesson is the organizational answer to those failures.</li>
+<li>No tools. The work products are documents: a lifecycle design and a completed access review. Bring the habit from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> of writing reasons, owners, and dates.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>IAM answers three questions in order, and the order matters. <strong>Identification</strong> is the claim: "I am alice." <strong>Authentication</strong> is the proof: a password, a token, a biometric, a certificate — something the system can verify against the claim. <strong>Authorization</strong> is the decision: given that this really is alice, what may she do? Every access-control failure you have ever read about is one of these three done wrong: nobody checked the claim, the proof was weak or replayable, or the decision was never made and the default was allow.</p>
+<p><strong>The lifecycle.</strong> An identity is not created once; it moves through states, and each transition is where access goes wrong. The standard frame is <strong>joiner–mover–leaver</strong>:</p>
+<ul>
+<li><strong>Joiner:</strong> a person (or service) arrives. Provisioning creates the identity and grants <em>initial</em> access. The failure mode is over-provisioning on day one — "give them what the last person in the role had," which quietly accumulates into standing privilege nobody reviews.</li>
+<li><strong>Mover:</strong> the person changes role, team, or project. Access should change with them — new grants <em>and</em> revoked old ones. This is the transition organizations skip most often, and it is how a marketing analyst keeps production database read access for three years.</li>
+<li><strong>Leaver:</strong> the person departs. Deprovisioning disables the identity and revokes everything. The failure mode is delay — the account lingers "just in case," and lingering accounts are the ones attackers rent.</li>
+</ul>
+<p>The lifecycle applies to <strong>non-human identities</strong> too: service accounts, API keys, CI/CD runners, and now AI agents. These are harder because nobody "leaves" — they persist until someone audits them, which is why the worked case below includes them.</p>
+<p><strong>Authentication strategy.</strong> Not every population needs the same strength. The working method (from NIST SP 800-63, the digital-identity guidelines) is to pick an <strong>assurance level</strong> per population based on the impact of impersonation: customers logging into a forum need less than administrators touching production, which needs less than the break-glass account that can rebuild everything. Then choose mechanisms to match: passwords alone where impact is low; phishing-resistant MFA (FIDO2/WebAuthn security keys or platform authenticators) where impact is high; certificates or managed identities for service accounts. Two rules that never bend: never invent your own authentication protocol, and never let a weaker path bypass a stronger one — the help-desk password reset that skips MFA <em>is</em> the authentication system, whatever the architecture diagram says.</p>
+<p><strong>Federation.</strong> When your users need access to someone else's system (a SaaS app, a partner portal), you have two bad options and one good one: give the third party passwords (bad), maintain separate accounts everywhere (worse), or <strong>federate</strong> — your identity provider asserts "this is alice, authenticated at this level" and the third party trusts the assertion. SAML and OIDC are the protocols that carry these assertions. The security judgment is in the trust decision: which attributes you release, how long assertions live, and what happens when the provider is compromised — because federation concentrates risk in the identity provider, which is exactly why attackers target it.</p>
+<p><strong>Authorization models.</strong> Once identity is established, the access decision needs a model:</p>
+<ul>
+<li><strong>Discretionary (DAC):</strong> the resource owner decides ("I shared the doc with you"). Simple, familiar, and ungovernable at scale — every shared drive is a DAC system, and every "who has access to this folder?" mystery is DAC's bill coming due.</li>
+<li><strong>Mandatory (MAC):</strong> the system enforces labels (clearances, classifications). Strong, rigid, rare outside government and high-assurance environments.</li>
+<li><strong>Role-based (RBAC):</strong> permissions attach to roles, users attach to roles. The enterprise workhorse. Its failure mode is <strong>role explosion</strong> — thousands of roles that nobody can distinguish, which is just DAC with extra steps — and <strong>privilege creep</strong>, the slow accumulation the mover transition feeds.</li>
+<li><strong>Attribute-based (ABAC):</strong> decisions evaluate attributes of the subject, resource, action, and environment ("allow if subject.department == resource.owner_department AND time &lt; 18:00"). Expressive and precise; its failure mode is policy complexity nobody can audit by reading.</li>
+</ul>
+<p>In practice you will see RBAC for the coarse structure with ABAC-style conditions bolted on (cloud IAM policies are this hybrid). The model matters less than the review: whatever you choose, someone must periodically ask "should this still be true?" — which is the access review.</p>
+<p><strong>Privileged access.</strong> A small set of accounts can do outsized damage: domain admins, cloud root/owner roles, database superusers, the CI/CD identity that deploys to production. These get special handling: <strong>just-in-time elevation</strong> (privilege granted for a bounded task, then removed, instead of standing admin rights), <strong>separation of duties</strong> (no single person can both request and approve their own elevation), and <strong>session recording</strong> for the sessions that matter. Standing privilege is the enemy — every account with permanent admin rights is an account an attacker only needs to borrow once.</p>
+<h3>Worked example: Meridian Analytics — lifecycle design and access review</h3>
+<p><strong>The company (fictional).</strong> Meridian Analytics, 180 people. One identity provider (SSO for 40 SaaS apps), an AWS-style cloud account, a production database, a CI/CD system, and a VPN. Today: IT provisions accounts from a spreadsheet, nobody owns the mover transition, and deprovisioning happens "when someone remembers."</p>
+<p><strong>Part 1 — the lifecycle design.</strong> The HR system becomes the <strong>authoritative source</strong>: a hire record triggers provisioning, a transfer triggers a mover review, a termination triggers deprovisioning within 24 hours — automatic for SSO and VPN, ticketed with an SLA for the rest. Role definitions are written down (twelve roles, each listing exactly which systems and permission levels it grants — no "same as the last person"). Service accounts get owners, documented purpose, and 90-day credential rotation; any service account without an owner is disabled. Break-glass accounts exist for the IdP and the cloud root, sealed credentials in a safe, every use triggers an alert and a mandatory review.</p>
+<p><strong>Part 2 — the access review (one quarter's run).</strong> Scope: all 180 human identities plus 34 service accounts, against the twelve role definitions. Reviewers: each manager reviews their direct reports; the security lead reviews all privileged access; service-account owners review their own.</p>
+<p>Findings (fictional, labeled):</p>
+<ol>
+<li><strong>Orphaned leaver:</strong> a contractor's SSO account active 47 days post-departure — the spreadsheet had no departure date. <em>Decision: disable immediately; fix the HR feed to carry contractor end dates.</em></li>
+<li><strong>Mover accumulation:</strong> a support engineer moved to sales eight months ago retains production database read. <em>Decision: revoke; add a mover checklist item ("revoke prior-team access") to the transfer ticket template.</em></li>
+<li><strong>Role explosion symptom:</strong> three "analyst" roles with indistinguishable permissions. <em>Decision: merge into one; document the one legitimate exception (finance analysts need the billing export).</em></li>
+<li><strong>Ownerless service accounts:</strong> 6 of 34 have no owner; 2 have credentials older than a year. <em>Decision: disable 4 (no recent use), assign owners and rotate the remaining 2 within a week.</em></li>
+<li><strong>Standing privilege:</strong> 11 people hold permanent production admin; the on-call rotation needs 4. <em>Decision: move 7 to just-in-time elevation; keep 4 standing with session recording.</em></li>
+<li><strong>Federation gap:</strong> two SaaS apps still use shared passwords instead of SSO. <em>Decision: migrate both to SSO this quarter or document a risk acceptance with owner and date (per <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>'s rule — acceptance without an owner and a date is abandonment).</em></li>
+</ol>
+<p><strong>Review close-out:</strong> every finding has a decision, an owner, and a date. The next review is scheduled (quarterly for privileged access, semi-annually for standard). The review itself is the artifact an auditor asks for — and, more importantly, it is the mechanism that keeps the lifecycle honest.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" for this lesson is the lifecycle design and access review above, authored and self-reviewed in-session on 2026-10-09. Transcript: <code>runs/e-iam.log</code> (records scope, design decisions, and the review checklist — there are no commands to transcribe).</p>
+<ol>
+<li><strong>Draw the current state.</strong> For a fictional (or your own lab) organization, list every identity store: the IdP, the cloud account, the database, CI/CD, VPN, SaaS apps. For each, answer: who provisions, who deprovisions, what triggers each, and how long deprovisioning takes. The gaps you find in this inventory are the findings before you have even started reviewing.</li>
+<li><strong>Write the role definitions.</strong> Twelve or fewer roles. Each names the systems and the exact permission level. If two roles end up identical, merge them — you have found your first role-explosion symptom.</li>
+<li><strong>Design the three transitions.</strong> Joiner (what the HR record triggers, what is automatic vs ticketed), mover (the checklist that revokes old access), leaver (the 24-hour rule and its SLA per system). Name the authoritative source. If it is a spreadsheet, say so honestly and note the failure mode.</li>
+<li><strong>Run the review.</strong> Take a roster (fictional is fine — invent 20 identities across your roles, including one leaver, one mover, and two service accounts) and review each against the role definitions. Record every deviation as a finding with a decision, an owner, and a date. You should find the planted problems; if you find none, your roster was too clean.</li>
+<li><strong>Handle privileged access separately.</strong> List every identity with admin-level rights. For each, decide: standing (with justification and session recording) or just-in-time. Anyone whose justification is "they might need it someday" moves to just-in-time.</li>
+<li><strong>Close out.</strong> Schedule the next review, file the decisions, and write the one-paragraph summary you would give an auditor: scope, findings count, decisions, next date.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Run an access review on a system you actually control — your home lab, your VPS, your GitHub organization, or your cloud account's IAM. Inventory every identity (human and non-human), compare each against what the role should grant, and produce the findings list with decisions, owners (you), and dates.</p>
+<p><strong>Success test:</strong> Your findings include at least one non-human identity and at least one access grant you cannot justify on sight — if everything looks perfect, you did not look hard enough. Every finding has a decision, an owner, and a date; standing privileged access is either justified in writing or converted to just-in-time.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The spreadsheet of truth.</strong> Provisioning driven by memory, chat messages, or "same as the last person" produces access nobody can reconstruct. The authoritative source must be a system of record (HR), not a person.</li>
+<li><strong>The skipped mover.</strong> Joiner and leaver get process; mover gets forgotten. Privilege creep is almost entirely a mover problem — audit the transitions, not just the endpoints.</li>
+<li><strong>Role explosion.</strong> A thousand roles nobody can distinguish is DAC wearing a costume. If you cannot explain a role's purpose in one sentence, it should not exist.</li>
+<li><strong>The weaker path.</strong> MFA on the front door, password-only reset via help desk, SSO everywhere except the two apps with shared passwords. Attackers use the weakest path, not the documented one — inventory <em>all</em> paths.</li>
+<li><strong>Non-human identity sprawl.</strong> Service accounts created for a migration in 2021, API keys in a former employee's notes, CI/CD tokens with production deploy rights. These never "leave," so they only shrink under review.</li>
+<li><strong>Review theater.</strong> The quarterly review where every manager clicks "approve all" in eleven minutes. A review with no findings is a review that did not happen — sample-check two approvals per cycle by asking the reviewer to justify one grant aloud.</li>
+<li><strong>Federation as single point of failure.</strong> Concentrating trust in the IdP is correct architecture and a prime target. The IdP gets the strongest authentication, the tightest break-glass procedure, and its own monitoring — compromise of the IdP is compromise of everything downstream.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-63 (Digital Identity Guidelines)</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> 800-63-3's assurance-level concept (IAL/AAL/FAL) and the authenticator guidance; <em>skim</em> 800-63A/B/C for the enrollment/authentication/federation split. This is the document the industry's authentication strategy is written against.</li>
+<li><strong>NISTIR 7316, Attribute-Based Access Control</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the core concepts and the PDP/PEP architecture; <em>skim</em> the enterprise deployment considerations. Short, precise, free.</li>
+<li><strong>NIST SP 800-53, Access Control family (AC)</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>skim</em> as the control catalog IAM programs are audited against; <em>read</em> AC-2 (account management) and AC-5/AC-6 (separation of duties, least privilege) closely — they are the lifecycle in control language.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Authentication Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the practitioner checklist for implementing what 800-63 specifies.</li>
+<li><strong>CISA Identity and Access Management guidance</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the operational view: what to prioritize first.</li>
+<li><strong>FIDO Alliance: passkeys and WebAuthn explainers</strong> (<a href="https://fidoalliance.org">fidoalliance.org</a>) — free; what phishing-resistant authentication actually looks like to deploy.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A company provisions from the HR system, reviews access quarterly, and still finds a departed contractor's account active 47 days later. Name the two distinct failures (one in the lifecycle design, one in the review) and the fix for each.</li>
+<li>Explain why "give them what the last person in the role had" is an anti-pattern — what does it produce over three years, and which transition (joiner, mover, leaver) feeds it most?</li>
+<li>A SaaS app offers SSO but the team keeps using its built-in shared admin password "for emergencies." Explain, using the weaker-path principle, why this nullifies the SSO investment — and what the break-glass alternative should be.</li>
+<li>Compare RBAC and ABAC for a hospital records system: which failure mode (role explosion vs policy complexity) is more likely there, and what review mechanism catches it?</li>
+<li>Predict the state of a company's service accounts two years after an IAM program launches with human identities fully governed but service accounts explicitly out of scope. Which finding appears first, and who discovers it?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your lifecycle design (authoritative source, the three transitions with SLAs, role definitions) plus a completed access review (roster, findings with decisions/owners/dates, privileged-access disposition, close-out summary) — for the Meridian worked case reproduced in your own words, or better, for a system you actually control.</p>
+<p><strong>Honest claim:</strong> "I can design an identity lifecycle and run an access review that produces decisions — I can say who should have access to what, find where reality diverges, and drive each divergence to a decision with an owner and a date."</p>
+<p><strong>Can't claim yet:</strong> "I can architect a federated enterprise identity deployment" — protocol-level federation design (SAML/OIDC integration, IdP hardening at scale) is its own engineering discipline; this lesson taught the decisions around it, not the implementation.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>E-D1-08 — Personnel security across the employment lifecycle</strong> — the HR side of joiner-mover-leaver: background checks, onboarding security, termination procedure.</li>
+<li><strong>E-D7-03 — Operational disciplines</strong> — privileged-access management as a daily operation: just-in-time elevation, session recording, SoD enforcement.</li>
+<li><strong>E-GOV-01 — NIST CSF 2.0</strong> — IAM sits in the Protect function (PR.AC); the access review is evidence for the Govern function.</li>
+<li><a href="/g/session-auth/"><code>b-session-auth</code></a> — the technical failures this lesson's processes exist to prevent; reread it as the "what happens without this" companion.</li>
+<li>Map refs: <strong>CISSP 5.1, 5.2, 5.3, 5.4, 5.5</strong> (this lesson); feeds <strong>CISSP 1.8</strong> (personnel security) and <strong>7.4/7.9</strong> (operations).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

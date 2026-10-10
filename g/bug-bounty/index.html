@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug bounty mechanics: how authorized testing is actually offered to beginners | Learn Computer Stuff</title>
+<meta name="description" content="Bug bounty mechanics: how programs define scope and safe harbor, how triage decides, and how to write a report a stranger can reproduce — the dry run before your first real submission. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/bug-bounty/">
+<meta property="og:title" content="Bug bounty mechanics: how authorized testing is actually offered to beginners | Learn Computer Stuff"><meta property="og:description" content="Bug bounty mechanics: how programs define scope and safe harbor, how triage decides, and how to write a report a stranger can reproduce — the dry run before your first real submission. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/bug-bounty/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Bug bounty mechanics: how authorized testing is actually offered to beginners","item":"https://learncomputerstuff.dev/g/bug-bounty/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Bug bounty mechanics: how authorized testing is actually offered to beginners</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Bug bounty mechanics: how authorized testing is actually offered to beginners</h1>
+<p class="lede prose">Every vulnerability class you have learned to find and fix has to be <em>found somewhere legal</em> before any of it matters. Bug bounty programs are the market where that happens: an organization publishes what you may test, under what rules, and what a valid finding is worth to them. The Penetration Tester and Bug Bounty Researcher paths run straight through this lesson, and it is the bridge from Stage B's hands-on skills to Stage C's coordinated disclosure — the program is the training ground where you learn to write a finding up before you ever report one for real.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · report-drafting worked case; no real submission, no live target</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (apply: read a program's policy cold, stay in scope, and write a triage-ready report)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> (read first — non-negotiable), the Stage B vulnerability classes (<a href="/g/idor/"><code>b-idor</code></a> through <a href="/g/security-headers/"><code>b-security-headers</code></a>)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every vulnerability class you have learned to find and fix has to be <em>found somewhere legal</em> before any of it matters. Bug bounty programs are the market where that happens: an organization publishes what you may test, under what rules, and what a valid finding is worth to them. The Penetration Tester and Bug Bounty Researcher paths run straight through this lesson, and it is the bridge from Stage B's hands-on skills to Stage C's coordinated disclosure — the program is the training ground where you learn to write a finding up before you ever report one for real.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> is read and understood. Everything in this lesson is scope discipline applied to someone else's program.</li>
+<li>You can find, reproduce, and fix at least one vulnerability class end to end (any of the Stage B lessons).</li>
+<li>Nothing to install. The walkthrough is a report-drafting worked case — no real program, no real submission, no live target touched.</li>
+<li>Do not create platform accounts or submit anything as part of this lesson. Reading program policies is free; the submission step stays fictional here.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A bug bounty program is a standing offer of written authorization. Read it as a legal document first and a treasure map second, because the authorization is the whole point: the same request that is a felony outside scope is contracted work inside it.</p>
+<p><strong>The anatomy of a program.</strong> Every program page has the same load-bearing parts. <em>Scope</em> lists the assets you may touch — domains, apps, APIs — and, more important, what is out of scope. Out-of-scope almost always includes the platform's own infrastructure, third-party services the company merely uses, and anything involving other users' data. <em>Rules of engagement</em> name the forbidden test types: typically denial of service, social engineering, physical testing, and automated scanning at aggressive rates. <em>Safe harbor</em> is the sentence that matters most: the organization states it will not pursue legal action for good-faith testing inside the policy. Safe harbor is what turns the CFAA question from "maybe" into "no" — and it only covers what the policy actually authorizes, so its boundaries are the boundaries of your testing. <em>Severity and rewards</em> tie payout (or points, or reputation) to impact, usually through the company's own severity rubric.</p>
+<p><strong>Program types.</strong> A <em>public</em> program is open to anyone with an account. A <em>private</em> program is invite-only — invitations go to researchers with a track record, which is why your first work happens in public. A <em>time-bound</em> program runs for a fixed window, often a launch or a major release. A <em>VDP</em> (vulnerability disclosure program) is the same structure with no bounty attached: structured reporting and safe harbor, no payout. VDPs are where many researchers start, because the discipline is identical and the competition is thinner.</p>
+<p><strong>The report lifecycle.</strong> You submit a report: the finding, reproduction steps, and impact. It enters <em>triage</em> — the platform's or the company's reviewers reproduce your steps on their side. Triage decides three things: is it in scope, is it reproducible, is it novel (first reporter wins; duplicates are closed as duplicates). A valid finding moves to <em>reward</em> and then to <em>remediation</em>, after which the company may invite you to <em>retest</em> the fix. Some reports are later <em>disclosed</em> publicly — HackerOne's Hacktivity is the public archive — and disclosed reports are this lesson's textbook.</p>
+<p><strong>What makes a finding valid.</strong> Three gates, in order: in scope, reproducible by a stranger following your steps, and a genuine security impact rather than a hardening suggestion. Impact is the part beginners under-write. "I can read another user's invoice" is a finding; "I can read another user's invoice, which contains their full billing address and the last four digits of their card, and the endpoint requires no privilege beyond a free account" is a finding triage can act on without asking you a single follow-up question. The difference between paid and closed-as-informative is usually the impact paragraph, not the bug.</p>
+<p><strong>Reading disclosed reports to learn.</strong> Disclosed reports are the only place you can watch real researchers work. Read each one four times, for four different things: how the researcher scoped (what they chose to look at and why); the precision of the reproduction steps (could you follow them cold?); how impact was argued (this is the skill to steal); and what the fix was (this closes the loop back to the Stage B fix lessons). Read ten reports in one vulnerability class before you hunt that class — duplicates are the tuition beginners pay, and reading first is how you skip most of it.</p>
+<h3>Worked example: the anatomy of a triage-ready report</h3>
+<p>Take the IDOR from <a href="/g/idor/"><code>b-idor</code></a> — alice reads bob's invoice 1043 — and dress it as a submission. A triage-ready report has five parts.</p>
+<p><strong>Title.</strong> One line, mechanism + impact: "IDOR in /invoice endpoint exposes other customers' invoices including billing details." Titles are searchable; triage reads dozens a day.</p>
+<p><strong>Summary.</strong> Three sentences: what the flaw is, where it lives, and the worst honest consequence. "The invoice endpoint accepts an arbitrary invoice ID with no ownership check. Any authenticated user can read any customer's invoice by changing one digit. Invoices contain full billing addresses and partial payment data."</p>
+<p><strong>Reproduction steps.</strong> Numbered, starting from a clean state, with the exact requests. "1. Log in as alice (free account). 2. GET /invoices — note IDs 1041, 1042. 3. GET /invoice?id=1043. 4. Observe 200 OK with owner: bob, including his billing address." Every step must work for a stranger. If a step needs a second account, say so and say both are yours.</p>
+<p><strong>Impact.</strong> The honest worst case, no inflation: who is affected (every customer), what is exposed (the exact fields), what an attacker needs (a free account, one changed digit), and what they cannot do (no write access, no admin functions — say the limits too; restraint is credibility).</p>
+<p><strong>Remediation suggestion.</strong> One paragraph, from the fix lessons: verify ownership against the authenticated identity on every object access, deny by default. You are not the vendor's engineer; you are showing you understand the fix class.</p>
+<p>That is the whole craft. Most rejected reports fail at steps 3 or 4: reproduction a stranger cannot follow, or impact asserted instead of shown.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked case — no live target, no real submission.</strong> The transcript is <code>runs/b-bug-bounty.log</code>: the report drafted below, then self-reviewed against the five-part anatomy.</p>
+<p>Take the fictional Harborlight Books shop (the setting used across Stage B). You are alice, a free-tier customer. You found that <code>GET /invoice?id=N</code> returns any customer's invoice with no ownership check — invoice 1043 belongs to bob and contains his name, billing address, and the last four digits of his card.</p>
+<p><strong>Step 1 — Write the title.</strong> One line: mechanism, location, impact. Draft it, then cut every word that does not help triage find or route the report.</p>
+<p><strong>Step 2 — Write the three-sentence summary.</strong> Flaw, location, worst honest consequence. Read it back and check: does it name the exact endpoint and the exact missing check?</p>
+<p><strong>Step 3 — Write the reproduction steps.</strong> Numbered from a clean login, both accounts identified as yours, exact request for each step, exact expected response. Then perform the stranger test: hand the steps to your past self from before this lesson. Anything they could not follow gets rewritten.</p>
+<p><strong>Step 4 — Write the impact paragraph.</strong> Affected population, exact exposed fields, attacker prerequisites, and the limits of what the flaw allows. Delete any sentence you cannot defend from the reproduction steps.</p>
+<p><strong>Step 5 — Write the remediation suggestion.</strong> The fix class, one paragraph: ownership verification against the authenticated identity, deny by default.</p>
+<p><strong>Step 6 — Self-review against the anatomy.</strong> Score your draft 0–2 on each of the five parts (0 missing, 1 present but weak, 2 triage-ready). Anything scoring 1 gets one rewrite pass. The checklist and scores are in the log.</p>
+<p><strong>Step 7 — The duplicate check.</strong> Before any real submission you would search the program's disclosed reports for the same endpoint and flaw class. Do the equivalent here: list three ways your finding could already be known (same endpoint disclosed, same class across the app, fixed in a recent release) and what you would check for each. This step is the habit that saves you from the most common beginner outcome.</p>
+<p><strong>Step 8 — The scope re-read.</strong> Re-read the fictional program policy (scope: harborlight-books.example web app only; out of scope: the payment processor, the blog, other customers' accounts used without consent — yours are consented test accounts). Confirm in writing, in the log, that every step stayed inside it.</p>
+<p>No step in this walkthrough touches a real system. That is deliberate: the skill being built is the report, and the report is built from a finding you already proved in <a href="/g/idor/"><code>b-idor</code></a>.</p>
+<h2>5. On your own</h2>
+<p>Pick a disclosed IDOR or access-control report on HackerOne Hacktivity. Without looking at the researcher's write-up beyond the title, reconstruct the five-part report from the finding description alone: title, summary, reproduction steps, impact, remediation. Then compare against the original.</p>
+<p><strong>Success test:</strong> your reproduction steps let a reader reproduce the finding without the original report, and your impact paragraph names the exposed data and the attacker's prerequisites with nothing you cannot defend.</p>
+<h2>6. Where it goes wrong</h2>
+<p><strong>Duplicates.</strong> The most common beginner outcome, and it is tuition, not failure. Two defenses: read disclosed reports in your target area first, and hunt flaw classes the program's history shows it under-tests. Never resubmit a duplicate with reworded steps.</p>
+<p><strong>Scope drift.</strong> The finding is real but the asset was out of scope, or you touched a third-party service on the way. Triage closes these without reward and remembers the researcher. When in doubt, ask through the program's channel before testing — that question is free and it is on the record.</p>
+<p><strong>Unreproducible steps.</strong> "Log in and go to the invoice page" is not a reproduction step. If triage cannot reproduce it in fifteen minutes, it dies. The stranger test from the walkthrough is the fix.</p>
+<p><strong>Impact inflation.</strong> Claiming account takeover from a read-only IDOR, or "could lead to" chains with three unproven links. Triage discounts everything after the first inflated sentence, including the true parts. State the proven impact and stop.</p>
+<p><strong>Testing the platform, not the program.</strong> Scanning HackerOne or Bugcrowd's own infrastructure, or the program's out-of-scope marketing site, is the fastest way to lose an account. Scope is the asset list, not the company name.</p>
+<p><strong>Forgetting the forbidden list.</strong> Automated scanners at aggressive rates, any denial-of-service testing, social engineering of employees or customers, and anything touching real user data without consent are banned in nearly every program. The RoE is not suggestions.</p>
+<h2>7. Read the source</h2>
+<p>Read the platforms' own researcher documentation first — the program policy is the primary source for this topic, and each platform writes its own.</p>
+<ul>
+<li><strong>HackerOne's researcher documentation</strong> — how programs, reports, triage, and reputation work on the largest platform. Read the program-structure and report-writing sections; skim the API docs.</li>
+<li><strong>Bugcrowd's researcher documentation</strong> — the second platform's model: researcher onboarding, what counts as valid, how triage and kudos points work. Compare its validity definition against HackerOne's.</li>
+<li><strong>HackerOne Hacktivity (disclosed reports)</strong> — the textbook. Read ten reports in one flaw class before hunting it; study scoping, reproduction precision, and impact argument.</li>
+</ul>
+<p>Free resources (≤3), each with what it is for:</p>
+<ul>
+<li><strong>HackerOne Hacker101</strong> — free training modules from the platform itself; the fastest structured on-ramp to the report format triage expects.</li>
+<li><strong>PortSwigger Web Security Academy</strong> — the lab discipline behind the findings; every flaw class in Stage B has a lab here, all inside authorized scope.</li>
+<li><strong>Intigriti researcher resources</strong> — the European platform's guides; a third policy model to compare against the first two.</li>
+</ul>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A program's scope lists <code>*.acme.example</code> as in scope and <code>status.acme.example</code> as out of scope. You find a flaw on the status page. Walk through exactly what happens if you submit it — and what you should have done instead.</li>
+<li>Two researchers submit the same IDOR an hour apart. The second report has better reproduction steps and a stronger impact section. Who gets the bounty, and why is that the right rule?</li>
+<li>A report says "this could potentially allow an attacker to maybe escalate to admin." Rewrite the impact as a triage-ready paragraph — or explain why you cannot, and what you would need to establish first.</li>
+<li>A VDP offers no bounty. Give three reasons a beginner should still consider starting there rather than on a paid public program.</li>
+<li>Your scan finds the same reflected XSS on twelve pages of an in-scope app. Is that twelve findings or one? Defend your answer from the triage validity gates.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>The artifact:</strong> a complete dry-run report in the five-part anatomy, written against a local lab finding (your <a href="/g/idor/"><code>b-idor</code></a> or <a href="/g/sqli/"><code>b-sqli</code></a> lab work is ideal source material), self-scored against the walkthrough checklist — and then reviewed against two disclosed Hacktivity reports in the same flaw class, with a paragraph on what the disclosed reports do that yours does not yet.</p>
+<p><strong>What you can honestly claim after this lesson:</strong> you can read a bounty program's policy and state what is authorized; you can write a report that triage can reproduce without asking you questions; you know the beginner failure modes and how to avoid them.</p>
+<p><strong>What you cannot claim yet:</strong> any bounty earned, any live finding submitted, any platform reputation. The walkthrough was a dry run by design. The first real submission happens on a real program, inside its scope, after this lesson — and Stage C's disclosure lessons are where that workflow matures.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/cvd/"><code>c-cvd</code></a> — Coordinated vulnerability disclosure: the professional version of this workflow when there is no program — finding the contact, the timeline, publishing responsibly.</li>
+<li><a href="/g/public-track-record/"><code>c-public-track-record</code></a> — Building a public track record: turning findings into write-ups a stranger can verify — the recognition pathway this whole program is built on.</li>
+<li><a href="/g/cve-program/"><code>c-cve-program</code></a> — The CVE Program: when a finding qualifies for a permanent public identifier with your name on it.</li>
+</ul>
+<p>Map references: Stage B milestone lesson (first valid finding submitted to an authorized program); feeds CISSP 1.9 via <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (reporting as risk communication); the site's hard rules (brief §7) as the standing authority for every hands-on step.</p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

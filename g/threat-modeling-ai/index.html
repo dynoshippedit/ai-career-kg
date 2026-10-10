@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Threat modeling AI systems | Learn Computer Stuff</title>
+<meta name="description" content="Threat modeling AI systems: data-flow mapping, trust boundaries at the prompt, retrieval and tool layers, STRIDE adapted to AI, and MITRE ATLAS as the attacker&#x27;s library — a complete worked threat model. A free lesson in the security guidebook, serving CAISP chapter 5.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/threat-modeling-ai/">
+<meta property="og:title" content="Threat modeling AI systems | Learn Computer Stuff"><meta property="og:description" content="Threat modeling AI systems: data-flow mapping, trust boundaries at the prompt, retrieval and tool layers, STRIDE adapted to AI, and MITRE ATLAS as the attacker&#x27;s library — a complete worked threat model. A free lesson in the security guidebook, serving CAISP chapter 5.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/threat-modeling-ai/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Threat modeling AI systems","item":"https://learncomputerstuff.dev/g/threat-modeling-ai/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Threat modeling AI systems</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · AI track</span><h1>Threat modeling AI systems</h1>
+<p class="lede prose">Before anyone writes a control, someone has to answer: what are we actually afraid of, <em>here</em>, in <em>this</em> system? That answer is a threat model, and for AI systems it is a distinct skill — not because the method changes, but because the assets and trust boundaries are unfamiliar. AI security engineers produce them before builds; AppSec teams demand them at design review; red teams read them to scope engagements; incident responders wish they existed after the fact. CAISP devotes chapter 5 to it because every other chapter's content — the attacks, the pipeline defenses, the governance — is only useful once it is aimed at a specific system. This lesson produces a real one.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-09 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (produce a complete, defensible threat model unaided)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (the stack); <a href="/g/llm-top10/"><code>ai-llm-top10</code></a> (the risks); <a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> (the build side); <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> helps but is not required. No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td><strong>CAISP chapter 5</strong> (Threat Modeling AI Systems); MITRE ATLAS (the attacker's TTP library); NIST AI RMF (MAP function); feeds <a href="/g/ai-governance/"><code>ai-governance</code></a>, the Stage E capstone path.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Before anyone writes a control, someone has to answer: what are we actually afraid of, <em>here</em>, in <em>this</em> system? That answer is a threat model, and for AI systems it is a distinct skill — not because the method changes, but because the assets and trust boundaries are unfamiliar. AI security engineers produce them before builds; AppSec teams demand them at design review; red teams read them to scope engagements; incident responders wish they existed after the fact. CAISP devotes chapter 5 to it because every other chapter's content — the attacks, the pipeline defenses, the governance — is only useful once it is aimed at a specific system. This lesson produces a real one.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can draw the LLM application stack from memory (<a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a>) and name each layer's attack surface.</li>
+<li>You know the OWASP LLM Top 10:2026 risks by mechanism (<a href="/g/llm-top10/"><code>ai-llm-top10</code></a>), and the pipeline's five stages (<a href="/g/ai-pipeline/"><code>ai-pipeline</code></a>).</li>
+<li>No tools, no terminal. The work product is a document. Bring the refusal to invent threats you cannot connect to the diagram — a threat with no asset and no path is a worry, not a finding.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Threat modeling is three moves, in order: <strong>map the system, mark the trust boundaries, then ask what breaks at each boundary.</strong> The method is STRIDE; the adaptation is knowing what the letters mean when the system contains a model.</p>
+<p><strong>Move 1 — Map the system as data flows.</strong> Draw the application the way <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> taught you: boxes for components, arrows for data. For an LLM app the boxes are: user client, prompt assembly, the model, the vector store / retrieval, the tool registry and tool implementations, the agent loop and memory, output rendering, the training/fine-tuning pipeline, and the model registry. The arrows are the interesting part — every arrow is a place where untrusted data crosses into something that acts on it. If your diagram has no arrows into the prompt assembler from the retrieval store, your diagram is wrong; fix the diagram before you model anything.</p>
+<p><strong>Move 2 — Mark the trust boundaries.</strong> A trust boundary is a line across which data changes trust level. In an LLM app the critical ones are:</p>
+<ul>
+<li><strong>Prompt assembly:</strong> system instructions (trusted, your code) meet retrieved chunks, history, and user input (untrusted or semi-trusted). Everything downstream of this line treats text as potentially hostile.</li>
+<li><strong>Retrieval:</strong> the vector store boundary — who can write vectors determines what the model reads. A store writable by one tenant and readable by another is a missing boundary, not a weak one.</li>
+<li><strong>Tool execution:</strong> the model's text becomes action. The boundary is the policy check in your code (the <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> lesson's tool registry): on one side, model output; on the other, side effects. Every tool crossing needs an explicit authorization decision.</li>
+<li><strong>Memory:</strong> what the agent writes to itself and re-reads later crosses time as well as trust — yesterday's tool output is today's "trusted" context.</li>
+<li><strong>The pipeline:</strong> training data and build infrastructure are a boundary in time — everything the model "knows" crossed it months ago (<a href="/g/ai-pipeline/"><code>ai-pipeline</code></a>).</li>
+</ul>
+<p><strong>Move 3 — STRIDE, adapted to AI.</strong> Ask each prompt at each element and each boundary:</p>
+<ul>
+<li><strong>Spoofing.</strong> Who can pretend to be whom? A fake agent identity in a multi-agent system; spoofed tool output (the tool <em>says</em> it succeeded — did it?); one tenant's history replayed as another's; a phishing page that looks like your assistant's UI. Mitigations live in authentication and provenance: sign tool results, namespace memory per tenant, authenticate agents to each other.</li>
+<li><strong>Tampering.</strong> What can be modified, and who can modify it? Training data and fine-tuning sets; the RAG corpus; the system prompt in config; tool definitions and their permission policies; the agent's memory store. This is where <a href="/g/ai-pipeline/"><code>ai-pipeline</code></a>'s provenance controls and the vector store's write-access controls answer.</li>
+<li><strong>Repudiation.</strong> Can the system deny what it did? An agent that took a destructive action with no audit trail of <em>which</em> prompt, <em>which</em> tool call, <em>whose</em> data drove it. The fix is logging the full decision context — prompt, retrieved chunks, tool calls and results — with integrity protection, so "the model did it" is never the end of the investigation.</li>
+<li><strong>Information disclosure.</strong> What can the model be made to say? Training-data memorization surfacing PII; cross-tenant leakage through shared retrieval; system-prompt extraction; tool results containing another user's data pasted into your answer. Mitigations: tenant namespacing, output filtering, treating the system prompt as public text.</li>
+<li><strong>Denial of service.</strong> What exhausts? Unbounded consumption (LLM10:2026) — token floods, runaway agent loops, context-window stuffing that pushes real instructions out. Mitigations: rate limits, per-task budgets, loop counters, timeouts.</li>
+<li><strong>Elevation of privilege.</strong> What gains capability it shouldn't have? Excessive agency (LLM06:2026) — the model reaching a tool it was never meant to call, a retrieved document granting itself broader scope, a plugin with standing admin credentials. Mitigations: least-privilege tooling, per-task credential scoping, human approval gates for destructive actions.</li>
+</ul>
+<p>Then <strong>map each threat to MITRE ATLAS</strong>: ATLAS is the attacker's TTP library — Training Data Poisoning, RAG Poisoning, LLM Prompt Injection, AI Agent Tool Poisoning, Exfiltration via AI Inference API, and the rest. The mapping does two things: it checks your completeness (a STRIDE category with no ATLAS technique is a place to look harder), and it gives the threat model a shared vocabulary with red teams and detection engineers.</p>
+<p>Finally, <strong>turn threats into a risk register with treatments</strong>: each row names the threat, the affected element and boundary, the ATLAS technique, likelihood and impact in words (the <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> method), and the treatment — mitigate (with the specific control), transfer, accept (owned, dated), or avoid. A threat model whose threats have no treatments is a catalog; the register is the deliverable.</p>
+<h3>Worked example: threat model of the Harborlight Books assistant</h3>
+<p>Harborlight Books (the fictional bookstore from <a href="/g/osint-research/"><code>a-osint-research</code></a>) runs a support chatbot: customers ask about orders; the bot retrieves order docs from a vector store, calls <code>lookup_order</code> and <code>issue_refund</code> tools, and keeps conversation memory per session.</p>
+<p><strong>Data-flow sketch (elements and arrows):</strong> customer browser → prompt assembler ← (system prompt from config; retrieved chunks from the vector store; session memory; user message) → model → tool registry → (<code>lookup_order</code>, <code>issue_refund</code>) → order database; model output → HTML renderer → browser. Training pipeline (monthly fine-tune on support tickets) → model registry → deployment.</p>
+<p><strong>Trust boundaries:</strong> (B1) prompt assembly — system vs. retrieved/history/user; (B2) vector store writes — support staff upload docs; (B3) tool execution — model text vs. <code>issue_refund</code> side effect; (B4) memory — session A's history vs. session B; (B5) pipeline — ticket corpus vs. training job.</p>
+<p><strong>STRIDE table (abridged; the walkthrough builds the full one):</strong></p>
+<p>| # | Element / boundary | STRIDE | Threat | ATLAS | Treatment |</p>
+<p>|---|---|---|---|---|---|</p>
+<p>| T1 | Vector store / B2 | Tampering | Attacker uploads a doc containing hidden instructions; retrieved into another customer's prompt | RAG Poisoning | Mitigate: doc upload requires staff role + review; chunk hashing with drift alerts |</p>
+<p>| T2 | Prompt assembler / B1 | Info. disclosure | Customer A's order details retrieved into customer B's session via shared namespace | LLM Data Leakage | Mitigate: tenant-namespaced retrieval; session-scoped memory |</p>
+<p>| T3 | Tool registry / B3 | Elevation | Model calls <code>issue_refund</code> without approval on a poisoned instruction | AI Agent Tool Poisoning | Mitigate: destructive tools require human approval; per-task credential scope |</p>
+<p>| T4 | Memory / B4 | Tampering | Attacker poisons own session history; support agent later reads the poisoned summary | AI Agent Context Poisoning | Mitigate: memory namespaced per session; summaries labeled with provenance |</p>
+<p>| T5 | Pipeline / B5 | Tampering | Backdoored fine-tuning data ships a model that honors a trigger phrase | Training Data Poisoning | Mitigate: dataset manifest + canary (<a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> controls); red-team gate in CI |</p>
+<p>| T6 | Model output | Info. disclosure | System prompt extracted via "repeat your instructions" | Extract LLM System Prompt | Accept (documented): prompt contains no secrets — verified by review, owner named, dated |</p>
+<p>Note T6: "accept" is a legitimate treatment when it is explicit, owned, and verified — the model treats acceptance as a decision, not a shrug.</p>
+<h2>4. Walkthrough</h2>
+<p>No command line in this lesson — the walkthrough is the worked case, and the transcript is the authoring log with the self-review checklist: <code>runs/ai-threat-modeling.log</code>.</p>
+<ol>
+<li><strong>Draw the data-flow diagram</strong> for the Harborlight assistant from the worked example, on paper or whiteboard. Every arrow labeled with what crosses it. Compare against the element list in §3; any missing element is a modeling gap, not a simplification.</li>
+<li><strong>Mark the five trust boundaries</strong> (B1–B5) on the diagram. For each, write one sentence stating what is trusted on each side.</li>
+<li><strong>Build the STRIDE table</strong>: for each element × boundary, ask all six prompts. Write every threat that survives the "asset + path" test; discard worries with no path, and log the discards (the log shows three).</li>
+<li><strong>Map to ATLAS</strong>: for each threat, name the ATLAS technique. Any threat with no ATLAS mapping gets a second look — either the threat is malformed or you found a gap in the library; record which.</li>
+<li><strong>Build the risk register</strong>: threat, element, boundary, ATLAS technique, likelihood, impact, treatment with the specific control named. Every treatment names an owner.</li>
+<li><strong>Self-review</strong> against the checklist in the log: every arrow labeled; every boundary has a both-sides sentence; every STRIDE prompt asked at every element; every threat has asset + path; every treatment names a control and an owner; no invented likelihoods (words, defined once, used consistently).</li>
+</ol>
+<h2>5. On your own</h2>
+<p>Threat-model the Meridian support-model pipeline from <a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> as a system: draw its data flows (dataset collection → manifest → training → attestation → registry → gate → deploy), mark its trust boundaries (including the builder itself, per the LLM03 scenario), and run STRIDE on it. Pay special attention to Repudiation: what evidence would you need, after an incident, to determine <em>which</em> build produced a misbehaving model?</p>
+<p><strong>Success test:</strong> your model names at least one threat per STRIDE category, maps each to ATLAS or records why it can't, and your register's treatments include at least one Accept with a named owner and date — because a model with no accepted risks is a model that hasn't been honest about residual risk.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Modeling the model instead of the system.</strong> The weights are the least modelable part and the least attacked surface in practice. The wrapping — prompt assembly, retrieval, tools, memory, pipeline — is where the threats live. A threat model that is 80% "the model might hallucinate" has missed the system.</li>
+<li><strong>STRIDE without trust boundaries.</strong> The six prompts asked against an unmarked diagram produce generic threats ("data could be tampered with") that apply to everything and defend nothing. Boundaries first, then prompts.</li>
+<li><strong>Threat lists without treatments.</strong> A 40-row threat table with no register is a reading list. The treatment column — specific control, named owner — is where modeling becomes security work.</li>
+<li><strong>The diagram as the deliverable.</strong> A beautiful data-flow diagram that nobody asked STRIDE against is architecture documentation. Useful, but not a threat model.</li>
+<li><strong>Borrowed likelihoods.</strong> "High likelihood" because the threat sounds scary, not because of exposure and attacker incentive. The <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> discipline applies: define the scale once, use words, show your reasoning.</li>
+</ul>
+<h2>7. Read the source</h2>
+<ul>
+<li><strong>MITRE ATLAS</strong> (<a href="https://atlas.mitre.org">atlas.mitre.org</a>) — the matrix and technique pages: read the tactic structure first, then the techniques your model mapped to (Training Data Poisoning, RAG Poisoning, LLM Prompt Injection, AI Agent Tool Poisoning). Skim the case studies. (Matrix fetched 2026-10-09; technique pages were cookie-walled in earlier research — retry from a live browser if a page won't render.)</li>
+<li><strong>OWASP Threat Modeling Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — the STRIDE-per-element method and the "what makes a good threat model" checklist. Read the process section; skim the tooling catalog.</li>
+<li><strong>NIST AI RMF 1.0, MAP function</strong> (<a href="https://nist.gov">nist.gov</a>) — what "establish the context" means for AI: intended use, reasonably foreseeable misuse, and the risk framing your model feeds. Read MAP; skim GOVERN/MEASURE/MANAGE for where the model's outputs go.</li>
+</ul>
+<p>Free resources for going deeper (≤3): the ATLAS matrix; the OWASP Threat Modeling Cheat Sheet; the NIST AI RMF.</p>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Your diagram shows the vector store but no arrow from it into prompt assembly. What class of threats does this omission hide, and which trust boundary is missing?</li>
+<li>A teammate's threat model lists "prompt injection" as a threat with no element and no boundary. Rewrite it as two well-formed threats, each naming an element, a boundary, and a STRIDE category.</li>
+<li>You map a threat to ATLAS and find no matching technique. Walk through the two possibilities from §4 step 4 and how you decide between them.</li>
+<li>The register has twelve "Mitigate" treatments and zero "Accept." Using the T6 example, explain what that pattern suggests about the modeler's honesty.</li>
+<li>After an incident, you need to determine which build produced the misbehaving model, but the registry has mutable tags and no provenance. Which STRIDE category failed, and which <a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> control would have preserved the evidence?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the complete threat-model document for the Harborlight assistant — data-flow diagram (photo/scan of the whiteboard is fine), trust-boundary statements, STRIDE table, ATLAS mappings, and the risk register with treatments, owners, and the self-review checklist signed off.</p>
+<p><strong>You can claim:</strong> "I can threat-model an AI system end to end — map its data flows, mark its trust boundaries, apply STRIDE adapted to AI components, map threats to MITRE ATLAS, and produce a risk register with owned treatments."</p>
+<p><strong>You cannot claim:</strong> that the model is complete (threat models are hypotheses — the lesson says so); coverage of threats outside the modeled scope (name the scope boundary in the document); or red-team validation — the model predicts, testing confirms.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/ai-governance/"><code>ai-governance</code></a> — the risk register feeds the governance lesson's RMF-mapped register; the threat model is the MAP function's working paper.</li>
+<li><a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> — the pipeline threats (T5 and friends) point back to the pipeline controls that treat them.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the register method reused here at AI-system scale.</li>
+<li><strong>Map refs:</strong> <strong>CAISP chapter 5</strong> (served directly); MITRE ATLAS; NIST AI RMF (MAP).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of fifty-three in the security guidebook. <a href="/g/">See all fifty-three lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>
