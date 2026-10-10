@@ -4,7 +4,7 @@ slug: graphql
 stage: B
 level: 3
 prerequisites: [a-http-depth, b-api-abuse]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "GraphQL abuse: the query language that trusts the querier — introspection, BOLA on queries, and resource exhaustion reproduced locally, then locked down. A free hands-on lesson in the security guidebook."

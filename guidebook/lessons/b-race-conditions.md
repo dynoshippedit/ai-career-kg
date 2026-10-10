@@ -4,7 +4,7 @@ slug: race-conditions
 stage: B
 level: 3
 prerequisites: [a-http-depth, b-business-logic]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "Race conditions: when check-then-act isn't atomic — TOCTOU flaws reproduced locally with parallel requests, then fixed with atomic operations. A free hands-on lesson in the security guidebook."

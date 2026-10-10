@@ -2,6 +2,12 @@
 
 Everything below is unverified, unrun, or substituted, with what was tried. Nothing smoothed over.
 
+## Brief §5 required-but-unwritten lessons — WRITTEN this session (2026-10-10)
+
+- **8 lessons written, all walkthroughs run for real on loopback:** `a-crypto` (A, L2; OpenSSL 3.0.13 — avalanche, AES roundtrip, ECB/CBC block leak, RSA sign/verify + tamper fail, self-signed cert inspect, MD5 demo), `b-api-abuse` (BOLA, over-exposure, mass assignment, throttles; stdlib demo :8331/:8332), `b-ssti` (toy eval-engine :8333), `b-xxe` (xml.etree :8334/:8335 — taught honestly: expands internal entities, refuses external), `b-deserialization` (pickle :8336/:8337 — marker file proved code ran inside `pickle.loads`), `b-graphql` (real graphql-core 3.3.0 engine :8338/:8339 — introspection dump, ssn field gap, depth-6 → 17KB), `b-race-conditions` (two-thread coupon race :8340/:8341 — `uses_left` went to -1), `b-jwt-oauth` (hand-built tokens :8342/:8343 — alg=none, expired claims, real RS256→HS256 key confusion with OpenSSL RSA key, redirect_uri prefix bypass). Transcripts: `runs/<id>.log`. Every lesson: 10 sections, ≤3 free resources, Level 3 (a-crypto Level 2, names e-crypto-applied as finisher), §9 CAN/CANNOT claims, voice rules clean.
+- **Honesty notes baked into the lessons:** the b-ssti first attempt failed (injected into variable not template source) — logged; b-jwt-oauth's first expired-token attempt 401'd (signed with wrong key) — corrected in the transcript; no step marked "not run by us" in any of the 8.
+- **Integration:** frontmatter on all 8; 7 Stage B in pentester "Practitioner, full" + appsec "Vulnerability classes" paths (roles cross-validated); a-crypto on Stage A page; 16 new `verified` sources.csv rows (334 total); pages render (8/8 HTTP 200, 10 h2 each, 1,720–2,232 words); sitemap regenerated.
+
 ## Gap-closing sprint (2026-10-10) — RESOLVED this session
 
 Environment track: installed what the build machine can actually carry, re-ran the "not run by us" steps for real. Evidence in `runs/*.log` re-run entries; lesson markers updated; pages rebuilt.

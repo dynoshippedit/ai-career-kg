@@ -4,7 +4,7 @@ slug: api-abuse
 stage: B
 level: 3
 prerequisites: [a-http-depth, b-idor]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "API abuse: broken object-level authorization, mass assignment and excessive data exposure behind the JSON — reproduced locally and fixed. A free hands-on lesson in the security guidebook."

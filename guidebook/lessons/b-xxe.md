@@ -4,7 +4,7 @@ slug: xxe
 stage: B
 level: 3
 prerequisites: [a-http-depth, b-ssrf]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "XXE: when the XML parser works for the attacker — external entity injection reproduced locally, then fixed with secure parser configuration. A free hands-on lesson in the security guidebook."

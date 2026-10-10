@@ -4,7 +4,7 @@ slug: jwt-oauth
 stage: B
 level: 3
 prerequisites: [a-http-depth, a-crypto]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "JWT and OAuth flaws: trusting the token more than the verifier deserves — algorithm confusion, none-alg, and scope flaws reproduced locally, then fixed. A free hands-on lesson in the security guidebook."

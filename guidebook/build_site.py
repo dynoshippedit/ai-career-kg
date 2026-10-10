@@ -463,7 +463,7 @@ def build_index():
     canonical = "https://learncomputerstuff.dev/g/"
     main = f"""<section>
 <span class="eyebrow">New · hands-on, free, no account needed</span><h1>The security guidebook</h1>
-<p class="lede prose">A complete cybersecurity education, taught the way the work actually happens: you run the commands, reproduce the findings, fix the flaws, and write the reports — every walkthrough executed and dated, every claim checked against its source. {numword(TOTAL).capitalize()} lessons are live now: the Stage A foundations, the Stage A remainder (Python, reading code, Windows, OSINT), the pilots, the Stage B mechanics wave (authorization, methodology, toolbench, practice targets), the Stage B web-vulnerability wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave (red team, malware, cloud, AppSec), the Stage D wave 2 (exploit concepts, DFIR deep), the Stage C remainder (public track record, AI tooling), the AI security track, and the CISSP coverage wave (all 62 objectives, 1.1 to 8.5, each with its lesson); the full program builds out from here, stage by stage.</p>
+<p class="lede prose">A complete cybersecurity education, taught the way the work actually happens: you run the commands, reproduce the findings, fix the flaws, and write the reports — every walkthrough executed and dated, every claim checked against its source. {numword(TOTAL).capitalize()} lessons are live now: the Stage A foundations, the Stage A remainder (Python, reading code, Windows, OSINT), the pilots, the Stage B mechanics wave (authorization, methodology, toolbench, practice targets), the Stage B web-vulnerability wave, the Stage B second wave (API abuse, SSTI, XXE, deserialization, GraphQL, race conditions, JWT/OAuth), the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave (red team, malware, cloud, AppSec), the Stage D wave 2 (exploit concepts, DFIR deep), the Stage C remainder (public track record, AI tooling), the AI security track, and the CISSP coverage wave (all 62 objectives, 1.1 to 8.5, each with its lesson); the full program builds out from here, stage by stage.</p>
 <p class="dateline">Published {TODAY} · walkthroughs run 2026-10-09</p>
 <div class="note"><span class="eyebrow">How a lesson is built</span>
 <p class="prose">Every lesson follows the same ten parts: where it shows up, what you need first, how it works, a guided walkthrough, work on your own, where it goes wrong, the primary sources, check-yourself questions, a proof-of-skill artifact, and where it leads next. If a step could not be run, the lesson says so on the page.</p></div>
@@ -506,7 +506,7 @@ def build_index():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page_shell(
         title="The security guidebook",
-        description=f"A free, hands-on cybersecurity program: run the commands, reproduce the findings, fix the flaws. {numword(TOTAL).capitalize()} lessons live now — Stage A foundations, the Stage A remainder, pilots, the Stage B mechanics wave, the Stage B web-vulnerability wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave, and the AI security track — plus the CISSP coverage wave (all 62 objectives).",
+        description=f"A free, hands-on cybersecurity program: run the commands, reproduce the findings, fix the flaws. {numword(TOTAL).capitalize()} lessons live now — Stage A foundations, the Stage A remainder, pilots, the Stage B mechanics wave, the Stage B web-vulnerability wave, the Stage B second wave, the Stage C detection-and-operations wave, the Stage C disclosure wave, the Stage E CISSP-domain wave, the Stage D specialist wave, and the AI security track — plus the CISSP coverage wave (all 62 objectives).",
         canonical=canonical,
         crumbs='<a href="/">Home</a> / <span>Security guidebook</span>',
         breadcrumb_json=breadcrumb([("Home", "https://learncomputerstuff.dev/"),
@@ -592,8 +592,9 @@ PATHS = [
      "You are paid to break in \u2014 with permission and in writing \u2014 and then explain exactly how. It is open without a degree and cares about demonstrable skill more than almost any other field here, but it is rarely entry-level: people tend to arrive from help desk, networking, sysadmin, or defensive security. The hardest part is the report, not the exploit.",
      [("Foundations, full depth", ["a-linux-cli", "a-tcpip-ports", "a-dns-depth", "a-http-depth", "a-python-security", "a-reading-code", "a-osint-research", "a-git-github", "a-windows-concepts"]),
       ("Practitioner, full", ["b-authorization-scope", "b-methodology", "b-toolbench", "b-practice-targets",
-                              "b-idor", "b-sqli", "b-command-injection", "b-ssrf", "b-csrf", "b-xss",
-                              "b-business-logic", "b-session-auth", "b-security-headers", "b-bug-bounty"]),
+                              "b-idor", "b-api-abuse", "b-sqli", "b-command-injection", "b-ssrf", "b-csrf", "b-xss",
+                              "b-ssti", "b-xxe", "b-deserialization", "b-graphql", "b-race-conditions",
+                              "b-business-logic", "b-session-auth", "b-jwt-oauth", "b-security-headers", "b-bug-bounty"]),
       ("Professional, full", ["c-cvd", "c-cve-program", "c-cvss", "c-vuln-ecosystem", "c-public-track-record"]),
       ("Specialist", ["d-redteam-concepts", "d-exploit-concepts",
                       ("note", "Exploit development stays at concepts plus mitigations here; hands-on technique is reader-side on pwn.college, per the safety line.")])],
@@ -607,7 +608,7 @@ PATHS = [
      [("Code fluency first", ["a-python-security", "a-reading-code", "a-git-github", "a-linux-cli",
                                ("note", "The role page is explicit: read and write code well before the security layer means anything. Do not skip this block.")]),
       ("HTTP and identity", ["a-http-depth"]),
-      ("Vulnerability classes, from the fix side", ["b-idor", "b-sqli", "b-command-injection", "b-xss", "b-csrf", "b-ssrf", "b-session-auth", "b-security-headers", "b-business-logic",
+      ("Vulnerability classes, from the fix side", ["b-idor", "b-api-abuse", "b-sqli", "b-command-injection", "b-xss", "b-csrf", "b-ssrf", "b-ssti", "b-xxe", "b-deserialization", "b-graphql", "b-race-conditions", "b-session-auth", "b-jwt-oauth", "b-security-headers", "b-business-logic",
                                                    ("note", "Each class studied for how it is found <em>and</em> how it is fixed \u2014 the fix is your half of the job.")]),
       ("AppSec specialist", ["d-appsec"]),
       ("CISSP Domain 8", ["e-sdlc"])],

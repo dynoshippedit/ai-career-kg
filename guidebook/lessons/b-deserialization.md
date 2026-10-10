@@ -4,7 +4,7 @@ slug: deserialization
 stage: B
 level: 3
 prerequisites: [a-python-security, a-http-depth]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "Insecure deserialization: when data builds the objects — untrusted-data deserialization reproduced locally, then fixed with integrity checks and safe formats. A free hands-on lesson in the security guidebook."

@@ -4,7 +4,7 @@ slug: ssti
 stage: B
 level: 3
 prerequisites: [a-http-depth, b-xss]
-roles: []
+roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
 description: "Server-side template injection: when user input becomes the program — context-aware exploitation reproduced locally, then fixed. A free hands-on lesson in the security guidebook."
