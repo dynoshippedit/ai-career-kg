@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Detective and preventive measures in operation: choosing, placing, and tuning controls | Learn Computer Stuff</title>
+<meta name="description" content="How to choose, place, and tune detective and preventive controls in operation — IDS/IPS, honeypots, DLP, and allow-listing. A free lesson in the security guidebook, serving CISSP objective 7.7.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/detective-preventive/">
+<meta property="og:title" content="Detective and preventive measures in operation: choosing, placing, and tuning controls | Learn Computer Stuff"><meta property="og:description" content="How to choose, place, and tune detective and preventive controls in operation — IDS/IPS, honeypots, DLP, and allow-listing. A free lesson in the security guidebook, serving CISSP objective 7.7.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/detective-preventive/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Detective and preventive measures in operation: choosing, placing, and tuning controls","item":"https://learncomputerstuff.dev/g/detective-preventive/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Detective and preventive measures in operation: choosing, placing, and tuning controls</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Detective and preventive measures in operation: choosing, placing, and tuning controls</h1>
+<p class="lede prose">Controls are easy to buy and hard to operate. The difference between a control that protects and one that decorates is a series of unglamorous decisions: which type fits the risk, where it sits in the architecture, who tunes it, and what happens when it fires. This lesson is about those decisions — detective vs. preventive vs. deterrent vs. corrective controls <em>in operation</em>: IDS/IPS placement and tuning, honeypots that buy early warning, DLP that watches the exits, allow-listing that shrinks what can run. It shows up in the IPS that blocked the CFO's legitimate traffic for a week, in the honeypot nobody monitored, in the DLP rule with four thousand daily false positives — and in the SOC where every alert has an owner and a tuning history. SOC engineers, security architects, and detection engineers live here.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (select, place, and tune detective and preventive controls for a SOC's needs)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/soc-triage/"><code>c-soc-triage</code></a> (the alerts these controls produce), <a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> (the detection logic this lesson puts into operation); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.7</strong> — operating detective and preventive measures: what each control type does, where it goes, and how it stays effective.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Controls are easy to buy and hard to operate. The difference between a control that protects and one that decorates is a series of unglamorous decisions: which type fits the risk, where it sits in the architecture, who tunes it, and what happens when it fires. This lesson is about those decisions — detective vs. preventive vs. deterrent vs. corrective controls <em>in operation</em>: IDS/IPS placement and tuning, honeypots that buy early warning, DLP that watches the exits, allow-listing that shrinks what can run. It shows up in the IPS that blocked the CFO's legitimate traffic for a week, in the honeypot nobody monitored, in the DLP rule with four thousand daily false positives — and in the SOC where every alert has an owner and a tuning history. SOC engineers, security architects, and detection engineers live here.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You know the triage end of the pipeline from <a href="/g/soc-triage/"><code>c-soc-triage</code></a> — every control here feeds that workflow.</li>
+<li>You have written detection logic in <a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> — this lesson decides where that logic runs and who keeps it honest.</li>
+<li>No tools. The work products are documents: a control-selection rationale, a placement map, and a tuning procedure. Primary spine: <strong>NIST SP 800-94</strong> (Guide to Intrusion Detection and Prevention Systems, February 2007).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Controls are classified by what they <em>do</em> when they meet an event — and the operations question is always which type fits, where, and at what cost.</p>
+<p><strong>The control types, operationally.</strong> <strong>Preventive</strong> controls block the event: firewalls, IPS in inline mode, allow-listing, authentication. <strong>Detective</strong> controls record and alert: IDS in passive mode, log monitoring, honeypots, file-integrity checks. <strong>Deterrent</strong> controls discourage: warning banners, visible cameras — they work on humans, not on malware. <strong>Corrective</strong> controls repair: backups restored, systems reimaged, failover. <strong>Compensating</strong> controls stand in where the ideal control can't go (the <a href="/g/secops-concepts/"><code>e-secops-concepts</code></a> SoD matrix used these). The expert's first decision is type selection: preventive where the cost of the event exceeds the cost of the occasional false block (malware execution on a server), detective where blocking would break the business or the confidence is low (anomaly alerts on user behavior). The classic error is preventive-by-default everywhere — an IPS blocking inline on a poorly tuned signature set doesn't prevent attacks, it prevents business.</p>
+<p><strong>IDS/IPS: placement is the decision, tuning is the job.</strong> SP 800-94 — February 2007, and honest about its age: it covers network-based, host-based, wireless, and NBA (network behavior analysis) systems, written before the XDR/NDR rebranding — teaches that effectiveness is mostly placement and tuning, not product. <strong>Placement:</strong> network sensors where traffic <em>must</em> pass to reach what matters — at internet ingress/egress, between trust zones (the <a href="/g/secops-concepts/"><code>e-secops-concepts</code></a> segmentation), watching the paths to the crown jewels, not "everywhere" (everywhere is unaffordable and unmonitorable). Host-based sensors where network visibility dies: encrypted traffic the network sensor can't read, the laptop off the corporate network. <strong>Inline vs. passive</strong> is the preventive/detective choice made physical: inline (IPS) can block but a failure or false positive breaks traffic; passive (IDS) can't break anything but also can't stop anything — the decision is per segment, based on what a false block costs there. <strong>Tuning</strong> is the ongoing job: baseline what normal looks like, suppress the known-benign, escalate the known-malicious, and review on a cadence — because networks change and untuned signatures are how you get the CFO's traffic blocked for a week. SP 800-94's management components (the console, the database, the sensors) map directly to operations staffing: someone owns the console, someone owns the rule set, someone answers the alerts.</p>
+<p><strong>Honeypots: cheap early warning, if anyone watches.</strong> A honeypot is a system with no production purpose — so <em>any</em> interaction with it is suspicious by definition. That property is what makes them valuable: no tuning for false positives, because legitimate users never touch them. The Honeynet Project (<a href="https://honeynet.org">honeynet.org</a>, the long-running open research organization) maintains the tools and the knowledge base — including ICS/SCADA honeypots for industrial environments. The operations decisions: <strong>fidelity</strong> (low-interaction emulations are cheap and safe; high-interaction real systems yield richer attacker behavior but must be contained so they can't become launch pads), <strong>placement</strong> (inside the network to catch lateral movement, in the DMZ to catch external probing — never where they can be mistaken for production), and <strong>monitoring</strong> (a honeypot nobody watches is a liability, not a control — its alerts go to the SOC with high priority because the false-positive rate is near zero). The failure mode is always the same: deployed with enthusiasm, abandoned within months.</p>
+<p><strong>DLP and allow-listing: watching the exits and shrinking the executable.</strong> <strong>Data loss prevention</strong> monitors data in motion (and at rest, and in use) against policies — the <a href="/g/media-protection/"><code>e-media-protection</code></a> USB ban needs DLP to mean anything. Placed at the natural chokepoints: email egress, web upload, endpoint agents on machines that handle the crown-jewel data. The tuning burden is the highest of any control here — DLP policies generate false positives by design (people do legitimate things that look like exfiltration), so deployment starts in monitor-only mode, tunes, and only then blocks. <strong>Allow-listing</strong> (application control) inverts the endpoint model: instead of blocking known-bad, only known-good may execute. It's the strongest preventive control on servers with stable software sets — and the most operationally demanding, because every legitimate change needs the list updated (which is why it pairs with <a href="/g/change-management/"><code>e-change-management</code></a>: the change process feeds the allow list).</p>
+<p><strong>The selection discipline.</strong> For each risk, the worked case below asks four questions: which type (prevent/detect/deter/correct)? where does it sit (which chokepoint, which segment)? who tunes it and on what cadence? what does it cost when it's wrong (false block vs. missed event)? A control with no tuning owner is a future incident — write the owner into the selection document, not into someone's memory.</p>
+<h3>Worked example: Meridian Analytics — control selection for the SOC</h3>
+<p><strong>The company (fictional, continued from <a href="/g/iam/"><code>e-iam</code></a>).</strong> Meridian, 180 people, one IdP, cloud account, production database, CI/CD, VPN. The SOC is two analysts plus the contracted MDR nights/weekends (from <a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a>'s Beacon design — Meridian adopts the same model). The crown jewels: the customer database and the CI/CD pipeline that deploys to production.</p>
+<p><strong>The selection (excerpt, fictional).</strong></p>
+<p>| Risk | Control | Type | Placement | Tuning owner / cadence |</p>
+<p>|---|---|---|---|---|</p>
+<p>| External intrusion | IDS/IPS | passive at ingress (detect), inline at egress (prevent C2) | internet boundary, both sites | detection engineer, monthly rule review |</p>
+<p>| Lateral movement | honeypot (low-interaction) | detective | inside each trust zone, non-production addresses | SOC analyst, alerts high-priority (near-zero FP) |</p>
+<p>| Data exfiltration | DLP | detect-then-block | email egress, web upload, endpoints with customer data | DLP admin, monitor-only 30 days before blocking |</p>
+<p>| Malware on servers | allow-listing | preventive | production servers (stable software set) | change process feeds the list; review per change |</p>
+<p>| Compromised credentials | IdP anomaly detection | detective | identity layer | SOC, weekly FP review |</p>
+<p><strong>Placement decisions with reasons.</strong> The IPS goes inline only at egress (blocking command-and-control is worth the false-block risk; blocking inbound on a poorly tuned set once took down the customer portal — recorded as the lesson that set the policy). The honeypot sits inside the production zone at addresses that were never assigned — any touch is lateral movement or scanning, no legitimate explanation exists. DLP starts monitor-only: the first month's findings tune out the finance team's legitimate bulk transfers before any block goes live.</p>
+<p><strong>The tuning procedure.</strong> Every control has an owner, a review cadence, and a measured false-positive rate. Quarterly, each owner answers: what fired, what was real, what changed in the environment, what retires. The honeypot's review is the shortest — near-zero false positives means its alerts stay high-priority, which is the whole point. The DLP review is the longest — and the one that prevents the four-thousand-false-positive death spiral.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the control selection, placement map, and tuning procedure above, authored and self-reviewed in-session on 2026-10-10 against SP 800-94's IDS/IPS guidance and the Honeynet Project's deployment knowledge. Transcript: <code>runs/e-detective-preventive.log</code>.</p>
+<ol>
+<li><strong>List the risks.</strong> For your fictional (or real) organization: the five risks that would hurt most (intrusion, lateral movement, exfiltration, malware, credential compromise — adapt to your estate).</li>
+<li><strong>Select the type per risk.</strong> Prevent, detect, deter, or correct — with the cost-of-being-wrong reasoning written down. Preventive where the event costs more than the false block; detective where confidence is low or blocking breaks the business.</li>
+<li><strong>Place each control.</strong> Name the chokepoint or segment and the reason. For IDS/IPS: inline or passive, per segment, with the false-block cost stated. For honeypots: fidelity, placement, containment.</li>
+<li><strong>Name the tuning owner and cadence.</strong> Every control gets an owner and a review rhythm. No owner, no control — write that rule into the document.</li>
+<li><strong>Stage the DLP (or any high-FP control).</strong> Monitor-only first, with a defined tuning period and promotion criteria before blocking. Write the promotion decision as a change (the <a href="/g/change-management/"><code>e-change-management</code></a> link).</li>
+<li><strong>Define the quarterly review.</strong> What each owner reports (fired, real, environmental changes, retirements). The review that retires a control is as valuable as the one that tunes it.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one preventive and one detective control on a system you run (your firewall rules and your auth logs count). For each: what type is it really, where does it sit, who tunes it (you — on what cadence?), and what's the measured false-positive rate? If you can't state the FP rate, that's the finding.</p>
+<p><strong>Success test:</strong> You produce the tuning history — or its absence — for both controls, and you name one control that's been firing unactioned. Unactioned firing is the control telling you it's misconfigured; the success is hearing it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Preventive by default.</strong> The IPS blocking inline on untuned signatures — preventing business, not attacks. Type selection is a decision with a cost-of-being-wrong analysis, not a posture.</li>
+<li><strong>Placement by hope.</strong> Sensors where traffic doesn't flow to anything valuable; honeypots in the DMZ nobody routes alerts from. Placement follows the crown jewels and the chokepoints.</li>
+<li><strong>The unmonitored honeypot.</strong> Deployed with enthusiasm, abandoned in months — now a liability that could host attacker activity. Monitoring is part of the deployment, not a later phase.</li>
+<li><strong>High-interaction without containment.</strong> A real system as a honeypot, reachable and exploitable, with no isolation. Fidelity without containment is arming the attacker.</li>
+<li><strong>DLP straight to block.</strong> Policies enabled in blocking mode on day one — four thousand false positives, the business revolts, DLP gets disabled entirely. Monitor, tune, then block.</li>
+<li><strong>Allow-listing without a change feed.</strong> The list goes stale with the first emergency patch; then it's bypassed "temporarily" forever. The change process feeds the list or the list dies.</li>
+<li><strong>Tuning as nobody's job.</strong> The console has an owner, the rule set doesn't. Every control's tuning owner is named in the selection document.</li>
+<li><strong>Controls that share a fate.</strong> The IDS, the firewall, and the SIEM all on the same unpatched management host. Layer independence (from <a href="/g/secops-concepts/"><code>e-secops-concepts</code></a>) applies to the controls themselves.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, February 2007) — <em>read</em> the IDS/IPS types (network, host, wireless, NBA) and the management considerations; <em>note</em> its age honestly — pre-XDR/NDR, but placement and tuning are still the job.</li>
+<li><strong>NIST SP 800-53 Rev. 5, System and Information Integrity (SI) family</strong> — SI-4 (information system monitoring) is the control-language home of this lesson. Find it via the SP 800-53 publication page (<a href="https://csrc.nist.gov">csrc.nist.gov</a>).</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>The Honeynet Project</strong> (<a href="https://honeynet.org">honeynet.org</a>) — free; the open research organization's tools and deployment knowledge — start here before placing any honeypot, and note their ICS/SCADA work if you have industrial systems.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An IPS is deployed inline at the internet ingress with the vendor's default signature set. Within a week it blocks legitimate customer traffic twice and misses an actual intrusion. Using the type-selection and tuning discipline, explain the three decisions that were skipped and the order you'd fix them.</li>
+<li>Explain why a honeypot's alerts can be high-priority by default while a DLP's cannot — what property of the honeypot makes its false-positive rate near zero, and what breaks that property?</li>
+<li>A server's allow-list hasn't been updated in six months; admins routinely bypass it "temporarily" for patches. Name the two process failures (one in change management, one in tuning ownership) and the single integration that fixes both.</li>
+<li>Distinguish inline from passive deployment as a risk decision: what does each choice cost when it's wrong, and why is the decision per segment rather than per product?</li>
+<li>Predict the alert queue of a SOC two years after deploying five new detective controls with no tuning owners: which control's alerts get ignored first, and which failure mode from §6 does the honeypot exhibit?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your control-selection rationale (risk → type → placement → tuning owner/cadence, with cost-of-being-wrong per control), the placement map, and the tuning procedure (review cadence, FP measurement, retire criteria) — for the Meridian worked case in your own words, or better, for an estate you actually defend.</p>
+<p><strong>Honest claim:</strong> "I can choose the right control type for a risk, put it where it matters, and keep it effective — selection, placement, and the tuning discipline that prevents controls from decaying into decoration."</p>
+<p><strong>Can't claim yet:</strong> "I can engineer detections" — writing the detection logic itself (Sigma rules, behavioral analytics) is <a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> and <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a> territory; this lesson taught the operational decisions around the controls, not the logic inside them.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> — the detection logic this lesson puts into operation and keeps tuned.</li>
+<li><a href="/g/soc-triage/"><code>c-soc-triage</code></a> — the workflow these controls feed; tuning quality is triage quality.</li>
+<li><a href="/g/secops-concepts/"><code>e-secops-concepts</code></a> — layer independence and the principles behind type selection.</li>
+<li><a href="/g/change-management/"><code>e-change-management</code></a> — the change feed that keeps allow-listing alive.</li>
+<li>Map refs: <strong>CISSP 7.7</strong> (this lesson); feeds <strong>CISSP 7.2</strong> (monitoring) and <strong>7.4</strong> (operations concepts).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-detective-preventive.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

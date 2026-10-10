@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The information system lifecycle: security at every gate | Learn Computer Stuff</title>
+<meta name="description" content="Write a gate-review template with security deliverables per phase, complete one gate review to a go/no-go decision, and plan secure disposal. A free lesson in the security guidebook, serving CISSP objective 3.10.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/system-lifecycle/">
+<meta property="og:title" content="The information system lifecycle: security at every gate | Learn Computer Stuff"><meta property="og:description" content="Write a gate-review template with security deliverables per phase, complete one gate review to a go/no-go decision, and plan secure disposal. A free lesson in the security guidebook, serving CISSP objective 3.10.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/system-lifecycle/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"The information system lifecycle: security at every gate","item":"https://learncomputerstuff.dev/g/system-lifecycle/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>The information system lifecycle: security at every gate</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>The information system lifecycle: security at every gate</h1>
+<p class="lede prose">Systems are not born secure and do not stay secure by inertia — they pass through phases, and each phase transition is a moment when security can be required, verified, or quietly dropped. The information system lifecycle is the discipline of attaching security deliverables to those transitions: requirements before design, architecture review before build, testing before deployment, monitoring during operations, sanitization at disposal. It shows up in the gate review that stops a system from deploying without its authorization package, in the decommissioning checklist that ensures the retired server's disks don't become someone else's data breach, in NIST SP 800-160's treatment of security as a systems-engineering concern across the whole life cycle, and in the CISSP as the objective that connects every other Domain 3 topic into a timeline. Most security failures are lifecycle failures with a technical symptom: the vulnerability that was a missing requirement, the breach that was a skipped gate, the data exposure that was a disposal nobody owned.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (write a gate-review template with security deliverables per phase, and complete one gate review with a go/no-go decision)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/secure-design/"><code>e-secure-design</code></a> (requirements as phase inputs), <a href="/g/sdlc/"><code>e-sdlc</code></a> (the development lifecycle's security activities); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.10</strong> — the information system lifecycle: security integration across phases, gate reviews, and secure disposal.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Systems are not born secure and do not stay secure by inertia — they pass through phases, and each phase transition is a moment when security can be required, verified, or quietly dropped. The information system lifecycle is the discipline of attaching security deliverables to those transitions: requirements before design, architecture review before build, testing before deployment, monitoring during operations, sanitization at disposal. It shows up in the gate review that stops a system from deploying without its authorization package, in the decommissioning checklist that ensures the retired server's disks don't become someone else's data breach, in NIST SP 800-160's treatment of security as a systems-engineering concern across the whole life cycle, and in the CISSP as the objective that connects every other Domain 3 topic into a timeline. Most security failures are lifecycle failures with a technical symptom: the vulnerability that was a missing requirement, the breach that was a skipped gate, the data exposure that was a disposal nobody owned.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can derive security requirements (<a href="/g/secure-design/"><code>e-secure-design</code></a>) — requirements are the lifecycle's first deliverable.</li>
+<li>You know the SDLC's security activities (<a href="/g/sdlc/"><code>e-sdlc</code></a>) — this lesson places them in the full system lifecycle, which is wider than software development.</li>
+<li>No tools. The work products are a gate-review template (security deliverables per phase) and one completed gate review with a go/no-go decision.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The phases.</strong> Systems engineering (ISO/IEC/IEEE 15288, NIST SP 800-160) describes the life cycle in phases that every system traverses, whatever the development methodology:</p>
+<ul>
+<li><strong>Concept and requirements:</strong> the system's purpose, stakeholders, and constraints are defined. The security deliverable: the <strong>security requirements baseline</strong> — stakeholder needs translated into testable security requirements (<a href="/g/secure-design/"><code>e-secure-design</code></a>'s R1–Rn), the threat model, and the impact categorization that sets the control baseline (<a href="/g/control-selection/"><code>e-control-selection</code></a>).</li>
+<li><strong>Design and architecture:</strong> requirements become architecture. Deliverables: the <strong>architecture review</strong> against the design principles, the <strong>control selection package</strong> with its traceability matrix, and the platform/facility decisions that constrain everything after.</li>
+<li><strong>Implementation and integration:</strong> the system is built and assembled. Deliverables: <strong>secure implementation evidence</strong> — code review and testing results (<a href="/g/sdlc/"><code>e-sdlc</code></a>), configuration baselines, and the as-built documentation showing what was actually built versus what was designed (the drift between them is a finding source).</li>
+<li><strong>Verification and deployment:</strong> the system is proven and released. Deliverables: <strong>security assessment results</strong> (the architecture assessment from <a href="/g/arch-vuln-assessment/"><code>e-arch-vuln-assessment</code></a>, penetration testing where warranted), <strong>remediation of findings</strong> or documented risk acceptances with owners and dates, and the <strong>authorization decision</strong> — someone with authority signs that the residual risk is acceptable. Deployment without authorization is the gate this whole lifecycle exists to enforce.</li>
+<li><strong>Operations and maintenance:</strong> the system runs. Deliverables: <strong>continuous monitoring</strong> (logging, vulnerability management, configuration change control), <strong>periodic reassessment</strong> (the assessment re-runs when the architecture changes), and <strong>incident response readiness</strong>. Security decays in operations — the lifecycle's job here is to make decay visible.</li>
+<li><strong>Disposal and transition:</strong> the system retires. Deliverables: the <strong>disposition plan</strong> — data migration or archival, <strong>media sanitization</strong> per NIST SP 800-88 (clear, purge, or destroy, matched to the data's classification), decommissioning of identities and credentials, contract termination, and confirmation that no residual data, access, or dependency remains. Disposal is the most skipped phase and the source of the most embarrassing breaches: the retired server sold with customer data, the cloud account nobody closed still running (and billing) with production credentials.</li>
+</ul>
+<p><strong>Gates and their teeth.</strong> A <strong>gate review</strong> sits at each phase transition: a defined set of entry criteria (the deliverables the phase must produce), a reviewer independent of the builders, and a <strong>go / no-go / go-with-conditions</strong> decision recorded with rationale. The gate's power is entirely in its teeth: a gate that cannot say no is a milestone with a fancier name. Go-with-conditions is the honest middle — deployment allowed with named conditions, owners, and dates, which is risk acceptance made explicit rather than implicit. The gate review for deployment is the lifecycle's load-bearing moment: it is where "we'll fix it in production" meets someone authorized to refuse.</p>
+<p><strong>Security across methodologies.</strong> Agile, DevOps, and waterfall all have lifecycles — the phases compress but don't disappear. In continuous delivery, the gate review becomes the pipeline's policy checks plus periodic human reviews; in agile, the security requirements live in the backlog with acceptance criteria. The lifecycle discipline is methodology-agnostic: whatever your process calls its phases, each transition needs its security deliverable and its decision. "We're agile so we don't do gates" is how you get continuous deployment of continuous vulnerabilities.</p>
+<p><strong>Disposal done right.</strong> The disposal phase deserves its weight here because it is where the lifecycle most often ends in practice — abandoned, not completed. The disposition plan covers: <strong>data</strong> (migrate, archive with retention, or destroy — per the retention schedule from the data lifecycle); <strong>media</strong> (sanitize per SP 800-88: <em>clear</em> (overwrite), <em>purge</em> (firmware-level or degauss), <em>destroy</em> (shred, incinerate) — the method matched to the classification and the media type; an SSD needs purge or destroy, not a clear designed for spinning disks); <strong>identities and access</strong> (deprovision every account, key, certificate, and integration the system owned — the joiner-mover-leaver lesson applied to the system itself); <strong>dependencies</strong> (notify and migrate every downstream consumer); and <strong>confirmation</strong> (evidence that each step happened — sanitization certificates, account-deletion logs). The decommissioned system gets a final review: nothing left running, nothing left accessible, nothing left billable.</p>
+<h3>Worked example: Northwind Telehealth — gate-review template and a completed review</h3>
+<p><strong>The template (fictional, reusable).</strong> Columns: phase gate, entry criteria (security deliverables required), reviewer, possible decisions.</p>
+<p>| Gate | Entry criteria (security) | Reviewer | Decisions |</p>
+<p>|---|---|---|---|</p>
+<p>| G1: Requirements | Security requirements baseline; threat model; impact categorization; control baseline selected | Security architect (independent of product team) | Go / No-go (requirements untestable or uncategorized) |</p>
+<p>| G2: Architecture | Architecture review (principles, pass/fail); control selection with traceability; platform + facility surveys | Security architect + infrastructure lead | Go / No-go / Go-with-conditions |</p>
+<p>| G3: Implementation | Code review and test results; as-built documentation; configuration baselines | AppSec lead | Go / No-go (critical findings open) |</p>
+<p>| G4: Deployment | Assessment results; remediation or risk acceptances (owner + date); authorization package | Authorizing official | Go / No-go / Go-with-conditions |</p>
+<p>| G5: Operations (periodic) | Monitoring evidence; vuln-management metrics; change log; reassessment trigger check | Security operations lead | Continue / Remediate / Re-authorize |</p>
+<p>| G6: Disposal | Disposition plan; sanitization evidence; identity deprovisioning log; dependency migration confirmations | Security architect + operations lead | Close / Re-open (residual items) |</p>
+<p><strong>The completed review: G4 deployment gate for Northwind's patient portal (fictional).</strong> Entry criteria presented: the architecture assessment (from <a href="/g/arch-vuln-assessment/"><code>e-arch-vuln-assessment</code></a>'s method — 4 findings, 3 remediated), penetration test summary (2 highs remediated, 1 moderate accepted), the control selection package (<a href="/g/control-selection/"><code>e-control-selection</code></a>'s Northwind work — trace complete), and the authorization package with residual risk stated.</p>
+<p>Findings at the gate: (1) the third-party video service's audit right — contracted but the vendor's evidence not yet received (the SR-5 compensating control's weak point, honestly carried forward); (2) one moderate pen-test finding accepted by the CTO with a 90-day remediation date and an owner; (3) logging coverage verified in staging but the production log-forwarding rule not yet confirmed.</p>
+<p><strong>Decision: GO WITH CONDITIONS.</strong> Conditions: (a) vendor audit evidence received within 60 days, owner: vendor manager, else the video integration is re-scoped to minimum-data mode; (b) the accepted moderate remediated by its 90-day date; (c) production log forwarding confirmed within 7 days of deployment, owner: platform lead. Rationale recorded: the residual risks are bounded, owned, and dated; none permits silent data exposure. The no-go alternative was considered — delaying launch 60 days for the vendor evidence — and rejected in writing because the conditions contain the risk without the delay. That written rejection is the gate's honesty: the decision, the alternative, and why.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The Northwind template and G4 review above, authored and self-reviewed in-session on 2026-10-10. Transcript: <code>runs/e-system-lifecycle.log</code>.</p>
+<ol>
+<li><strong>Write the template.</strong> Six gates (or your methodology's equivalents), each with entry criteria (the security deliverables), a named reviewer independent of the builders, and the decision options. If a gate's reviewer is the team that built the phase, rewrite it — independence is the gate's teeth.</li>
+<li><strong>Pick one gate and complete it.</strong> Use a fictional system or a real one approaching a transition. Assemble the entry criteria honestly — missing deliverables are findings, not embarrassments.</li>
+<li><strong>Record the findings at the gate.</strong> Each: the observation, the deliverable it blocks or conditions, the owner, the date. Risk acceptances need the acceptor's name — "the team accepts" is not acceptance.</li>
+<li><strong>Make the decision.</strong> Go, no-go, or go-with-conditions — with the rationale and the considered alternative written down. A go-with-conditions decision lists every condition with owner and date; a condition without both is a wish.</li>
+<li><strong>Write the disposal plan for something.</strong> Pick a retired or retiring system (an old laptop, a decommissioned service, a closed account) and write its disposition: data, media sanitization method per SP 800-88, identities deprovisioned, dependencies migrated, confirmation evidence. The exercise usually finds something still running.</li>
+<li><strong>Close out.</strong> File the template (reusable) and the completed review (dated). The template is the artifact; the completed review is the proof the template has teeth.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> (a) Complete a gate review for a real transition — a project you're about to deploy, migrate, or retire. (b) Write a disposal plan for one retired system or device you own, and execute the sanitization step.</p>
+<p><strong>Success test:</strong> Your gate review contains at least one go-with-conditions item with owner and date — a clean go on the first real review means the entry criteria were too soft. Your disposal plan's execution finds at least one identity, credential, or dependency you forgot the system had.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Gates without teeth.</strong> Reviews that cannot say no — the schedule overrules the findings, every gate is a go, and the template becomes ceremony. A gate's value is measured in no-gos issued, not reviews held.</li>
+<li><strong>The skipped disposal.</strong> Systems retired by abandonment: accounts live, data rests, bills accrue. Disposal is a phase with deliverables, not the absence of operations — plan it or inherit its breaches.</li>
+<li><strong>Sanitization mismatch.</strong> Overwriting an SSD with a clear procedure designed for spinning disks, then selling it. Match the SP 800-88 method to the media and the classification — purge or destroy for flash media holding sensitive data.</li>
+<li><strong>Authorization as a signature.</strong> The authorizing official signs without reading the package, or the package is written to be signed rather than to inform. Authorization is a decision about residual risk; a signature without the reading is a ritual.</li>
+<li><strong>"Agile means no gates."</strong> The methodology changed; the phase transitions didn't. Pipeline policy checks plus periodic human review <em>are</em> the gates — name them, or the transitions happen without security present.</li>
+<li><strong>As-built drift.</strong> The deployed system differs from the reviewed architecture, and nobody updated the assessment. The G4 review gates the system as <em>built</em>, not as designed — verify, don't assume.</li>
+<li><strong>Conditions without follow-through.</strong> Go-with-conditions where the conditions evaporate after deployment — no tracking, no owner follow-up, the 90-day date passing silently. Conditions are findings with a later due date; they need the same register.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-160 Vol. 1 Rev. 1, Engineering Trustworthy Secure Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the life-cycle processes and the security integration across phases; the primary source for this lesson's structure.</li>
+<li><strong>NIST SP 800-88 Rev. 1, Guidelines for Media Sanitization</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the clear/purge/destroy decision factors and the media-type guidance; <em>skim</em> the method details. The disposal phase's authority.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>SEBoK: System Life Cycle Process Models</strong> (<a href="https://sebokwiki.org">sebokwiki.org</a>) — free; the systems-engineering view of life-cycle models (iterative, incremental) — the methodology-agnostic framing.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; the SR (supply chain) and SI families for the disposal and operations gates — trace the gate criteria to controls.</li>
+<li><strong>OWASP ASVS</strong> (<a href="https://owasp.org">owasp.org</a>) — free; the verification levels as G3/G4 entry criteria for the application components — what "tested" must mean.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A team deploys after a "gate review" in which the builders presented to themselves and approved unanimously. Name the two structural defects and describe the minimum change that gives the gate teeth.</li>
+<li>A decommissioned file server is sold after a single overwrite pass. The drives are SSDs holding patient-adjacent data. Name the sanitization error (method vs media), the correct method per SP 800-88's framework, and the evidence the disposal review should have demanded.</li>
+<li>A go-with-conditions deployment lists three conditions with no owners. Explain why each condition is currently a wish, what the register must add, and what happens at the due date if nothing was tracked.</li>
+<li>An agile team argues gates don't apply to continuous delivery. Describe the pipeline-native equivalent of G3 and G4 — what automated checks and what human reviews, and where each lives.</li>
+<li>Predict the incident that reveals disposal was skipped: which artifact survives (data, identity, or dependency), who discovers it, and what the disposition plan would have caught.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your gate-review template (six gates with entry criteria, reviewers, decisions) plus one completed gate review (findings, decision with rationale and considered alternative, conditions with owners and dates) — for the Northwind case in your own words, or for a real transition — and a disposal plan for one retired system with the sanitization step executed.</p>
+<p><strong>Honest claim:</strong> "I can define security gates across the system lifecycle, run a gate review to a recorded go/no-go decision, and plan and execute secure disposal."</p>
+<p><strong>Can't claim yet:</strong> "I can run a systems-engineering program" — SP 800-160's full process suite (stakeholder coordination, assurance cases, trade studies) is a program discipline; this lesson taught its lifecycle-gate core.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/sdlc/"><code>e-sdlc</code></a> — the development lifecycle's security activities as the implementation phase's deliverables; reread it as G3's entry criteria.</li>
+<li><a href="/g/secure-design/"><code>e-secure-design</code></a>, <a href="/g/control-selection/"><code>e-control-selection</code></a> — G1/G2's entry criteria, already written if you did those lessons' artifacts.</li>
+<li><a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> — the operations gate's continuity evidence; disposal and recovery are the lifecycle's two ends.</li>
+<li>Map refs: <strong>CISSP 3.10</strong> (this lesson); feeds <strong>CISSP 8.1</strong> (security in the SDLC) and <strong>2.4</strong> (data lifecycle).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

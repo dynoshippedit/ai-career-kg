@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Site and facility design: security before the first brick | Learn Computer Stuff</title>
+<meta name="description" content="Review a facility design against CPTED, layered defense, and site-selection factors, writing findings fixable at the design stage. A free lesson in the security guidebook, serving CISSP objective 3.8.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/facility-design/">
+<meta property="og:title" content="Site and facility design: security before the first brick | Learn Computer Stuff"><meta property="og:description" content="Review a facility design against CPTED, layered defense, and site-selection factors, writing findings fixable at the design stage. A free lesson in the security guidebook, serving CISSP objective 3.8.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/facility-design/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Site and facility design: security before the first brick","item":"https://learncomputerstuff.dev/g/facility-design/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Site and facility design: security before the first brick</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Site and facility design: security before the first brick</h1>
+<p class="lede prose">Every control in this guidebook assumes an attacker who arrives over the network. But the server has a street address, a loading dock, a cleaning crew, and a power feed — and the cheapest way past a firewall is often a door. Site and facility design is the discipline of making the <em>physical</em> environment hostile to attack and friendly to legitimate use, starting before construction: where the building sits, how its spaces are arranged, how each layer from the property line to the server rack delays, detects, and deters. It shows up in the data-center tour where the guide points out the mantrap with practiced pride, in the office whose parking lot lighting was a security decision, in the site-selection memo that rejected the flood plain, and in the CISSP as the domain where information security remembers it has a body. Design-phase decisions are nearly free; retrofit is ruinous — which is why this lesson exists at the design stage, not after the break-in.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (review a facility design against CPTED, layered defense, and site selection — findings with recommendations)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>; no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.8</strong> — site and facility design principles: CPTED, layered defense, and site selection.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every control in this guidebook assumes an attacker who arrives over the network. But the server has a street address, a loading dock, a cleaning crew, and a power feed — and the cheapest way past a firewall is often a door. Site and facility design is the discipline of making the <em>physical</em> environment hostile to attack and friendly to legitimate use, starting before construction: where the building sits, how its spaces are arranged, how each layer from the property line to the server rack delays, detects, and deters. It shows up in the data-center tour where the guide points out the mantrap with practiced pride, in the office whose parking lot lighting was a security decision, in the site-selection memo that rejected the flood plain, and in the CISSP as the domain where information security remembers it has a body. Design-phase decisions are nearly free; retrofit is ruinous — which is why this lesson exists at the design stage, not after the break-in.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can assess threats and rate risk (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>) — the facility's threat environment (crime, natural hazard, adversary capability) is this lesson's input.</li>
+<li>No tools. The work product is a facility design review: CPTED assessment, layered-defense analysis, site-selection evaluation, findings with recommendations.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>CPTED: crime prevention through environmental design.</strong> The premise, developed from Oscar Newman's defensible-space work and codified in CPTED practice: the proper design and use of the built environment reduces both the incidence and the fear of crime. Four strategies:</p>
+<ul>
+<li><strong>Natural surveillance.</strong> Design spaces so legitimate users can see and be seen — windows overlooking entrances and parking, open sightlines, lighting that eliminates hiding places. The mechanism is perceived risk of observation: offenders avoid places where they feel watched. A reception desk with sightlines to the lobby and the parking lot is a control; a solid wall facing the parking lot is an invitation.</li>
+<li><strong>Natural access control.</strong> Guide movement through the environment — defined entrances, pathways that channel visitors past observation points, landscaping and barriers that make the intended route the easy route and other routes effortful. Thorny plantings under ground-floor windows, bollards that stop vehicles but not pedestrians, a single public entrance with all other doors alarmed: the environment says "this way" without a guard having to.</li>
+<li><strong>Territorial reinforcement.</strong> Express ownership — signage, maintained landscaping, clear transitions from public to semi-private to private space. People defend territory they feel is theirs; offenders read the same signals. The well-kept facility with clear boundaries communicates "someone watches this place" before any camera does.</li>
+<li><strong>Maintenance.</strong> The "broken windows" insight applied to facilities: neglected space signals that nobody is watching, which invites the behavior that further degrades it. Maintenance is a security control with a landscaping budget — graffiti removed promptly, lighting repaired immediately, landscaping kept to preserve sightlines.</li>
+</ul>
+<p><strong>Layered defense (defense in depth, physically).</strong> No single physical barrier stops a determined attacker; layers buy <em>time</em> and <em>detection opportunities</em>, and time is what lets response arrive. The standard layering, outside in: <strong>deterrence</strong> (visible measures that persuade the attacker to choose another target — lighting, signage, fencing), <strong>the property perimeter</strong> (fences, gates, vehicle barriers — the first delay), <strong>the building perimeter</strong> (walls, locked doors, windows — the second delay), <strong>interior zoning</strong> (public, semi-private, private, restricted areas with increasing controls — the visitor never reaches the third floor without passing two checkpoints), and <strong>the asset itself</strong> (the locked rack, the safe, the encrypted drive — the last delay, protecting the thing even when every layer above has failed). Each layer has a designed delay time and a detection mechanism; a layer with no detection is just a slower defeat, and a layer with no delay is just an alarm with no response time.</p>
+<p><strong>Site selection factors.</strong> Before the building exists, the site is the decision:</p>
+<ul>
+<li><strong>Threat environment:</strong> local crime patterns, civil-stability history, proximity to high-risk neighbors (chemical plants, symbolic targets that attract attention you didn't order). The threat assessment from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> is the input — the site inherits its neighborhood.</li>
+<li><strong>Natural hazards:</strong> flood plains, seismic zones, hurricane and tornado exposure, wildfire risk. FEMA's risk-management resources frame the analysis: identify the hazards, assess exposure, and either avoid or engineer for them. A data center in a flood plain is a design decision to regret at leisure.</li>
+<li><strong>Infrastructure:</strong> power grid reliability and dual-feed availability, telecommunications diversity (two carriers, two paths — one backhoe should not isolate you), water for cooling and fire suppression, transportation access for staff and emergency services.</li>
+<li><strong>Visibility and symbolism:</strong> high-profile locations attract attention; discreet facilities attract less. The decision cuts both ways — a visible headquarters deters petty crime and invites targeted attention — and it must be made deliberately, not inherited from the real-estate listing.</li>
+<li><strong>Emergency response:</strong> proximity and capability of police, fire, and medical response; the facility's own muster points and evacuation routes designed before occupancy.</li>
+<li><strong>Legal and regulatory:</strong> zoning, environmental constraints, data-residency obligations that make some jurisdictions unsuitable regardless of their other virtues.</li>
+</ul>
+<p><strong>The design review method.</strong> Walk the design (or the existing facility) from the property line inward, layer by layer, asking three questions per layer: <em>deter</em> (does it discourage the attempt?), <em>delay</em> (how long does it slow an attacker?), <em>detect</em> (who notices, and how fast does response arrive?). Record CPTED observations per space (surveillance, access control, territoriality, maintenance). Evaluate the site against the six selection factors. Findings become recommendations with the same honesty as any assessment: the loading dock with no natural surveillance gets a finding, not a shrug.</p>
+<h3>Worked example: Harborline Logistics — distribution hub design review</h3>
+<p><strong>The facility (fictional).</strong> Harborline is building a regional distribution hub: a 40,000-square-foot warehouse with offices, a small data closet (the on-premise end of the network from <a href="/g/arch-vuln-assessment/"><code>e-arch-vuln-assessment</code></a>), truck bays on the east side, employee parking on the west, in a light-industrial park outside a mid-size city. The site sits outside the mapped flood plain, on a seismic-low grid, with dual power feeds available.</p>
+<p><strong>CPTED assessment (per space):</strong></p>
+<ul>
+<li><em>Employee parking (west):</em> FAIL — natural surveillance. The lot sits behind the building relative to the offices; no windows overlook it, lighting is specified at the code minimum, and landscaping plans show dense shrubs along the lot's far edge — hiding places by design. <em>Recommendation:</em> relocate the lot to the building's south face within office sightlines, raise lighting above minimum, replace dense shrubs with low plantings that preserve sightlines.</li>
+<li><em>Truck bays (east):</em> PARTIAL — natural access control. The bay apron is well-defined with bollards separating pedestrian and vehicle paths (pass), but the design shows an unfenced service road running behind the bays with no gate — an unobserved approach (fail). <em>Recommendation:</em> gate the service road; the fence line must be continuous or it is decoration.</li>
+<li><em>Main entrance:</em> PASS — territorial reinforcement. Clear public-to-private transition: signage, a defined visitor path channeled past the reception window, landscaping marking the boundary. The reception desk has sightlines to the entrance, the visitor lot, and the interior corridor — natural surveillance by design.</li>
+<li><em>Data closet:</em> FAIL — interior zoning. The closet sits off the main ground-floor corridor with a standard office door and a keypad — one layer between the public corridor and the network core. <em>Recommendation:</em> relocate to a second-floor restricted zone (two interior checkpoints from any public space) or, minimum, upgrade to a mantrap-style vestibule with logging.</li>
+</ul>
+<p><strong>Layered defense analysis (outside in):</strong></p>
+<ol>
+<li><em>Deterrence:</em> perimeter lighting and signage specified (pass); no visible camera coverage of the parking lot (fail — deterrence requires the measures be <em>seen</em>).</li>
+<li><em>Property perimeter:</em> 8-foot fence on three sides; the fourth side is the service road (fail — see above). Vehicle barriers at the truck entrance (pass).</li>
+<li><em>Building perimeter:</em> solid walls, minimal ground-floor windows on east/west (pass — fewer openings, fewer problems); all personnel doors with access control, alarmed (pass).</li>
+<li><em>Interior zoning:</em> public (lobby), semi-private (offices), private (warehouse floor), restricted (data closet, electrical room) — defined on the plans (pass), but the data closet's single-layer placement (fail — see above).</li>
+<li><em>Asset:</em> server rack with locking cabinet specified (pass); no safe for backup media (finding — see controls lesson).</li>
+</ol>
+<p><strong>Site selection evaluation:</strong> threat environment — light-industrial park, moderate property-crime history, no symbolic-target neighbors (acceptable); natural hazards — outside flood plain, low seismic, region has tornado exposure (tornado shelter designated in the plans — pass); infrastructure — dual power feeds available, two telecom carriers with diverse paths (pass); visibility — discreet industrial location (acceptable for a distribution hub); emergency response — fire station 1.2 miles, police substation 3 miles (pass); legal — zoning confirmed for the use (pass).</p>
+<p><strong>Findings summary:</strong> 5 findings (parking surveillance, service-road gap, data-closet zoning, camera visibility, backup-media storage), each with a recommendation and an owner (facilities manager) — the design-phase advantage: every fix here costs a plan revision, not a retrofit.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The Harborline hub review above, authored and self-reviewed in-session on 2026-10-10. Transcript: <code>runs/e-facility-design.log</code>.</p>
+<ol>
+<li><strong>Describe the facility and site.</strong> Fictional is fine: purpose, size, spaces, neighborhood, hazards. If you're reviewing a real site, start with the threat environment — crime, hazards, neighbors.</li>
+<li><strong>Walk the CPTED four per space.</strong> For each distinct space (parking, entrances, corridors, sensitive rooms), assess natural surveillance, natural access control, territorial reinforcement, and maintenance. Write the specific observation, not "CPTED considered."</li>
+<li><strong>Analyze the layers outside in.</strong> Deterrence, property perimeter, building perimeter, interior zoning, asset. For each: what deters, what delays (estimate minutes), what detects, and how fast response arrives. A layer with no detection gets flagged.</li>
+<li><strong>Evaluate the site.</strong> The six selection factors, pass/fail/acceptable with one-line rationale each. Hazards you can't engineer away are findings, not footnotes.</li>
+<li><strong>Write findings with recommendations.</strong> Each finding: the observation, the principle or layer it violates, the recommendation, the owner. Design-phase findings note the cost advantage explicitly — "plan revision now vs retrofit later."</li>
+<li><strong>Close out.</strong> The review document: CPTED table, layer analysis, site evaluation, findings register. The controls lesson (<a href="/g/facility-controls/"><code>e-facility-controls</code></a>) implements what this lesson's findings require.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Review a facility you can walk — your office, your apartment building's common areas, a site you know. Walk it outside-in, assess the CPTED four per space, and write five findings.</p>
+<p><strong>Success test:</strong> At least one finding is a CPTED failure (sightlines, access control, territoriality, or maintenance) rather than a missing gadget — the design lens, not the shopping list. At least one finding surprises the facility's occupants when you tell them; the obvious findings are the ones everyone already discounted.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Gadgets before design.</strong> Cameras and card readers specified before the sightlines and zoning are right. Technology enforces a design; it cannot substitute for one — a camera watching a blind corner the architecture created is an expensive witness.</li>
+<li><strong>The discontinuous perimeter.</strong> Fencing on three sides with an open service road, a loading dock propped open, the "temporary" gate left unlocked. A perimeter is binary: continuous or decorative.</li>
+<li><strong>Detection without delay, delay without detection.</strong> The alarmed door with no response plan; the fence nobody monitors. Layers need both: time for response to arrive, and someone noticing in time to use it.</li>
+<li><strong>Interior zoning by org chart.</strong> Zones drawn around departments instead of sensitivity — the data closet off the public corridor because "IT sits near the lobby." Zone by what needs protection, not by who sits where.</li>
+<li><strong>Maintenance as non-security.</strong> The burned-out parking-lot light, the overgrown shrubs, the broken gate latch — each a small CPTED failure that compounds. Maintenance budgets are security budgets; treat the work order queue as a findings register.</li>
+<li><strong>Site selection by real estate.</strong> The site chosen for price and highway access, with the flood plain discovered during the insurance quote. Threat environment and hazards are selection criteria, not due-diligence afterthoughts.</li>
+<li><strong>Designing for the last incident.</strong> The mantrap installed after the tailgating incident, while the unobserved parking lot goes unreviewed. Review the whole facility, not the scar tissue.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>LISC: Crime Prevention Through Environmental Design (2-pager)</strong> (<a href="https://lisc.org">lisc.org</a>) — <em>read</em> the four strategies and the practice examples; short, concrete, free. The CPTED canon in two pages.</li>
+<li><strong>CISA: Physical Security</strong> (<a href="https://cisa.gov">cisa.gov</a>) — <em>read</em> the protective-measures guidance; <em>skim</em> the sector-specific material. The operational companion: what measures exist and how they're chosen.</li>
+<li><strong>FEMA: Risk Management</strong> (<a href="https://fema.gov">fema.gov</a>) — <em>read</em> the hazard-identification and assessment framing for the site-selection factors; natural hazards are selection criteria.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NIST SP 800-53 Rev. 5, PE family</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; the physical/environmental controls in catalog form — the implementation language for this lesson's findings.</li>
+<li><strong>LAPD: Crime Prevention Through Environmental Design</strong> (<a href="https://lapdonline.org">lapdonline.org</a>) — free; a law-enforcement CPTED page with the three core strategies and practical recommendations — a good second voice.</li>
+<li><strong>FEMA: How to Use a Portable Fire Extinguisher</strong> (<a href="https://fema.gov">fema.gov</a> via <a href="https://wsu.edu">wsu.edu</a>) — free; fire classes and response basics — read before the controls lesson's fire section.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A warehouse has cameras covering the loading dock but the footage is reviewed only after incidents. Using the layer model, explain what's missing (deter/delay/detect) and the cheapest fix.</li>
+<li>An office's parking lot sits behind the building with no window sightlines and code-minimum lighting. Name the CPTED strategy violated, the offender's-eye reasoning, and two design fixes that aren't cameras.</li>
+<li>A site is cheap, highway-adjacent, and in a mapped flood plain. The team plans to "engineer for it." Name the two site-selection questions they must answer before that plan is credible, and what answer would kill the site.</li>
+<li>A data closet sits off the public corridor behind a keypad door. Analyze it in layers: which layers protect it, what's missing, and why the keypad alone is insufficient.</li>
+<li>Predict the failure sequence when facility maintenance is treated as non-security: name the first three degradations, who notices each (if anyone), and the incident they eventually enable.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your facility design review — CPTED assessment per space, layered-defense analysis outside in (deter/delay/detect per layer), site-selection evaluation against the six factors, and the findings register with recommendations and owners — for the Harborline hub in your own words, or for a facility you can walk.</p>
+<p><strong>Honest claim:</strong> "I can review a facility's design against CPTED, layered defense, and site-selection factors, and write findings that are fixable at the design stage."</p>
+<p><strong>Can't claim yet:</strong> "I can design the physical security systems" — the hardware specification is the controls lesson's work (<a href="/g/facility-controls/"><code>e-facility-controls</code></a>).</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/facility-controls/"><code>e-facility-controls</code></a> — this lesson's findings become that lesson's checklist rows: design requires, controls implement.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the threat environment that opens every facility review; reread its threat-source analysis as site input.</li>
+<li><a href="/g/platform-security/"><code>e-platform-security</code></a> — the server in the data closet whose boot you attested sits in the building this lesson reviewed.</li>
+<li>Map refs: <strong>CISSP 3.8</strong> (this lesson); feeds <strong>CISSP 7.14</strong> (physical security implementation).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

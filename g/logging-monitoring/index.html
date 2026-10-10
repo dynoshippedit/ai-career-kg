@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logging and monitoring operations: deciding what gets watched, and by whom | Learn Computer Stuff</title>
+<meta name="description" content="How to design the logging and monitoring program — event taxonomy, retention schedule, log integrity, and the SOC workflow that turns logs into detections. A free lesson in the security guidebook, serving CISSP objective 7.2.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/logging-monitoring/">
+<meta property="og:title" content="Logging and monitoring operations: deciding what gets watched, and by whom | Learn Computer Stuff"><meta property="og:description" content="How to design the logging and monitoring program — event taxonomy, retention schedule, log integrity, and the SOC workflow that turns logs into detections. A free lesson in the security guidebook, serving CISSP objective 7.2.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/logging-monitoring/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Logging and monitoring operations: deciding what gets watched, and by whom","item":"https://learncomputerstuff.dev/g/logging-monitoring/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Logging and monitoring operations: deciding what gets watched, and by whom</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Logging and monitoring operations: deciding what gets watched, and by whom</h1>
+<p class="lede prose">Every detection the SOC ever makes rests on a decision somebody made months earlier: log this event, keep it this long, send it to the people watching. Logging and monitoring operations is the discipline of making those decisions deliberately — the event taxonomy (what's worth recording), the retention policy (how long each category lives, and where), and the monitoring program (who watches, how alerts get tuned, how coverage is measured). It shows up in the breach where the evidence aged out at 30 days, in the SOC drowning in unactionable alerts, and in the audit finding that nobody reviews the firewall logs anyone. SOC managers, detection engineers, and GRC analysts live here. Note the split with <a href="/g/log-sources/"><code>c-log-sources</code></a>: that lesson taught you to parse a log line. This lesson teaches the organization's decisions about which log lines exist at all, how long they survive, and what the watch floor does with them.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design a logging program — what to log, retention, and the SOC workflow that consumes it)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/log-sources/"><code>c-log-sources</code></a> (reading logs — this lesson is the program that produces them), <a href="/g/soc-triage/"><code>c-soc-triage</code></a> (the analyst workflow this lesson staffs and tunes); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.2</strong> — logging and monitoring as an operations discipline: event selection, retention, and the monitoring program.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every detection the SOC ever makes rests on a decision somebody made months earlier: log this event, keep it this long, send it to the people watching. Logging and monitoring operations is the discipline of making those decisions deliberately — the event taxonomy (what's worth recording), the retention policy (how long each category lives, and where), and the monitoring program (who watches, how alerts get tuned, how coverage is measured). It shows up in the breach where the evidence aged out at 30 days, in the SOC drowning in unactionable alerts, and in the audit finding that nobody reviews the firewall logs anyone. SOC managers, detection engineers, and GRC analysts live here. Note the split with <a href="/g/log-sources/"><code>c-log-sources</code></a>: that lesson taught you to parse a log line. This lesson teaches the organization's decisions about which log lines exist at all, how long they survive, and what the watch floor does with them.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read logs from <a href="/g/log-sources/"><code>c-log-sources</code></a> — you know what an event record contains, which is the raw material this lesson budgets.</li>
+<li>You know the triage workflow from <a href="/g/soc-triage/"><code>c-soc-triage</code></a> — this lesson designs the staffing, tuning, and coverage around it.</li>
+<li>No tools. The work products are documents: a logging policy excerpt, a retention schedule, and a SOC workflow design. Primary spine: <strong>NIST SP 800-92</strong> (Guide to Computer Security Log Management, September 2006 — old, and the lesson is honest about what's changed since).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Logs are not exhaust; they are instrumentation you choose to install. The operations view has four decisions.</p>
+<p><strong>What to log: the event taxonomy.</strong> You cannot log everything — volume, cost, and noise forbid it — so you decide per category. SP 800-92's enduring contribution is the log-management lifecycle: <strong>generation, transmission, storage, analysis, disposal</strong>. Generation is the decision point: which events, from which sources, at what verbosity. The working taxonomy most programs converge on: <strong>authentication events</strong> (successes and failures — the highest signal-per-byte category in existence); <strong>authorization decisions</strong> (access granted/denied, privilege use); <strong>system and service events</strong> (starts, stops, crashes, configuration changes); <strong>network security events</strong> (firewall denies, IDS alerts, DNS queries at the boundary); <strong>application events</strong> (transactions, errors, admin actions); and <strong>physical/environmental events</strong> (badge access, power, temperature — the <a href="/g/physical-security/"><code>e-physical-security</code></a> feed). Each category gets a required source list: authentication from the IdP and every server, DNS from the resolvers, and so on. The test of the taxonomy is coverage against the threats you care about: for each detection your program claims, name the log source that feeds it. A detection with no source is a wish.</p>
+<p><strong>Integrity and time: the two properties that make logs evidence.</strong> A log you can't trust is worse than no log — it invites confident wrong conclusions. Two controls carry the weight. <strong>Time synchronization:</strong> every source on NTP (or equivalent), because correlation across sources is meaningless if the clocks disagree by minutes; the policy names the time source, the allowed skew, and the alert when a host drifts. <strong>Integrity protection:</strong> logs transmitted over protected channels, stored where the generating system can't rewrite them (append-only forwarding to a central collector), with access restricted to the SOC and auditors. If an attacker who compromises a server can edit that server's local logs, the local logs are the attacker's alibi — centralize first, then analyze.</p>
+<p><strong>Retention: how long each category lives, and where.</strong> Retention is a three-way negotiation between investigation needs, legal obligations, and storage cost. The standard structure is <strong>tiers</strong>: hot (online, searchable, ~30–90 days for high-volume categories), warm (online but slower, ~1 year), cold (archived, retrievable within days, multi-year for the categories law or policy requires). The schedule is per-category, not per-system: authentication logs might be hot 90 days / warm 1 year / cold 7 years (employment and legal actions run long), while debug-level application logs are hot 14 days and then gone. Two rules: retention periods are written with their justification (legal citation, investigation window, or explicit risk acceptance), and <strong>disposal is a procedure, not an accident</strong> — when the retention period ends, deletion follows the documented process, and litigation hold suspends it (the <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> link: your retention schedule is the evidence base, and the hold is what freezes it).</p>
+<p><strong>The monitoring program: who watches and how it improves.</strong> Logs nobody watches are archaeology. The program has three parts. <strong>The SOC workflow:</strong> tiered analysis — Tier 1 triages against playbooks (the <a href="/g/soc-triage/"><code>c-soc-triage</code></a> workflow), Tier 2 investigates the ambiguous, Tier 3 hunts and engineers detections — with defined handoffs, escalation criteria, and staffing for the hours you claim to cover (a "24/7 SOC" with one analyst on nights is a slogan). <strong>Alert tuning as a process, not an event:</strong> every alert has an owner, a false-positive rate that's measured, and a tuning loop — triage findings feed back to detection engineering, which adjusts thresholds, adds context, or retires the rule. An alert nobody tunes becomes either ignored (alert fatigue) or a pager that cries wolf; both are tuning failures. <strong>Coverage measurement:</strong> the program tracks what fraction of the event taxonomy is actually collected, what fraction of alerts have current tuning reviews, and mean time to detect/triage — the metrics that tell you whether monitoring is operating or merely installed. SP 800-92's age shows here: it predates the SIEM-to-XDR evolution and cloud-native log pipelines, but the lifecycle (generate → transmit → store → analyze → dispose) still describes every pipeline, whatever the vendor calls the boxes.</p>
+<h3>Worked example: Beacon Logistics — the logging program</h3>
+<p><strong>The company (fictional, continued from <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a>).</strong> Beacon Logistics, 120 staff, regional freight. The dispatch system is the crown jewel (4-hour RTO from the BIA). Today: each server keeps local logs, retention is "until the disk fills," and one analyst watches a SIEM nobody tuned since installation.</p>
+<p><strong>The event taxonomy (excerpt).</strong> Authentication (IdP, VPN, all servers — success and failure); dispatch-application transactions and admin actions; firewall denies and IDS alerts at both sites; DNS queries from internal resolvers; badge-access events from the office system. Each maps to a detection: impossible-travel logins need IdP successes; data-exfiltration hypotheses need firewall denies plus DLP; the ransomware scenario from <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> needs the dispatch app's admin-action log. Three claimed detections had no source — recorded as gaps, not coverage.</p>
+<p><strong>The retention schedule (excerpt, fictional).</strong></p>
+<p>| Category | Hot | Warm | Cold | Justification |</p>
+<p>|---|---|---|---|---|</p>
+<p>| Authentication | 90 days | 1 year | 7 years | employment/legal actions run long |</p>
+<p>| Dispatch app transactions | 90 days | 1 year | 3 years | contract disputes; BIA-critical process |</p>
+<p>| Firewall/IDS | 30 days | 1 year | — | high volume; investigation window is 1 year |</p>
+<p>| DNS | 30 days | 6 months | — | threat-hunt window |</p>
+<p>| Application debug | 14 days | — | — | troubleshooting only |</p>
+<p><strong>Integrity and time.</strong> All sources on the internal NTP pair; the SIEM alerts on &gt;60s skew. Logs forward to the central collector over TLS; the collector is append-only for analysts (Tier 1 can read, only the platform team can administer — separation of duties from <a href="/g/secops-concepts/"><code>e-secops-concepts</code></a>).</p>
+<p><strong>The SOC workflow.</strong> Two analysts cover business hours; nights and weekends go to a contracted MDR with a 15-minute SLA and a defined escalation path to Beacon's on-call. Tier 1 triages against five playbooks (phishing, impossible travel, malware alert, DLP, ransomware indicators); anything ambiguous escalates to the senior analyst (Tier 2), who also owns the tuning backlog. Every alert gets a quarterly tuning review: false-positive rate measured, thresholds adjusted or the rule retired with a written rationale. Coverage metric: percentage of taxonomy categories with verified collection — reviewed monthly, because collectors break silently.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the taxonomy, retention schedule, and SOC workflow above, authored and self-reviewed in-session on 2026-10-10 against SP 800-92's lifecycle. Transcript: <code>runs/e-logging-monitoring.log</code>.</p>
+<ol>
+<li><strong>Inventory the sources.</strong> For your fictional (or real) organization, list every log source by category: authentication, system, network security, application, physical. For each: where it lives now, whether it's centralized, its current retention. The "until the disk fills" entries are your first findings.</li>
+<li><strong>Write the taxonomy.</strong> Per category: required sources, verbosity, and the detection each source feeds. For every detection the program claims, name its source — unmapped detections become gaps with owners.</li>
+<li><strong>Set the retention schedule.</strong> Per category: hot/warm/cold tiers with periods and a written justification for each (legal, investigation window, or risk acceptance with owner and date). Then the disposal procedure and the litigation-hold suspension rule.</li>
+<li><strong>Design integrity and time.</strong> Name the time source, the skew threshold, and the alert. Describe the forwarding path and who can read vs. administer the collector — write the separation of duties explicitly.</li>
+<li><strong>Design the watch floor.</strong> Tiers, handoffs, escalation criteria, hours actually covered (name the night/weekend arrangement honestly). Five starter playbooks for Tier 1. The tuning loop: who owns each alert, how false-positive rate is measured, the quarterly review with retire-or-retune decisions.</li>
+<li><strong>Define the coverage metrics.</strong> Percentage of taxonomy with verified collection, alert tuning currency, mean time to detect and triage. Pick the review cadence and the owner who reads them — metrics nobody reads are decoration.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> For a system you control, check three things: the oldest entry in your authentication log (is retention what you think?), whether all your hosts agree on time within a minute, and whether any log you rely on lives only on the machine that generates it. Write the findings as a mini retention-and-integrity assessment.</p>
+<p><strong>Success test:</strong> You find at least one gap — a log that ages out faster than you assumed, a clock that's drifted, or a critical log with no central copy. If everything matches your assumptions, you didn't check; you recalled.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"Until the disk fills."</strong> The default retention policy of every unmanaged system — and the reason investigations die at day 31. Retention is a decision with a justification, not a side effect of disk size.</li>
+<li><strong>Logs nobody watches.</strong> Collection without monitoring is archaeology with extra steps. If no human or tuned automation reads it, the budget spent collecting it bought nothing.</li>
+<li><strong>The unmapped detection.</strong> The program claims to detect lateral movement; no log source records the authentication events that would show it. Map every detection to its source or stop claiming it.</li>
+<li><strong>Alert fatigue as a tuning failure.</strong> A thousand daily alerts, all ignored — the SOC didn't fail at triage, it failed at tuning. Every alert needs an owner and a measured false-positive rate.</li>
+<li><strong>Clock skew.</strong> Correlating events across sources with disagreeing clocks produces timelines that are fiction. Time sync is infrastructure, not a nice-to-have.</li>
+<li><strong>Local-only logs.</strong> The compromised server's logs, editable by the compromise. Centralize over protected channels, restrict write access, and treat local logs as a convenience copy.</li>
+<li><strong>Retention without disposal.</strong> Keeping everything forever "just in case" — until discovery, privacy law, or storage cost makes "everything" a liability. Disposal is part of the schedule, with litigation hold as the suspension.</li>
+<li><strong>Coverage decay.</strong> Collectors break, sources get decommissioned, new systems ship without forwarding. The monthly coverage check exists because pipelines rot silently.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, September 2006) — <em>read</em> the log-management lifecycle (generation, transmission, storage, analysis, disposal) and the log-source categories; <em>note</em> its age honestly — pre-SIEM-consolidation, pre-cloud, but the lifecycle still describes every pipeline.</li>
+<li><strong>NIST SP 800-53 Rev. 5, Audit and Accountability (AU) family</strong> — the control catalog this program is audited against; AU-2 (auditable events) is the taxonomy in control language, AU-9/AU-10 the integrity requirements. Find it via the SP 800-53 publication page (<a href="https://csrc.nist.gov">csrc.nist.gov</a>).</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CIS Critical Security Controls v8.1</strong> (<a href="https://cisecurity.org">cisecurity.org</a>) — free; the prioritized safeguard set — its audit-log-management guidance is the "what to do first" companion to 800-92's "how it all fits."</li>
+<li><strong>NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, February 2007) — free; the network-monitoring half of the program — what IDS/IPS sensors contribute to the collection.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A SOC claims to detect credential-stuffing against its VPN. The VPN logs only failures, retained 14 days, stored locally on the VPN appliance. Name the three distinct program failures (taxonomy, retention, integrity) and the fix for each.</li>
+<li>Explain why "collect everything, figure it out later" fails as a logging strategy — what are the three constraints that force the taxonomy decision, and which one bites first?</li>
+<li>Two servers disagree by eight minutes. An analyst builds an incident timeline from both. Explain, concretely, what goes wrong — and what the policy should have specified to prevent it.</li>
+<li>Distinguish a test of activity from a test of effectiveness for monitoring: which of the coverage metrics validates that the SOC actually detects, and why is "alerts per day" the wrong metric?</li>
+<li>Predict the state of a SIEM two years after installation with no tuning process: what do the alert queue, the rule set, and the analysts' behavior look like?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your event taxonomy (categories, sources, detection mapping with gaps), retention schedule (tiers, periods, justifications, disposal procedure, litigation-hold rule), integrity-and-time design, and SOC workflow (tiers, handoffs, coverage hours, tuning loop, metrics) — for the Beacon worked case in your own words, or better, for an environment you actually run.</p>
+<p><strong>Honest claim:</strong> "I can design the logging and monitoring program — decide what's worth recording, how long it lives, how it's protected, and how the watch floor turns it into detections that stay tuned."</p>
+<p><strong>Can't claim yet:</strong> "I can engineer detections at scale" — writing and tuning production detection logic across a large estate (the <a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> and <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a> hunting territory) is its own practice; this lesson taught the program that makes that work possible.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/log-sources/"><code>c-log-sources</code></a> — the analyst's view of what this program produces; reread it as the consumer of your taxonomy.</li>
+<li><a href="/g/soc-triage/"><code>c-soc-triage</code></a> — the Tier 1 workflow your staffing and playbooks serve.</li>
+<li><a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> — your retention schedule is the evidence base; the litigation hold freezes it.</li>
+<li><a href="/g/secops-concepts/"><code>e-secops-concepts</code></a> — separation of duties applied to log administration.</li>
+<li>Map refs: <strong>CISSP 7.2</strong> (this lesson); feeds <strong>CISSP 7.1</strong> (investigations) and <strong>7.7</strong> (detective measures).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-logging-monitoring.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

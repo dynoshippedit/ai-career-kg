@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security governance: aligning security with business strategy | Learn Computer Stuff</title>
+<meta name="description" content="Draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale. A free lesson in the security guidebook, serving CISSP objective 1.3.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/governance/">
+<meta property="og:title" content="Security governance: aligning security with business strategy | Learn Computer Stuff"><meta property="og:description" content="Draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale. A free lesson in the security guidebook, serving CISSP objective 1.3.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/governance/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Security governance: aligning security with business strategy","item":"https://learncomputerstuff.dev/g/governance/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Security governance: aligning security with business strategy</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Security governance: aligning security with business strategy</h1>
+<p class="lede prose">Governance is the reason security has a budget, a mandate, and someone to answer to. It shows up in the board meeting where the CISO explains why the security program costs what it costs; in the audit finding that says "tone at the top" is missing; in the charter that decides whether the CISO reports to the CIO (and gets overruled on every expensive control) or to the CEO with a direct line to the board; and in the moment a company picks a control framework — CSF, ISO 27001, SOC 2 — and that choice quietly shapes every security decision for five years. Management runs the controls; governance decides which controls are worth running, and why.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (risk language, qualitative scales); <a href="/g/board-communication/"><code>e-board-communication</code></a> (how governance reports upward). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.3</strong> — security governance: aligning security with business strategy.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Governance is the reason security has a budget, a mandate, and someone to answer to. It shows up in the board meeting where the CISO explains why the security program costs what it costs; in the audit finding that says "tone at the top" is missing; in the charter that decides whether the CISO reports to the CIO (and gets overruled on every expensive control) or to the CEO with a direct line to the board; and in the moment a company picks a control framework — CSF, ISO 27001, SOC 2 — and that choice quietly shapes every security decision for five years. Management runs the controls; governance decides which controls are worth running, and why.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can write a risk statement with reasons from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — governance consumes risk as its primary input.</li>
+<li>You have seen the board-facing end of this in <a href="/g/board-communication/"><code>e-board-communication</code></a> — this lesson builds the machinery the board memo reports on.</li>
+<li>No tools. The work product is a governance charter for a fictional company — the document that says who decides, who reports to whom, and what "good" looks like.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Governance versus management.</strong> The distinction is the whole lesson in one line: governance <em>directs and oversees</em>; management <em>executes</em>. The board and senior leadership set risk appetite, approve strategy, and hold people accountable; the security team implements controls, runs operations, and reports results. When the two blur — the board dictating firewall rules, or the CISO setting risk appetite alone in a spreadsheet — accountability breaks. Governance answers three questions continuously: are we doing the right things (alignment), are we doing them well (oversight), and who is accountable when we are not (responsibility).</p>
+<p><strong>The Govern function.</strong> NIST's Cybersecurity Framework 2.0 (CSWP 29, February 26, 2024 — the primary source for this lesson, fetched in-session) made governance explicit: <strong>Govern (GV)</strong> is the sixth function, placed at the center, informing and underpinning the other five (Identify, Protect, Detect, Respond, Recover). The framework as a whole states outcomes in 22 Categories and 106 Subcategories — what to achieve, not how. Govern's message: cybersecurity risk management strategy, roles and responsibilities, policy, and oversight are not support activities; they are the frame everything else hangs in. Two facts the lesson insists on because the market routinely gets them wrong: the CSF describes outcomes, never a checklist — and there is no such thing as "CSF certified."</p>
+<p><strong>Roles and reporting lines.</strong> Governance is people with named accountabilities:</p>
+<ul>
+<li><strong>The board (or equivalent):</strong> owns cybersecurity risk as enterprise risk. Sets risk appetite — how much risk the organization will accept in pursuit of its objectives — and holds leadership accountable. A board that has never discussed risk appetite has not governed.</li>
+<li><strong>Senior leadership / CEO:</strong> translates appetite into strategy and resources. The CISO's reporting line is the single most informative fact about an organization's governance: to the CEO or board means security risk is treated as enterprise risk; buried three levels under the CIO means it is treated as an IT cost center, and the budget fights will show it.</li>
+<li><strong>The CISO:</strong> owns the security program — strategy, policy, risk reporting. Accountable for the program's effectiveness, not for preventing all incidents (an ungovernable mandate).</li>
+<li><strong>The risk committee:</strong> the forum where risk decisions get made with business context — accepts, mitigates, or escalates risks. Without one, risk decisions happen by default in hallways.</li>
+<li><strong>Control owners and process owners:</strong> the people who actually operate controls and report on them. Governance reaches them through policy and metrics, not through the CISO doing their jobs.</li>
+</ul>
+<p>The three-lines model (a standard governance frame: operational management as the first line, risk and compliance functions as the second, internal audit as the third) is worth knowing as vocabulary — it explains why internal audit reporting to the function it audits is a governance failure.</p>
+<p><strong>Business alignment.</strong> Security strategy derives from business objectives, not threat feeds. The method: (1) state what the business is trying to do this year; (2) identify which security risks threaten those objectives; (3) fund those risks first. A program that cannot trace its top five initiatives to business objectives is a hobby funded by accident. Risk appetite is the written form: "we accept X risk in pursuit of Y" — which also tells the security team what <em>not</em> to fund.</p>
+<p><strong>Control framework selection.</strong> The framework is the language governance speaks — and the choice is a governance decision with a rationale, not a procurement default:</p>
+<ul>
+<li><strong>NIST CSF 2.0:</strong> outcomes-based, free, flexible; strong where the organization needs a common language across business and technical stakeholders. No certification exists — anyone selling "CSF certification" is selling something else.</li>
+<li><strong>ISO/IEC 27001:</strong> the certifiable management system (Clauses 4–10) with Annex A's 93 controls as a reference catalog selected by risk assessment — the choice when customers or regulators expect an independently audited ISMS. The standard itself is a paid document; the lesson teaches from free equivalents and says so.</li>
+<li><strong>SOC 2:</strong> an attestation report (not a certificate) against the AICPA Trust Services Criteria, Type I (design at a point in time) or Type II (operating effectiveness over a period) — the choice when customers demand third-party assurance about a service organization.</li>
+</ul>
+<p>The rationale matters more than the choice: "we chose CSF 2.0 because our board needs outcomes language and we have no certification driver" is governance; "everyone uses ISO" is fashion.</p>
+<p><strong>Policy as a governance instrument.</strong> Governance expresses itself downward through policy — the top tier of the document hierarchy in <a href="/g/policy-docs/"><code>e-policy-docs</code></a>. The charter establishes that policy exists, who approves it, and how exceptions are handled. The exception process is load-bearing: no exception path means silent bypass; a documented path (requester, risk statement, approver, expiry date) turns non-compliance into a governed decision.</p>
+<p><strong>Oversight cadence.</strong> Governance is a loop: the committee meets on schedule, metrics flow upward (see <a href="/g/board-communication/"><code>e-board-communication</code></a>), the charter is reviewed annually. A charter never revisited is a historical document, not governance.</p>
+<p><strong>The AI angle.</strong> Per the ISC2 exam guidance's per-domain mapping, Domain 1 includes AI governance: who owns decisions about AI deployment, training-data use, and model risk. The charter assigns this explicitly — AI risk is enterprise risk, so it is a row in the same governance table, not a separate empire.</p>
+<h3>Worked example: Copperline Freight — security governance charter (fictional)</h3>
+<p><strong>The company (fictional).</strong> Copperline Freight: 240 staff, three sites, regional logistics. Newly hired CISO, no written charter, security budget set by the CIO as IT overhead, no risk committee.</p>
+<p><strong>The charter (abridged — the full version is the artifact):</strong></p>
+<ul>
+<li><strong>Mission alignment statement:</strong> "The security program exists to protect Copperline's ability to move freight and bill for it — dispatch availability, shipment-data confidentiality, and customer trust — within the risk appetite set by the board. Security initiatives are prioritized by their effect on these objectives."</li>
+<li><strong>Roles and reporting:</strong> the CISO reports to the CEO, with a standing quarterly slot at the board and the right to escalate directly on critical risk. The CIO owns IT operations; the CISO owns security policy and risk reporting — the separation is written down because the old arrangement (CISO under CIO) is what starved the program. A risk committee (CEO, CFO, CIO, CISO, General Counsel) meets quarterly; it is the body that accepts or escalates risks — no risk acceptance is valid without a named owner and a review date.</li>
+<li><strong>Risk appetite (board-approved):</strong> Copperline accepts moderate operational risk to move fast on customer features, accepts <em>no</em> unmitigated risk to dispatch availability or customer shipment data, and requires board notification within one business day of any incident with suspected customer-data impact.</li>
+<li><strong>Framework selection rationale:</strong> NIST CSF 2.0 as the program language (outcomes-based, free, board-readable); ISO/IEC 27001 certification deferred — no customer or regulatory driver today, revisit if a major contract requires it (decision recorded with a review date, not abandoned). SOC 2 Type II commissioned for the customer tracking portal only, because enterprise prospects ask for it — scoped, not company-wide.</li>
+<li><strong>Policy authority:</strong> the CISO owns security policy; the risk committee approves it; exceptions require a written risk statement, a named approver, and an expiry date — expired exceptions revert to non-compliance and are reported as such.</li>
+<li><strong>AI governance:</strong> the CISO owns AI-system risk assessment (the dispatch-optimization model is in scope); deployment of any AI system affecting customers requires risk-committee review. Cross-reference: <a href="/g/ai-governance/"><code>ai-governance</code></a>.</li>
+<li><strong>Oversight cadence:</strong> quarterly risk-committee review of the risk register and metrics; annual charter review; annual framework-alignment check (Current vs Target profile sketch, per the CSF method).</li>
+</ul>
+<p><strong>Why this charter works:</strong> every element answers one of governance's three questions. Alignment: the mission statement and appetite tie security to freight movement. Oversight: the cadence and the metrics flow. Responsibility: every role is named, the reporting line is explicit, and the old failure (CISO under CIO) is corrected in writing rather than hoped away.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the charter above, authored and self-reviewed in-session on 2026-10-10 against NIST CSF 2.0's Govern function. Transcript: <code>runs/e-governance.log</code> (records the charter's scope, the framework rationale, and the review checklist — no commands to transcribe).</p>
+<ol>
+<li><strong>Write the mission alignment statement.</strong> One paragraph: what the business does, which security outcomes protect that, and the rule for prioritizing. If you cannot write it, you do not have alignment — you have a controls list.</li>
+<li><strong>Draw the reporting lines.</strong> CISO, CIO, CEO, board, risk committee, audit — as they are <em>and</em> as they should be. Name the gap explicitly (as the Copperline charter does with the old CISO-under-CIO arrangement).</li>
+<li><strong>Draft the risk appetite.</strong> One paragraph the board could actually approve: what is accepted, what is never accepted unmitigated, what triggers escalation. Absolute at the center, honest at the edges.</li>
+<li><strong>Choose the framework with a rationale.</strong> CSF 2.0, ISO/IEC 27001, SOC 2 — or a combination, scoped. Write the "because" sentence and the review date. "Everyone uses it" is not a rationale.</li>
+<li><strong>Define policy authority and exceptions.</strong> Who approves policy, and the exception path (requester, risk statement, approver, expiry). No expiry, no exception.</li>
+<li><strong>Set the cadence.</strong> Committee schedule, metrics flow, charter review date. Then put the review date in a calendar — governance that is not scheduled is not happening.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Draft the charter for an organization you know — your employer, your lab treated as an organization, or a fictional company of your own invention. Include all six elements from the walkthrough, with the "as-is versus should-be" reporting-lines diagram.</p>
+<p><strong>Success test:</strong> Your charter names a real reporting-line problem, states a risk appetite the decision-maker could sign, and justifies the framework choice in one honest paragraph. If every element was easy, the organization was fictional and too tidy — add the political constraint you omitted.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Governance theater.</strong> A charter exists, a committee meets, and no decision has ever changed because of either. Test: name the last risk decision the committee made. Silence is the diagnosis.</li>
+<li><strong>The buried CISO.</strong> Reporting three levels under the CIO, budget set as IT overhead, no board access. The org chart is the risk appetite statement — read it.</li>
+<li><strong>Risk appetite never written.</strong> Everyone assumes a different appetite; the security team gets blamed both for spending too much and for the incident. Write it down or accept the blame cycle.</li>
+<li><strong>Framework as checklist.</strong> Treating CSF subcategories as a to-do list, or claiming "CSF certification." The CSF states outcomes; certification against it does not exist.</li>
+<li><strong>Fashion frameworks.</strong> Choosing ISO 27001 because competitors have it, with no certification driver and no ISMS discipline — an expensive poster.- <strong>Policy without authority.</strong> Policies issued by a security team nobody empowered, with no approval path and no exception process. They are bypassed, and the bypass is the real policy.</li>
+<li><strong>Management doing governance.</strong> The CISO setting risk appetite alone, the board rubber-stamping. Appetite set without business ownership is not appetite — it is a guess with a signature.</li>
+<li><strong>The unreviewed charter.</strong> Written once, never revisited, describing an organization that no longer exists. The annual review date is load-bearing.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST Cybersecurity Framework 2.0</strong> (NIST CSWP 29, February 26, 2024) — <em>read</em> the Govern function (GV) and the framework's structure: 6 Functions, 22 Categories, 106 Subcategories, outcomes not actions. Free.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>ISACA COBIT framework overview</strong> (<a href="https://isaca.org">isaca.org</a>) — free; the governance-and-management framework — compare its governance/management split against this lesson's, and note where COBIT's process detail complements CSF's outcomes language.</li>
+<li><strong>NIST CSF 2.0 Organizational Profiles</strong> (<a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>) — free; the Current-vs-Target profile method your annual alignment check runs on.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A CISO reports to the CIO, the security budget is a fixed percentage of the IT budget, and the board has never discussed risk appetite. Name the three distinct governance failures and the single charter change that addresses the most important one.</li>
+<li>Explain why "we chose ISO/IEC 27001 because our competitors have it" fails as a framework rationale — and write the one-paragraph rationale that would pass.</li>
+<li>Distinguish governance from management using a concrete decision: who sets the organization's risk appetite, who implements the controls that enforce it, and what breaks when the CISO does both?</li>
+<li>A company claims "CSF certification" in a vendor questionnaire. Explain, from the CSF 2.0 document itself, why the claim is incoherent — and what the company should have claimed instead.</li>
+<li>Predict the state of a risk committee that meets quarterly but has never rejected a risk acceptance or escalated a risk: what is it actually doing, and what single test exposes it?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your governance charter (mission alignment, roles and reporting lines as-is and should-be, risk appetite, framework rationale, policy authority and exception path, AI governance assignment, oversight cadence) — for the Copperline worked case in your own words, or better, for a real organization you know.</p>
+<p><strong>Honest claim:</strong> "I can design the governance layer that keeps a security program pointed at the business's objectives — roles, reporting lines, risk appetite, framework choice with reasons, and the oversight loop that keeps it honest."</p>
+<p><strong>Can't claim yet:</strong> "I can run enterprise governance at scale" — multi-entity governance, regulated-industry board obligations, and merger integration are their own practice; this lesson taught the structure on one organization, which is where the judgment is formed.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>E-LEAD — <a href="/g/board-communication/"><code>e-board-communication</code></a></strong> — the upward half of the loop: reporting governance's results to the board.</li>
+<li><a href="/g/policy-docs/"><code>e-policy-docs</code></a>** — the downward instrument: policy, standards, procedures, guidelines.</li>
+<li><strong>E-GOV-AI — <a href="/g/ai-governance/"><code>ai-governance</code></a></strong> — AI governance as a row in the same table.</li>
+<li>Map refs: <strong>CISSP 1.3</strong> (this lesson); feeds <strong>CISSP 1.6</strong> (policy), <strong>1.9</strong> (risk management), and <strong>1.12</strong> (training governance).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

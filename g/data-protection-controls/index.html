@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data security controls: protecting data at rest, in transit, and in use | Learn Computer Stuff</title>
+<meta name="description" content="Select protective controls per data state — at rest, in transit, in use — with scoping, key management, DLP, and compliance mapping; the selection view above e-crypto-applied&#x27;s primitives. A free lesson in the security guidebook, serving CISSP objective 2.6.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/data-protection-controls/">
+<meta property="og:title" content="Data security controls: protecting data at rest, in transit, and in use | Learn Computer Stuff"><meta property="og:description" content="Select protective controls per data state — at rest, in transit, in use — with scoping, key management, DLP, and compliance mapping; the selection view above e-crypto-applied&#x27;s primitives. A free lesson in the security guidebook, serving CISSP objective 2.6.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/data-protection-controls/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Data security controls: protecting data at rest, in transit, and in use","item":"https://learncomputerstuff.dev/g/data-protection-controls/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Data security controls: protecting data at rest, in transit, and in use</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Data security controls: protecting data at rest, in transit, and in use</h1>
+<p class="lede prose">The primitives exist — encryption, hashing, access control — and the question is which to apply where. Data security controls are the selection discipline: given data in a particular state with a particular classification, which protective method, scoped to what, satisfying which requirement. It shows up in the "encrypt everything" mandate that nobody scoped, in the TLS-everywhere project that forgot the database backups, in the DLP alert queue nobody tunes, and in the breach where the data was encrypted at rest, in transit — and sitting in plaintext in application memory and logs.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · local demo run 2026-10-10</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (select protective controls per data state, scope them to a requirement, and map them to compliance)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> (what the primitives do — this lesson is the selection view, not the primitives view); <a href="/g/asset-classification/"><code>e-asset-classification</code></a> (the tiers that set the protection level); local demo runs on your own machine</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 2.6</strong> — data security controls and compliance: data states, scoping, standards selection, and protective methods.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The primitives exist — encryption, hashing, access control — and the question is which to apply where. Data security controls are the selection discipline: given data in a particular state with a particular classification, which protective method, scoped to what, satisfying which requirement. It shows up in the "encrypt everything" mandate that nobody scoped, in the TLS-everywhere project that forgot the database backups, in the DLP alert queue nobody tunes, and in the breach where the data was encrypted at rest, in transit — and sitting in plaintext in application memory and logs.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You know what the primitives do from <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — symmetric and asymmetric encryption, hashing, signatures, PKI, and the misuses that defeat them. This lesson teaches <em>selection</em>: which control for which state, and why.</li>
+<li>You have classification tiers from <a href="/g/asset-classification/"><code>e-asset-classification</code></a> — the control selected depends on the tier; the lesson's worked case selects per tier per state.</li>
+<li>Primary spine: <strong>NIST SP 800-111</strong> (Guide to Storage Encryption Technologies for End User Devices, November 2007) — free; <strong>NIST SP 800-53 Rev. 5</strong> (SC-28, SC-8, SC-12) — free; <strong>NIST CSF 2.0</strong> (PR.DS) — free.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Data has three states, and each state has different threats</strong> — which CSF 2.0 encodes as PR.DS-01 (at rest), PR.DS-02 (in transit), PR.DS-10 (in use):</p>
+<p>| State | Where | Threat | Control |</p>
+<p>|---|---|---|---|</p>
+<p>| At rest | Disk, database, backup tape | Stolen laptop, decommissioned drive | Encrypt stored data (SC-28) + access control — protects against <em>media</em> compromise, not the compromised app |</p>
+<p>| In transit | Moving across a network | Interception, modification on the path | TLS (SC-8, internal and external) — the failure mode is partial coverage: TLS at the edge, plaintext between services |</p>
+<p>| In use | Memory, application, screen | Compromised process, memory dump, plaintext in logs | Access enforcement, minimization, masking/tokenization — the state most programs under-protect |</p>
+<p><strong>Selection, not collection.</strong> The method per state is chosen against the classification tier and the threat: Public gets integrity protection; Confidential gets encryption in all three states; Restricted gets encryption plus need-to-know access, masking outside the vault, and no local copies. "Encrypt everything" is a slogan, not a selection.</p>
+<p><strong>Scoping: the control has a boundary, and the boundary is the decision.</strong> A control scoped to "the database" that doesn't cover the backups, the replicas, and the logs protects the database and nothing else. Under-scoping is the most common control failure — and the auditor's first question about any control is "what's in scope?"</p>
+<p><strong>Standards selection: name the authority.</strong> "We encrypt" is not a control description; "we encrypt data at rest with AES-256 via the platform's FIPS-validated module, keys in the KMS with annual rotation, per SC-28" is. Selecting the standard is a governance decision — it must be written down.</p>
+<p><strong>Key management is the control behind the control.</strong> SC-12's frame: keys are generated, distributed, stored, accessed, and destroyed per defined requirements — in an HSM/KMS (never in code), separated from the data, rotated on schedule and on compromise. The common failure is not weak algorithms — it is keys in the repository that never rotate.</p>
+<p><strong>DLP: the detective control for the exfiltration path.</strong> Data Loss Prevention monitors data in motion, in use, and at rest for policy violations — the control that catches what preventive controls miss. Taught honestly: DLP is a detection-and-response discipline, not a purchase. Its value comes from tuned policies built from the classification tiers, a staffed alert queue, and an exception process.</p>
+<p><strong>Compliance mapping: the control must trace to the requirement.</strong> Each selected control maps to the requirement it satisfies — regulation clause, contract term, framework subcategory (CSF 2.0 PR.DS gives the skeleton) — bidirectionally: requirement → control and control → requirement. The failure it prevents is the purchased-product fallacy: the tool exists, so the requirement is "met," without scoping, tuning, or evidence.</p>
+<p><strong>The in-use gap deserves its own paragraph.</strong> Every selection exercise should end with: "where is this data in plaintext, and who can see it?" Application memory, logs, caches, analytics pipelines — the in-use inventory is where the mature program spends its second year. Tokenization and masking are the characteristic controls: the application works with a token while the real value lives in the vault.</p>
+<h3>Local demo: a data-state inventory script (run 2026-10-10)</h3>
+<p><strong>Setup.</strong> A demo tree with four synthetic fixture files (invented values only). A small Python script walks the tree, matches content patterns, assigns data states by location heuristic, and prints the control each state calls for. The heuristics are labeled as heuristics — a real program would use the classification scheme and real discovery tooling. Real transcript:</p>
+<pre><code>root: /tmp/demo-d2/demo_tree
+note: all findings are heuristics on SYNTHETIC fixture files
+
+file: patient_export.csv
+  content signals: looks-like-SSN
+  state: at rest (on disk) -&gt; control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+  state: in use (recently created/modified by a process) -&gt; control: access enforcement (AC-3); minimize in memory
+
+file: public_readme.md
+  content signals: none
+  state: at rest (on disk) -&gt; control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+  state: in use (recently created/modified by a process) -&gt; control: access enforcement (AC-3); minimize in memory
+
+file: vault/backup_key.pem
+  content signals: looks-like-private-key
+  state: at rest (on disk) -&gt; control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+  state: in use (recently created/modified by a process) -&gt; control: access enforcement (AC-3); minimize in memory
+
+file: shared/quarterly_notes.txt
+  content signals: looks-like-password
+  state: at rest (on disk) -&gt; control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+  state: in transit (shared/copied across the network) -&gt; control: TLS in transit (SC-8); DLP egress note
+  state: in use (recently created/modified by a process) -&gt; control: access enforcement (AC-3); minimize in memory</code></pre>
+<p><strong>Read the result honestly.</strong> The script found the signals a real discovery tool would find — and its limits are the lesson: the "in use" heuristic is a teaching stand-in, not a detection; the suggestions are starting points, not selections (the demo doesn't know the classification tier); and the structural finding is that every file is in <em>multiple</em> states at once, so single-state controls always leave gaps.</p>
+<p>Full transcript: <code>runs/e-data-protection-controls.log</code> (dated 2026-10-10; Python 3.12.3; script and fixtures synthetic, authored in-session).</p>
+<h3>Worked example: Aster Diagnostics — control-selection matrix</h3>
+<p><strong>The company (fictional, continued).</strong> For each tier, the protective method per data state, the scoping note, and the compliance mapping. Standards: NIST; algorithms and key management per SC-12 (AES-256, platform FIPS-validated modules, KMS-held keys, annual rotation, documented destruction).</p>
+<p>| Tier | At rest (PR.DS-01) | In transit (PR.DS-02) | In use (PR.DS-10) | Scoping note | Maps to |</p>
+<p>|---|---|---|---|---|---|</p>
+<p>| Public | Integrity protection (signed releases, checksums) | TLS where available | Input validation; no special handling | Scope: public-facing systems only | Contractual integrity terms |</p>
+<p>| Internal | Platform encryption + access control (AC-3) | TLS (SC-8) | Access enforcement; minimize retention in logs | Scope: company systems; excludes personal devices by policy | Internal policy |</p>
+<p>| Confidential | Encrypted at rest (SC-28); keys in KMS, separated from data admins | TLS everywhere incl. service-to-service and replication (SC-8) | Access enforcement; masking in non-production; tokenization where feasible | Scope: LIMS, portal, warehouse, backups, replicas, logs — the copies from the lifecycle map | Breach-notification law; customer contracts |</p>
+<p>| Restricted | Encrypted at rest; need-to-know access lists, quarterly review | TLS; no email attachments (secure transfer w/ logging) | Vault-held values; tokens outside the vault; memory hygiene; no local copies | Scope: R&amp;D share, instrument PCs, key vault — enumerated, not described | Trade-secret protection; key-management policy |</p>
+<p><strong>DLP policy sketch (tuned to the tiers):</strong> monitor egress for Confidential and Restricted markers; block Restricted exfiltration outright, alert on Confidential; quarterly tuning review; staffed queue with 24-hour triage SLA. The policy is worthless without the last two items — stated in the document, not assumed.</p>
+<p><strong>Design decisions recorded (fictional, authored in-session):</strong></p>
+<ol>
+<li><strong>In-use gets the most new controls.</strong> The gap analysis found at-rest and in-transit largely covered and in-use largely ungoverned. Selection follows the gap, not the slogan.</li>
+<li><strong>The scope column enumerates.</strong> "LIMS, portal, warehouse, backups, replicas, logs" — not "all systems."</li>
+<li><strong>Key management is separated from data administration.</strong> The database team does not hold the backup encryption keys.</li>
+<li><strong>Non-production is masked.</strong> Analytics and test environments work with masked or tokenized data — the in-use control that prevents the "it was only the dev database" breach.</li>
+</ol>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — local demo run 2026-10-10.</strong> The "run" is the inventory script above (real transcript in <code>runs/e-data-protection-controls.log</code>) plus the control-selection matrix, authored and self-reviewed in-session on 2026-10-10. Steps:</p>
+<ol>
+<li><strong>Run the demo.</strong> Build the fixture tree, run the script, read the output. Write down the script's limits.</li>
+<li><strong>Inventory your states.</strong> Where is sensitive data at rest (every copy — use the lifecycle map), in transit (including service-to-service and replication), in use (memory, logs, non-production).</li>
+<li><strong>Select per tier per state.</strong> Fill the matrix. The in-use column will be the hardest — that difficulty is the finding.</li>
+<li><strong>Scope each control and name the standard.</strong> Enumerate what's in: systems, flows, copies, people. Algorithm, module, key location, rotation, destruction.</li>
+<li><strong>Sketch the DLP policy and map to requirements.</strong> Which tiers monitored where, block vs alert, tuning cadence, who watches the queue, triage SLA — then each control traced to the requirement it satisfies, bidirectionally.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Run the state inventory on a system you actually control — your laptop or homelab. Adapt the script (or do it by hand): list where your sensitive data rests, moves, and is used. Then answer the in-use question honestly: where is it in plaintext, and who can see it?</p>
+<p><strong>Success test:</strong> The inventory finds at least one in-use exposure you hadn't considered — plaintext in a log, an unmasked backup, a config file with a secret. Each finding gets a control decision (mask, tokenize, encrypt, delete) with a date.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The single-state program.</strong> Encrypted at rest, TLS in transit, plaintext in the logs and the analytics pipeline. Data lives in all three states; the program must cover all three.</li>
+<li><strong>Unscoped controls.</strong> The encryption exists; the scope excludes the backups, the replicas, and the dev database. The breach path is always through the unscanned copy.</li>
+<li><strong>The purchased-product fallacy.</strong> The DLP tool is bought, so the requirement is "met" — untuned, unwatched, unstaffed. A control without operation is a purchase order, not protection.</li>
+<li><strong>TLS at the edge only.</strong> The front door is encrypted; service-to-service traffic and replication streams are plaintext "because it's the internal network." The internal network is not a security boundary.</li>
+<li><strong>"Encrypt everything" as strategy.</strong> Uniform encryption without selection: effort spent where integrity was the need, gaps where in-use protection was the need. Selection follows tier, state, and threat — the matrix, not the slogan.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-111, Guide to Storage Encryption Technologies for End User Devices</strong> (November 2007; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> sections 3–4: the three solution types (full-disk, volume/virtual-disk, file/folder encryption), what each protects, and the selection guidance. Old but still the current revision; the solution-type framing transfers directly to the at-rest column.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (September 2020; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> SC-28 (protection of information at rest), SC-8 (transmission confidentiality and integrity), SC-12 (key establishment and management). These three are the at-rest, in-transit, and key-management controls in catalog language.</li>
+<li><strong>NIST CSF 2.0</strong> (CSWP 29, February 26, 2024; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> the Data Security category (PR.DS-01 data-at-rest, PR.DS-02 data-in-transit, PR.DS-10 data-in-use, PR.DS-11 backups): the three-state frame in framework language, and the compliance-mapping skeleton.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Cryptographic Storage Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>, free) — the practitioner checklist for the at-rest column: what to encrypt, how to store keys, the common mistakes.</li>
+<li><strong>OWASP Transport Layer Protection Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>, free) — the practitioner checklist for the in-transit column: TLS configuration, certificate handling, what to verify.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A company encrypts its database at rest and uses TLS for customer traffic, then suffers a breach via plaintext credentials in application logs. Name the data state that was unprotected, explain why neither existing control reached it, and select the control that would have (with its scope).</li>
+<li>Distinguish this lesson from <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> using a concrete decision: the team must protect patient data on laptops. What does each lesson contribute, and what goes wrong if only the primitives lesson is applied?</li>
+<li>A compliance mapping claims "DLP requirement met" because the product is licensed. Lay out the four questions that test whether the control actually exists (tuning, staffing, scope, evidence) — and what the honest mapping says if any answer is no.</li>
+<li>The scope of "encrypt backups" covers the production backup but not the dev database refreshed from it monthly. Explain the scoping failure, name the lifecycle concept it violates (the copies), and rewrite the scope line.</li>
+<li>Predict the state of a data-protection program two years after its author leaves, with keys never rotated, DLP alerts unreviewed, and TLS added only at the edge: which failure is discovered first, by whom, and which single practice would have caught the most decay earliest?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your control-selection matrix — method per tier per data state, enumerated scope, named standard with key-management decisions, DLP sketch with staffing, bidirectional compliance mapping — plus the inventory-script transcript with its honestly stated limits.</p>
+<p><strong>Honest claim:</strong> "I can select data protections by state and scope them — which control protects which data in which state, what's covered, and which requirement each control satisfies."</p>
+<p><strong>Can't claim yet:</strong> "I can architect enterprise data protection at scale" — HSM operations and multi-region key management are their own engineering; this lesson taught the selection, where the judgment is formed.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — the primitives this lesson selects among; reread it as the "what the tools do" companion.</li>
+<li><a href="/g/asset-classification/"><code>e-asset-classification</code></a> — the tiers the selection is made against; no tier, no selection.</li>
+<li><a href="/g/data-lifecycle/"><code>e-data-lifecycle</code></a> — the copies the scoping must cover; the lifecycle map is the scope's source.</li>
+<li><a href="/g/cloud-security/"><code>d-cloud-security</code></a> — the shared-responsibility view of the same controls in cloud infrastructure; reread for who operates what you selected.</li>
+<li>Map refs: <strong>CISSP 2.6</strong> (this lesson); also serves <strong>CISSP 7.5</strong> (resource and media protection — SC-28/MP controls in operations).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

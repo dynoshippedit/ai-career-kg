@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Threat modeling concepts and methodologies: choosing how to think about what can go wrong | Learn Computer Stuff</title>
+<meta name="description" content="Survey STRIDE, PASTA, OCTAVE, and attack trees, and choose the right methodology per situation. A free lesson in the security guidebook, serving CISSP objective 1.10.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/threat-modeling-concepts/">
+<meta property="og:title" content="Threat modeling concepts and methodologies: choosing how to think about what can go wrong | Learn Computer Stuff"><meta property="og:description" content="Survey STRIDE, PASTA, OCTAVE, and attack trees, and choose the right methodology per situation. A free lesson in the security guidebook, serving CISSP objective 1.10.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/threat-modeling-concepts/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Threat modeling concepts and methodologies: choosing how to think about what can go wrong","item":"https://learncomputerstuff.dev/g/threat-modeling-concepts/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Threat modeling concepts and methodologies: choosing how to think about what can go wrong</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Threat modeling concepts and methodologies: choosing how to think about what can go wrong</h1>
+<p class="lede prose">Threat modeling is the design-time discipline of asking "what can go wrong" before the system exists to go wrong in. It shows up in the architecture review where someone sketches the data flows and asks where the trust boundaries are; in the SDLC gate that requires a threat model before code is written; in the risk register whose best entries came from a modeling session, not a scanner; and in the post-incident review that discovers the attack path was obvious on a whiteboard six months earlier. <a href="/g/sdlc/"><code>e-sdlc</code></a> taught you to <em>do</em> STRIDE on a system; <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> taught the AI variant. This lesson teaches the <em>choice</em>: STRIDE, PASTA, OCTAVE, and attack trees are different instruments for different situations, and picking the wrong one is how organizations produce threat-model theater — documents that describe threats without changing decisions.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (select a threat-modeling methodology for a given situation and justify the choice — strengths, limits, staffing, and what the output feeds)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/sdlc/"><code>e-sdlc</code></a> (where you did hands-on STRIDE on a real design); <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> (the AI-specific variant). This lesson is the methodology survey at governance level — not a repeat of either. No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.10</strong> — threat modeling concepts and methodologies.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Threat modeling is the design-time discipline of asking "what can go wrong" before the system exists to go wrong in. It shows up in the architecture review where someone sketches the data flows and asks where the trust boundaries are; in the SDLC gate that requires a threat model before code is written; in the risk register whose best entries came from a modeling session, not a scanner; and in the post-incident review that discovers the attack path was obvious on a whiteboard six months earlier. <a href="/g/sdlc/"><code>e-sdlc</code></a> taught you to <em>do</em> STRIDE on a system; <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> taught the AI variant. This lesson teaches the <em>choice</em>: STRIDE, PASTA, OCTAVE, and attack trees are different instruments for different situations, and picking the wrong one is how organizations produce threat-model theater — documents that describe threats without changing decisions.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have run a STRIDE session in <a href="/g/sdlc/"><code>e-sdlc</code></a> — that is your reference implementation. This lesson compares it against the alternatives.</li>
+<li>You have seen AI-specific threat modeling in <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> — the methodology choice applies there too.</li>
+<li>Bring a system you know well (from <a href="/g/sdlc/"><code>e-sdlc</code></a> or your own work) — the worked case asks you to choose methodologies for three situations, and a concrete system makes the choice real.</li>
+<li>The work product is a methodology-selection decision record: situation, chosen method, rationale, staffing, cadence, and what the output feeds.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>What threat modeling is — and is not.</strong> Threat modeling is structured design-time reasoning about threats: what you are building, what can go wrong, what you will do about it, and whether you did a good job. It is not a vulnerability scan (which finds weaknesses in built things), not a risk assessment (which evaluates and prioritizes — threat modeling <em>feeds</em> it), and not a one-time document (it is revisited when the design changes). The output that matters is not the diagram — it is the <em>decisions the diagram forced</em>: the trust boundary that moved, the component that got a different authentication scheme, the threat that became a security requirement.</p>
+<p><strong>STRIDE (Microsoft).</strong> The developer's method, and your reference from <a href="/g/sdlc/"><code>e-sdlc</code></a>. STRIDE is a mnemonic of six threat categories applied per component and per data flow, usually against a data-flow diagram: <strong>S</strong>poofing (using another's authentication information), <strong>T</strong>ampering (malicious modification of data, at rest or in transit), <strong>R</strong>epudiation (denying an action without proof otherwise), <strong>I</strong>nformation disclosure, <strong>D</strong>enial of service, <strong>E</strong>levation of privilege. Microsoft's own threat-modeling documentation (<a href="https://learn.microsoft.com">learn.microsoft.com</a> — the primary source for this lesson, fetched in-session) frames STRIDE as a way to formulate pointed questions per component: how can an attacker change the authentication data, what happens if access to the database is denied. Strengths: concrete, teachable, fits the SDLC — developers can run it with a DFD. Limits: component-centric, so it finds trees reliably and can miss the forest — business-logic abuse and attacker-chained paths across components are not its native output. Best for: development teams modeling systems they are building, as a design gate.</p>
+<p><strong>PASTA (Process for Attack Simulation and Threat Analysis).</strong> The risk-centric method: seven stages running from business objectives through threat simulation to risk-ranked output. Stage 1 (Define Objectives) exists because threat models that start with the technology stack produce finding lists executives cannot prioritize — PASTA forces the business-impact framing first, and every subsequent stage inherits it. The middle stages (threat analysis, vulnerability and weakness analysis, attack modeling) correlate real threat intelligence against the actual attack surface and simulate attack paths rather than categorizing theoretical threats. Strengths: attacker-perspective, risk-ranked output a risk register can consume directly, business-aligned. Limits: heavyweight — seven stages need skilled facilitators and real threat intel; overkill for a small team's feature design. Best for: organizations that need threat modeling to feed enterprise risk management, or high-stakes systems where the output must be prioritized by business impact.</p>
+<p><strong>OCTAVE (Operationally Critical Threat, Asset, and Vulnerability Evaluation).</strong> The organizational method, from Carnegie Mellon's Software Engineering Institute. OCTAVE is asset-centric and workshop-driven: cross-functional teams identify what matters (critical information assets), profile the threats to those assets, examine the infrastructure those assets depend on, and build a protection strategy. The SEI's "Introduction to the OCTAVE Approach" (August 2003 — fetched in-session) organizes it in three phases: build asset-based threat profiles (an organizational evaluation — what is important, what protects it now), identify infrastructure vulnerabilities (the technology evaluation — access paths and component weaknesses), and develop security strategy and plans (risks to critical assets, the protection strategy, mitigation plans). Strengths: non-technical stakeholders can participate — it runs on staff knowledge, not code; produces organization-wide strategy, not component findings. Limits: slow, workshop-heavy, and its technology evaluation is shallower than a developer-led method. Best for: standing up threat modeling as an organizational practice, or assessing an enterprise where the critical question is "what matters" rather than "how does this component fail."</p>
+<p><strong>Attack trees (Schneier).</strong> The analyst's method: goal-oriented decomposition. Start with the attacker's goal ("read the patient database"), decompose into alternative paths (OR nodes) and required sub-steps (AND nodes), down to leaf actions. Bruce Schneier's "Attack Trees" paper (December 1999 — fetched in-session) is the founding treatment. Strengths: precise, composable, excellent for a single crown-jewel asset — you can annotate nodes with cost, difficulty, and probability, and the tree shows exactly which countermeasure prunes the most attack paths. Limits: narrow by design — one goal per tree; building trees for every component of a large system does not scale, and the tree is only as complete as the analyst's imagination. Best for: focused analysis of the asset whose compromise is the nightmare scenario, or evaluating which of several countermeasures buys the most.</p>
+<p><strong>The comparison.</strong> No method dominates; the choice is situational:</p>
+<p>| Dev team designing a new service | STRIDE — fits the SDLC, developers run it, DFD-native |</p>
+<p>| Output must feed the risk register, prioritized by business impact | PASTA — risk-centric, business-framed from stage 1 |</p>
+<p>| Standing up the practice; "what matters" unclear | OCTAVE — asset-centric, workshop-driven, non-technical participants welcome |</p>
+<p>| One crown-jewel asset; which countermeasure buys most | Attack trees — goal-oriented, annotatable, shows pruning value |</p>
+<p>Methods also combine: OCTAVE to find what matters, attack trees on the crown jewels, STRIDE in the SDLC for everything new, PASTA's risk framing to prioritize the combined output. The expert move is rarely one method — it is the portfolio.</p>
+<p><strong>Staffing and cadence.</strong> STRIDE needs developers plus one experienced facilitator. PASTA needs a skilled lead and threat-intel input. OCTAVE needs cross-functional workshops. Attack trees need one sharp analyst. Cadence: model at design time, revisit on material change, review annually minimum — a model older than the architecture is a historical document.</p>
+<p><strong>What the output feeds.</strong> Findings become security requirements (into <a href="/g/sdlc/"><code>e-sdlc</code></a>), risks (into the register, with owners and dates), and test plans ("the model says this trust boundary is critical; test it"). A threat model whose output feeds nothing was theater.</p>
+<h3>Worked example: Harbor Clinic — the methodology selection record (fictional)</h3>
+<p><strong>The situations (fictional).</strong> Harbor Clinic (fictional, continued): patient portal in development, no organizational threat-modeling practice, an EHR database everyone agrees is the crown jewel, and a risk register that needs prioritizing.</p>
+<p><strong>The record:</strong></p>
+<ol>
+<li><strong>Patient portal (in development) → STRIDE.</strong> The dev team models it in the SDLC, per data flow, at the design gate. Staffing: the team's senior developer facilitated by security, one session per major feature. Output feeds: security requirements for the build and the assessment plan. Rationale: the team builds it, so the team models it; STRIDE is the method developers can actually run. Revisit on design change.</li>
+<li><strong>Standing up the practice → OCTAVE.</strong> The clinic has never done organizational threat modeling; nobody agrees on what matters most. A cross-functional workshop (clinical ops, IT, management) runs OCTAVE's phase 1 to build asset-based threat profiles. Output feeds: the enterprise risk picture and the decision of <em>what</em> gets deep analysis. Rationale: the question is organizational ("what matters"), not technical — OCTAVE's workshops answer it.</li>
+<li><strong>The EHR database → attack trees.</strong> One asset, nightmare scenario: bulk patient-data exfiltration. An analyst builds the tree from the attacker's goal down, annotates nodes with difficulty, and evaluates three candidate countermeasures by how many paths each prunes. Output feeds: the countermeasure investment decision. Rationale: focused, quantitative comparison of defenses is exactly what trees are for.</li>
+<li><strong>Prioritizing the combined output → PASTA's risk framing.</strong> The findings from all three need one prioritized register. PASTA's business-impact-first framing (stage 1 objectives) ranks them by effect on the clinic's objectives, not by technical severity. Rationale: the risk committee funds by business impact — the output must speak that language.</li>
+</ol>
+<p><strong>Why this record works:</strong> each choice names the situation's actual question, matches the method's strength to it, staffs it realistically, and names the consumer. Any row missing the consumer field would be flagged in review — that is the theater check.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the selection record above, authored and self-reviewed in-session on 2026-10-10 against the four methodology sources. Transcript: <code>runs/e-threat-modeling-concepts.log</code> (records the per-situation rationale, the staffing, and the review checklist — no commands to transcribe).</p>
+<ol>
+<li><strong>Name your situations.</strong> Three to four from a system you know: something in development, something organizational, one crown jewel, one prioritization need. Real situations — the method choice is only as good as the situation description.</li>
+<li><strong>Choose per situation.</strong> STRIDE, PASTA, OCTAVE, or attack trees — or a combination. Write the choice and the one-sentence rationale tied to the method's verified strengths.</li>
+<li><strong>Staff it.</strong> Who runs it, who participates, what input they need (threat intel for PASTA, cross-functional workshops for OCTAVE, a sharp analyst for trees). An unstaffed method is a plan to not do it.</li>
+<li><strong>Name the consumer.</strong> What does each method's output feed — requirements, risk register, test plan, investment decision? No consumer, no method.</li>
+<li><strong>Set the cadence.</strong> Design-time, on change, annual review. Write the trigger that re-opens the model.</li>
+<li><strong>Check for theater.</strong> Re-read each row: did the method change a decision, or merely describe threats? If the latter, the row fails — pick the method whose output the situation can consume.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Build the selection record for a real system or organization you know. Minimum three situations, at least two different methodologies, every row with rationale, staffing, consumer, and cadence.</p>
+<p><strong>Success test:</strong> At least one row uses a method you have never run (OCTAVE or PASTA for most readers) — with honest staffing ("facilitator to be trained" is acceptable; pretending you can facilitate PASTA cold is not). Every row names a consumer that exists — if the risk register does not exist yet, that is a finding, not a consumer.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Modeling after build.</strong> The threat model written to satisfy the gate, describing the system as built. Design-time or it is documentation.</li>
+<li><strong>The threat list with no diagram.</strong> Findings enumerated without a model of the system — no data flows, no trust boundaries. The diagram is the analysis; the list is the exhaust.</li>
+<li><strong>STRIDE as checklist.</strong> Six categories ticked per component with no attacker thinking. STRIDE structures the questions; it does not ask them for you.</li>
+<li><strong>No attacker perspective.</strong> Models that enumerate what <em>could</em> break without asking what an attacker <em>wants</em>. PASTA's simulation stages and attack trees exist to force this — use them.</li>
+<li><strong>The wrong instrument.</strong> OCTAVE workshops for a feature design (months for what STRIDE does in an afternoon); attack trees for an entire enterprise (a forest nobody reads). Match the method to the question.</li>
+<li><strong>Never revisited.</strong> The model describes last year's architecture. Tie the review trigger to the design-change process, not the calendar alone.</li>
+<li><strong>Theater output.</strong> A threat model that feeds nothing — no requirements, no risks, no tests. The consumer field in the selection record is the prevention.</li>
+<li><strong>Confusing threat modeling with risk assessment.</strong> Related, sequential, different: modeling finds what can go wrong; assessment evaluates and prioritizes. The model feeds the assessment (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>); it does not replace it.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>Microsoft Threat Modeling documentation</strong> (<a href="https://learn.microsoft.com">learn.microsoft.com</a>) — <em>read</em> the STRIDE categories and the per-component questioning method. The reference implementation for the developer's method.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Threat Modeling Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the practitioner survey — process steps, method mentions (STRIDE, PASTA, OCTAVE), and cloud adaptations. Your selection-record template.</li>
+<li><strong>Bruce Schneier, "Attack Trees"</strong> (<a href="https://schneier.com">schneier.com</a>, December 1999) — free; the founding paper — read the construction method and the annotation idea (cost, probability per node).</li>
+<li><strong>SEI, "Introduction to the OCTAVE Approach"</strong> (<a href="https://sei.cmu.edu">sei.cmu.edu</a>, August 2003) — free; the three phases and the asset-based threat-profile concept — the organizational method's source.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A dev team models a new payment service with attack trees, producing one tree per microservice — fourteen trees nobody reads. Name the methodology error, the method that fits, and why the trees failed here.</li>
+<li>Explain why STRIDE applied per component can miss a business-logic attack chain — and which method's structure (PASTA's or attack trees') catches it, and how.</li>
+<li>An organization has never done threat modeling and cannot agree on its critical assets. Argue for OCTAVE over STRIDE for the first engagement — then state what STRIDE is for once OCTAVE has answered the "what matters" question.</li>
+<li>A threat model's findings are filed and never referenced again. Using the consumer-field rule, diagnose the failure and name the minimum fix.</li>
+<li>Predict the output of a PASTA engagement run without threat-intel input and without business stakeholders: which stages degrade, and what does the final "risk-ranked" output actually rank?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your methodology-selection record (situations, chosen methods, rationales, staffing, consumers, cadences) — for the Harbor Clinic case in your own words, or better, for a real system — plus one worked fragment in the chosen method for one situation (a STRIDE per-component pass, or an attack tree for the crown jewel).</p>
+<p><strong>Honest claim:</strong> "I can look at a threat-modeling situation, choose the methodology whose strengths match the question, staff it, set its cadence, and ensure its output feeds a real decision."</p>
+<p><strong>Can't claim yet:</strong> "I can facilitate PASTA or OCTAVE engagements" — facilitation at organizational scale is a practiced skill; this lesson taught the selection judgment. Run one with a mentor before claiming it.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>D-APPSEC — <a href="/g/sdlc/"><code>e-sdlc</code></a></strong> — the hands-on companion: STRIDE in the development workflow, this lesson's reference implementation.</li>
+<li><strong>E-AI-TM — <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a></strong> — the AI variant: methodology choice applied to AI systems.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>** — the consumer: threat-model output becomes risk-register entries.</li>
+<li>Map refs: <strong>CISSP 1.10</strong> (this lesson); feeds <strong>CISSP 8.1</strong> (security in the SDLC).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

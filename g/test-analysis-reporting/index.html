@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test analysis and reporting: from ten thousand findings to decisions | Learn Computer Stuff</title>
+<meta name="description" content="Triage findings, rate risk with context, and write the two-layer report with remediation tracking for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.4.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/test-analysis-reporting/">
+<meta property="og:title" content="Test analysis and reporting: from ten thousand findings to decisions | Learn Computer Stuff"><meta property="og:description" content="Triage findings, rate risk with context, and write the two-layer report with remediation tracking for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.4.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/test-analysis-reporting/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Test analysis and reporting: from ten thousand findings to decisions","item":"https://learncomputerstuff.dev/g/test-analysis-reporting/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Test analysis and reporting: from ten thousand findings to decisions</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Test analysis and reporting: from ten thousand findings to decisions</h1>
+<p class="lede prose">Every testing method in <a href="/g/control-testing/"><code>e-control-testing</code></a> produces output: scanner lists, pentest notes, review findings. Raw output is not a report — it's inventory. The analysis turns it into decisions: which findings are real, how bad each is, what fixes it, who owns it, and by when. It shows up in the morning after the scan ("ten thousand findings — now what?"), in the pentest report the executives actually read (two pages, not eighty), and in the remediation tracking meeting six months later where the same criticals reappear. Security analysts and the GRC function live here — the report is the deliverable the whole testing program exists for.</p>
+<p class="dateline">Lesson published 2026-10-09 · Local demo run and reviewed 2026-10-10 · transcript runs/e-test-analysis-reporting.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (triage findings, rate risk honestly, and write a report that drives remediation)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/cvss/"><code>c-cvss</code></a> (severity scoring by hand — this lesson uses the score, not the math), <a href="/g/methodology/"><code>b-methodology</code></a> (the reporting phase this lesson professionalizes); no targets, one local Python demo in §4</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 6.4</strong> — analyzing test output and reporting.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every testing method in <a href="/g/control-testing/"><code>e-control-testing</code></a> produces output: scanner lists, pentest notes, review findings. Raw output is not a report — it's inventory. The analysis turns it into decisions: which findings are real, how bad each is, what fixes it, who owns it, and by when. It shows up in the morning after the scan ("ten thousand findings — now what?"), in the pentest report the executives actually read (two pages, not eighty), and in the remediation tracking meeting six months later where the same criticals reappear. Security analysts and the GRC function live here — the report is the deliverable the whole testing program exists for.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can score severity (<a href="/g/cvss/"><code>c-cvss</code></a>) and you know the engagement lifecycle (<a href="/g/methodology/"><code>b-methodology</code></a>) — this lesson is the analysis-and-reporting phase done at program scale.</li>
+<li>You have the method matrix (<a href="/g/control-testing/"><code>e-control-testing</code></a>) — every finding below arrives with the method that produced it, which bounds what the finding means.</li>
+<li>One local demo in §4: Python 3, no packages, no network. The script and its fictional findings list are reproduced so you can run the exact transcript.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Analysis has four stages, and skipping any one corrupts the rest: <strong>triage</strong> (is it real?), <strong>risk rating</strong> (how bad?), <strong>reporting</strong> (so what, now what?), and <strong>remediation tracking</strong> (did it get fixed?).</p>
+<p><strong>Triage: the finding must survive contact with reality.</strong> Every finding enters triage with a disposition, and only four exist:</p>
+<ul>
+<li><strong>Confirmed:</strong> reproduced or verified by a second method — the scanner's match checked by hand, the banner checked against the backport record, the open port connected to.</li>
+<li><strong>False positive:</strong> the tool was wrong — the version banner predates the backported fix, the "vulnerability" is a honeypot, the finding describes a control that exists under a different name. False positives are <em>documented and closed</em>, never silently deleted — next quarter's scan will find them again, and the triage note is what prevents re-work.</li>
+<li><strong>Duplicate:</strong> two tools, one finding. Merged and counted once — duplicate inflation is how ten findings become thirty on the dashboard.</li>
+<li><strong>Risk-accepted:</strong> real, but deliberately not fixed — with an owner, an expiry date, and the compensating control named. (Per <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>'s rule: acceptance without owner and date is abandonment.)</li>
+</ul>
+<p>The triage discipline: no finding reaches the report without a disposition, and the analyst who triaged it signs the note. Automated findings are confirmed by hand — the guidebook's hard rule from <a href="/g/toolbench/"><code>b-toolbench</code></a> applies at program scale.</p>
+<p><strong>Risk rating: severity is not risk.</strong> The scanner's severity is a property of the vulnerability; risk is a property of the vulnerability <em>in your environment</em>. The rating combines: the technical severity (CVSS base score — <a href="/g/cvss/"><code>c-cvss</code></a>'s work, v4.0's Base/Threat/Environmental/Supplemental groups per the brief), the <strong>exposure</strong> (internet-facing vs internal vs segmented — the zone map from <a href="/g/network-architecture/"><code>e-network-architecture</code></a> is an input to every rating), the <strong>asset criticality</strong> (the crown-jewel database vs the lobby printer), and <strong>exploitability evidence</strong> (known exploitation in the wild — CISA KEV — versus theoretical). A "critical" on an isolated test VM is not the organization's top priority; a "medium" with a cleartext admin protocol on the core switch might be. The rating is written as a sentence — "rated high because…" — so the reasoning survives the analyst who wrote it.</p>
+<p><strong>Reporting: the structure that drives action.</strong> The report has two audiences and therefore two layers. The <strong>executive summary</strong> (one to two pages): what was tested, the risk posture in plain language, the top findings with business impact, and the remediation priorities with owners and dates — no CVE numbers, no tool output. The <strong>technical detail</strong>: per finding — description, affected assets, evidence (the proof, reproducible), risk rating with reasoning, remediation guidance (specific, not "apply best practices"), and references. The report also states its own limits: scope, methods, window, and what was <em>not</em> tested — the honest negative-result statement from <a href="/g/control-testing/"><code>e-control-testing</code></a>. A report without stated limits implies a completeness it doesn't have.</p>
+<p><strong>Remediation tracking: the report is a loan, not a gift.</strong> Findings enter tracking with owner and due date at report delivery — not "when someone gets around to it." The tracking states: the finding, the owner, the due date (by risk rating — criticals in days, not quarters), the verification method (retest, rescan, or evidence review), and the escalation path for missed dates. The metrics lesson's "aged criticals" KRI is fed from this tracker. And the cycle closes: remediated findings are retested by the method the strategy named, and the retest result — pass or fail — is recorded. A finding closed without verification is a finding that moved, not one that died.</p>
+<h3>Worked example: Alderpoint Mutual — findings analysis and report excerpt (fictional, continued)</h3>
+<p><strong>The scan output (fictional).</strong> The quarterly vulnerability scan returns 8 notable findings (the demo's list — F-001 through F-008).</p>
+<p><strong>Triage dispositions.</strong> F-007 merged into F-001 (duplicate — same expired certificate, second scanner). F-003 held as false-positive candidate: the banner suggests the CVE, but the vendor backported the fix without updating the banner — verified against the vendor advisory, closed as FP with the note that next quarter's scan will flag it again (the note prevents re-triage). The remaining six confirmed by hand.</p>
+<p><strong>Risk rating (excerpt).</strong> F-001 (expired portal cert): rated <em>high</em> — internet-facing, PII in transit, trust warnings train users to click through. F-008 (telnet on core switch): rated <em>high</em> — cleartext admin credentials on the highest-value network device; scanner said "high," the asset context confirms it. F-005 (missing CSP header): rated <em>low</em> alone, noted as an amplifier for any future XSS — the rating says what it is, not what it might become.</p>
+<p><strong>Report excerpt — executive summary (fictional).</strong> "Quarterly scan of the customer portal environment and internal infrastructure, 2026-Q3. Two high-rated findings require action within 14 days: the customer portal's TLS certificate has expired (customer trust impact, 6 days expired at report time), and cleartext Telnet remains enabled on the core switch (administrative credential exposure on the network's highest-value device). Four additional findings are scheduled by priority with owners. One scanner-reported critical was verified as a false positive (backported fix, unchanged banner). Remediation owners and dates are in the tracking register; retesting is scheduled for 30 days."</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Local demo — run in-session 2026-10-10.</strong> The triage scorer below was executed on this machine (Python 3.12.3, no network, deterministic); full transcript: <code>runs/e-test-analysis-reporting.log</code>. Reproduce it exactly:</p>
+<ol>
+<li><strong>Run the scorer.</strong> Save the script (fictional findings F-001–F-008, embedded below) as <code>triage_demo.py</code> and run <code>python3 triage_demo.py</code>. You should see the prioritized order: F-001 (45), F-008 (30), F-002 (18), F-005 (15), F-006 (8), F-004 (4) — with F-003 held as false-positive candidate and F-007 merged as duplicate. If your output differs, your script differs; the transcript is the reference.</li>
+<li><strong>Check the ranking logic.</strong> Note that F-008 (telnet, "high") outranks F-002 (SMBv1, "high") — the scorer multiplies scanner severity by exposure by asset criticality, so equal scanner severities separate on context. This is the lesson's core move: <em>severity is not risk</em>.</li>
+<li><strong>Verify the triage discipline.</strong> The scorer refuses to score F-003 (held for manual verification — never auto-closed) and F-007 (merged, not double-counted). Change F-003's <code>fp_signal</code> to <code>False</code> and rerun: it scores 24 and would outrank F-002 — which is exactly why the FP check must happen <em>before</em> scoring, by hand.</li>
+<li><strong>Write the report excerpt.</strong> From the ranked output, draft the two-layer report: the executive summary (plain language, priorities, owners, dates) and one technical finding in full (description, assets, evidence, rating with reasoning, remediation, references).</li>
+<li><strong>Build the tracking register.</strong> Each scored finding gets owner, due date by rating, verification method, and escalation path. F-001 and F-008: 14 days, owner named, retest by rescan plus manual verification.</li>
+<li><strong>Close the loop on paper.</strong> Schedule the retest (30 days), name the method, and write the KRI the metrics lesson would compute from this register ("aged criticals").</li>
+</ol>
+<pre><code>#!/usr/bin/env python3
+&quot;&quot;&quot;Findings triage scorer — fictional data, deterministic. No network.&quot;&quot;&quot;
+SEV_W = {&quot;critical&quot;: 4, &quot;high&quot;: 3, &quot;medium&quot;: 2, &quot;low&quot;: 1}
+EXP_W = {&quot;internet&quot;: 3, &quot;internal&quot;: 2, &quot;segmented&quot;: 1}
+FINDINGS = [
+    {&quot;id&quot;: &quot;F-001&quot;, &quot;title&quot;: &quot;TLS certificate expired on customer portal&quot;,
+     &quot;scanner_sev&quot;: &quot;high&quot;, &quot;exposure&quot;: &quot;internet&quot;, &quot;asset_crit&quot;: 5,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+    {&quot;id&quot;: &quot;F-002&quot;, &quot;title&quot;: &quot;SMBv1 enabled on file server FS-02&quot;,
+     &quot;scanner_sev&quot;: &quot;high&quot;, &quot;exposure&quot;: &quot;internal&quot;, &quot;asset_crit&quot;: 3,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+    {&quot;id&quot;: &quot;F-003&quot;, &quot;title&quot;: &quot;Apache banner suggests CVE-2024-XXXXX&quot;,
+     &quot;scanner_sev&quot;: &quot;critical&quot;, &quot;exposure&quot;: &quot;internet&quot;, &quot;asset_crit&quot;: 2,
+     &quot;fp_signal&quot;: True, &quot;dup_of&quot;: None},   # backported fix; verify by hand
+    {&quot;id&quot;: &quot;F-004&quot;, &quot;title&quot;: &quot;Default credentials on printer PR-07&quot;,
+     &quot;scanner_sev&quot;: &quot;medium&quot;, &quot;exposure&quot;: &quot;internal&quot;, &quot;asset_crit&quot;: 1,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+    {&quot;id&quot;: &quot;F-005&quot;, &quot;title&quot;: &quot;Missing Content-Security-Policy header&quot;,
+     &quot;scanner_sev&quot;: &quot;low&quot;, &quot;exposure&quot;: &quot;internet&quot;, &quot;asset_crit&quot;: 5,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+    {&quot;id&quot;: &quot;F-006&quot;, &quot;title&quot;: &quot;Open RDP on jump host JH-01&quot;,
+     &quot;scanner_sev&quot;: &quot;medium&quot;, &quot;exposure&quot;: &quot;segmented&quot;, &quot;asset_crit&quot;: 4,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+    {&quot;id&quot;: &quot;F-007&quot;, &quot;title&quot;: &quot;Duplicate of F-001 (second scanner)&quot;,
+     &quot;scanner_sev&quot;: &quot;high&quot;, &quot;exposure&quot;: &quot;internet&quot;, &quot;asset_crit&quot;: 5,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: &quot;F-001&quot;},
+    {&quot;id&quot;: &quot;F-008&quot;, &quot;title&quot;: &quot;Telnet enabled on core switch SW-CORE-01&quot;,
+     &quot;scanner_sev&quot;: &quot;high&quot;, &quot;exposure&quot;: &quot;internal&quot;, &quot;asset_crit&quot;: 5,
+     &quot;fp_signal&quot;: False, &quot;dup_of&quot;: None},
+]
+for f in FINDINGS:
+    if f[&quot;dup_of&quot;]:
+        print(f&quot;[{f[&#x27;id&#x27;]}] DUPLICATE of {f[&#x27;dup_of&#x27;]} — merge, count once&quot;); continue
+    if f[&quot;fp_signal&quot;]:
+        print(f&quot;[{f[&#x27;id&#x27;]}] FALSE-POSITIVE CANDIDATE — verify by hand before scoring&quot;); continue
+    score = SEV_W[f[&quot;scanner_sev&quot;]] * EXP_W[f[&quot;exposure&quot;]] * f[&quot;asset_crit&quot;]
+    print(f&quot;[{f[&#x27;id&#x27;]}] score={score:3d} {f[&#x27;title&#x27;]}&quot;)</code></pre>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take real output from a tool you run — a vulnerability scan of your homelab, a linter, even your OS's update list. Triage every item (confirmed / FP / duplicate / accepted), rate risk with asset context in writing, and produce the two-layer report plus the tracking register.</p>
+<p><strong>Success test:</strong> Your report's executive summary fits on one page and names owners and dates; at least one "critical" from the tool was downgraded by context and at least one "medium" was upgraded — with the reasoning written down. If the tool's severities survived untouched, you rated nothing.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The un-triaged dump.</strong> Ten thousand findings forwarded to IT as "the report." Nobody reads it, nothing gets fixed, and the program's credibility dies with it.</li>
+<li><strong>Scanner severity as risk rating.</strong> The dashboard sorted by the tool's column. Context — exposure, asset, exploitability — is the analyst's job, and skipping it is how the lobby printer outranks the core switch.</li>
+<li><strong>False positives deleted, not documented.</strong> Next quarter they return, and the triage work repeats forever. The FP note is an asset.</li>
+<li><strong>Duplicates counted.</strong> Two scanners, one finding, twice the panic. Merge before scoring.</li>
+<li><strong>The executive summary nobody can act on.</strong> Eighty pages of tool output with no priorities, no owners, no dates. The report exists to produce remediation; everything else is appendix.</li>
+<li><strong>Missing limits.</strong> No scope, no window, no "not tested" statement. The reader assumes completeness the testing never had.</li>
+<li><strong>Remediation without verification.</strong> "Fixed" claimed, never retested. The tracker needs the verification method and the retest date at report delivery.</li>
+<li><strong>Risk acceptance as a rug.</strong> Findings swept under "accepted" with no owner and no expiry. Acceptance is a decision with a name and a date, or it's abandonment.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-115</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the post-execution phase (§4.4 in the brief's framing; the guide's reporting and findings-handling guidance): what a finding must contain and how it is delivered.</li>
+<li><strong>FIRST CVSS v4.0</strong> (<a href="https://first.org">first.org</a>) — <em>use</em> the calculator (verified) and <em>read</em> the specification's metric groups (Base, Threat, Environmental, Supplemental) — the severity input your risk rating starts from, not ends at.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Web Security Testing Guide — reporting section</strong> (<a href="https://owasp.org">owasp.org</a>) — free; the report structure for web findings: evidence, risk, remediation.</li>
+<li><strong>CISA Known Exploited Vulnerabilities (KEV) catalog</strong> (<a href="https://cisa.gov/known-exploited-vulnerabilities-catalog">cisa.gov/known-exploited-vulnerabilities-catalog</a>) — free; the exploitability-evidence input: what is known to be exploited in the wild.</li>
+<li>Your guidebook's own <a href="/g/cvss/"><code>c-cvss</code></a> — the scoring mechanics; <a href="/g/security-metrics/"><code>e-security-metrics</code></a> — where the tracker's aging numbers go.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A scan reports a "critical" on an isolated lab VM and a "medium" on the internet-facing payment API. Walk the risk-rating reasoning that inverts their priority — name each input (severity, exposure, asset, exploitability).</li>
+<li>The same expired certificate appears in two scanners' outputs. Explain the triage disposition, why double-counting corrupts the metrics, and what the merged record contains.</li>
+<li>A banner-based CVE match is disputed: the vendor backported the fix. Lay out the verification steps that decide FP versus confirmed — and what gets documented either way.</li>
+<li>Write the executive summary for the worked case's two highs in three sentences: what was tested, what needs action in 14 days and why, and what happens next. No CVE numbers allowed.</li>
+<li>A "remediated" critical is closed in the tracker without retesting. Six months later it's still present. Name the two process failures (tracking, verification) and the strategy-level fix for each.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your triage output (the scorer's run or your hand triage with dispositions), the two-layer report (executive summary plus full technical findings with evidence and rated reasoning), and the tracking register (owner, due date, verification method, escalation path per finding) — for the Alderpoint worked case reproduced by running the demo, or better, for real tool output you triaged yourself.</p>
+<p><strong>Honest claim:</strong> "I can turn test output into decisions — I can triage findings honestly, rate risk with context instead of parroting scanner severity, write the report both audiences need, and track remediation to verified closure."</p>
+<p><strong>Can't claim yet:</strong> "I can find the vulnerabilities myself" — discovery is the testers' work (<a href="/g/methodology/"><code>b-methodology</code></a>, <a href="/g/toolbench/"><code>b-toolbench</code></a>); this lesson taught what happens after the findings land.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/control-testing/"><code>e-control-testing</code></a> — where every finding came from; <a href="/g/security-metrics/"><code>e-security-metrics</code></a> — where the tracker's aging becomes KRIs.</li>
+<li><a href="/g/assessment-strategy/"><code>e-assessment-strategy</code></a> — the retest commitments this lesson's tracker enforces; <a href="/g/security-audits/"><code>e-security-audits</code></a> — the independent check on whether remediation actually happened.</li>
+<li><a href="/g/cvss/"><code>c-cvss</code></a> — the severity input; <a href="/g/methodology/"><code>b-methodology</code></a> — the engagement report this lesson generalizes to program scale.</li>
+<li>Map refs: <strong>CISSP 6.4</strong> (this lesson); feeds <strong>CISSP 6.2</strong> (methods) and <strong>6.3</strong> (metrics).</li>
+</ul>
+<p><em>Sources fetched 2026-10-10: NIST SP 800-115 (<a href="https://csrc.nist.gov">csrc.nist.gov</a>); FIRST CVSS v4.0 calculator (<a href="https://first.org/cvss/calculator/4.0">first.org/cvss/calculator/4.0</a>); OWASP WSTG reporting section; CISA KEV catalog. Full ledger in the batch manifest.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

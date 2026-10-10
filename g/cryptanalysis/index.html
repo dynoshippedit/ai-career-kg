@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cryptanalytic attacks: how ciphers fail, and what that teaches | Learn Computer Stuff</title>
+<meta name="description" content="Compute brute-force and birthday-bound estimates, demonstrate classical frequency analysis in Python, and pair every attack method with its defense. A free lesson in the security guidebook, serving CISSP objective 3.7.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/cryptanalysis/">
+<meta property="og:title" content="Cryptanalytic attacks: how ciphers fail, and what that teaches | Learn Computer Stuff"><meta property="og:description" content="Compute brute-force and birthday-bound estimates, demonstrate classical frequency analysis in Python, and pair every attack method with its defense. A free lesson in the security guidebook, serving CISSP objective 3.7.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/cryptanalysis/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Cryptanalytic attacks: how ciphers fail, and what that teaches","item":"https://learncomputerstuff.dev/g/cryptanalysis/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Cryptanalytic attacks: how ciphers fail, and what that teaches</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Cryptanalytic attacks: how ciphers fail, and what that teaches</h1>
+<p class="lede prose">Cryptography fails in two places: in its <em>use</em> (<a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — keys with the data, ECB mode, expired certificates) and in its <em>math</em> — this lesson's subject. Cryptanalysis studies how attackers recover plaintext or keys without being given them: what the attacker knows, the brute-force arithmetic that sets key sizes, the birthday mathematics that sets hash sizes, the statistical techniques that broke classical ciphers, and the side channels that bypass the math by watching the implementation. Taught here as concepts, mathematics, and tiny classical-cipher demonstrations — no real-product exploit code. The point is defensive: every method is paired with the detection or remediation it demands.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (compute key-space and birthday-bound estimates, demonstrate classical frequency analysis, and pair every attack method with its defense)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> (primitives, modes, key lifecycle); Python 3 on your machine (stdlib only)</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.7</strong> — cryptanalytic attack methods: attacker models, brute force, birthday attacks, classical analysis, side channels, and the defenses each one demands. (This lesson fills the gap logged in <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>'s Map ref.)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Cryptography fails in two places: in its <em>use</em> (<a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — keys with the data, ECB mode, expired certificates) and in its <em>math</em> — this lesson's subject. Cryptanalysis studies how attackers recover plaintext or keys without being given them: what the attacker knows, the brute-force arithmetic that sets key sizes, the birthday mathematics that sets hash sizes, the statistical techniques that broke classical ciphers, and the side channels that bypass the math by watching the implementation. Taught here as concepts, mathematics, and tiny classical-cipher demonstrations — no real-product exploit code. The point is defensive: every method is paired with the detection or remediation it demands.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can use the primitives correctly and manage keys through their lifecycle (<a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>) — this lesson explains <em>why</em> those rules exist.</li>
+<li>Python 3, stdlib only. All three demonstrations run locally on your machine; nothing touches the network, no real ciphers are attacked.</li>
+<li>Primary references: NIST SP 800-57 Part 1 (key-size and cryptoperiod reasoning) and the standard treatment of the attack models below.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The attacker's knowledge: four models.</strong> Cryptanalysis classifies attacks by what the attacker is assumed to know — and the discipline's hard lesson is that you must assume the strongest model your threat model allows, because attackers don't volunteer their limitations:</p>
+<ul>
+<li><strong>Ciphertext-only:</strong> the attacker sees only ciphertext. The weakest assumption — and therefore the minimum bar every cipher must clear. Breaking a modern cipher here is essentially unheard of; breaking <em>misused</em> cryptography here is routine (ECB's pattern leakage from <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> is a ciphertext-only break of a <em>mode</em>, not of AES).</li>
+<li><strong>Known-plaintext:</strong> the attacker has some plaintext-ciphertext pairs — guessed message headers, predictable protocol fields, a known file encrypted. Classical ciphers fall here; modern ciphers are designed to resist it.</li>
+<li><strong>Chosen-plaintext:</strong> the attacker can get arbitrary plaintext encrypted — the realistic model for any system where the attacker can submit data (an API that encrypts what you send it, a disk-encryption system holding attacker-chosen files). Any cipher deployed at scale must survive this.</li>
+<li><strong>Chosen-ciphertext:</strong> the attacker can get arbitrary ciphertext decrypted — the model for padding-oracle attacks, where a server's error messages ("bad padding" vs "bad MAC") leak one bit of information per query until the plaintext surrenders. This is why authenticated encryption (GCM) replaced "encrypt then hope."</li>
+</ul>
+<p><strong>Brute force and key-space arithmetic.</strong> The baseline attack: try every key. Its cost is pure arithmetic — a k-bit key has 2^k possibilities, average case 2^(k-1) tries — which is why key sizes are what they are. The demonstration below computes it: a 56-bit key (the DES era) falls to a modest cluster in hours; 80 bits survives casual attackers but not serious ones; 128 bits requires ~10^21 years at a billion keys per second — longer than the universe has existed, by a factor with twenty-one digits. The professional reading: brute force is not a threat to AES-128; it is the <em>justification</em> for AES-128, and the reason 64-bit block/key constructions keep dying. <strong>Defense:</strong> adequate key sizes (128-bit minimum for symmetric keys per SP 800-57), and — the part people forget — the brute-force arithmetic applies to <em>passwords</em> too, which is why password-based keys go through deliberately slow derivation (PBKDF2, bcrypt, Argon2): the defense is making each guess expensive.</p>
+<p><strong>Birthday attacks on hashes.</strong> Hashes don't have keys to brute-force; they have the birthday paradox. Among n-bit outputs, a collision becomes likely after roughly 2^(n/2) inputs — not 2^n. The demonstration computes it: a 64-bit hash collides after ~2^32 inputs (four billion — a weekend's hashing), which is why 64-bit hashes are toys; 128-bit needs 2^64 (borderline — this is why MD5's 128 bits died the moment collision attacks got practical); 256-bit needs 2^128, safely beyond reach. The 2^32-on-64-bit demo shows ~39% collision probability — the paradox made concrete. <strong>Defense:</strong> hash sizes with birthday margin (256-bit for collision resistance that must last), and treating any collision attack on your hash function as a migration trigger, not a theoretical curiosity. Detection is the hard part — collisions are silent, which is why the defense is algorithm agility: the ability to swap the hash function before the break, not after.</p>
+<p><strong>Frequency analysis (the classical break).</strong> Monoalphabetic substitution preserves the statistics of the plaintext: in English, 'e' is the most common letter, and a Caesar cipher just renames the letters — the most common ciphertext letter is 'e' wearing a mask. The demonstration encrypts English prose with an unknown shift, counts letter frequencies, guesses the shift from the most common letter, and recovers the full plaintext. It works because the cipher's structure leaks through the statistics. The modern lesson: any encryption that preserves <em>any</em> exploitable structure of the plaintext is broken in the same spirit — ECB's identical-blocks leak is frequency analysis's grandchild, and format-preserving mistakes in real systems are its descendants. <strong>Defense:</strong> ciphers whose output is statistically indistinguishable from random (modern block ciphers in proper modes), and modes that destroy structure (randomized IVs, authenticated encryption).</p>
+<p><strong>Side channels: bypassing the math.</strong> The most important modern attack class doesn't attack the cipher at all — it watches the <em>implementation</em>. <strong>Timing attacks</strong> measure how long operations take (a password comparison that returns early on the first wrong byte leaks the password one byte at a time — this is why comparisons must be constant-time). <strong>Power and electromagnetic analysis</strong> read the device's physical emissions during crypto operations — devastating against smart cards and IoT devices, the reason hardware crypto exists. <strong>Cache-timing attacks</strong> (Spectre/Meltdown's cousins) exploit shared microarchitectural state between mutually distrusting processes. The lesson: the cipher can be perfect and the system still leaks, because the implementation is part of the cryptosystem. <strong>Defense:</strong> constant-time implementations (no secret-dependent branches or memory accesses), blinding and masking in hardware, physical shielding for high-assurance devices — and the design principle from <a href="/g/secure-design/"><code>e-secure-design</code></a>: least common mechanism, because shared caches and shared branch predictors are shared mechanisms.</p>
+<p><strong>Differential and linear cryptanalysis (as concepts).</strong> The two great academic breaks-in-technique of the 1990s, taught here as concepts, not procedures. <strong>Differential cryptanalysis</strong> studies how <em>differences</em> in plaintext pairs propagate through the cipher's rounds — if a particular input difference leads to a particular output difference more often than chance, that bias leaks key material round by round. <strong>Linear cryptanalysis</strong> finds <em>linear approximations</em> — equations relating plaintext, ciphertext, and key bits that hold with probability slightly above one-half — and amplifies the bias over many known plaintexts. Both need enormous numbers of chosen/known plaintexts against a well-designed cipher (2^47 against DES for linear — practical only to academics and intelligence agencies), which is exactly why modern ciphers are <em>designed</em> with provable resistance: AES's design criteria bound the maximum differential and linear probabilities. The professional takeaway is not the technique but the design lesson: cipher selection means choosing algorithms that survived decades of exactly this analysis — never a novel or proprietary cipher, per <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>'s "never roll your own."</p>
+<h3>The demonstrations (run by us)</h3>
+<p><strong>Demo A — brute-force key-space estimates.</strong> Script: <code>runs/e-cryptanalysis-brute.py</code>. Average-case search time (half the key space) at three stated-as-assumption guess rates: single CPU (~10^9 keys/s), GPU cluster (~10^12), hypothetical exascale (~10^18). Results (transcript <code>runs/e-cryptanalysis.log</code>): 40-bit falls in ~9 minutes on one CPU; 56-bit in ~10 hours on the cluster; 64-bit in ~107 days; 80-bit in ~19,000 years; 128-bit in ~5×10^18 years on the cluster — ~5×10^12 years even at exascale. Below 80 bits, serious attackers win; at 128, arithmetic itself is the defense.</p>
+<p><strong>Demo B — the birthday bound.</strong> Same script: collision expected after ~2^(n/2) inputs — 2^32 for 64-bit (exact P(collision) after 2^32 inputs: 0.3935, nearly 40%), 2^64 for 128-bit, 2^128 for 256-bit. At a trillion hashes per second, the 64-bit collision arrives in a fraction of a second; the 256-bit one in ~10^19 years. Hash output size is doubled relative to the security level you want.</p>
+<p><strong>Demo C — frequency analysis on a Caesar cipher.</strong> Script: <code>runs/e-cryptanalysis-caesar.py</code>. English prose, shift 17, unknown to the analyst: count letter frequencies, most common ciphertext letter 'v' (1,068 occurrences) masks 'e', derive shift 17, decrypt — full recovery verified byte-for-byte. Classical, tiny, and the exact shape of every structural-leakage break since.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcripts: <code>runs/e-cryptanalysis.log</code> (brute-force + birthday, <code>e-cryptanalysis-brute.py</code>) and the Caesar transcript inside the same log (<code>e-cryptanalysis-caesar.py</code>). Python 3, stdlib only, 2026-10-10, no network, no real ciphers attacked.</p>
+<ol>
+<li><strong>Run the brute-force script.</strong> <code>python3 runs/e-cryptanalysis-brute.py</code>. <em>Expect:</em> 40-bit in minutes, 56-bit in hours (GPU cluster), 128-bit in ~5×10^18 years. Change the guess rates to your own assumptions — 128-bit doesn't move.</li>
+<li><strong>Run the birthday section.</strong> Same script, second half. <em>Expect:</em> 2^32 for 64-bit with P(collision) ≈ 0.39. Compute it for 160-bit (SHA-1's size) and ask what 2^80 work means for a well-funded attacker — the arithmetic behind SHA-1's retirement.</li>
+<li><strong>Run the Caesar break.</strong> <code>python3 runs/e-cryptanalysis-caesar.py</code>. <em>Expect:</em> most common letter 'v', guessed shift 17 = true shift, <code>recovery successful: True</code>. Change the shift and the prose and re-run — the attack doesn't care about the shift, only about surviving statistics.</li>
+<li><strong>Break the attack on purpose.</strong> Feed the script random bytes instead of English prose. <em>Expect:</em> the most-common-letter guess fails — frequency analysis needs the plaintext's statistics to survive. This is the property modern ciphers are designed to have.</li>
+<li><strong>Pair every method with its defense.</strong> For each of the six methods in §3, write the detection and the remediation. If you can't write the detection — as with hash collisions — say so and name the agility that substitutes for it.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> (a) Extend the brute-force script with password guessing: compute the effective key space of an 8-character lowercase password vs a 5-word passphrase, at 10^9 guesses/s with and without a slow hash (assume the slow hash costs 0.1 s per guess — state it as an assumption). (b) Write the detection/remediation paragraph for a timing attack against a login endpoint you control.</p>
+<p><strong>Success test:</strong> Your numbers show the passphrase winning by orders of magnitude and the slow hash multiplying the attacker's cost by the work factor — and your timing-attack paragraph names constant-time comparison as the fix <em>and</em> describes what you'd monitor to detect the attack in progress (request timing distributions per account, not just failure counts).</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"Nobody can break AES" as a complete argument.</strong> True of the cipher, irrelevant to the system. The breaks that matter are padding oracles, timing leaks, and ECB/IV misuse — the cipher is the strongest link, so attackers don't attack it.</li>
+<li><strong>64-bit anything.</strong> The birthday bound halves your margin, and 2^32 is a weekend. Every 64-bit construction in production is a migration waiting for a deadline.</li>
+<li><strong>Treating collision attacks as theoretical.</strong> MD5 and SHA-1 were "theoretically" broken years before the practical demos; organizations that waited migrated in a panic. The migration trigger is the first serious cryptanalytic result, not the first exploit.</li>
+<li><strong>Variable-time crypto code.</strong> Secret-dependent branches, early-exit comparisons, table lookups indexed by secrets — each is a side channel wearing an optimization's clothes.</li>
+<li><strong>Homegrown ciphers.</strong> Differential and linear cryptanalysis exist because smart people designed ciphers that looked fine and weren't. The defense is selection from algorithms that survived decades of public analysis.</li>
+<li><strong>Ignoring the attacker's model.</strong> Designing for ciphertext-only when the attacker gets chosen-plaintext (any API that encrypts attacker input), or ignoring chosen-ciphertext where error messages leak. Assume the strongest model your system offers.</li>
+<li><strong>Key sizes as magic numbers.</strong> Deploying "128-bit" without knowing <em>what</em> is 128 bits — key, block, or hash output — and therefore not knowing whether the birthday bound halves it.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-57 Part 1 Rev. 5, Recommendation for Key Management</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the key-size and cryptoperiod sections: the authoritative source for why 128 bits is the floor and how long keys may live.</li>
+<li><strong>NIST SP 800-53 Rev. 5, SC family</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>skim</em> SC-12 (key management) and SC-13 (cryptographic protection) as the control-language form of this lesson's defenses.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Cryptographic Storage Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the practitioner checklist: which primitives, which modes, which mistakes — the defensive companion to every attack in this lesson.</li>
+<li><strong>NIST SP 800-115, Technical Guide to Information Security Testing and Assessment</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; where cryptanalytic testing fits in a real assessment program (and where its limits are).</li>
+<li><strong>Purdue CS 526 integrity handout</strong> (<a href="https://cs.purdue.edu">cs.purdue.edu</a>) — free; the university treatment of classical analysis concepts alongside the integrity models — good second voice on frequency-style reasoning.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An API encrypts whatever clients submit and returns the ciphertext; errors distinguish "bad padding" from "bad MAC." Name the attacker model, the attack it enables, and the single design change that closes it.</li>
+<li>A team proposes a 64-bit hash "for integrity, not security." Using the birthday bound, compute the collision workload and explain why the integrity/security distinction doesn't save them.</li>
+<li>A login endpoint compares password hashes with an early-exit byte loop. Name the attack class, describe what the attacker measures, and give the fix plus what you'd monitor to detect the attack.</li>
+<li>Explain why differential cryptanalysis needing 2^47 chosen plaintexts against DES is both a devastating academic result and, practically, the reason DES died — then state the design lesson for cipher selection.</li>
+<li>Predict the migration crisis for an organization that standardizes on one hash function with no agility: which event triggers it, what the first 48 hours look like, and what the pre-built agility would have changed.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the three demonstration scripts run on your machine (brute-force table, birthday computation, Caesar break with recovery verified) plus your six detection/remediation paragraphs — one per attack method in §3.</p>
+<p><strong>Honest claim:</strong> "I can compute what key and hash sizes survive which attackers, demonstrate classical frequency analysis, and pair every cryptanalytic method with its defense."</p>
+<p><strong>Can't claim yet:</strong> "I can perform cryptanalysis on real ciphers" — academic cryptanalysis of modern algorithms is a research discipline; this lesson taught the models, the mathematics, and the defensive reasoning, using a classical cipher as the demonstration vehicle.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — the use-side failures this lesson's math-side complements; reread its §6 as the attacker's easier path.</li>
+<li><a href="/g/secure-design/"><code>e-secure-design</code></a> — open design and least common mechanism as the principles behind "never roll your own" and side-channel defense.</li>
+<li><a href="/g/data-protection-controls/"><code>e-data-protection-controls</code></a> — data security controls: hash-function selection and migration as an organizational control.</li>
+<li>Map refs: <strong>CISSP 3.7</strong> (this lesson); feeds <strong>CISSP 2.6</strong> (data protection) and <strong>8.3</strong> (software security effectiveness).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

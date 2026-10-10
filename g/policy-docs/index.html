@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security policy, standards, procedures, and guidelines: the document hierarchy | Learn Computer Stuff</title>
+<meta name="description" content="Author a four-tier document set — policy, standard, procedure, guideline — with traceability both ways. A free lesson in the security guidebook, serving CISSP objective 1.6.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/policy-docs/">
+<meta property="og:title" content="Security policy, standards, procedures, and guidelines: the document hierarchy | Learn Computer Stuff"><meta property="og:description" content="Author a four-tier document set — policy, standard, procedure, guideline — with traceability both ways. A free lesson in the security guidebook, serving CISSP objective 1.6.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/policy-docs/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Security policy, standards, procedures, and guidelines: the document hierarchy","item":"https://learncomputerstuff.dev/g/policy-docs/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Security policy, standards, procedures, and guidelines: the document hierarchy</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Security policy, standards, procedures, and guidelines: the document hierarchy</h1>
+<p class="lede prose">Every organization runs on documents it may not have written down. The "policy" that lives in the CISO's head, the "standard" that is actually a Slack message from 2021, the "procedure" that one engineer knows and everyone else guesses at — this is how most security programs actually operate, and it is why they fail audits, fail handovers, and fail at 3 a.m. The document hierarchy is the fix: four tiers, each with a distinct job, written so that a stranger can reconstruct what the organization decided and why. It shows up in the audit that asks "show me the policy"; in the new hire who needs to know the rule without asking three people; in the incident where the responder follows the procedure instead of improvising; and in the exception request that turns silent non-compliance into a governed decision. This lesson teaches the hierarchy and makes you write it.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (author a three-tier document set — policy, standard, procedure — for one control area, plus the guideline, with owners and review dates)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/governance/"><code>e-governance</code></a> (the charter that gives policy its authority). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.6</strong> — security policy, standards, procedures, and guidelines.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every organization runs on documents it may not have written down. The "policy" that lives in the CISO's head, the "standard" that is actually a Slack message from 2021, the "procedure" that one engineer knows and everyone else guesses at — this is how most security programs actually operate, and it is why they fail audits, fail handovers, and fail at 3 a.m. The document hierarchy is the fix: four tiers, each with a distinct job, written so that a stranger can reconstruct what the organization decided and why. It shows up in the audit that asks "show me the policy"; in the new hire who needs to know the rule without asking three people; in the incident where the responder follows the procedure instead of improvising; and in the exception request that turns silent non-compliance into a governed decision. This lesson teaches the hierarchy and makes you write it.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have the governance charter from <a href="/g/governance/"><code>e-governance</code></a> — policy authority, approval path, and the exception process. This lesson writes the documents that charter authorizes.</li>
+<li>Bring one control area you know well (encryption, access control, logging — anything with real technical content). The worked case uses encryption; yours can differ.</li>
+<li>The work product is a document set: one policy, one standard, one procedure, one guideline — each fitting its tier, none doing another tier's job.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The four tiers.</strong> Each tier answers a different question, at a different altitude, approved at a different level:</p>
+<ul>
+<li><strong>Policy — what and why.</strong> Management's statement of intent: what the organization requires and why it matters. Short (a page or two), stable (changes rarely), approved at the top. A policy says "the organization protects information with encryption proportionate to its classification"; it does not name algorithms. Policies are few — an organization with forty "policies" has forty procedures wearing costumes.</li>
+<li><strong>Standard — how well, how much.</strong> Mandatory requirements that implement the policy: the specific bar. "All data classified Confidential or above is encrypted with an approved algorithm" — the standard names the approved list, the key lengths, the minimums. Standards change when technology changes, and they are mandatory: deviation requires the exception process.</li>
+<li><strong>Procedure — who does what, in what order.</strong> Step-by-step instructions for the people doing the work: request a certificate, generate the key, store it, rotate it. Procedures change often (tools change, teams change) and are owned close to the work. A procedure that nobody follows is not strict — it is fiction.</li>
+<li><strong>Guideline — what is recommended.</strong> Advisory, not mandatory: recommended practice, preferred options, the "if you're unsure, do this" document. Guidelines inform judgment where the standard leaves room. The moment a guideline is treated as mandatory, it has become an unapproved standard — call it what it is or stop enforcing it.</li>
+</ul>
+<p><strong>Traceability.</strong> The tiers link downward: every standard traces to a policy ("this standard implements the Encryption Policy §2"); every procedure traces to a standard; guidelines reference the standards they elaborate. Traceability is what makes the set auditable — an auditor picks a procedure step and walks it up to the management intent, or picks a policy statement and walks it down to the evidence. A document that traces to nothing is an opinion with formatting.</p>
+<p><strong>Ownership and lifecycle.</strong> Every document has a named owner (a role, not "the security team"), an approval authority (matching the charter), a review date, and a version. Review cadence follows volatility: policies annually or on strategy change; standards on technology change; procedures whenever the work changes. The version history is evidence — "we have always done it this way" is not.</p>
+<p><strong>The exception process.</strong> The hierarchy's pressure valve, from <a href="/g/governance/"><code>e-governance</code></a>: a documented path for deviating from a standard — requester, business justification, risk statement, approver, expiry date. Exceptions are how the organization learns: a recurring exception is a standard that needs rewriting, and the exception log is where that signal lives. No exception process means exceptions happen anyway, invisibly.</p>
+<p><strong>Baselines.</strong> A useful fifth concept, adjacent to standards: the <strong>baseline</strong> is the minimum secure configuration for a system type — the hardened image, the default settings. Baselines are standards applied to platforms; they are what <a href="/g/sdlc/"><code>e-sdlc</code></a> and operations teams actually deploy. Know the term because auditors use it.</p>
+<p><strong>Structure reference.</strong> NIST SP 800-53 Rev. 5 organizes its controls into 20 families — Access Control, Awareness and Training, Audit and Accountability, Configuration Management, Contingency Planning, Identification and Authentication, Incident Response, Maintenance, Media Protection, Physical and Environmental Protection, Planning, Program Management, Personnel Security, PII Processing and Transparency, Risk Assessment, System and Services Acquisition, System and Communications Protection, System and Information Integrity, Supply Chain Risk Management, and Assessment/Authorization/Monitoring (family list verified on the <a href="https://csrc.nist.gov">csrc.nist.gov</a> publication page, fetched in-session). The families are the catalog your standards point at: a standard does not reinvent access control — it selects from the catalog and sets the bar.</p>
+<h3>Worked example: Harbor Clinic — the encryption document set (fictional)</h3>
+<p><strong>The control area (fictional).</strong> Harbor Clinic (fictional, continued from <a href="/g/security-concepts/"><code>e-security-concepts</code></a>): 60 staff, patient portal, lab results. The set covers encryption of patient data.</p>
+<p><strong>Policy — Information Protection Policy (one page, abridged).</strong> <em>Purpose:</em> patient information is protected proportionate to its sensitivity, per the clinic's duty of care and its legal obligations. <em>Scope:</em> all workforce members, all systems handling patient data. <em>Statements:</em> (1) information is classified on creation; (2) protection measures follow classification; (3) encryption is required for patient data in transit and at rest; (4) the CISO owns the supporting standards; (5) exceptions follow the documented exception process. <em>Approved by:</em> the risk committee. <em>Review:</em> annually. Note what it does not contain: no algorithms, no key lengths, no steps. That restraint is the tier discipline.</p>
+<p><strong>Standard — Encryption Standard (abridged).</strong> <em>Implements:</em> Information Protection Policy §3. <em>Requirements:</em> (1) patient data in transit uses TLS 1.2 or later with an approved cipher suite list (maintained in the appendix); (2) patient data at rest uses an approved algorithm per the current <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> baseline — the standard references the baseline document rather than embedding algorithm names, so the standard survives algorithm deprecation; (3) keys are generated, stored, and rotated per the Key Management Standard; (4) no ECB mode, no hard-coded keys, no keys in source repositories; (5) new systems are verified against this standard before production. <em>Deviation:</em> exception process only. <em>Review:</em> on baseline change or annually.</p>
+<p><strong>Procedure — Requesting and rotating a data-encryption key (abridged).</strong> <em>Implements:</em> Encryption Standard §3. Steps: (1) requester files a key request ticket with system name and data classification; (2) the key custodian generates the key in the approved key store (never on a workstation); (3) the custodian records the key ID, purpose, and rotation date in the key inventory; (4) the requester configures the application to reference the key ID — the key value is never copied into config files; (5) rotation occurs automatically at the interval in the Key Management Standard, or immediately on suspected compromise or staff departure with key access; (6) retired keys are archived per the retention schedule, then destroyed. Each step names the role that performs it. <em>Review:</em> whenever the key store or ticketing tool changes.</p>
+<p><strong>Guideline — Choosing encryption options (abridged).</strong> <em>Advisory.</em> When the standard offers a choice (e.g., between approved algorithms for a new system), prefer the option with the longest support lifetime and the simplest operational profile; for data with retention beyond five years, prefer algorithms with the widest independent review. If unsure, ask the CISO — the guideline names the escalation, because "use your judgment" without a backstop is abandonment.</p>
+<p><strong>Traceability check:</strong> procedure §5 (rotation on staff departure) traces to standard §3 (key management), which traces to policy §3 (encryption required). An auditor can walk it in either direction. That is the whole point.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the document set above, authored and self-reviewed in-session on 2026-10-10 against the four-tier model and the SP 800-53 family structure. Transcript: <code>runs/e-policy-docs.log</code> (records the tier discipline per document, the traceability check, and the review checklist — no commands to transcribe).</p>
+<ol>
+<li><strong>Pick the control area.</strong> One area you know technically — encryption, logging, access reviews, backup. Narrow beats comprehensive: one area done in four tiers teaches the discipline; five areas done shallowly teaches nothing.</li>
+<li><strong>Write the policy first.</strong> One page: purpose, scope, the what-and-why statements, owner, approver, review date. Then delete every technical detail that crept in — algorithms, ports, tool names. If it is longer than two pages, it is not a policy.</li>
+<li><strong>Write the standard.</strong> Mandatory requirements implementing the policy, with the traceability line ("implements Policy §N"). Reference external baselines (like <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>) instead of embedding volatile details. Name the exception path.</li>
+<li><strong>Write the procedure.</strong> Steps, in order, with the role per step. Hand it to an imaginary new hire: can they execute it without asking anyone? If not, it is not a procedure yet.</li>
+<li><strong>Write the guideline.</strong> Advisory recommendations for the judgment calls the standard leaves open. Mark it advisory explicitly — and mean it.</li>
+<li><strong>Run the traceability check.</strong> Pick a procedure step, walk it up to the policy. Pick a policy statement, walk it down to the procedure. Every link must exist. Then date the next review for each document.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write the four-tier set for a control area in a system you actually run — your backup scheme, your homelab's access control, your password-manager usage. Real area, real steps, your name as owner.</p>
+<p><strong>Success test:</strong> The policy fits on one page with no technical details; the standard contains a requirement you can test (pass/fail); the procedure is executable by a stranger; the guideline is honestly advisory. And the traceability check passes in both directions — if it does not, the set is four documents, not a hierarchy.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The forty-page policy.</strong> Policies that contain standards, procedures, and guidelines in one document — unapprovable, unreadable, unmaintained. Tier discipline is the fix.</li>
+<li><strong>Procedures wearing policy costumes.</strong> "Policies" that name tools and ports — they cannot be approved at the top (leadership cannot evaluate them) and they rot on every tool change.</li>
+<li><strong>Guidelines enforced as standards.</strong> The advisory document treated as mandatory without going through approval. Either approve it as a standard or stop enforcing it.</li>
+<li><strong>No owner, no review date.</strong> Documents that belong to "the team" and are reviewed "as needed" — which means never. Ownership and dates are load-bearing.</li>
+<li><strong>The missing exception process.</strong> Deviations happen invisibly, the standard describes a fictional organization, and the audit finds the gap. The exception log is also the signal for rewriting bad standards.</li>
+<li><strong>Shelfware.</strong> The set is written for the audit, filed, and never used. Test: ask three engineers where the procedure lives. Silence is the diagnosis.</li>
+<li><strong>Traceability theater.</strong> "Implements Policy §2" written on a standard that contradicts §2. The check is substantive — read both directions.</li>
+<li><strong>Baselines confused with standards.</strong> The hardened image treated as the requirement, so every platform exception becomes a standards violation. Baselines implement standards; they are not the standards.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-53 Rev. 5, Security and Privacy Controls</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the family structure (20 families) as the catalog your standards select from; <em>skim</em> one family's controls to see the control/enhancement pattern your standards mirror.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>SANS Information Security Policy Templates</strong> (<a href="https://sans.org">sans.org</a>) — free; the template set — use as skeletons for tier discipline (policy vs standard vs procedure), not as finished documents. Fill them; do not file them.</li>
+<li><strong>NIST CSF 2.0, Govern function (GV.OC)</strong> (<a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>) — free; where policy lives in the framework — the organizational-context outcomes your policy tier answers to.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A "policy" document names specific cipher suites, key lengths, and the ticketing tool for key requests. Identify every tier violation, and state what belongs in which tier.</li>
+<li>Explain traceability as an audit mechanism: walk a procedure step up to management intent, and a policy statement down to evidence — and state what breaks when a link is missing.</li>
+<li>A team treats an advisory guideline as mandatory and disciplines an engineer for deviating. Name the governance failure and the two legitimate resolutions.</li>
+<li>Distinguish a standard from a baseline using a concrete example: which changes when the organization switches key-management tools, and which does not?</li>
+<li>Predict the state of a document set three years after its owner leaves, with no review dates ever set: which tier rots first, and what event reveals the rot?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your four-tier document set (policy, standard, procedure, guideline) for one control area — for the Harbor Clinic encryption case in your own words, or better, for a real system you run — with the traceability check documented and review dates set.</p>
+<p><strong>Honest claim:</strong> "I can write the document hierarchy for a control area — policy through guideline — with tier discipline, traceability in both directions, named owners, and review dates."</p>
+<p><strong>Can't claim yet:</strong> "I can run an organization's full policy program" — a complete policy library across all control families, with approval workflows and exception governance at scale, is its own practice; this lesson taught the discipline on one control area, which is where the judgment is formed.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/governance/"><code>e-governance</code></a>** — the charter that authorizes policy: approval, ownership, exceptions.</li>
+<li><a href="/g/awareness-training/"><code>e-awareness-training</code></a>** — the program that teaches the documents: policy is only real when people know it.</li>
+<li><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>** — the technical baseline the encryption standard references.</li>
+<li>Map refs: <strong>CISSP 1.6</strong> (this lesson); feeds <strong>CISSP 1.3</strong> (governance) and <strong>7.3</strong> (configuration management).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

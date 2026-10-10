@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Network components: hardening everything the architecture trusts | Learn Computer Stuff</title>
+<meta name="description" content="Harden firewalls, IDS/IPS, switches, wireless, and NAC with placement rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.2.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/network-components/">
+<meta property="og:title" content="Network components: hardening everything the architecture trusts | Learn Computer Stuff"><meta property="og:description" content="Harden firewalls, IDS/IPS, switches, wireless, and NAC with placement rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.2.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/network-components/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Network components: hardening everything the architecture trusts","item":"https://learncomputerstuff.dev/g/network-components/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Network components: hardening everything the architecture trusts</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Network components: hardening everything the architecture trusts</h1>
+<p class="lede prose">The architecture lesson drew the boundaries; this lesson hardens the devices that enforce them. A firewall with an any-any rule, an IDS sensor watching the wrong interface, a switch with default credentials, a wireless network that hands the keys to the parking lot — each is a component failure that voids the architecture. It shows up in hardening reviews ("show me the firewall ruleset review from last quarter"), in wireless assessments, and in every incident where the sensor that should have seen the attack was misconfigured, unpatched, or never deployed. Network security engineers and the SOC analysts who depend on their feeds live here.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (produce a component-hardening review with placement rationale for each control)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/network-architecture/"><code>e-network-architecture</code></a> (the zone map this lesson hardens), <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> (what rules match); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 4.2</strong> — securing network components.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The architecture lesson drew the boundaries; this lesson hardens the devices that enforce them. A firewall with an any-any rule, an IDS sensor watching the wrong interface, a switch with default credentials, a wireless network that hands the keys to the parking lot — each is a component failure that voids the architecture. It shows up in hardening reviews ("show me the firewall ruleset review from last quarter"), in wireless assessments, and in every incident where the sensor that should have seen the attack was misconfigured, unpatched, or never deployed. Network security engineers and the SOC analysts who depend on their feeds live here.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have a zone map (yours or Harborlight's from <a href="/g/network-architecture/"><code>e-network-architecture</code></a>) — every placement decision below references it.</li>
+<li>You understand what firewall rules match (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>).</li>
+<li>No tools. The work product is a component-hardening review document.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Every network component falls into one of three jobs: <strong>enforce</strong> (decide what passes), <strong>detect</strong> (see what passed), or <strong>transport</strong> (carry traffic faithfully). Hardening means making each do its job and nothing else — disabling what is unnecessary, authenticating what is administrative, and logging what is security-relevant. The principle from the architecture lesson carries over: the component is only as trustworthy as its own configuration, and the management plane is the highest-value target on the device.</p>
+<p><strong>Firewalls: the enforcement points.</strong> A firewall's job is the boundary table made real: default deny, explicit allows, stateful tracking of connections so return traffic is recognized rather than re-permitted. The review discipline (per NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy): the ruleset is reviewed against the policy it claims to implement — every rule traceable to a business need, ordered so the specific precedes the general, with no shadowing (a broad rule above that makes a narrow rule below dead), no any-any allows except named and justified, and logging on the denies so the firewall is also a sensor. The management interface lives in the management zone, reachable only from admin workstations over encrypted, authenticated channels — a firewall whose admin page is reachable from the user LAN is a firewall waiting to be reconfigured by someone else. Rule changes go through the change process (<a href="/g/security-audits/"><code>e-security-audits</code></a> will audit exactly this): request, approval, implementation, verification.</p>
+<p><strong>IDS/IPS: the detection layer.</strong> An IDS sees and alerts; an IPS sees and blocks — the same sensor, different courage. NIST SP 800-94 (Guide to Intrusion Detection and Prevention Systems) frames the placement question, and placement is the whole game: a sensor outside the edge firewall sees the internet's background noise; a sensor inside sees what got through; a sensor on a SPAN feed at a trust boundary sees exactly the crossing traffic the boundary table governs. The worked case places sensors where the architecture lesson's monitoring points went — the detection goal per sensor named in advance, because a sensor without a stated detection goal produces alerts nobody triaged. Signatures catch the known; anomaly detection catches the deviation — the OT boundary's tiny allow-list makes anomaly detection practical there (any unexpected flow <em>is</em> the alert), while the internet edge needs signatures to survive the noise. The IPS decision — block or alert-only — is risk, not technology: block where the false-positive cost is low (known-malicious indicators), alert where blocking breaks the business (the plant floor).</p>
+<p><strong>Routers and switches: the transport, hardened.</strong> These devices are computers with a forwarding job, and they get the server-hardening treatment: unused ports administratively disabled, unused services off (no telnet, no HTTP admin, no discovery protocols leaking topology beyond need), strong authentication on every administrative path, configuration backups tested by restore, and firmware patched on a schedule — a switch running five-year-old firmware is a firewall with extra steps and fewer logs. Separation matters: management traffic on the management VLAN/zone, never in-band with user data; control-plane protections so the device's own CPU cannot be drowned by data-plane floods.</p>
+<p><strong>Wireless: the boundary you cannot see.</strong> Wireless extends a trust zone into the parking lot, so it gets its own policy (per NIST SP 800-153, Guidelines for Securing Wireless Local Area Networks): strong authentication for corporate SSIDs (enterprise mode — per-user credentials via the NAC/RADIUS path, not a shared passphrase on a sticky note), a separate guest SSID tunneled straight to the internet with no interior path, rogue access-point detection (an employee's "helpful" personal AP bridged to the corporate LAN voids every boundary), and physical awareness — signal does not respect the building's walls, so the policy does. The review asks: who can join, what zone do they land in, and what would a parking-lot attacker get?</p>
+<p><strong>NAC as a component</strong> (placed in the architecture lesson, hardened here): the policy server's own availability is load-bearing — if NAC fails closed, the business stops; if it fails open, the boundary vanishes. The design states the failure mode deliberately, the policy server is redundant, and the exception inventory (devices that cannot do 802.1X) is reviewed, not grandfathered.</p>
+<h3>Worked example: Harborlight Manufacturing — component-hardening review (fictional, continued)</h3>
+<p><strong>Scope.</strong> Every enforcement and detection component on the Harborlight zone map: two edge firewalls (HA pair), three inter-zone firewalls, the VPN concentrator, four IDS sensors, 60 switches, the wireless controllers, and the NAC policy servers.</p>
+<p><strong>Findings (fictional, labeled).</strong></p>
+<ol>
+<li><strong>Edge firewall ruleset drift.</strong> 214 rules; 31 have no owner, 6 are any-any allows added as "temporary" between 2022 and 2024. <em>Decision: named owners assigned within 30 days; any-any rules either justified in writing with expiry or removed — the change process from now on requires an expiry date on every temporary rule.</em></li>
+<li><strong>IDS sensor misplacement.</strong> The "DMZ sensor" is on a SPAN port that only sees post-firewall DMZ traffic — it cannot see the internet→DMZ attacks the firewall blocked, which was its stated detection goal. <em>Decision: re-mirror to the pre-firewall tap; detection goal rewritten to match what the sensor actually sees.</em></li>
+<li><strong>Switch management in-band.</strong> Forty switches managed over the user VLAN with default SNMP strings still present. <em>Decision: migrate management to the management zone; rotate all credentials; disable SNMP v1/v2.</em></li>
+<li><strong>Wireless guest bridge risk.</strong> The guest SSID is tunneled correctly, but two conference-room APs were found in bridge mode from a 2023 install, giving wireless clients a path to the corporate LAN. <em>Decision: reconfigure; add AP-mode audit to the quarterly wireless review.</em></li>
+<li><strong>NAC exception rot.</strong> 47 MAC-bypass exceptions; 19 are devices decommissioned in 2024. <em>Decision: purge; exceptions now expire after 180 days unless re-justified.</em></li>
+<li><strong>IPS on the plant boundary in block mode without a bypass plan.</strong> A false positive could halt the historian feed the business depends on. <em>Decision: alert-only on the OT boundary with a 24-hour analyst SLA; block mode only on the internet edge for known-malicious indicators.</em></li>
+</ol>
+<p><strong>Review close-out:</strong> each finding has a decision, owner, and date; the next ruleset review is quarterly, the wireless and NAC reviews semi-annual. The review is the artifact the auditor asks for — and the mechanism that keeps the architecture honest.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the component-hardening review above, authored and self-reviewed in-session on 2026-10-10 against SP 800-41 Rev. 1, SP 800-94, and SP 800-153. Transcript: <code>runs/e-network-components.log</code>.</p>
+<ol>
+<li><strong>Inventory the components.</strong> From the zone map, list every enforcement, detection, and transport device — including the ones nobody owns (the conference-room APs from 2023 are always the find).</li>
+<li><strong>Review each firewall ruleset against the boundary table.</strong> Every rule needs a business reason, an owner, and correct ordering. Flag shadowing, any-any, and expired temporaries. The ruleset that implements the architecture is a document; the ruleset that drifted from it is the finding.</li>
+<li><strong>Verify sensor placement against detection goals.</strong> For each IDS/IPS sensor, write what it should see and confirm the tap/SPAN actually delivers that traffic. A sensor whose feed doesn't match its goal is a finding, not a control.</li>
+<li><strong>Harden the transport.</strong> Sample switches and routers: unused ports, unused services, management-plane separation, credential hygiene, firmware age, config-backup restorability. One device audited deeply beats ten glanced at.</li>
+<li><strong>Review wireless as a boundary.</strong> SSID inventory, authentication mode per SSID, zone each SSID lands in, rogue-AP detection status, and the physical question: what does the parking lot get?</li>
+<li><strong>Decide the NAC failure mode in writing.</strong> Fail closed or fail open, with the business impact of each stated and the redundancy that makes the choice survivable.</li>
+<li><strong>Close out.</strong> Findings with decisions, owners, dates; review cadence per component class.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Run a component review on a network you control — home lab counts. Inventory every device, review one firewall ruleset rule-by-rule against what you believe the policy is, check where your IDS (or logging) actually sees, and audit your wireless.</p>
+<p><strong>Success test:</strong> You find at least one rule you cannot justify, one device with a default or stale credential, and one monitoring blind spot. If your network is perfect, your review was not.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Ruleset archaeology.</strong> Nobody knows why rule 47 exists, so nobody removes it. Every rule without an owner is a future incident's attack path.</li>
+<li><strong>The sensor facing the wrong way.</strong> Mirrored the wrong interface, filtered at the tap, or watching post-NAT traffic it cannot attribute. Placement is verified, not assumed.</li>
+<li><strong>IPS block mode on the wrong boundary.</strong> Blocking where false positives halt the business teaches everyone to disable the IPS — then nothing is blocked anywhere.</li>
+<li><strong>Default credentials on infrastructure.</strong> The switch, the AP controller, the UPS management card. Attackers enumerate infrastructure first because it is rarely patched and often default.</li>
+<li><strong>Wireless as the forgotten boundary.</strong> The guest network audited once at install, never again. Bridge-mode APs and rogue APs accumulate silently.</li>
+<li><strong>Management plane in the data plane.</strong> Admin interfaces reachable from user networks. Compromise one workstation, reconfigure the firewall.</li>
+<li><strong>Firmware as technical debt.</strong> Five-year-old switch firmware with known vulnerabilities, "because it still works." It works for the attacker too.</li>
+<li><strong>NAC exceptions as permanent bypasses.</strong> The exception inventory only grows. Every exception is a device the NAC never sees — review them like the holes they are.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the firewall policy and ruleset management guidance; this is the document firewall reviews are graded against.</li>
+<li><strong>NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS)</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the placement and deployment considerations; <em>skim</em> the technology taxonomy.</li>
+<li><strong>NIST SP 800-153, Guidelines for Securing Wireless Local Area Networks</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> as the wireless review checklist.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NSA: Network Infrastructure Security Guidance</strong> (March 2022; mirrored PDF) — free; the device-hardening companion: what each component's configuration should look like.</li>
+<li><strong>CISA: Zero Trust Maturity Model</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the device-identity and visibility pillars, for placing component hardening on the roadmap.</li>
+<li><strong>CIS Benchmarks</strong> (<a href="https://cisecurity.org">cisecurity.org</a>) — free; the measurable hardening checks per device class — the review's evidence base.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A firewall ruleset has 300 rules, 40 without owners, and a broad allow above a narrow deny. Explain the two distinct failures (governance, ordering) and the review discipline that catches each.</li>
+<li>An IDS sensor's stated goal is "detect inbound attacks against the DMZ," but it sits on a post-firewall SPAN. What does it actually see, what is it blind to, and where should the tap be?</li>
+<li>The plant-floor IPS is in block mode. Argue for and against block mode on that specific boundary — what does a false positive cost here versus at the internet edge?</li>
+<li>Two conference-room APs are found in bridge mode, giving wireless clients a path to the corporate LAN. Which trust boundary did this void, and what does the fix's verification look like?</li>
+<li>NAC fails. Compare fail-closed versus fail-open: who is harmed by each, what redundancy changes the calculus, and why must the choice be written down before the failure?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your component-hardening review — device inventory, firewall ruleset review against the boundary table (every unjustified rule a finding), sensor placement verification against detection goals, switch/router hardening sample, wireless review, NAC failure-mode decision — each finding with a decision, owner, and date, for the Harborlight worked case in your own words or a network you control.</p>
+<p><strong>Honest claim:</strong> "I can review every component a network architecture depends on — I can verify each firewall rule against policy, each sensor against its detection goal, and each device against a hardening baseline, and drive findings to decisions."</p>
+<p><strong>Can't claim yet:</strong> "I can configure and tune these devices at enterprise scale" — rule authoring, IDS tuning, and wireless design are engineering disciplines; this lesson taught the review that keeps them honest.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/network-architecture/"><code>e-network-architecture</code></a> — the zone map this lesson's review defends; reread it as the "why" behind every placement here.</li>
+<li><a href="/g/secure-channels/"><code>e-secure-channels</code></a> — the encrypted channels whose endpoints these components protect.</li>
+<li><a href="/g/log-sources/"><code>c-log-sources</code></a> — what each hardened component should log, and where those logs go.</li>
+<li><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> — the mechanism layer every rule review here depends on.</li>
+<li>Map refs: <strong>CISSP 4.2</strong> (this lesson); feeds <strong>CISSP 4.1</strong> (architecture) and <strong>7.7</strong> (operating detective and preventive measures).</li>
+</ul>
+<p><em>Sources fetched 2026-10-10: NIST SP 800-41 Rev. 1, SP 800-94, SP 800-153 (<a href="https://csrc.nist.gov">csrc.nist.gov</a>); NSA Network Infrastructure Security Guidance (Mar 2022); CISA Zero Trust Maturity Model; CIS Benchmarks. Full ledger in the batch manifest.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

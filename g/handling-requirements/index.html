@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Handling requirements: what each classification tier demands | Learn Computer Stuff</title>
+<meta name="description" content="Turn classification tiers into enforceable handling rules — labeling, storage, transmission, disposal — as a testable matrix. A free lesson in the security guidebook, serving CISSP objective 2.2.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/handling-requirements/">
+<meta property="og:title" content="Handling requirements: what each classification tier demands | Learn Computer Stuff"><meta property="og:description" content="Turn classification tiers into enforceable handling rules — labeling, storage, transmission, disposal — as a testable matrix. A free lesson in the security guidebook, serving CISSP objective 2.2.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/handling-requirements/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Handling requirements: what each classification tier demands","item":"https://learncomputerstuff.dev/g/handling-requirements/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Handling requirements: what each classification tier demands</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Handling requirements: what each classification tier demands</h1>
+<p class="lede prose">A classification scheme says "this is Confidential." Handling requirements say what that <em>means</em> on Monday morning: how it is labeled, where it may be stored, how it may be sent, how it is destroyed — and what happens when someone does it wrong. This is the discipline behind every "do not forward" banner, every encrypted laptop mandate, every clean-desk finding, and every incident where the breach wasn't the hack but the spreadsheet emailed to a personal account.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (write handling rules per tier — labeling, storage, transmission, disposal — and turn them into an enforceable matrix)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/asset-classification/"><code>e-asset-classification</code></a> (the four tiers this lesson operationalizes); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 2.2</strong> — information and asset handling requirements: the rules that turn a classification label into actual protection.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>A classification scheme says "this is Confidential." Handling requirements say what that <em>means</em> on Monday morning: how it is labeled, where it may be stored, how it may be sent, how it is destroyed — and what happens when someone does it wrong. This is the discipline behind every "do not forward" banner, every encrypted laptop mandate, every clean-desk finding, and every incident where the breach wasn't the hack but the spreadsheet emailed to a personal account.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have a classification scheme with tiers, examples, and owners from <a href="/g/asset-classification/"><code>e-asset-classification</code></a> — this lesson is its enforcement arm. If your tiers have no impact-anchored definitions, fix that first; handling rules built on vague tiers are unenforceable.</li>
+<li>No tools. The work product is a handling matrix: tiers on one axis, handling dimensions on the other, a rule in every cell.</li>
+<li>Primary spine: <strong>NIST SP 800-53 Rev. 5</strong> (September 2020), the Media Protection family — MP-2 (media access), MP-3 (media marking), MP-4 (media storage), MP-5 (media transport), MP-6 (media sanitization), MP-7 (media use). Free.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Handling is classification made operational.</strong> The scheme from the last lesson is a set of labels; labels change nothing until each one implies rules a person can follow and an auditor can test. The standard structure is a matrix: one row per tier, one column per handling dimension, one rule per cell. The dimensions that matter:</p>
+<p><strong>Labeling (marking).</strong> The label must travel with the information: documents carry headers/footers with the tier, emails get classification banners, removable media gets a physical label. Two principles: the marking must be <em>visible enough to change behavior</em>, and it must be <em>applied at creation</em> — retroactive labeling of a decade of file shares is a project nobody finishes.</p>
+<p><strong>Storage.</strong> Where each tier may live, and under what protection. MP-4 (media storage) plus SC-28 (protection of information at rest) are the control homes: Confidential and Restricted live only on encrypted, access-controlled storage — no local copies on unmanaged laptops, no personal cloud drives, no USB sticks without written exception. The rule must name the <em>prohibited</em> locations, not just the approved ones, because the shadow copy is the threat: the Restricted file is safe on the encrypted share and exposed in the analyst's Downloads folder. Removable media gets its own line — allowed tiers, encryption requirement, registration — because a USB stick is storage that walks out of the building.</p>
+<p><strong>Transmission.</strong> How each tier may move. MP-5 (media transport) and SC-8 (transmission confidentiality and integrity) are the control homes: the rule names the approved channels per tier (corporate email with TLS, approved file-share links with expiry, no personal email, no consumer messaging apps for Confidential and above), and the encryption requirement (encrypted in transit, always, for the top two tiers — no exceptions for "it's just internal"). Physical transport gets a line too: couriers, registered mail, chain of custody for media leaving the building. The failure this prevents is the convenience bypass: the rule people break first is always the transmission rule, because sending is the action under time pressure.</p>
+<p><strong>Disposal and destruction.</strong> How each tier dies. MP-6 (media sanitization) and <strong>NIST SP 800-88 Rev. 2</strong> (September 2025) are the authorities: the matrix names the sanitization method per tier and media type — clear, purge, or destroy — and the verification the method requires. The key judgment, straight from 800-88: the method must match the <em>classification of the information</em>, not the convenience of the operator. Wiping a Restricted drive with a file-level overwrite and calling it done is the canonical failure; the matrix must say which method, applied how, verified by whom, with what record kept. Paper gets its own row — cross-cut shredding for Confidential and above, witnessed for Restricted — because the shredder next to the printer is where handling programs go to be embarrassed.</p>
+<p><strong>Retention hooks.</strong> The matrix points at the retention schedule (the fifth lesson) rather than duplicating it — but every storage rule carries the implication: data that should have been destroyed last year but sits on a backup tape is a handling failure with the retention schedule as the root cause.</p>
+<p><strong>The matrix must be testable.</strong> Every cell's rule needs a corresponding check: labeling by sampling documents; storage by scanning for tier markers on unapproved locations (this is where DLP earns its keep); transmission by reviewing egress logs and DLP blocks; disposal by the sanitization records. A rule with no check is a wish — auditors sample against the matrix, so the program must sample first.</p>
+<p><strong>Exceptions are part of the design.</strong> There will be legitimate needs to break the matrix. The handling program needs an exception process — requested in writing, time-bounded, approved by the data owner, with compensating controls — or people will break the rules silently. An undocumented exception is indistinguishable from a violation.</p>
+<h3>Worked example: Aster Diagnostics — handling matrix</h3>
+<p><strong>The company (fictional, continued).</strong> Aster Diagnostics, 240 people; four tiers from the last lesson: Public, Internal, Confidential, Restricted. The matrix below is the enforcement arm of that scheme — authored in-session, every cell a rule someone can follow and an auditor can sample.</p>
+<p>| Dimension | Public | Internal | Confidential | Restricted |</p>
+<p>|---|---|---|---|---|</p>
+<p>| <strong>Labeling</strong> | No marking required; integrity note where it matters | Footer or banner "Internal" on documents and emails | Header/footer "Confidential — do not distribute"; email banner; file metadata where supported | "Restricted" marking plus handling caveat (e.g., "Restricted — need-to-know"); cover sheet for printed copies |</p>
+<p>| <strong>Storage</strong> | Any approved location | Company-managed storage only; access-controlled shares | Encrypted at rest (SC-28); no local copies on unmanaged devices; no personal cloud; removable media only if encrypted, registered, and owner-approved | Encrypted at rest; need-to-know access lists reviewed quarterly; no removable media without CISO exception; no local copies, period |</p>
+<p>| <strong>Transmission</strong> | Any channel | Company email and approved collaboration tools | Approved channels only; encrypted in transit (SC-8); no personal email or consumer messaging; file-share links expire in 7 days | Approved channels only; encrypted in transit; no email attachments — secure file transfer with access logging; physical media by bonded courier with chain of custody |</p>
+<p>| <strong>Disposal</strong> | Standard deletion / recycling | Standard deletion; media reused within the company after clear-level sanitization | SP 800-88 Rev. 2: purge for reusable media, destroy for media leaving the company; paper cross-cut shredded | Purge or destroy per 800-88r2; destruction witnessed and logged; paper cross-cut shredded under witness; cryptographic erase only for validated self-encrypting drives |</p>
+<p>| <strong>Retention hook</strong> | Per schedule | Per schedule | Per schedule; legal-hold override documented | Per schedule; legal-hold override documented; early destruction prohibited without owner + legal sign-off |</p>
+<p><strong>Design decisions recorded (fictional, authored in-session):</strong></p>
+<ol>
+<li><strong>Email attachments banned for Restricted.</strong> The transmission cell is the strictest because exfiltration investigations kept finding the same pattern: the attachment, not the hack. Secure file transfer with access logging replaces the attachment — the control is auditable, the email is not.</li>
+<li><strong>"No local copies, period" for Restricted.</strong> The storage cell names the prohibited location explicitly. The exception process exists for the traveling researcher — encrypted laptop, time-bounded, CISO-approved — because an absolute ban with no exception process produces silent violations.</li>
+<li><strong>Disposal methods cite 800-88 Rev. 2 by name.</strong> The matrix does not invent sanitization methods; it points at the standard and names clear/purge/destroy per tier and media type. The verification column (who verifies, what record) is part of the rule — an unverified wipe is not a sanitization.</li>
+<li><strong>Every cell got a check.</strong> Labeling: quarterly document sampling. Storage: DLP scans for tier markers on unapproved locations. Transmission: egress log review plus DLP blocks. Disposal: sanitization records reviewed before asset disposal sign-off. The auditor samples; the program must sample first.</li>
+</ol>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" for this lesson is the handling matrix above, authored and self-reviewed in-session on 2026-10-10 against SP 800-53 Rev. 5's MP family. Transcript: <code>runs/e-handling-requirements.log</code> (records scope, per-cell rules, the testability check, and review notes).</p>
+<ol>
+<li><strong>Take your tiers.</strong> From <a href="/g/asset-classification/"><code>e-asset-classification</code></a>'s scheme — four tiers with definitions, examples, owners. If a tier lacks examples, stop: unenforceable rules follow.</li>
+<li><strong>Fill the labeling column.</strong> For each tier: what marking, where it appears, when it is applied (at creation). Be specific enough that two employees mark the same document the same way — if they wouldn't, the rule is vague.</li>
+<li><strong>Fill the storage column.</strong> Approved locations and, more importantly, prohibited ones per tier. Name the encryption and access-control requirements; handle removable media as its own line.</li>
+<li><strong>Fill the transmission column.</strong> Approved channels per tier, encryption requirement, physical-transport rule. Assume time pressure: the rule must survive the employee sending it at 11 PM before a deadline.</li>
+<li><strong>Fill the disposal column.</strong> Sanitization method per tier and media type, citing SP 800-88 Rev. 2's clear/purge/destroy — matched to the information's classification, not the operator's convenience. Name the verifier and the record.</li>
+<li><strong>Add the check per cell.</strong> Every rule gets its sampling method and frequency. Then the honesty pass: pick three cells and ask "could I actually test this?" — any "no" goes back for rewriting.</li>
+<li><strong>Write the exception process.</strong> Requested in writing, time-bounded, owner-approved, compensating controls named. One paragraph; it prevents more violations than any rule in the matrix.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write the handling matrix for the system you classified in <a href="/g/asset-classification/"><code>e-asset-classification</code></a>'s exercise. Then <em>test three cells for real</em>: sample five documents for correct labeling, check one storage location for tier violations, and review your own last month of file transfers against the transmission column.</p>
+<p><strong>Success test:</strong> The self-test finds at least one violation — a mislabeled document, a file in the wrong location, a transfer through an unapproved channel. Every violation gets a fix or a documented exception with owner and date.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The unmarked share.</strong> Ten years of files with no labels, and the rule applies "going forward." The program must at least label the top tier's known locations, or the matrix protects only new data while the old data is the breach.</li>
+<li><strong>The convenience bypass.</strong> Transmission rules die first under time pressure. If the approved channel is meaningfully harder than the forbidden one, the rule is fiction — fix the channel, not the people.</li>
+<li><strong>Sanitization theater.</strong> The file-level overwrite on an SSD, the degaussed SSD, the recycled drive with a signed form and no verification. The method must match the media and the classification.</li>
+<li><strong>The uncheckable rule.</strong> "Handle with appropriate care" in a cell. If the auditor cannot sample it, it is not a rule — rewrite until it is testable.</li>
+<li><strong>Paper exceptionalism.</strong> The program covers digital media meticulously and forgets the printer, the shred bin, the whiteboard photo. Non-digital media is media; MP-6 says so explicitly.</li>
+<li><strong>Exception by silence.</strong> No exception process, so exceptions happen without records. The program then cannot distinguish governance from violation — and neither can the auditor.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (September 2020; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> the Media Protection family: MP-2 (media access), MP-3 (media marking), MP-4 (media storage), MP-5 (media transport), MP-6 (media sanitization), MP-7 (media use). The matrix's columns are these controls in plain language.</li>
+<li><strong>NIST SP 800-88 Rev. 2, Guidelines for Media Sanitization</strong> (September 2025; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> section 3 (clear, purge, destroy) for the disposal column; <em>note</em> the FAQ's point that Rev. 2 defers media-specific techniques to IEEE 2883 and organizational policy.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NIST SP 800-88 Rev. 2 FAQ</strong> (July 2026; <a href="https://csrc.nist.gov">csrc.nist.gov</a>, free) — the Rev. 1 vs Rev. 2 differences and the decision-flow framing; useful when someone asks "why did the disposal rule change."</li>
+<li><strong>SANS Information Security Policy Templates</strong> (<a href="https://sans.org">sans.org</a>, free library) — media-protection and handling policy skeletons; fill with your matrix, don't file blank.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An employee emails a Confidential spreadsheet from a personal account at 11 PM to meet a deadline. Name the two matrix cells violated, explain why the transmission rule is the one people break first, and describe the fix that addresses the cause rather than punishing the employee.</li>
+<li>A "sanitized" SSD is resold after a single file-level overwrite pass. Using SP 800-88 Rev. 2's definitions, explain why this fails on two independent grounds (method-vs-media and verification) — and what the matrix should have required instead.</li>
+<li>Distinguish a handling rule from a handling wish: rewrite "Restricted data must be handled with appropriate care during transmission" as a testable rule, and name the check an auditor would run against it.</li>
+<li>The exception process doesn't exist, and a researcher takes Restricted data to a conference on an encrypted laptop. Explain why the program cannot distinguish this from a violation, and what the one-paragraph exception process changes.</li>
+<li>Predict the state of a handling program two years after its author leaves, with the matrix unchanged, DLP never tuned, and no cell ever sampled: which column decays first, what incident reveals the decay, and which single practice would have caught it earliest?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your handling matrix — tiers by labeling, storage, transmission, and disposal rules, each cell testable, each tier's disposal method citing SP 800-88 Rev. 2, plus the exception process — for the Aster worked case in your own words, or better, for a system you actually run, with three cells self-tested.</p>
+<p><strong>Honest claim:</strong> "I can turn a classification scheme into enforceable handling rules — what each tier demands for labeling, storage, transmission, and disposal, and how each rule is checked."</p>
+<p><strong>Can't claim yet:</strong> "I can operate enterprise DLP" — tuning detection and managing false positives across a fleet are operational disciplines; this lesson taught the rules the operations enforce.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/asset-classification/"><code>e-asset-classification</code></a> — the scheme this matrix enforces; reread it as the "what the labels mean" companion.</li>
+<li><a href="/g/data-lifecycle/"><code>e-data-lifecycle</code></a> — disposal is one lifecycle stage; the lifecycle map shows where handling hands off to retention and destruction.</li>
+<li><a href="/g/retention-eol/"><code>e-retention-eol</code></a> — the retention schedule the matrix's retention hooks point to.</li>
+<li><a href="/g/data-protection-controls/"><code>e-data-protection-controls</code></a> — the technical controls (encryption per state, DLP) that implement the matrix's storage and transmission columns.</li>
+<li>Map refs: <strong>CISSP 2.2</strong> (this lesson); feeds <strong>CISSP 2.4</strong> (destruction), <strong>2.6</strong> (protective controls), <strong>7.5</strong> (media protection).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

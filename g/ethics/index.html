@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Professional ethics in security work: the Code is the floor, not the ceiling | Learn Computer Stuff</title>
+<meta name="description" content="Argue real security-work dilemmas from the ISC2 Code of Ethics&#x27; four canons, in priority order. A free lesson in the security guidebook, serving CISSP objective 1.1.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/ethics/">
+<meta property="og:title" content="Professional ethics in security work: the Code is the floor, not the ceiling | Learn Computer Stuff"><meta property="og:description" content="Argue real security-work dilemmas from the ISC2 Code of Ethics&#x27; four canons, in priority order. A free lesson in the security guidebook, serving CISSP objective 1.1.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/ethics/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Professional ethics in security work: the Code is the floor, not the ceiling","item":"https://learncomputerstuff.dev/g/ethics/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Professional ethics in security work: the Code is the floor, not the ceiling</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Professional ethics in security work: the Code is the floor, not the ceiling</h1>
+<p class="lede prose">Ethics in security work is not a graduation speech; it is a Tuesday-afternoon decision. A client asks you to soften a critical finding so a deal closes. During an engagement scoped to a web application, you notice the client's internet-facing VPN appliance is unpatched against a known critical flaw — out of scope, but you are the only person who knows. A bug bounty researcher finds a vulnerability in a hospital system and the vendor goes silent. A former colleague asks for "a quick look" at their new employer's network. Each of these is a moment where the technically correct move and the professionally right move are different things, and where "the client told me to" is not an answer. This lesson teaches the framework the profession uses to decide: the ISC2 Code of Professional Ethics, read as an instrument rather than a poster.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>2 (argue a security ethics dilemma from a professional code's canons, in writing, naming which canon decides)</td></tr><tr><th scope="row">Prerequisites</th><td>none beyond Stage D; bring the AI-ethics material from <a href="/g/ai-governance/"><code>ai-governance</code></a> (it extends the same reasoning to AI systems). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.1</strong> — professional ethics in security work.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Ethics in security work is not a graduation speech; it is a Tuesday-afternoon decision. A client asks you to soften a critical finding so a deal closes. During an engagement scoped to a web application, you notice the client's internet-facing VPN appliance is unpatched against a known critical flaw — out of scope, but you are the only person who knows. A bug bounty researcher finds a vulnerability in a hospital system and the vendor goes silent. A former colleague asks for "a quick look" at their new employer's network. Each of these is a moment where the technically correct move and the professionally right move are different things, and where "the client told me to" is not an answer. This lesson teaches the framework the profession uses to decide: the ISC2 Code of Professional Ethics, read as an instrument rather than a poster.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>No technical prerequisites. This lesson is entirely about judgment.</li>
+<li>You have done real security work somewhere in Stages A–D — the dilemmas below will feel hypothetical until you map each one onto something you have actually seen.</li>
+<li>Bring the AI-ethics material from <a href="/g/ai-governance/"><code>ai-governance</code></a> (the canons applied to AI systems).</li>
+<li>The work product is writing: two dilemma analyses argued from the canons, each ending in a named decision.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Security practitioners hold asymmetric power: privileged access, knowledge of vulnerabilities, the ability to cause or prevent serious harm. The Code of Professional Ethics is the profession's answer to that asymmetry — a public commitment to use that power under constraints, with violations adjudicated by a peer review panel that can revoke certification. Read the ISC2 page itself (fetched for this lesson): adherence is a <em>condition of certification</em>, and members must follow the ethics complaint procedure on observing a breach by another member — looking away is itself a breach.</p>
+<p><strong>The four canons, paraphrased.</strong> The Code states there are only four mandatory canons, deliberately high-level — the page says plainly they are not a substitute for the professional's own ethical judgment. The preamble's ordering is a priority ordering (society first, then principals, then each other):</p>
+<ol>
+<li><strong>Protect society, the common good, public trust, and the infrastructure.</strong> The public interest outranks every private interest. When a client's request and the public's safety conflict, the public wins.</li>
+<li><strong>Act honorably, honestly, justly, responsibly, and legally.</strong> No dishonest reports, no fabricated data, no illegal acts even when ordered. Honesty here includes honesty about your own competence — taking work you cannot do well is a Canon II problem.</li>
+<li><strong>Provide diligent and competent service to principals.</strong> Your client or employer is owed real diligence: thorough work, competent methods, loyalty to their legitimate interests. Note "legitimate" — a principal's interest in deceiving others is not legitimate.</li>
+<li><strong>Advance and protect the profession.</strong> Do not damage the field's credibility; mentor, share knowledge responsibly, and hold peers to the standard (this is the canon behind the duty to report observed breaches).</li>
+</ol>
+<p>The ordering matters more than the wording. Canon I over Canon III is the entire theory of the Code in one line: your duty to the public outranks your duty to the person paying you. Most real dilemmas are a lower canon pulling against a higher one, and the Code's answer is almost always the higher canon.</p>
+<p><strong>How the canons resolve conflicts.</strong> The Code contains no algorithm — the ISC2 page says so explicitly, and the ACM Code says the same about itself: a code is a basis for ethical decision-making, with the public good paramount. The working method: (1) name the stakeholders; (2) name which canon each possible action serves or violates; (3) apply the priority ordering; (4) check whether the "compromise" actually satisfies the higher canon or merely delays violating it. Step 4 is where most rationalizations die — "I'll report it quietly later" usually means "I'll never report it."</p>
+<p><strong>The ACM comparison.</strong> The ACM Code of Ethics and Professional Conduct (2018) organizes the same territory differently: general principles (contribute to society, avoid harm, be honest, be fair, respect privacy, honor confidentiality), professional responsibilities, leadership, and compliance. Two contrasts matter. First, ACM's "avoid harm" explicitly includes reporting signs of system risks — and considering whistleblowing if leaders do not act — which maps directly onto disclosure dilemmas. Second, ACM's "honor confidentiality" holds <em>except</em> in cases of law, regulation, or Code violations, with disclosure only to appropriate authorities. Both codes converge: broad duties to society first, confidentiality and loyalty second, with defined escape hatches.</p>
+<p><strong>What the Code does not do.</strong> It does not give you the answer to any specific dilemma — that is your judgment. It does not override the law (Canon II requires legal conduct as a minimum). It does not protect you from the consequences of refusing an unethical order; it tells you which consequences to accept. And it is not the only code in the room: when codes conflict, the Code's priority ordering is your tiebreaker, not your shield.</p>
+<h3>Worked example: two dilemmas argued from the canons</h3>
+<p><strong>The setting (fictional).</strong> You are an independent security consultant. Your client is "Northwind Freight" (fictional), a 300-person logistics company. The engagement is a scoped web-application assessment of their customer portal.</p>
+<p><strong>Dilemma A — the out-of-scope finding.</strong> Mid-engagement, while verifying the portal's IP ranges, you discover Northwind's internet-facing VPN appliance is running firmware with a publicly known critical remote-code-execution flaw — patched by the vendor nine months ago, exploit code widely available. It is outside your scope. The client's IT lead, when you mention it informally, says "yeah, we're aware, it's on the list" and changes the subject. Your scope document says findings outside the portal are not your deliverable.</p>
+<p>Argue it from the canons. Canon III (diligent service): the client is served by a warning and harmed by silence — a compromised VPN endangers everything the portal assessment protects. Canon I (protect the infrastructure): a compromised logistics company becomes infrastructure for further attacks. Canon II (honest conduct): delivering a clean portal report while knowing the front door is open misleads by omission. The scope document is a contract term; no contract term outranks Canon I, and Canon II's honesty is not waivable by scope. The counter-argument — "not my job, they know, I'd overstep" — misreads Canon III as obedience. The Code asks for diligence, and diligence includes telling the principal what they need to hear.</p>
+<p>Decision: put it in writing, formally, to the engagement sponsor (not just the IT lead), as an out-of-scope critical observation with the CVE reference and the patch, distinct from the scoped findings. Document the notification. If the client instructs you to remove it, that becomes Dilemma B.</p>
+<p><strong>Dilemma B — the softened report.</strong> The portal assessment finds a genuine critical: an authenticated endpoint that exposes other customers' shipment data, trivially exploitable, affecting the full customer base. Northwind's VP of Sales calls you: their largest prospect is doing vendor due diligence next week, and a critical finding "would kill the deal." The ask: downgrade it to medium, or move it to an appendix "for the next cycle." The implied offer is a follow-on engagement.</p>
+<p>Argue it from the canons. Canon II is dispositive: a deliberately misrated finding is a dishonest work product, full stop. Canon I reinforces: other customers' data is exposed, and misrating prolongs the exposure of third parties who never consented to be part of a deal negotiation. Canon III is the trap: it looks like service, but the Code protects the principal's <em>legitimate</em> interests — deceiving a prospect is not one. Canon IV adds the professional dimension: every softened report degrades the credibility of every assessment, including your peers'. "Everybody does it" is specifically what Canon IV exists to reject.</p>
+<p>Decision: refuse, in writing, with the reasoning stated plainly — the rating follows the evidence, and the report is a professional attestation, not a marketing document. Offer what <em>is</em> legitimate: an expedited retest after remediation, and a documented risk-acceptance path (per <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — acceptance needs an owner and a date; it is the client's decision to make openly, not yours to make for them by misrating). If the client terminates the engagement, that is a consequence the Code requires you to accept.</p>
+<p><strong>The pattern.</strong> Both dilemmas resolve the same way: identify the highest canon engaged, and refuse to trade it for a lower one. The Code's priority ordering does the work — which is why step one of the method is always "name the canons," not "weigh the feelings."</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" for this lesson is the two dilemma analyses above, authored and self-reviewed in-session on 2026-10-10 against the ISC2 Code of Ethics page (fetched 2026-10-10). Transcript: <code>runs/e-ethics.log</code> (records the dilemmas, the canon-by-canon arguments, the decisions, and the review checklist — there are no commands to transcribe).</p>
+<ol>
+<li><strong>Read the Code itself.</strong> Open the ISC2 Code of Ethics page and read the preamble and the four canons. Note the two load-bearing sentences: adherence is a condition of certification, and the canons are not a substitute for your judgment.</li>
+<li><strong>Build your stakeholder map.</strong> List every stakeholder before you argue: the public, the principal, the profession, yourself. Bad reasoning skips stakeholders who are not in the room.</li>
+<li><strong>Argue canon by canon.</strong> For each candidate action, walk the four canons in order, in writing. Unwritten ethical reasoning is where rationalization hides.</li>
+<li><strong>Apply the priority ordering.</strong> When canons conflict, the higher canon wins — state this explicitly.</li>
+<li><strong>Name the decision and its cost.</strong> Every honest ethical decision costs something. Name it. An analysis that costs the analyst nothing is a dilemma avoided.</li>
+<li><strong>File it.</strong> Keep your analyses. In a dispute, the contemporaneous written record beats your memory.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write a third dilemma analysis, argued canon by canon, for this scenario (fictional): doing research in your own lab, you realize a technique you developed would also work against a hospital's patient portal — no bounty program, no published disclosure contact. You have not tested it against the hospital. Walk the canons: what do you do with the knowledge, whom do you tell, and what do you <em>not</em> do (no testing against the hospital — its own Canon II legal-conduct problem)?</p>
+<p><strong>Success test:</strong> Your analysis names all four canons, applies the priority ordering explicitly, reaches a decision with a named cost to you, and includes the "what I will not do" section. If your decision is "do nothing," your analysis must show which canon permits that — and it will not survive the attempt, which is the point.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Canon shopping.</strong> Reading the four canons and picking the one that blesses the decision you already made. The priority ordering exists to prevent this — if your analysis never lets a higher canon overrule your preference, you are shopping.</li>
+<li><strong>Obedience as service.</strong> Treating Canon III as "do what the client says." The Code asks for diligent, competent service to the principal's <em>legitimate</em> interests — not obedience. A client instruction to falsify a report is not a principal's interest the Code recognizes.</li>
+<li><strong>Scope as shield.</strong> "It was out of scope" is a contract defense, not an ethical one. Canon I does not contain a scope clause.</li>
+<li><strong>The unreported peer.</strong> Observing another member's breach and staying silent violates the complaint-procedure obligation. Solidarity runs toward the standard, not the person.</li>
+<li><strong>Competence theater.</strong> Taking work beyond your competence — Canon II covers honesty about your own limits — then hiding behind the engagement's brand name.</li>
+<li><strong>Ethics as a poster.</strong> A code quoted in a slide deck and never applied to a real decision. A code that has never cost anyone anything is decoration.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>ISC2 Code of Professional Ethics</strong> (<a href="https://isc2.org/ethics">isc2.org/ethics</a>) — <em>read</em> the preamble and the four canons; note the complaint-procedure obligation and the "not a substitute for judgment" line. This is the profession's enforcement document.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>ACM Code of Ethics and Professional Conduct</strong> (<a href="https://acm.org">acm.org</a>) — free; the computing profession's parallel code — compare its "avoid harm" reporting duty and its confidentiality-with-exceptions structure against the ISC2 canons.</li>
+<li><strong>ISC2 Ethics Complaint Procedures</strong> (<a href="https://isc2.org">isc2.org</a>) — free; what actually happens when a breach is reported: the peer review panel and revocation. Read this so the Code's enforcement is concrete, not abstract.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A client instructs you, in writing, to remove a critical finding from your report before it goes to their prospect's due-diligence team. Walk the four canons in order and state which canon is dispositive — and why the client's instruction does not change the answer.</li>
+<li>During a scoped engagement you discover a critical flaw in an out-of-scope system, and the client's IT lead says they are aware of it. Explain why "out of scope" and "they know" are both insufficient as ethical defenses, naming the canons.</li>
+<li>Compare the ISC2 and ACM codes on confidentiality: under what conditions does each permit (or require) breaking confidentiality, and to whom does the disclosure go?</li>
+<li>A peer at another firm tells you they routinely downgrade findings to keep clients happy. What does the Code require of <em>you</em> in that moment, and which canon creates the requirement?</li>
+<li>Predict the failure mode of a practitioner who treats Canon III (service to principals) as the highest canon: describe a realistic scenario where that ordering produces the wrong decision, and show how the Code's actual ordering fixes it.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your two dilemma analyses (the out-of-scope finding and the softened report, reproduced in your own words — or your own dilemmas from real work), each argued canon by canon with a named decision and a named cost, plus the "On your own" disclosure analysis.</p>
+<p><strong>Honest claim:</strong> "I can take a real security-work dilemma, argue it from a professional code's canons in writing, apply the priority ordering when canons conflict, and reach a decision I can defend — including when the decision costs me."</p>
+<p><strong>Can't claim yet:</strong> "I can navigate the legal exposure of whistleblowing or compelled disclosure" — where ethics meets employment law, criminal liability, and regulator procedure, you need counsel, not a code; this lesson taught the ethical reasoning, not the legal strategy.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><strong>E-AI-01 — <a href="/g/ai-governance/"><code>ai-governance</code></a></strong> — the canons applied to AI systems: training data, automated decisions, deployment ethics.</li>
+<li><strong>C-CVD-01 — <a href="/g/cvd/"><code>c-cvd</code></a></strong> — coordinated vulnerability disclosure in practice: the disclosure dilemma with real process around it.</li>
+<li><strong>B-BTY-01 — <a href="/g/bug-bounty/"><code>b-bug-bounty</code></a></strong> — researcher ethics in bounty work: scope, disclosure, and the no-testing-without-permission line.</li>
+<li>Map refs: <strong>CISSP 1.1</strong> (this lesson); the canon method is reused in <strong>1.4</strong> (legal obligations) and <strong>1.8</strong> (personnel decisions).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

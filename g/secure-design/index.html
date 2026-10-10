@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure design principles: engineering judgment before controls | Learn Computer Stuff</title>
+<meta name="description" content="Apply the eight Saltzer and Schroeder design principles in an architecture review, trace requirements to controls, and survey platform capabilities for a deployment decision. A free lesson in the security guidebook, serving CISSP objectives 3.1, 3.3 and 3.4.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/secure-design/">
+<meta property="og:title" content="Secure design principles: engineering judgment before controls | Learn Computer Stuff"><meta property="og:description" content="Apply the eight Saltzer and Schroeder design principles in an architecture review, trace requirements to controls, and survey platform capabilities for a deployment decision. A free lesson in the security guidebook, serving CISSP objectives 3.1, 3.3 and 3.4.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/secure-design/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Secure design principles: engineering judgment before controls","item":"https://learncomputerstuff.dev/g/secure-design/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Secure design principles: engineering judgment before controls</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Secure design principles: engineering judgment before controls</h1>
+<p class="lede prose">Controls are the end of an argument, not the beginning. A firewall rule, an encryption setting, a key rotation schedule — each answers a design question asked much earlier. Secure design principles are the questions asked on time: before the code is written, before the platform is chosen, before requirements harden into something expensive to change. They show up in architecture reviews that kill a bad design in week two instead of discovering it in the incident report; in NIST SP 800-160's treatment of trustworthiness as an engineered property; and in the platform decision where a host with measured boot changes what you can promise. Saltzer and Schroeder's 1975 paper gave the eight principles that have survived every technology cycle since.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (run an architecture review: apply each principle with pass/fail rationale, trace controls to requirements)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>, <a href="/g/appsec/"><code>d-appsec</code></a>; no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.1</strong> — design principles for engineering trustworthy systems: Saltzer and Schroeder's principles applied as reviewable requirements. (Control selection and platform capabilities are taught in <a href="/g/control-selection/"><code>e-control-selection</code></a> and <a href="/g/platform-security/"><code>e-platform-security</code></a>.)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Controls are the end of an argument, not the beginning. A firewall rule, an encryption setting, a key rotation schedule — each answers a design question asked much earlier. Secure design principles are the questions asked on time: before the code is written, before the platform is chosen, before requirements harden into something expensive to change. They show up in architecture reviews that kill a bad design in week two instead of discovering it in the incident report; in NIST SP 800-160's treatment of trustworthiness as an engineered property; and in the platform decision where a host with measured boot changes what you can promise. Saltzer and Schroeder's 1975 paper gave the eight principles that have survived every technology cycle since.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can run a risk assessment to a decision (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>) — this lesson converts decisions into design requirements.</li>
+<li>You know threat modeling (<a href="/g/appsec/"><code>d-appsec</code></a>) — principles are what you appeal to when a threat has no pre-canned control.</li>
+<li>No tools. The work products are the architecture review, the requirement-to-control trace, and the platform survey. Write reasons, owners, and dates.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The Saltzer and Schroeder principles (1975).</strong> From "The Protection of Information in Computer Systems" — eight compressed lessons about how systems actually fail:</p>
+<ul>
+<li><strong>Economy of mechanism.</strong> Keep the security design small enough to analyze. Every extra component in the trusted path is another place for a flaw to hide — prefer a tiny, well-understood reference monitor over a sprawling policy engine.</li>
+<li><strong>Fail-safe defaults.</strong> Base access decisions on permission, not exclusion: deny by default. Blacklists fail because you cannot enumerate every bad thing; whitelists fail into outages, and outages get noticed.</li>
+<li><strong>Complete mediation.</strong> Every access to every object is checked, with no cached shortcuts or "internal" exceptions. The check must sit on the path the attacker actually travels — the unauthenticated internal endpoint is the classic violation.</li>
+<li><strong>Open design.</strong> Security must not depend on the secrecy of the design. A mechanism that survives public scrutiny has <em>been</em> scrutinized; obscurity is a hope, not a control.</li>
+<li><strong>Separation of privilege.</strong> Require more than one key to unlock where it matters: dual control on key ceremonies, distinct approver and executor. This bounds the blast radius of one compromised credential.</li>
+<li><strong>Least privilege.</strong> Every subject gets the minimum authority it needs, for the minimum time. Unused privilege is unmonitored attack surface — the principle behind just-in-time elevation in <a href="/g/iam/"><code>e-iam</code></a>.</li>
+<li><strong>Least common mechanism.</strong> Minimize mechanism shared by mutually distrusting parties. A shared cache, a shared admin console, one schema for all tenants: single points of compromise.</li>
+<li><strong>Psychological acceptability.</strong> Mechanisms must be easy enough that users route around them less than they use them. Security that fights the user loses to the user.</li>
+</ul>
+<p>(OWASP's Security by Design principles restate this lineage for application architects — minimize attack surface, secure defaults, least privilege, defense in depth, fail securely, don't trust services, separation of duties, avoid security by obscurity, keep security simple, fix issues correctly.)</p>
+<p><strong>From principles to requirements to controls.</strong> The disciplined flow (NIST SP 800-160, <em>Engineering Trustworthy Secure Systems</em>): derive <strong>system security requirements</strong> from stakeholder needs, threats, and the principles; select <strong>controls</strong> from a catalog — NIST SP 800-53 is the reference — that satisfy those requirements; <strong>tailor</strong> for context; record the chain in a <strong>traceability matrix</strong> so every control answers "which requirement do you satisfy?" An unmapped control is cost without justification; an unimplemented requirement is a promise the architecture quietly broke. Selection is never "apply the whole catalog" — it is risk-proportionate, which is why this lesson takes <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> decisions as input.</p>
+<p><strong>Platform security capabilities.</strong> The platform is the foundation the architecture stands on:</p>
+<ul>
+<li><strong>Memory protection:</strong> non-executable memory, address-space layout randomization, control-flow enforcement (e.g., Intel CET's shadow stack) — raising memory-corruption exploitation from reliable technique to research project.</li>
+<li><strong>Hardware roots of trust:</strong> a TPM provides measured boot (boot-component hashes in platform configuration registers), sealed storage (keys usable only when measurements match), and remote attestation. Everything else's evidence chains back to it.</li>
+<li><strong>Secure boot (UEFI):</strong> firmware verifies each boot stage's signature before handing it control, so a compromised bootloader cannot persist below the OS's notice.</li>
+<li><strong>Virtualization isolation:</strong> the hypervisor as a smaller trust boundary than a general-purpose OS; confidential-computing extensions encrypt guest memory against a compromised host.</li>
+<li><strong>Encryption capabilities:</strong> hardware AES acceleration, TPM or platform-keystore key storage, full-disk encryption — encryption you can deploy because the platform makes it cheap and the keys have somewhere to live.</li>
+</ul>
+<p>The deployment decision is where these capabilities become architecture: two "equivalent" hosts are not equivalent if one offers a TPM, measured boot, and memory encryption and the other offers none.</p>
+<h3>Worked example: Harborline Logistics — architecture review with traceability</h3>
+<p><strong>The system (fictional).</strong> Harborline Logistics runs a fleet-management platform: vehicle telematics gateways (cellular IoT) report to an ingestion API; a dispatch web app assigns routes; a billing service invoices customers; the database tier is proposed to move from cloud to colocation.</p>
+<p><strong>Principle-by-principle review (pass/fail with rationale):</strong></p>
+<ol>
+<li><strong>Economy of mechanism — FAIL.</strong> Authorization lives in three places: the API gateway, a per-service middleware library, and ad-hoc checks in the dispatch app. <em>Fix:</em> one authorization service on the request path. <em>Requirement R1:</em> "All access decisions are made by a single authorization component."</li>
+<li><strong>Fail-safe defaults — PASS (with note).</strong> The gateway denies by default; routes open explicitly. <em>Note:</em> a debug endpoint sits in staging's default route table — a hygiene item, not a design flaw.</li>
+<li><strong>Complete mediation — FAIL.</strong> The billing service reads telematics data straight from the database, bypassing the API's authorization checks. <em>Requirement R2:</em> "Every data access traverses the authorization component; no service holds database credentials."</li>
+<li><strong>Open design — PASS.</strong> Standard OIDC, AES-GCM via the platform crypto library, no custom protocols. The architecture is shared with customer auditors.</li>
+<li><strong>Separation of privilege — FAIL.</strong> The on-call engineer can both approve and execute production database changes. <em>Requirement R3:</em> "Production data changes require a distinct approver and executor."</li>
+<li><strong>Least privilege — PARTIAL.</strong> Services run as non-root with scoped roles (pass); but the gateway agent runs as root and the ingestion API's database account holds write access it never uses (fail). <em>Requirement R4:</em> "Service identities hold only the permissions their call graph requires; reviewed quarterly."</li>
+<li><strong>Least common mechanism — FAIL.</strong> All tenants share one database schema with application-level tenant filtering — one bug from cross-tenant disclosure. <em>Fix:</em> database-enforced row security, a real boundary below the application.</li>
+<li><strong>Psychological acceptability — FAIL.</strong> Production deploys need a 14-step manual runbook, so engineers batch changes and deploy at midnight, tired. <em>Fix:</em> a one-command pipeline with approvals <em>in</em> it, not around it.</li>
+</ol>
+<p><strong>Requirement → control trace (excerpt):</strong></p>
+<p>| Req | Requirement (paraphrase) | Control (SP 800-53) | Implementation |</p>
+<p>|---|---|---|---|</p>
+<p>| R1 | Single authorization component | AC-3 (access enforcement) | Central authz service; gateway + services call it; middleware checks removed |</p>
+<p>| R2 | No bypass of authorization | AC-3, AC-6 (least privilege) | Services lose DB credentials; data access via API only |</p>
+<p>| R3 | Two-person production changes | AC-5 (separation of duties) | Change tooling enforces distinct approver/executor |</p>
+<p>| R4 | Least-privilege service identities | AC-6 | Scoped roles; quarterly review owned by platform team |</p>
+<p>| R5 | Boot integrity of telematics gateways | SI-7 (software/firmware integrity) | Measured boot with TPM; attestation before fleet enrollment |</p>
+<p>| R6 | Tenant isolation for dispatch data | AC-4 (information flow enforcement) | Database-enforced row security per tenant |</p>
+<p><strong>Platform capability survey (the deployment decision).</strong> Comparing the current cloud hosts against the colocation quote on five capabilities — measured boot/TPM, UEFI Secure Boot, memory encryption, hardware key storage, virtualization isolation — both offerings check out, <em>provided</em> the TPM attestation flow (R5's implementation) is built before migration. A capability you cannot confirm in writing does not exist for decision purposes; without the attestation flow, the fleet's boot integrity story silently degrades on move day.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The Harborline review above, authored and self-reviewed in-session on 2026-10-10. Transcript: <code>runs/e-secure-design.log</code>.</p>
+<ol>
+<li><strong>Describe the system in one paragraph.</strong> Fictional is fine — name the components, the data flows, and the trust boundaries. If you cannot draw the trust boundaries, that is your first finding.</li>
+<li><strong>Apply each of the eight principles.</strong> Write PASS, FAIL, or PARTIAL with a one-paragraph rationale citing a specific mechanism. A principle with no evidence either way is a FAIL.</li>
+<li><strong>Convert each FAIL into a requirement.</strong> Phrase it as a testable statement: "Every X must Y." Number them (R1, R2, …). These are the security requirements the architecture must satisfy.</li>
+<li><strong>Trace each requirement to a control.</strong> Use SP 800-53 as the catalog: name the control family and number, then write the concrete implementation. If no catalog control fits, write the implementation anyway and note the gap honestly — the trace matters more than the catalog.</li>
+<li><strong>Survey the platform.</strong> List the deployment options under consideration; for each, check the five capabilities (memory protection, hardware root of trust, secure boot, virtualization isolation, encryption/key storage). A capability you cannot confirm in writing does not exist for decision purposes.</li>
+<li><strong>Close out.</strong> Summarize: principle score, requirement count, control trace completeness, and the deployment recommendation with its conditions. File it as the artifact an auditor — or your future self — can re-derive.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Review a system you actually control against all eight principles. Write pass/fail rationale per principle, derive numbered requirements from the failures, and trace each to an SP 800-53 control with a concrete implementation.</p>
+<p><strong>Success test:</strong> You find at least two FAILs, one a complete-mediation bypass (there is almost always one). Every requirement has a traced control naming an implementation, not a product category. Your platform survey names one capability your host lacks and what that costs you in design options.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Principles as wall art.</strong> The eight principles in a slide deck, referenced in zero design decisions. Principles exist only in review minutes — a design never challenged against them was never reviewed.</li>
+<li><strong>The control shopping list.</strong> Controls selected because they are in the catalog or the last audit mentioned them, with no requirement behind them. Untraced controls are how you get an expensive SIEM and an unpatched VPN.</li>
+<li><strong>Complete mediation's quiet exceptions.</strong> The internal endpoint, the batch job, the "temporary" direct database access still there three years later. Every exception is a second, unreviewed architecture.</li>
+<li><strong>Fail-open defaults inherited from the framework.</strong> ORMs, web frameworks, and cloud consoles ship permissive and expect you to lock down. Review the <em>actual</em> default configuration, not the documented one.</li>
+<li><strong>Psychological acceptability treated as soft.</strong> It is about humans: the secure path must be the easy path, or the organization builds an insecure path around it and calls it productivity.</li>
+<li><strong>Platform capabilities assumed.</strong> "The cloud handles that" without naming the service, the setting, and who verified it. Attestation nobody checks is theater; a TPM whose measurements nobody reads is a chip.</li>
+<li><strong>Least common mechanism in multi-tenant systems.</strong> Shared everything with application-level tenant filtering is the most common architecture and the most commonly breached data-layer pattern — always ask what enforces the boundary <em>below</em> the application.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>Saltzer, J. H. &amp; Schroeder, M. D., "The Protection of Information in Computer Systems"</strong> (<a href="https://cs.virginia.edu">cs.virginia.edu</a>, 1975; the full paper is freely hosted) — <em>read</em> the eight principles in the authors' own words; <em>skim</em> the Multics-era examples. This is the primary source for half the lesson — everything else is commentary.</li>
+<li><strong>NIST SP 800-160 Vol. 1 Rev. 1, Engineering Trustworthy Secure Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the systems security engineering framework and the requirements-to-architecture flow; <em>skim</em> the process appendix. This is the document that turns principles into engineering method.</li>
+<li><strong>NIST SP 800-53 Rev. 5, Security and Privacy Controls</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>skim</em> as the control catalog; <em>read</em> the AC family closely when building your first trace. It is a catalog, not a to-do list — selection is always requirement-driven.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>OWASP Security by Design Principles</strong> (<a href="https://wiki.owasp.org">wiki.owasp.org</a>) — free; the ten application-focused principles with the "why" behind each, a good second voice after Saltzer and Schroeder.</li>
+<li><strong>Microsoft Learn: Trusted Platform Module (TPM) fundamentals</strong> (<a href="https://learn.microsoft.com">learn.microsoft.com</a>) — free; what a TPM actually provides (measured boot, sealed storage, attestation) without vendor mystique.</li>
+<li><strong>Intel: A Technical Look at Control-Flow Enforcement Technology (CET)</strong> (<a href="https://intel.com">intel.com</a>) — free; how hardware memory-protection capabilities work under the hood.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A team fixes a complete-mediation failure by adding authorization checks to the internal endpoint. Explain why this is still a FAIL under economy of mechanism — and what the single-check design looks like.</li>
+<li>An architect argues that open design is reckless: "publishing our security architecture helps attackers." Refute this using the principle's actual claim — what does open design say security may <em>not</em> depend on, and what may it still keep secret?</li>
+<li>A database holds three tenants' data with application-level tenant filtering, defended as least privilege ("the app's account can only run filtered queries"). Say which principle is actually violated and why that defense aims at the wrong one.</li>
+<li>Trace one row: "Production database credentials must never exist on application hosts." Give the testable requirement, the SP 800-53 control, and the implementation — then say what breaks if the implementation is "config file with tight permissions."</li>
+<li>Predict the failure sequence when a deployment pipeline's "secure" process has 14 manual steps: which principle is violated, what behavior it produces, and what the incident that exposes it looks like.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your architecture review — system description, eight principles with pass/fail rationale, numbered requirements, the requirement-to-control trace, and the platform survey with deployment recommendation — for the Harborline case in your own words, or for a system you control.</p>
+<p><strong>Honest claim:</strong> "I can review an architecture against the eight design principles, turn failures into testable requirements, trace each to a control, and judge a platform's capabilities for a deployment decision."</p>
+<p><strong>Can't claim yet:</strong> "I can execute a systems security engineering program" — SP 800-160 is a full lifecycle discipline; this lesson taught its design-review core.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/security-models/"><code>e-security-models</code></a> — formal security models: the mathematical form of complete mediation and least privilege.</li>
+<li><a href="/g/system-lifecycle/"><code>e-system-lifecycle</code></a> — the information system lifecycle: where this lesson's requirements and gates live across phases.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the risk decisions that become this lesson's requirements; reread its response options as requirement sources.</li>
+<li><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — platform encryption meets key lifecycle: the TPM holds the keys this lesson's R5 needs managed.</li>
+<li>Map refs: <strong>CISSP 3.1</strong> (this lesson); feeds <strong>CISSP 3.3, 3.4</strong> (<a href="/g/control-selection/"><code>e-control-selection</code></a>, <a href="/g/platform-security/"><code>e-platform-security</code></a>) and <strong>CISSP 8.1</strong> (security in the SDLC).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

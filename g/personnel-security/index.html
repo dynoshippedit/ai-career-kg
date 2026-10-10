@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personnel security: the human side of the employment lifecycle | Learn Computer Stuff</title>
+<meta name="description" content="Run the human side of hiring, transfer, departure, and travel security with owners and timing. A free lesson in the security guidebook, serving CISSP objective 1.8.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/personnel-security/">
+<meta property="og:title" content="Personnel security: the human side of the employment lifecycle | Learn Computer Stuff"><meta property="og:description" content="Run the human side of hiring, transfer, departure, and travel security with owners and timing. A free lesson in the security guidebook, serving CISSP objective 1.8.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/personnel-security/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Personnel security: the human side of the employment lifecycle","item":"https://learncomputerstuff.dev/g/personnel-security/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Personnel security: the human side of the employment lifecycle</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Personnel security: the human side of the employment lifecycle</h1>
+<p class="lede prose"><a href="/g/iam/"><code>e-iam</code></a> taught the technical lifecycle: provision, review, deprovision. This lesson teaches the human side of the same transitions — who decides what, who tells whom, and in what order, when a person joins, moves, travels, or leaves. It shows up in the background check calibrated to the role's trust level; in the NDA signed on day one and the acceptable-use acknowledgment that makes enforcement possible; in the termination where IT learns about the departure from the farewell email; in the shared admin password that was never rotated after three departures; and in the traveling executive whose laptop crosses a border carrying the company's crown jewels. Personnel security is the discipline of making the human transitions as deliberate as the technical ones — because every technical control in <a href="/g/iam/"><code>e-iam</code></a> depends on a human process firing first.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (produce a termination checklist and access-revocation runbook for a privileged departure, plus a travel-security briefing — with owners and timing for every action)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/iam/"><code>e-iam</code></a> (the technical joiner–mover–leaver lifecycle — this lesson is the HR-security and policy view of the same lifecycle, not a repeat of it). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.8</strong> — personnel security across hiring, employment, and departure.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p><a href="/g/iam/"><code>e-iam</code></a> taught the technical lifecycle: provision, review, deprovision. This lesson teaches the human side of the same transitions — who decides what, who tells whom, and in what order, when a person joins, moves, travels, or leaves. It shows up in the background check calibrated to the role's trust level; in the NDA signed on day one and the acceptable-use acknowledgment that makes enforcement possible; in the termination where IT learns about the departure from the farewell email; in the shared admin password that was never rotated after three departures; and in the traveling executive whose laptop crosses a border carrying the company's crown jewels. Personnel security is the discipline of making the human transitions as deliberate as the technical ones — because every technical control in <a href="/g/iam/"><code>e-iam</code></a> depends on a human process firing first.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You know the technical transitions from <a href="/g/iam/"><code>e-iam</code></a> — joiner, mover, leaver, with SLAs. This lesson assigns the <em>human</em> owners and timing: HR, the manager, security, IT.</li>
+<li>Bring the insider-threat material referenced in §7 — the departure procedures here are insider-threat prevention in practice.</li>
+<li>The work products are documents: a termination checklist with owners and timing per action, an access-revocation runbook, and a travel-security briefing.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The lifecycle, from the human side.</strong> NIST SP 800-53 Rev. 5's Personnel Security (PS) family — the control catalog for this domain, verified on the <a href="https://csrc.nist.gov">csrc.nist.gov</a> publication page — organizes the same ground this lesson walks: screening, termination, transfer, sanctions, agreements. The frame:</p>
+<ul>
+<li><strong>Hiring — screening proportionate to trust.</strong> The background check matches the role's access: a help-desk hire and a domain administrator are not screened identically, because their blast radii differ. Screening is role-based, documented, and completed <em>before</em> privileged access is granted — the check that finishes after the admin credentials are issued is theater. New hires sign the NDA/nondisclosure agreement and acknowledge the acceptable-use policy on day one — not because the signature prevents misconduct, but because enforcement without a signed acknowledgment is uphill.</li>
+<li><strong>Employment — the ongoing relationship.</strong> Least privilege and separation of duties (your <a href="/g/iam/"><code>e-iam</code></a> lesson) are personnel-security controls with human owners: the manager who approves access, the security team that reviews it. The disciplinary process is graduated and documented — verbal, written, suspension, termination — because an undocumented disciplinary history cannot support a termination decision. Ongoing awareness (<a href="/g/awareness-training/"><code>e-awareness-training</code></a>) keeps the acceptable-use acknowledgment alive past day one.</li>
+<li><strong>Transfer — the mover's human half.</strong> When someone changes roles, the manager owns confirming which access dies with the old role — the technical mover checklist in <a href="/g/iam/"><code>e-iam</code></a> needs a human trigger, and the trigger is the transfer conversation. Moves into higher-trust roles re-trigger screening: the check that cleared a support analyst does not clear a database administrator.</li>
+<li><strong>Departure — the highest-risk transition.</strong> Departures come in flavors with different timing: voluntary resignation (notice period, orderly handover), involuntary termination (immediate revocation, no notice-period access), layoffs (volume — the process must scale), and contractor end-of-engagement (the end date must exist in a system, not in someone's head — <a href="/g/iam/"><code>e-iam</code></a>'s orphaned-contractor finding was a personnel-security failure first). The termination checklist covers: access revocation timing per system, asset return (hardware, tokens, documents), knowledge transfer, the exit interview, and post-departure monitoring for privileged roles.</li>
+</ul>
+<p><strong>The insider threat lens.</strong> CISA's insider threat mitigation guidance (fetched for this lesson) frames the problem: trusted insiders with legitimate access are the vector — theft of intellectual property, sabotage, fraud, espionage. The personnel-security controls are the mitigations: screening at hire, least privilege during employment, immediate revocation at involuntary departure, and attention to the behavioral precursors (disgruntlement, policy violations, unexplained affluence — observed and reported through a defined channel, not gossiped about). The point is structural, not accusatory: the controls protect the organization <em>and</em> the employee, because a clean process leaves no ambiguity about who did what.</p>
+<p><strong>NDAs and agreements.</strong> The nondisclosure agreement, the acceptable-use acknowledgment, the non-compete where used — these are HR-owned documents with security consequences. The practitioner's interest is narrow and practical: are they signed before access is granted, are they acknowledged (not just distributed), and do they cover the data the person will actually touch? An NDA signed six months after the admin credentials is evidence of a process failure, not protection.</p>
+<p><strong>Separation of duties, human edition.</strong> SoD is usually taught as a technical control (no single account can both create and approve a payment). The personnel version: no single <em>person</em> controls a critical process end to end — the person who can grant access cannot approve their own access; the person who processes terminations is not the terminated person's manager acting alone. Collusion resistance comes from the human arrangement, not the permission bit.</p>
+<p><strong>Travel security.</strong> High-risk travel is a personnel-security event: the briefing happens <em>before</em> departure, not after the incident. The elements: travel with minimal data (a loaner device or a wiped profile — the crown jewels do not cross borders on a daily driver), assume the device and the network are monitored, know the local reporting procedure, and debrief on return (device inspected, credentials rotated). The briefing is documented — the traveler acknowledged it — because the post-incident question will be "were they briefed," and the answer needs evidence.</p>
+<h3>Worked example: Copperline Freight — privileged departure runbook (fictional)</h3>
+<p><strong>The situation (fictional).</strong> Copperline Freight (fictional, continued from <a href="/g/governance/"><code>e-governance</code></a>): a systems administrator with domain-admin rights resigns voluntarily, giving two weeks' notice. The risk: two weeks of privileged access by someone with no future stake, plus everything they know walking out the door.</p>
+<p><strong>The termination checklist — owners and timing.</strong> (Abridged; the full version is the artifact.)</p>
+<p>| When | Action | Owner |</p>
+<p>|---|---|---|</p>
+<p>| Notice received (day 0) | Record the departure in the HR system with the last working day — the system date drives everything downstream | HR |</p>
+<p>| Day 0 | Risk-rate the departure: privileged access plus voluntary resignation equals elevated handling — privileged accounts move to monitored status, no new privileged grants | Security lead |</p>
+<p>| Day 0 | Inventory the person's access: every system, every shared credential they know, every physical token | IT, from the <a href="/g/iam/"><code>e-iam</code></a> role definitions |</p>
+<p>| Days 1–10 | Knowledge transfer: document the undocumented — runbooks, passwords in the vault (rotated, not shared), vendor contacts. The manager verifies completeness, not the departing employee's word alone | Manager |</p>
+<p>| Day 10 | Rotate every shared credential the person knew — admin passwords, service accounts, Wi-Fi PSKs, safe combinations. Shared secrets are compromised by departure by definition | IT |</p>
+<p>| Last day, morning | Exit interview: asset return checklist (laptop, tokens, badges, documents), NDA reminder in writing, forwarding-address confirmation for post-employment obligations | HR |</p>
+<p>| Last day, COB | Revoke all access per the <a href="/g/iam/"><code>e-iam</code></a> leaver SLA; disable, do not delete, the accounts (preservation for the administrative track — see <a href="/g/investigations/"><code>e-investigations</code></a>) | IT |</p>
+<p>| Day +1 | Verify: attempt login as the departed identity (should fail), confirm shared-credential rotation completed, confirm the HR system shows the termination | Security lead |</p>
+<p>| Day +30 | Post-departure review for privileged roles: check for anomalous access in the final two weeks, confirm no lingering API keys or personal-device access | Security lead |</p>
+<p><strong>The involuntary variant.</strong> Same checklist, compressed: revocation <em>before</em> the termination meeting, the meeting with HR and security present, escort from the building, asset collection at the meeting — not "please mail the laptop." The timing difference is the whole difference: voluntary gets order, involuntary gets immediacy. Both get the shared-credential rotation — the step organizations skip most, because rotating shared secrets is tedious and nobody owned it. The checklist fixes that by naming IT and dating it.</p>
+<p><strong>Travel-security briefing — one high-risk trip (fictional, abridged).</strong> The CFO travels to a country with aggressive commercial-espionage reporting. Briefing (documented, acknowledged): travel on a loaner laptop with only the trip's data; no customer database access from the hotel network — use the approved remote-access path; assume device inspection at the border (power off, encrypted, no sensitive data at rest beyond the trip); report any device tampering, coercion, or "IT support" approaches immediately to the security lead; on return, the device goes to IT for inspection before reconnecting, and the travel credentials are rotated. The debrief is scheduled before departure — a briefing without a scheduled debrief is a suggestion.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the checklist, runbook, and briefing above, authored and self-reviewed in-session on 2026-10-10 against the SP 800-53 PS family and CISA's insider-threat guidance. Transcript: <code>runs/e-personnel-security.log</code> (records the timing decisions, the owner assignments, and the review checklist — no commands to transcribe).</p>
+<ol>
+<li><strong>Pick the departure.</strong> Voluntary privileged resignation (the worked case), involuntary termination, or contractor end — each has different timing. Write which one and why the timing differs.</li>
+<li><strong>Build the checklist.</strong> Every action gets three fields: what, owner, when. No action without an owner; no owner without a when. The <a href="/g/iam/"><code>e-iam</code></a> leaver SLA gives you the technical timing — this checklist adds the human timing around it.</li>
+<li><strong>Write the runbook.</strong> The checklist in execution order, with the decision points: voluntary versus involuntary, privileged versus standard, the shared-credential rotation nobody wants to do. The runbook is what gets followed at 4 p.m. on a Friday — write it for that reader.</li>
+<li><strong>Handle the shared secrets.</strong> List every shared credential the departing person knew, and the rotation plan with a date. This step is the audit's favorite finding — do it properly here.</li>
+<li><strong>Write the travel briefing.</strong> One trip, one traveler, one risk profile: the pre-departure briefing, the in-travel rules, the scheduled debrief. Document the acknowledgment.</li>
+<li><strong>Verify after.</strong> The day-after verification (login attempt fails, rotation confirmed, HR system updated) is part of the runbook, not a nice-to-have. A checklist without verification is a wish list.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write the termination checklist and runbook for a departure in an organization you know — or your own hypothetical departure from a privileged role you hold (your homelab's admin, your cloud account's root). Include the shared-credential rotation with dates, and the travel briefing for one trip you actually take.</p>
+<p><strong>Success test:</strong> Every action has an owner and a when; the shared-credential rotation is dated, not aspirational; the involuntary variant exists and differs in timing; and the verification step is in the runbook. If the checklist would work identically for a voluntary and an involuntary departure, the timing analysis is missing.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>IT learns from the farewell email.</strong> HR never told IT; the accounts linger. The HR-system date must drive deprovisioning — the process failure is upstream of the technical one.</li>
+<li><strong>The trusted exception.</strong> "She's been here ten years, she doesn't need the checklist." Tenure is not a control. The checklist applies to everyone or it applies to no one.</li>
+<li><strong>Shared secrets never rotated.</strong> Three departures, one admin password. Rotation after every privileged departure is the rule — tedious, non-negotiable, and the most common audit finding in this domain.</li>
+<li><strong>Screening as a one-time event.</strong> The check at hire never re-fires on transfer to higher-trust roles. Trust levels change; screening must follow.</li>
+<li><strong>The skipped exit interview.</strong> No asset-return checklist, no NDA reminder, no documentation. The interview is evidence as well as process.</li>
+<li><strong>Contractors outside the process.</strong> No end date in any system, no checklist, no return of assets — the orphaned account in <a href="/g/iam/"><code>e-iam</code></a> started as a personnel-security gap.</li>
+<li><strong>Travel without briefing.</strong> The executive's daily driver crosses the border with the customer database. The briefing is cheap; the incident is not.</li>
+<li><strong>Delete instead of disable.</strong> Accounts deleted on departure, destroying the evidence the administrative track might need — <a href="/g/investigations/"><code>e-investigations</code></a>' preservation rule applies here.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-53 Rev. 5, Personnel Security (PS) family</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the PS controls (screening, termination, transfer, agreements) as the control-language version of this lesson's checklist.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CISA Insider Threat Mitigation</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the insider-threat frame this lesson's departure procedures implement — pathways, indicators, and the mitigation program structure.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A domain administrator resigns voluntarily with two weeks' notice; another is terminated for cause effective immediately. For each, state the access-revocation timing and explain why they differ — then name the step both cases share that organizations skip most often.</li>
+<li>Explain why the HR-system departure date — not the manager's email, not IT's ticket — must drive deprovisioning, using the orphaned-contractor failure as the mechanism.</li>
+<li>A company screens at hire but never on transfer to higher-trust roles. Describe the resulting exposure with a concrete role pair, and state the control that closes it.</li>
+<li>Distinguish the personnel-security view of separation of duties from the technical view: give an example where the permission bits are correct and the human arrangement still fails.</li>
+<li>Predict the findings of an audit of termination practices at a company with no checklist: rank the three most likely findings by how often they occur in practice, and state the evidence each one cites.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your termination checklist (what, owner, when per action), the access-revocation runbook (voluntary and involuntary variants, shared-credential rotation dated), and the travel-security briefing with acknowledgment — for the Copperline worked case in your own words, or better, for a real organization.</p>
+<p><strong>Honest claim:</strong> "I can run the human side of the employment lifecycle's security transitions — screening, transfer, departure, travel — with named owners, timing, and verification, and I can explain how each step prevents the insider-threat failure it targets."</p>
+<p><strong>Can't claim yet:</strong> "I can adjudicate employment-law questions" — background-check law, termination procedure, and non-compete enforceability vary by jurisdiction and belong to counsel and HR; this lesson taught the security process, not the employment law.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/iam/"><code>e-iam</code></a>** — the technical lifecycle this lesson's human process drives: the checklist triggers the provisioning system.</li>
+<li><a href="/g/awareness-training/"><code>e-awareness-training</code></a>** — the ongoing employment control: keeping the day-one acknowledgments alive.</li>
+<li><a href="/g/investigations/"><code>e-investigations</code></a>** — the administrative track: when a departure becomes an investigation.</li>
+<li>Map refs: <strong>CISSP 1.8</strong> (this lesson); feeds <strong>CISSP 5.5</strong> (provisioning lifecycle) and <strong>7.15</strong> (personnel safety and security).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Physical security in operation: running the building&#x27;s defenses day to day | Learn Computer Stuff</title>
+<meta name="description" content="How to run physical security day to day — guards and post orders, the badge lifecycle, mantraps and doors, CCTV operation, and environmental controls. A free lesson in the security guidebook, serving CISSP objective 7.14.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/physical-security/">
+<meta property="og:title" content="Physical security in operation: running the building&#x27;s defenses day to day | Learn Computer Stuff"><meta property="og:description" content="How to run physical security day to day — guards and post orders, the badge lifecycle, mantraps and doors, CCTV operation, and environmental controls. A free lesson in the security guidebook, serving CISSP objective 7.14.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/physical-security/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Physical security in operation: running the building's defenses day to day","item":"https://learncomputerstuff.dev/g/physical-security/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Physical security in operation: running the building&#x27;s defenses day to day</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Physical security in operation: running the building&#x27;s defenses day to day</h1>
+<p class="lede prose">The badge reader, the guard, the camera, the mantrap — none of them work without the operation behind them: the guard's post orders, the badge lifecycle, the camera someone actually watches, the visitor log someone actually checks. Physical security implementation is the day-to-day running of those controls: guards and patrols, badging, mantraps and tailgating discipline, CCTV placement and monitoring, and the environmental controls (power, fire, water, climate) that keep the equipment — and the people — alive. It shows up in the tailgating incident the camera recorded and nobody watched, in the terminated employee whose badge worked for a month, and in the server room that flooded because the water sensor's alert went to an unmonitored mailbox. Facilities leads, SOC managers, and GRC analysts live here. Note the boundary with the Domain 3 design lessons: those design the facility — perimeter, zones, control selection. This lesson operates it — the people, the rosters, the procedures, and the daily discipline that make the designed controls actually work.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (run the physical-security operation — people, procedures, and environmental controls in daily use)</td></tr><tr><th scope="row">Prerequisites</th><td>none beyond Stage D breadth — this is the operations view; no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.14</strong> — implementing and operating physical security: the day-to-day running of the controls.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The badge reader, the guard, the camera, the mantrap — none of them work without the operation behind them: the guard's post orders, the badge lifecycle, the camera someone actually watches, the visitor log someone actually checks. Physical security implementation is the day-to-day running of those controls: guards and patrols, badging, mantraps and tailgating discipline, CCTV placement and monitoring, and the environmental controls (power, fire, water, climate) that keep the equipment — and the people — alive. It shows up in the tailgating incident the camera recorded and nobody watched, in the terminated employee whose badge worked for a month, and in the server room that flooded because the water sensor's alert went to an unmonitored mailbox. Facilities leads, SOC managers, and GRC analysts live here. Note the boundary with the Domain 3 design lessons: those design the facility — perimeter, zones, control selection. This lesson operates it — the people, the rosters, the procedures, and the daily discipline that make the designed controls actually work.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You understand the identity lifecycle from <a href="/g/iam/"><code>e-iam</code></a> — the badge lifecycle in this lesson follows the same joiner-mover-leaver logic.</li>
+<li>You know the monitoring-program thinking from <a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> — badge and camera events are log sources with the same integrity and review needs.</li>
+<li>No tools. The work products are documents: guard post orders, a badge-lifecycle procedure, a CCTV monitoring plan, and an environmental-controls checklist. Primary spine: <strong>NIST SP 800-53 Rev. 5, Physical and Environmental Protection (PE) family</strong>.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Designed controls decay without operation. Five operating areas.</p>
+<p><strong>People: guards, and what they're actually for.</strong> Guards deter, observe, and respond — in that order. The operation is the <strong>post orders</strong>: the written instructions per post (what to check, what to challenge, when to escalate, what never to do alone). Patrols are randomized within bounds — predictable patrols are a schedule the adversary can read. The common failure is the guard as furniture: posted, unbriefed, untested. The operation tests: the occasional tailgating attempt by a friendly auditor, the after-hours challenge, the alarm-response drill. A guard who has never been tested is a control with no verification — the <a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> discipline applied to humans.</p>
+<p><strong>Badges: the identity lifecycle, physical edition.</strong> Every badge is an identity, and the <a href="/g/iam/"><code>e-iam</code></a> lifecycle applies exactly: <strong>joiner</strong> (badge issued with the minimum zones for the role — the need-to-know principle from <a href="/g/secops-concepts/"><code>e-secops-concepts</code></a>, physical edition), <strong>mover</strong> (zone access changes with the role — the engineer who moves to sales loses the lab), <strong>leaver</strong> (badge disabled on departure, same day — the terminated employee whose badge worked for a month is the physical version of the orphaned account). Visitor badges: logged, escorted in sensitive zones, time-bounded, collected on exit. The badge <em>system</em> needs the same administration as any identity store: who can grant zones, the quarterly review of who holds what, the lost-badge procedure (disable first, investigate second). Tailgating — following an authorized person through — is the perennial defeat of badging; the operation's answers are mantraps or turnstiles at the sensitive boundary, a culture where challenging is expected (backed by management, or nobody challenges the stranger in the suit), and the camera covering the door.</p>
+<p><strong>Entry controls: mantraps, and the doors between zones.</strong> A <strong>mantrap</strong> (two interlocking doors — the second opens only when the first closes) enforces one-person-at-a-time entry to the most sensitive areas: the data center, the cash room, the lab. In operation: the mantrap's procedure covers the duress case (what the guard does when someone is forced through), the failure case (power loss — does it fail open for life safety or fail closed for security? decided in advance, per fire code and risk), and the piggybacking case. Between zones, doors are the control: locked by default, alarmed when propped, with the alarm going somewhere someone responds — a propped-door alert to an unmonitored mailbox is the physical version of the unmonitored log.</p>
+<p><strong>CCTV: placement, monitoring, retention.</strong> Cameras <strong>deter</strong> (visible, signed) and <strong>detect</strong> (recorded, reviewed) — but only as operated. <strong>Placement</strong> covers the entries, the mantrap, the sensitive zones, and the paths between them — not "everywhere" (unaffordable to monitor) but the chokepoints, overlapping so one camera's blind spot is another's view. <strong>Monitoring</strong> is the decision: live watch of the critical feeds during risk hours, recorded-everything with defined review (post-incident pull, random sampling — the tuning loop from <a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a>, physical edition). <strong>Retention</strong> follows the same schedule logic as logs: long enough for incident discovery (the fraud found in month three needs month-one footage), with the integrity protection (write-once or access-controlled storage — footage the suspect can delete is the attacker's alibi, same as logs). The failure is always the same shape: cameras installed, nobody watches, footage overwritten in 72 hours, the incident discovered on day five.</p>
+<p><strong>Environmental: the building as a life-support system.</strong> The PE family's unglamorous half: <strong>power</strong> (UPS for ride-through, generator for extended outage, tested under load — the untested generator is the physical version of the untested backup), <strong>fire</strong> (detection, suppression matched to the space — clean-agent for the data center, not sprinklers over the racks — drills, the marshaled assembly point), <strong>water</strong> (sensors under the raised floor and near plumbing, with alerts to a monitored destination), <strong>climate</strong> (temperature and humidity monitoring with thresholds and alerting — the slow killer of equipment). Each has the same operating pattern: the control, the monitoring, the alert destination that someone watches, the test cadence. The environmental checklist is reviewed with the seasons and after every incident — the flood teaches what the checklist missed.</p>
+<h3>Worked example: Kestrel Components — the physical-security operations review</h3>
+<p><strong>The company (fictional, continued from <a href="/g/media-protection/"><code>e-media-protection</code></a>).</strong> Kestrel Components, 90 staff, precision manufacturing: HQ with engineering, a lab with prototype hardware, and the server room holding the design files (the crown jewels from the media-protection lesson).</p>
+<p><strong>The review (excerpt, fictional — findings with decisions).</strong></p>
+<ol>
+<li><strong>Guards.</strong> One guard, nights and weekends, no post orders — "walk around." <em>Decision:</em> post orders written (perimeter check, lab-door verification, alarm response, the never-alone rule for the lab); patrol times randomized; quarterly tailgating test by a friendly auditor. Owner named, first test dated.</li>
+<li><strong>Badges.</strong> Joiner/mover/leaver exists on paper; leaver deactivation averages 11 days (the month-long badge from §1, measured). <em>Decision:</em> deactivation same-day, tied to the HR termination checklist (the <a href="/g/iam/"><code>e-iam</code></a> leaver SLA, physical edition); quarterly zone-access review by managers; visitor log moved from paper to the badge system with escort rules for the lab.</li>
+<li><strong>Mantrap and doors.</strong> The lab has a mantrap — installed, never procedurally defined. <em>Decision:</em> procedure written (duress, power-failure behavior — fail-secure on the lab side with manual life-safety override, decided with the fire marshal — piggybacking response); the server-room door gets a prop alarm routed to the guard's radio, not to email.</li>
+<li><strong>CCTV.</strong> Twelve cameras, recorded locally, 72-hour overwrite, nobody reviews. <em>Decision:</em> placement rationalized to entries, mantrap, lab, server room, and the paths between (two cameras repositioned for overlap); retention extended to 90 days on access-controlled storage; weekly 15-minute random-sample review by the guard supervisor; post-incident pull procedure written.</li>
+<li><strong>Environmental.</strong> Server room: UPS present, generator never tested under load; no water sensor; temperature alerting to an unmonitored distribution list. <em>Decision:</em> generator load test quarterly (owner, date); water sensor installed under the cooling unit with alerting to the monitored SOC channel; temperature alerts re-routed to the on-call phone. Fire: clean-agent suppression verified in date; drill scheduled.</li>
+</ol>
+<p><strong>The operations calendar (fictional).</strong> Daily: guard patrols, badge exception review. Weekly: CCTV sample review. Monthly: visitor-log audit, environmental threshold check. Quarterly: zone-access review, generator load test, tailgating test. Annually: fire drill, full procedure review. Every item with an owner — the calendar is the operation made visible.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the operations review, findings with decisions, and the operations calendar above, authored and self-reviewed in-session on 2026-10-10 against the SP 800-53 PE family's control areas. Transcript: <code>runs/e-physical-security.log</code>.</p>
+<ol>
+<li><strong>Map the zones.</strong> For your fictional (or real) facility: public, controlled, sensitive — draw the boundaries and name what lives in each. The zone you can't draw is the zone with no controls.</li>
+<li><strong>Review the people.</strong> Guards: post orders exist? Patrols randomized? Tested? Write the findings. If there's no guard, write who performs the function (reception, the on-call) — the function doesn't vanish because the role does.</li>
+<li><strong>Audit the badge lifecycle.</strong> Sample ten badges: joiner (minimum zones?), mover (role changed — zones changed?), leaver (deactivation time?). Visitor procedure: logged, escorted, time-bounded, collected. Every gap gets a decision with an owner and a date.</li>
+<li><strong>Walk the doors.</strong> Mantrap procedure (duress, power failure, piggybacking) — written or not? Prop alarms — where do they go, and does anyone respond? Fail-open vs. fail-closed decided per door, in advance.</li>
+<li><strong>Review the cameras.</strong> Placement against the chokepoints, monitoring (live vs. recorded, who reviews, how often), retention (long enough for discovery, integrity-protected). The footage-overwritten-before-discovery finding is the classic — check your retention against a realistic discovery window.</li>
+<li><strong>Check the environment.</strong> Power (UPS, generator — tested under load?), fire (suppression matched to the space, drill dated?), water (sensors, alert destination monitored?), climate (thresholds, alerting). Build the operations calendar with owners.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Walk your own building (office, home office, makerspace) as the reviewer: the entries, the locks, the cameras (or their absence), the fire and power situation. Write the findings with decisions — including the ones that are "accept the risk," with the owner (you) and the date named.</p>
+<p><strong>Success test:</strong> Your review finds the tailgating-equivalent (the door everyone props, the code everyone knows) and the unmonitored alert (the sensor that pages nobody). If your building is perfect, you reviewed the design, not the operation — go at 2 a.m. (figuratively) and review what's actually running.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The guard as furniture.</strong> Posted, unbriefed, untested. Post orders, randomized patrols, and friendly-auditor tests are the operation.</li>
+<li><strong>The month-long badge.</strong> Leaver deactivation measured in weeks. Same-day deactivation, tied to the HR checklist — the physical orphaned account.</li>
+<li><strong>Tailgating culture.</strong> Nobody challenges the stranger. The mantrap enforces at the sensitive boundary; management backing enforces everywhere else.</li>
+<li><strong>The unmonitored camera.</strong> Installed, recording, overwritten in 72 hours, never reviewed. Placement, monitoring, retention — all three, or it's decoration.</li>
+<li><strong>Prop alarms to nowhere.</strong> The alert destination nobody watches. Every alarm names its responder — the physical version of the unmonitored log.</li>
+<li><strong>Fail-open by surprise.</strong> Power loss, and the mantrap opens — decided by physics, not by policy. Fail-open vs. fail-closed is decided per door in advance, with life safety and the fire marshal in the decision.</li>
+<li><strong>The untested generator.</strong> Present, never run under load. Environmental controls are tested on cadence like everything else — the flood and the outage teach what the checklist missed.</li>
+<li><strong>Design without operation.</strong> The Domain 3 lesson's perfect zones, with no rosters, no reviews, no calendar. Design is the starting line; the operations calendar is the race.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-53 Rev. 5, Physical and Environmental Protection (PE) family</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> as the control catalog this operation is audited against: PE-2/PE-3 (physical access authorizations and enforcement — the badge lifecycle), PE-6 (monitoring physical access), PE-9/PE-10/PE-11 (power, emergency shutoff, emergency power), PE-13 (fire protection).</li>
+<li>Note: <strong>ASIS International</strong> publishes the physical-security profession's standards and guidelines — they are paid publications, so this lesson teaches the function from free sources (one line, per the brief's rule).</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CISA: Physical Security</strong> (<a href="https://cisa.gov">cisa.gov</a>, topic page) — free; the federal operational view — assessments, planning considerations, and protective-measures guidance for facilities.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A terminated employee's badge works for 23 days; during that time the ex-employee enters the lab twice. Using the badge-lifecycle model, name the two failures (one in the leaver process, one in monitoring) and the <a href="/g/iam/"><code>e-iam</code></a> concept each mirrors.</li>
+<li>Explain why a mantrap's power-failure behavior must be decided in advance — who has to be in the decision, and what goes wrong when physics decides instead of policy?</li>
+<li>A facility has 40 cameras, 72-hour retention, and no review procedure. An intrusion is discovered on day six. Name the three operations failures (placement is not one of them) and the realistic discovery window the retention should have covered.</li>
+<li>Distinguish the Domain 3 design view from this lesson's operations view using the mantrap: what does each view produce, and which one fails when the mantrap has no duress procedure?</li>
+<li>Predict the guard operation one year after post orders are written but never tested: what do the patrols, the tailgating rate, and the alarm responses look like?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your physical-security operations review (zones mapped, findings with decisions/owners/dates across guards, badges, entry controls, CCTV, environmental), plus the operations calendar — for the Kestrel worked case in your own words, or better, for a facility you actually use, walked as the reviewer.</p>
+<p><strong>Honest claim:</strong> "I can run the physical-security operation — staff and test the human controls, administer the badge lifecycle, place and monitor cameras, and keep the environmental controls tested — and I can review a facility and drive every finding to a decision."</p>
+<p><strong>Can't claim yet:</strong> "I can design a facility's physical security" — the Domain 3 design work (perimeter engineering, zone architecture, control selection against threats) is its own discipline; this lesson taught the daily operation of whatever was designed.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/iam/"><code>e-iam</code></a> — the badge lifecycle is the identity lifecycle, physical edition; leaver SLAs apply to both.</li>
+<li><a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> — badge and camera events as log sources: integrity, retention, review.</li>
+<li><a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> — the guard as a detective control: post orders as tuning, friendly-auditor tests as verification.</li>
+<li><a href="/g/personnel-safety/"><code>e-personnel-safety</code></a> — the same building, the people's safety view: duress, workplace violence, evacuation.</li>
+<li>Map refs: <strong>CISSP 7.14</strong> (this lesson); feeds <strong>CISSP 3.8/3.9</strong> (the design companion) and <strong>7.15</strong> (personnel safety).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-physical-security.log</code>. Factual note: the FEMA site-security guidance page was unreachable in-session (HTTP 403 via two routes) and is logged as an unverified lead, not cited.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

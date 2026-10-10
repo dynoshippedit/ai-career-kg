@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foundational security operations concepts: the principles you run on | Learn Computer Stuff</title>
+<meta name="description" content="How to apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — plus a zero-trust gap assessment. A free lesson in the security guidebook, serving CISSP objective 7.4.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/secops-concepts/">
+<meta property="og:title" content="Foundational security operations concepts: the principles you run on | Learn Computer Stuff"><meta property="og:description" content="How to apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — plus a zero-trust gap assessment. A free lesson in the security guidebook, serving CISSP objective 7.4.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/secops-concepts/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Foundational security operations concepts: the principles you run on","item":"https://learncomputerstuff.dev/g/secops-concepts/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Foundational security operations concepts: the principles you run on</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Foundational security operations concepts: the principles you run on</h1>
+<p class="lede prose">Every operational security decision is one of a small set of principles applied to a new situation: who really needs this access, what's the smallest privilege that works, who else must be involved before this happens, what catches it when this layer fails. These principles show up in the SoD matrix that stops one person from creating and paying a vendor, in the privilege review that converts standing admin to just-in-time, in the incident where the firewall rule failed but the host control caught it — and in the zero-trust program that rebuilds all of it for an estate with no perimeter. Security architects, SOC managers, and GRC analysts live here. Note the relationship with <a href="/g/iam/"><code>e-iam</code></a>: that lesson built the identity lifecycle and the access review. This lesson is the principles underneath those decisions — the reasoning you'd use to defend any single grant, control, or architecture choice.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — and assess a zero-trust gap)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/iam/"><code>e-iam</code></a> (the lifecycle and access review where these principles get applied); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.4</strong> — the foundational concepts of security operations, used as operating principles rather than vocabulary.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every operational security decision is one of a small set of principles applied to a new situation: who really needs this access, what's the smallest privilege that works, who else must be involved before this happens, what catches it when this layer fails. These principles show up in the SoD matrix that stops one person from creating and paying a vendor, in the privilege review that converts standing admin to just-in-time, in the incident where the firewall rule failed but the host control caught it — and in the zero-trust program that rebuilds all of it for an estate with no perimeter. Security architects, SOC managers, and GRC analysts live here. Note the relationship with <a href="/g/iam/"><code>e-iam</code></a>: that lesson built the identity lifecycle and the access review. This lesson is the principles underneath those decisions — the reasoning you'd use to defend any single grant, control, or architecture choice.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have designed an identity lifecycle and run an access review in <a href="/g/iam/"><code>e-iam</code></a> — the principles here are what make those reviews mean something.</li>
+<li>You know the control-type vocabulary (preventive/detective) at least by reputation; <a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> (same batch) goes deep.</li>
+<li>No tools. The work products are documents: a separation-of-duties matrix, a privilege-review disposition, and a zero-trust gap assessment. Primary spine: <strong>NIST SP 800-207</strong> (Zero Trust Architecture, August 2020).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Four classical principles plus the modern operating model that reframes them.</p>
+<p><strong>Need-to-know and least privilege: the access question, asked twice.</strong> <strong>Need-to-know</strong> says access follows demonstrated necessity: you get the data because your job requires it, not because you're senior, curious, or "might need it someday." <strong>Least privilege</strong> says the access you do get is the minimum that lets the job be done: read instead of write, one database instead of all of them, this week instead of forever. They sound identical and fail differently. Need-to-know fails at the <em>scope</em> decision (the analyst who can read every customer record when the job needs ten); least privilege fails at the <em>depth and duration</em> decision (the admin with permanent production rights for a quarterly task). In operation, need-to-know is enforced at grant time (the request must state the job need) and least privilege at review time (the <a href="/g/iam/"><code>e-iam</code></a> access review asks "is this still the minimum?"). Both decay toward over-privilege without the review — access only ever grows unless something shrinks it.</p>
+<p><strong>Separation of duties: no single pair of hands completes a sensitive act.</strong> SoD says critical actions require collusion to abuse: the person who creates a vendor can't approve the payment; the developer who writes the code can't deploy it unreviewed; the administrator who grants access can't audit the grants. In operation, SoD is a <strong>matrix</strong>: sensitive duties down one axis, roles down the other, marking which combinations one person may not hold. The matrix is where the principle meets reality — small teams can't separate everything, so the matrix also records the <strong>compensating controls</strong> for the separations you can't afford (enhanced logging, mandatory review, dual authorization on the specific action). An SoD matrix with no compensating-control column is a document that small organizations can't implement and large ones can't audit. The failure mode is the toxic combination discovered after the fraud: duties that were never mapped, so nobody knew one person held both ends.</p>
+<p><strong>Defense in depth: assume each layer fails.</strong> No single control is reliable — it will be misconfigured, bypassed, or defeated — so protection is <strong>layered</strong>: the firewall rule, the host control, the application check, the monitoring that notices when the others fail. The operating discipline is in two questions. First, <em>are the layers independent?</em> Three controls that all fail when one credential is stolen are one layer wearing three hats. Second, <em>does anything watch the layers?</em> Defense in depth without monitoring is just defense in hope — the <a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> lesson's placement decisions are how you answer the second question per control. The common misreading: more layers as a substitute for understanding. Ten overlapping controls nobody can explain is not depth; it's clutter that hides the gap.</p>
+<p><strong>Zero trust: the operating model for the perimeter-less estate.</strong> The classical principles assumed a network with an inside. Cloud, remote work, and SaaS dissolved the inside. <strong>Zero trust</strong> — per NIST SP 800-207 (August 2020) — is the operating model for that world: no implicit trust granted to assets or accounts based on network location or ownership; every access decision explicitly authenticated, authorized, and continuously re-evaluated. SP 800-207's tenets, operationalized: <strong>all data sources and services are resources</strong> (the network location stops being the trust criterion); <strong>all communication is secured</strong> (regardless of path); <strong>access is granted per-session</strong> (not per-network-login — the just-in-time elevation from <a href="/g/iam/"><code>e-iam</code></a> is this tenet in practice); <strong>policy is dynamic</strong> (the decision uses identity, device posture, behavior — the ABAC thinking from <a href="/g/iam/"><code>e-iam</code></a>); <strong>the enterprise monitors everything</strong> (the <a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> program is a zero-trust prerequisite, not an accessory). CISA's Zero Trust Maturity Model (current edition v2.0) turns the tenets into an assessment: five pillars (identity, devices, networks, applications, data) each scored across stages, so "adopt zero trust" becomes a gap assessment with a roadmap instead of a slogan. The honest note: zero trust doesn't replace the classical principles — it <em>relocates</em> them. Least privilege becomes per-session and attribute-driven; SoD becomes policy the engine enforces rather than a matrix auditors sample; defense in depth becomes the explicit assumption that every component, including the policy engine, is compromisable.</p>
+<h3>Worked example: Halcyon Health — SoD matrix, privilege review, zero-trust gaps</h3>
+<p><strong>The company (fictional).</strong> Halcyon Health, 240 staff, regional clinic network. Two scopes: the billing system (money movement — the classic SoD territory) and the IT estate (15 admins, standing domain privilege for all of them, VPN as the perimeter).</p>
+<p><strong>The SoD matrix (billing, excerpt — fictional).</strong> Duties: create vendor, approve vendor, submit invoice, approve payment, reconcile accounts, modify billing codes. Findings: the office manager can create vendors <em>and</em> approve payments (toxic combination — the exact shape of most billing frauds); two billing clerks can both submit and approve invoices under a threshold nobody documented. Decisions: vendor creation moves to procurement with finance approval (separation restored); the approval threshold is written down and the system enforces it (the undocumented threshold was the real finding); the one separation the 240-person org can't afford — the same DBA maintains the billing database and its backups — gets a compensating control: restore tests witnessed by finance quarterly, and the DBA's privileged sessions recorded.</p>
+<p><strong>The privilege review (IT).</strong> All 15 admins hold standing domain admin. The review asks the least-privilege question per person: who needs it, for what, how often? Four keep standing (infrastructure team, session-recorded, with written justification); eleven move to just-in-time elevation — requested per task, approved by a second person (SoD on the elevation itself), auto-expiring. The help-desk password-reset path is checked against the <a href="/g/iam/"><code>e-iam</code></a> weaker-path rule: it now requires the same MFA as the front door.</p>
+<p><strong>The zero-trust gap assessment (against the ZTMM pillars, excerpt).</strong> Identity: SSO everywhere except two legacy clinical apps (gap — the weaker path again). Devices: no posture check before VPN grants network access (gap — the VPN trusts the device implicitly). Networks: flat clinical network, no segmentation between guest Wi-Fi and clinical devices (gap). Data: the patient database encrypted at rest but no per-session access policy (gap). The roadmap is ordered by the principle each gap violates: identity first (it's the new perimeter), then devices, then networks. Each gap gets an owner and a quarter — a roadmap without dates is a wish list.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the SoD matrix, privilege review, and zero-trust gap assessment above, authored and self-reviewed in-session on 2026-10-10 against SP 800-207's tenets and the ZTMM pillar structure. Transcript: <code>runs/e-secops-concepts.log</code>.</p>
+<ol>
+<li><strong>Map the sensitive duties.</strong> For your fictional (or real) organization, list the duties where one person's unchecked action causes harm: money movement, access grants, code deployment, data export, backup deletion. If the list is short, you haven't thought about it enough.</li>
+<li><strong>Build the SoD matrix.</strong> Duties on one axis, roles on the other; mark the toxic combinations. For every separation you can't afford, write the compensating control in the adjacent column — enhanced monitoring, dual authorization, witnessed procedures.</li>
+<li><strong>Run the privilege review.</strong> List every standing privileged account. Per account: who, what for, how often, standing or just-in-time? "Might need it someday" converts to just-in-time. Record the justification for what stays standing.</li>
+<li><strong>Check the weaker paths.</strong> For every strong control (SSO with MFA, just-in-time elevation), find the bypass: the legacy app, the help-desk reset, the shared break-glass. Each bypass gets a decision — eliminate, match the strength, or document as a risk acceptance with owner and date.</li>
+<li><strong>Assess zero-trust gaps.</strong> Against the five pillars (identity, devices, networks, applications, data): where is trust still implicit — granted by network location, by device ownership, by "internal" status? Each implicit-trust finding becomes a roadmap item with owner and quarter.</li>
+<li><strong>Order the roadmap by principle.</strong> The gaps that violate identity-first (the new perimeter) come before network segmentation. Write the one-paragraph rationale an executive would read: what changes, in what order, and what risk each step retires.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one system you administer. List every privilege you hold on it, and for each, answer: what job need justifies this, and is it the minimum? Convert one standing privilege to just-in-time (even if "just-in-time" means a documented request to yourself with an expiry).</p>
+<p><strong>Success test:</strong> At least one privilege gets reduced or time-boxed, and you find one weaker path (a recovery method, a legacy protocol, a shared credential) that bypasses a stronger control. If your access is already minimal, audit someone else's — with permission.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Need-to-know as hierarchy.</strong> Access granted by seniority instead of job need. The executive with the full customer database "because they're an executive" is need-to-know inverted.</li>
+<li><strong>Least privilege without review.</strong> Granted minimally on day one, never reviewed again. Access only grows; the review is the mechanism, not the initial grant.</li>
+<li><strong>The unmapped toxic combination.</strong> The fraud nobody designed for because nobody mapped which duties one person held. The matrix is the control; the fraud is what happens without it.</li>
+<li><strong>SoD without compensating controls.</strong> The matrix demands separations the org can't staff, so it's ignored entirely. The compensating-control column is what makes the matrix implementable.</li>
+<li><strong>Layers that share a fate.</strong> Three controls, one credential — one compromise defeats all three. Independence of layers is the question; count is the distraction.</li>
+<li><strong>Depth without watchers.</strong> Layered controls, no monitoring. Defense in depth assumes each layer fails; something has to notice the failure.</li>
+<li><strong>Zero trust as product.</strong> Buying the platform and declaring the tenets satisfied. Zero trust is an operating model — per-session decisions, dynamic policy, monitored everything. The product is at most one layer.</li>
+<li><strong>Implicit trust that survived the migration.</strong> The VPN that grants network access without checking the device, the "internal" app with no authentication. Every implicit-trust remnant is a gap the assessment exists to find.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-207, Zero Trust Architecture</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, August 2020) — <em>read</em> the tenets and the logical-component architecture (policy engine, policy administrator, policy enforcement point); <em>skim</em> the deployment models. The tenets are the operating principles; everything else is implementation.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> AC-5 (separation of duties) and AC-6 (least privilege) as the control-language version of this lesson's first half; <em>skim</em> the AU and SI families for the monitoring the principles assume.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CISA Zero Trust Maturity Model, v2.0</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the assessment method — five pillars scored across stages, which turns "adopt zero trust" into a gap assessment with a roadmap.</li>
+<li><strong>NISTIR 7316, Assessment of Access Control Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; how access-control authorizations are structured and assessed — read after <a href="/g/iam/"><code>e-iam</code></a>'s authorization-models section for the assessment lens.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A 30-person company maps its billing SoD and finds the same person must create vendors and approve payments — no staff to separate. Explain the compensating-control design: what specifically compensates, and why "we trust her" isn't one.</li>
+<li>Distinguish a need-to-know failure from a least-privilege failure using one concrete access grant that exhibits each — then explain which failure the periodic access review catches and which it misses.</li>
+<li>Three controls protect a database: a firewall rule, a database login, and an IDS watching the segment — all administered with the same credential. Using the layer-independence question, explain what an attacker who steals that credential defeats, and what you'd change.</li>
+<li>A company buys a zero-trust platform, deploys agents, and declares the migration complete — but VPN still grants network access without device checks and two apps bypass SSO. Name the two implicit-trust remnants and the ZTMM pillar each belongs to.</li>
+<li>Predict the privilege state of an IT team two years after a just-in-time program launches but the approval step is routinely rubber-stamped: what does "separation of duties on elevation" look like in practice, and what failed?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your SoD matrix (duties, roles, toxic combinations marked, compensating controls for unaffordable separations), privilege-review disposition (per-account standing/just-in-time decision with reasons), weaker-path inventory with decisions, and zero-trust gap assessment (implicit-trust findings per pillar, ordered roadmap with owners and quarters) — for the Halcyon worked case in your own words, or better, for an organization you actually advise or administer.</p>
+<p><strong>Honest claim:</strong> "I can apply the operating principles — need-to-know, least privilege, separation of duties, defense in depth — as concrete decisions, and I can assess where an estate still runs on implicit trust and order the work to remove it."</p>
+<p><strong>Can't claim yet:</strong> "I can architect a zero-trust enterprise" — the policy-engine design, device-posture infrastructure, and migration at scale are their own engineering discipline; this lesson taught the principles and the assessment, not the build.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/iam/"><code>e-iam</code></a> — the lifecycle and review where these principles get applied; reread its privileged-access section as the SoD companion.</li>
+<li><a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> — layer placement and monitoring: the "who watches the layers" half of defense in depth.</li>
+<li><a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> — the monitoring program zero trust assumes.</li>
+<li>Map refs: <strong>CISSP 7.4</strong> (this lesson); feeds <strong>CISSP 5.x</strong> (identity and access) and <strong>7.7</strong> (detective/preventive measures).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-secops-concepts.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

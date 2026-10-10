@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Platform security: the ground your architecture stands on | Learn Computer Stuff</title>
+<meta name="description" content="Survey boot integrity, memory protection, virtualization isolation, and key storage across deployment options and write a conditional recommendation. A free lesson in the security guidebook, serving CISSP objective 3.4.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/platform-security/">
+<meta property="og:title" content="Platform security: the ground your architecture stands on | Learn Computer Stuff"><meta property="og:description" content="Survey boot integrity, memory protection, virtualization isolation, and key storage across deployment options and write a conditional recommendation. A free lesson in the security guidebook, serving CISSP objective 3.4.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/platform-security/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Platform security: the ground your architecture stands on","item":"https://learncomputerstuff.dev/g/platform-security/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Platform security: the ground your architecture stands on</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Platform security: the ground your architecture stands on</h1>
+<p class="lede prose">Every security architecture rests on a platform — firmware, bootloader, hypervisor, CPU — and every platform makes promises the layers above inherit, silently. When the platform keeps its promises, the architecture above gets measured boot, sealed keys, and memory that resists corruption; when it doesn't, the architecture inherits a basement nobody inspected. Platform security shows up in the procurement question nobody asks ("does this server have a TPM, and is it enabled?"), in the cloud instance-type decision that determines whether your keys live in hardware or in a config file, in the secure-boot failure that bricks a fleet at 3 a.m., and in the confidential-computing pitch that promises your data is safe from the cloud provider itself. It is the least glamorous layer and the most load-bearing: compromise below the operating system is compromise of everything above it, usually without evidence.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (survey a platform's security capabilities and write a deployment recommendation with conditions)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/secure-design/"><code>e-secure-design</code></a> (platform capabilities as design inputs), <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> (what the encryption primitives guarantee); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.4</strong> — platform security capabilities: memory protection, hardware roots of trust, secure boot, virtualization isolation, and encryption.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every security architecture rests on a platform — firmware, bootloader, hypervisor, CPU — and every platform makes promises the layers above inherit, silently. When the platform keeps its promises, the architecture above gets measured boot, sealed keys, and memory that resists corruption; when it doesn't, the architecture inherits a basement nobody inspected. Platform security shows up in the procurement question nobody asks ("does this server have a TPM, and is it enabled?"), in the cloud instance-type decision that determines whether your keys live in hardware or in a config file, in the secure-boot failure that bricks a fleet at 3 a.m., and in the confidential-computing pitch that promises your data is safe from the cloud provider itself. It is the least glamorous layer and the most load-bearing: compromise below the operating system is compromise of everything above it, usually without evidence.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You know what platform capabilities are for (<a href="/g/secure-design/"><code>e-secure-design</code></a> §3) — this lesson teaches how to evaluate them.</li>
+<li>You can state what encryption guarantees and what it doesn't (<a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>) — the platform is where keys live or die.</li>
+<li>No tools. The work product is a platform capability survey: what the platform offers, what is actually enabled, and what the deployment decision depends on.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The boot chain and why it matters.</strong> A machine does not start secure; it <em>becomes</em> trustworthy one stage at a time. Firmware initializes hardware, the bootloader loads the OS, the OS starts services — and each stage can subvert every stage after it. Platform security is the discipline of making each handoff verifiable: either the next stage is measured (its hash recorded, so tampering is detectable) or verified (its signature checked, so tampering is prevented). Everything above trusts the chain; the chain's first link is trusted without evidence, which is why it must be as small and as hard to change as possible.</p>
+<p><strong>Hardware roots of trust: the TPM.</strong> The Trusted Platform Module is a small cryptographic coprocessor — discrete chip, firmware implementation, or virtual — that provides three capabilities nothing in software can replicate. <strong>Measured boot:</strong> as each boot component loads, its hash is extended into Platform Configuration Registers (PCRs) — a tamper-evident log of <em>what actually booted</em>, not what was supposed to boot. <strong>Sealed storage:</strong> keys and secrets can be bound to a PCR state, so they unseal only when the boot measurements match — a stolen disk yields nothing because the measurements on the attacker's machine differ. <strong>Attestation:</strong> the TPM can sign a quote of the PCRs with its attestation key, proving to a remote verifier what software booted — the basis of fleet enrollment decisions ("this gateway may join because it booted the approved firmware"). The root of trust is minimal by design: a small, fixed-function component whose compromise requires physical access or a supply-chain attack, not a phishing email.</p>
+<p><strong>Secure boot (UEFI).</strong> Where measured boot <em>detects</em> tampering, Secure Boot <em>prevents</em> it: the firmware verifies each boot stage's signature against keys in its database before transferring control. An unsigned or revoked bootloader simply does not run. The operational reality: Secure Boot is only as good as its key management — machines ship with vendor keys, organizations enroll their own, and a compromised or misconfigured key database silently downgrades the guarantee. "Secure Boot enabled" is a claim; the key inventory is the evidence.</p>
+<p><strong>Memory protection.</strong> Most remote code execution still begins with memory corruption, so the platform's memory defenses are the exploit author's tax code. <strong>Non-executable memory</strong> (NX/XD/W^X) marks data pages non-executable — injected shellcode cannot run where it lands. <strong>Address-space layout randomization</strong> (ASLR) randomizes where code and data load, turning a reliable exploit into a guessing game (defeated by information leaks, which is why it is a layer, not a wall). <strong>Control-flow enforcement</strong> — Intel CET is the worked example — adds a <strong>shadow stack</strong> (a second, hardware-protected copy of return addresses, so return-oriented programming finds its targets don't match) and <strong>indirect-branch tracking</strong> (indirect jumps may land only on designated entry points). None of these fix buggy code; all of them raise exploitation from scripting to research.</p>
+<p><strong>Virtualization isolation.</strong> The hypervisor is a smaller, simpler trust boundary than a general-purpose OS: guests are isolated by hardware-assisted virtualization (separate address spaces, trapped privileged instructions), and a compromised guest should not reach the host or its neighbors. The threat model matters: classic virtualization protects guests <em>from each other</em> but not from the host — the hypervisor sees all guest memory. <strong>Confidential computing</strong> (memory encryption per VM, with attestation of the guest's initial state) extends the boundary to protect the guest <em>from the host</em> — relevant wherever mutually distrusting parties share hardware, or where the threat model includes the infrastructure operator. The capability to survey is not "virtualization: yes" but <em>which</em> boundary the platform actually enforces and against whom.</p>
+<p><strong>Platform encryption capabilities.</strong> Encryption the platform makes cheap gets used; encryption that fights the platform gets skipped. Survey: <strong>hardware AES acceleration</strong> (instructions that make bulk encryption effectively free), <strong>key storage</strong> (TPM-sealed keys, platform keystores, managed key services — where the keys live determines the whole key-management story from <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>), <strong>full-disk encryption</strong> with pre-boot authentication, and <strong>per-VM memory encryption</strong> where offered. The question is never "does it support AES" — everything does — but "where do the keys live, who can extract them, and what happens at boot, at migration, and at decommissioning?"</p>
+<p><strong>The survey method.</strong> For each deployment option, verify five capability groups — boot integrity (measured/verified boot, TPM presence and enablement), memory protection (NX, ASLR support, CET-class enforcement), virtualization boundary (what is isolated from what, and from whom), key storage (where keys live), and firmware update integrity (signed updates, rollback protection). A capability the vendor cannot confirm in writing does not exist for decision purposes. "Enabled by default" beats "supported"; "attested" beats "enabled."</p>
+<h3>Worked example: Meridian Analytics — platform survey for the database tier</h3>
+<p><strong>The decision (fictional).</strong> Meridian Analytics (from <a href="/g/iam/"><code>e-iam</code></a>) is moving its production database tier — the system holding the data its access reviews protect — off shared cloud instances. Two options: <strong>Option A</strong>, the cloud provider's confidential-computing instance family; <strong>Option B</strong>, colocated single-tenant servers from a hardware vendor. The survey:</p>
+<p>| Capability | Option A (cloud, confidential VMs) | Option B (colo, single-tenant) |</p>
+<p>|---|---|---|</p>
+<p>| Boot integrity | vTPM with measured boot; attestation API available; Secure Boot enforced by the provider | TPM 2.0 discrete chips on the BOM (confirmed in writing); Secure Boot with customer-enrolled keys; attestation flow must be built by Meridian |</p>
+<p>| Memory protection | NX + ASLR standard; CET-class enforcement available on the instance family | Same CPU generation — same NX/ASLR/CET; no difference at the silicon level |</p>
+<p>| Virtualization boundary | Guest memory encrypted per VM; host (provider) cannot read guest memory; attestation of initial guest state | No hypervisor — bare metal; boundary is physical (single tenant per machine); no host in the threat model at all |</p>
+<p>| Key storage | Managed key service backed by hardware; keys never leave the boundary in clear | TPM-sealed keys; operationally heavier — Meridian owns rotation, backup, and the compromise procedure |</p>
+<p>| Firmware updates | Provider-managed, signed, with rollback protection | Vendor-signed firmware; Meridian owns the update cadence and must track advisories |</p>
+<p><strong>Analysis.</strong> The silicon is equivalent — the difference is <em>who operates the trust</em>. Option A outsources the firmware, attestation, and key-management operations to the provider and adds a real technical boundary (memory encryption) against the provider itself. Option B removes the provider from the threat model entirely but transfers every operational burden — attestation flow, key ceremonies, firmware tracking — to a 180-person company with one platform team. The confidential-computing boundary in Option A is the more <em>verifiable</em> posture for Meridian's size: the attestation API exists today, while Option B's attestation flow is a project that must be built before migration or the boot-integrity story silently degrades.</p>
+<p><strong>Recommendation (with conditions):</strong> Option A, <em>conditioned on</em> (1) confirming in the contract that the vTPM attestation API and memory-encryption features are available in the regions Meridian deploys to — features vary by region and the sales deck is not the contract; (2) a key-management runbook for the managed key service covering rotation and compromise, owned by the platform team; (3) re-survey at contract renewal, because the provider's feature set is the part of the platform Meridian doesn't control. The honest statement: Meridian is trading operational burden for provider trust, and the memory-encryption boundary is what makes that trade defensible.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The Meridian survey above, authored and self-reviewed in-session on 2026-10-10. Transcript: <code>runs/e-platform-security.log</code>.</p>
+<ol>
+<li><strong>Name the decision.</strong> One sentence: what is being deployed, and what are the options? If there is only one option, the survey is still worth doing — it becomes the list of assumptions you are betting on.</li>
+<li><strong>Survey the five capability groups per option.</strong> Boot integrity, memory protection, virtualization boundary, key storage, firmware updates. For each cell: what the platform offers, whether it is enabled by default, and the evidence (documentation link, contract clause, or "vendor confirmed in writing on [date]").</li>
+<li><strong>Draw the trust boundary per option.</strong> Who is inside, who is outside, and — critically — whether the infrastructure operator is inside or outside. This is the row most surveys skip and the row that determines the decision.</li>
+<li><strong>Write the analysis.</strong> Silicon equivalence is common; operational burden is where options differ. Name who operates each trust mechanism and whether your team can actually operate it.</li>
+<li><strong>Recommend with conditions.</strong> No unconditional recommendations — every platform choice has conditions (contract terms, runbooks to write, features to confirm per region). List them; they are the action items.</li>
+<li><strong>Close out.</strong> File the survey as the artifact. Date it — platform capabilities change, and a survey is a snapshot, not a permanent truth.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Survey the platform you actually run on — your VPS provider's instance types, your home server's motherboard/CPU, or your laptop. Check: TPM present and enabled? Secure Boot on, and whose keys? Memory encryption offered? Where do your disk-encryption keys live?</p>
+<p><strong>Success test:</strong> You find at least one capability you assumed and cannot confirm — the gap between "supported" and "enabled and attested" is the finding. Your survey names the trust boundary: who (including the provider) is inside it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"The cloud handles it."</strong> The most expensive sentence in platform security. The cloud offers the capabilities; <em>you</em> enable, configure, and attest them. Unconfigured platform security is a brochure, not a boundary.</li>
+<li><strong>TPM present, never attested.</strong> Measured boot without a verifier is a log nobody reads. If nothing checks the PCRs, tampering is recorded faithfully and ignored completely.</li>
+<li><strong>Secure Boot with vendor-default keys.</strong> The signature check runs against keys you never inventoried. Key management doesn't stop at the OS — the firmware's key database is part of the trust chain.</li>
+<li><strong>Confusing the virtualization boundary.</strong> "It's in a VM, so it's isolated" — isolated from what, from whom? The classic hypervisor boundary excludes the host; if your threat model includes the operator, you need the confidential-computing boundary, not just any VM.</li>
+<li><strong>Keys in the config file.</strong> Platform key storage exists precisely so keys don't live next to the data. Every survey should ask where the keys live at boot, at migration, and at decommissioning — the three moments keys leak.</li>
+<li><strong>Firmware as an afterthought.</strong> Signed updates, rollback protection, and an update cadence with an owner. The firmware is the most privileged code on the machine and the least monitored — that asymmetry is the attacker's business model.</li>
+<li><strong>Surveying once.</strong> Platform capabilities are a moving target: new instance families, new CPU extensions, provider feature changes. A survey without a review date is a snapshot treated as a permanent truth.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>UEFI Forum: Specifications</strong> (<a href="https://uefi.org">uefi.org</a>) — <em>read</em> the Secure Boot sections of the UEFI specification overview; <em>skim</em> the rest. The primary source for what "verified boot" actually verifies.</li>
+<li><strong>Microsoft Learn: Trusted Platform Module (TPM) fundamentals</strong> (<a href="https://learn.microsoft.com">learn.microsoft.com</a>) — <em>read</em> the measured-boot, sealed-storage, and attestation explanations; <em>skim</em> the Windows-specific integration. The clearest free TPM treatment.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Intel: A Technical Look at Control-Flow Enforcement Technology (CET)</strong> (<a href="https://intel.com">intel.com</a>) — free; shadow stacks and indirect-branch tracking explained by the people who built them.</li>
+<li><strong>NIST SP 800-53 Rev. 5, SC family</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; the platform controls in catalog form (SC-12 key management, SC-28 at-rest protection) for the trace.</li>
+<li><strong>CISA physical security resources</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the facility half of platform trust — hardware you can touch is hardware someone else can touch.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A server has a TPM and "measured boot enabled," but nothing ever reads the PCRs. Explain what guarantee is actually provided, what is missing, and the cheapest fix.</li>
+<li>Two offerings use the same CPU. One runs your database in a confidential VM; the other on colocated bare metal. Name the threat each option handles better, and the operational burden each imposes.</li>
+<li>A team's Secure Boot deployment uses the vendor's default key database. Explain the trust assumption this bakes in and what enrolling their own keys changes — and what new responsibility it creates.</li>
+<li>An architect cites ASLR as the mitigation for a memory-corruption vulnerability class. Explain why ASLR is a layer rather than a fix, what defeats it, and which platform capability raises the bar further.</li>
+<li>Predict the incident that reveals a platform survey was never re-done: which capability silently changed, who depended on the old assumption, and what the first symptom is.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your platform capability survey — the decision, the five capability groups per option with evidence, the trust boundary per option (naming the operator's position), the analysis, and the conditional recommendation — for the Meridian case in your own words, or for a platform you actually use.</p>
+<p><strong>Honest claim:</strong> "I can survey a platform's security capabilities, draw the trust boundary including the operator, and write a deployment recommendation with explicit conditions."</p>
+<p><strong>Can't claim yet:</strong> "I can implement measured boot and attestation" — building the attestation flow (verifier service, PCR policies, enrollment) is implementation work this lesson scoped as a condition, not a deliverable.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/secure-design/"><code>e-secure-design</code></a> — platform capabilities as design inputs; reread its R5 as a survey row.</li>
+<li><a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> — key lifecycle: the survey says where keys live; that lesson says how they must be managed.</li>
+<li><a href="/g/facility-controls/"><code>e-facility-controls</code></a> — site and facility security controls: the physical half — the server whose boot you attested sits in a building someone can walk into.</li>
+<li><a href="/g/cloud-security/"><code>d-cloud-security</code></a> — shared-responsibility done right: which platform capabilities the provider owns vs you.</li>
+<li>Map refs: <strong>CISSP 3.4</strong> (this lesson); feeds <strong>CISSP 7.14</strong> (physical security implementation).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

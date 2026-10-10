@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investigations and digital forensics: the management and legal view | Learn Computer Stuff</title>
+<meta name="description" content="How to run investigations as a management and legal discipline — forensic readiness, evidence handling, chain of custody, and working with counsel and law enforcement. A free lesson in the security guidebook, serving CISSP objective 7.1.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/investigation-forensics/">
+<meta property="og:title" content="Investigations and digital forensics: the management and legal view | Learn Computer Stuff"><meta property="og:description" content="How to run investigations as a management and legal discipline — forensic readiness, evidence handling, chain of custody, and working with counsel and law enforcement. A free lesson in the security guidebook, serving CISSP objective 7.1.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/investigation-forensics/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Investigations and digital forensics: the management and legal view","item":"https://learncomputerstuff.dev/g/investigation-forensics/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Investigations and digital forensics: the management and legal view</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Investigations and digital forensics: the management and legal view</h1>
+<p class="lede prose">Someone has to decide, before the incident, that evidence will exist when needed — and after, that it can actually be used. That's the management view: forensic readiness (logging, imaging capability, trained first responders), evidence handling (who touches what, in what order, documented how), and the legal frame (admissibility, counsel, when to call law enforcement). It shows up when the laptop was wiped before legal approved imaging, when nobody can prove the logs weren't altered, and in the CISO's meeting with counsel about an FBI referral. DFIR leads, SOC managers, and GRC analysts live here. Note the split with <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a>: that lesson taught the analyst's bench — timelines, memory forensics. This lesson teaches the program around the bench: the decisions that determine whether the bench's output is trusted, admissible, and complete.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design a forensic-readiness program and run an investigation's evidence handling so it survives legal scrutiny)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/incident-response/"><code>c-incident-response</code></a> (the response lifecycle this wraps around), <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a> (the analyst bench work this lesson manages — timelines, memory and disk forensics); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.1</strong> — how investigations are run: evidence, investigative techniques, digital forensics, and the legal frame that makes evidence admissible.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Someone has to decide, before the incident, that evidence will exist when needed — and after, that it can actually be used. That's the management view: forensic readiness (logging, imaging capability, trained first responders), evidence handling (who touches what, in what order, documented how), and the legal frame (admissibility, counsel, when to call law enforcement). It shows up when the laptop was wiped before legal approved imaging, when nobody can prove the logs weren't altered, and in the CISO's meeting with counsel about an FBI referral. DFIR leads, SOC managers, and GRC analysts live here. Note the split with <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a>: that lesson taught the analyst's bench — timelines, memory forensics. This lesson teaches the program around the bench: the decisions that determine whether the bench's output is trusted, admissible, and complete.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have run the incident-response lifecycle in <a href="/g/incident-response/"><code>c-incident-response</code></a> — investigations begin where containment ends, or run in parallel.</li>
+<li>You know what forensic artifacts look like from <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a> — this lesson teaches what governs their collection.</li>
+<li>No tools. The work products are documents: a forensic-readiness plan, a chain-of-custody procedure, an investigation decision log. Bring the <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> habit of writing reasons, owners, and dates — a court may read them.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>An investigation answers "what happened" under constraints a purely technical analysis doesn't have: the evidence must be <strong>complete</strong>, <strong>authentic</strong>, and <strong>lawfully obtained</strong>. Four concerns organize the management view.</p>
+<p><strong>Forensic readiness: the investigation starts before the incident.</strong> Readiness is the difference between an organization that <em>can</em> investigate and one that wishes it could. Four components: <strong>logging and retention</strong> sufficient to reconstruct events (the <a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> retention schedule is the evidence base — if logs aged out at 30 days, a 60-day-old intrusion is uninvestigable); <strong>imaging and collection capability</strong> (write-blockers, imaging tools, storage for forensic copies, or a contracted retainer — decided in advance, not sourced mid-incident); <strong>trained first responders</strong> who know the order of volatility and the "do not" list (don't shut down a running system you intend to memory-capture; don't browse the suspect drive); <strong>pre-authorized procedures</strong> — counsel-reviewed playbooks for the common scenarios, so the first hour isn't spent arguing about authority.</p>
+<p><strong>The forensic process: collect, examine, analyze, report.</strong> NIST SP 800-86 — the federal guide to integrating forensics into incident response (August 2006, still the structural reference) — organizes forensic work into four phases: <strong>collection</strong>, <strong>examination</strong>, <strong>analysis</strong>, <strong>reporting</strong>. The management insight is that each phase has a quality gate the manager owns: was collection complete and documented? Was the examination method sound? Does the analysis support the conclusion or leap past it? Can a non-technical reader — a judge, an executive — follow the report? The 2006 date is honest context — the document predates cloud and smartphones, but the four-phase structure and the data-source taxonomy (files, operating systems, network traffic, applications) still describe competent investigations — and SP 800-86 is explicit that it presents forensics "from an IT view, not a law enforcement view," which is why this lesson pairs it with the legal frame below.</p>
+<p><strong>The order of volatility and the collection discipline.</strong> Some evidence evaporates and some endures. RFC 3227 (February 2002, "Guidelines for Evidence Collection and Archiving") — short, free, still cited — teaches the <strong>order of volatility</strong>: collect the most ephemeral first (registers/cache, RAM, network state, running processes, then disk, logs, archival media). The management translation: first responders need a one-page card with this order, because the instinct to "just pull the plug" destroys the volatile evidence the investigation needs most. RFC 3227 also teaches <strong>transparency</strong> (document every action so another expert could reproduce it) and treats <strong>chain of custody</strong> as its own archiving procedure.</p>
+<p><strong>Chain of custody and admissibility.</strong> Evidence is only useful if its integrity is provable from collection to presentation. <strong>Chain of custody</strong> is the documented, unbroken record of who handled the evidence, when, and what they did — every handoff signed, every storage access logged, the original sealed and worked from copies. Break the chain and authenticity becomes arguable; in a legal proceeding, arguable authenticity is often fatal. That's why forensic copies are hashed at acquisition (the hash, verified at every later step, proves the working copy matches the original) and why analysts never work from originals. The NIJ's "Electronic Crime Scene Investigation: A Guide for First Responders" (second edition, a free Department of Justice publication) is written for the non-specialist first responder whose early mistakes — booting the suspect machine, browsing files — destroy admissibility. Its message for managers: your first responders usually aren't forensic specialists, so their procedures must be simple, written, and rehearsed.</p>
+<p><strong>The legal and organizational frame.</strong> Three decisions sit above the technical work. <strong>When to involve counsel:</strong> early, and before collection in any case that might become an employment action, a regulatory filing, or a criminal referral — counsel determines privilege, directs scope, and decides what must be preserved (litigation hold) versus what may be destroyed under retention policy. <strong>When to involve law enforcement:</strong> referral is a business decision made with counsel, not a reflex — the organization loses control of timing, direction, and potentially the evidence itself. <strong>Administrative vs. criminal vs. regulatory paths:</strong> the same facts can travel all three tracks at once, and evidence collected for one must be handled to standards that survive the others. The manager's rule: handle every investigation as if it will face the hardest audience, because you don't get to re-collect.</p>
+<h3>Worked example: Meridian Analytics — insider investigation, managed end to end</h3>
+<p><strong>The company (fictional, continued from <a href="/g/iam/"><code>e-iam</code></a>).</strong> Meridian Analytics, 180 people. The trigger: a DLP alert — a departing sales engineer, last day Friday, has copied an unusual volume from the customer-data share to a personal cloud drive over two weeks. HR wants the laptop secured; legal is on notice; the employee's manager wants to "just ask him about it."</p>
+<p><strong>Readiness check (what existed before the trigger).</strong> Meridian has: 90-day retention on file-access logs (barely enough — the copying started 14 days ago, inside the window); a forensic retainer with 4-hour SLA; a written first-responder card; a counsel-reviewed playbook. What it lacks: the personal cloud drive is outside corporate visibility — the plan records that limitation honestly and works from endpoint and network evidence.</p>
+<p><strong>The investigation plan (the manager's document).</strong></p>
+<ol>
+<li><strong>Authority and privilege.</strong> Outside counsel directs; the litigation-hold notice goes to IT (preserve the engineer's mailbox, file-access, VPN, and badge logs — don't delete). HR gets the scope in writing: fact-finding, not yet accusation.</li>
+<li><strong>Collection, in volatility order.</strong> Laptop still running and docked: memory capture first, then full disk image via write-blocker, then SIEM log pulls. Each acquisition hashed at collection; hashes in the custody log. Original sealed; analysis on copies.</li>
+<li><strong>What not to do.</strong> No interview before collection is complete (tip-off risks destruction). No "quick look" at the live laptop. The manager's "just ask him" is deferred in writing, with the reason.</li>
+<li><strong>Analysis gates.</strong> The examiner's findings get a leap-check: each conclusion cites the artifact supporting it. "Copied 14 GB to personal storage" must trace to DLP logs plus endpoint artifacts, not to suspicion.</li>
+<li><strong>Decision points, logged.</strong> Day 3: evidence confirms exfiltration of the customer list. Counsel decides: employment action proceeds on the forensic report; criminal referral deferred pending the full report (recorded with rationale); breach-notification analysis begins (the regulatory track).</li>
+<li><strong>Reporting.</strong> Two reports: technical (methods, hashes, artifacts, conclusions with confidence levels) and executive (what happened, proven vs. suspected, recommended actions). Both go to counsel first.</li>
+</ol>
+<p><strong>Chain-of-custody excerpt (fictional, labeled):</strong> item MA-2026-041 (laptop, asset tag LT-1834): collected 2026-10-12 09:14 by J. Okafor (outside firm), SHA-256 at acquisition, sealed in bag EB-2201; accessed 2026-10-13 by examiner R. Ito for imaging (working copy WC-2201-A, hash verified against original); every access signed. The form's printed rule: <em>a gap in this log is a gap in the evidence.</em></p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the investigation plan, readiness assessment, and chain-of-custody procedure above, authored and self-reviewed in-session on 2026-10-10 against SP 800-86's four phases, RFC 3227, and the NIJ first-responders guide. Transcript: <code>runs/e-investigation-forensics.log</code>.</p>
+<ol>
+<li><strong>Assess readiness.</strong> For your fictional (or real) organization, score the four readiness components: log retention vs. realistic investigation windows, imaging capability (in-house or retainer), first-responder training (does the one-page card exist?), pre-authorized procedures (counsel-reviewed playbooks for the three common scenarios). Every gap gets an owner and a date.</li>
+<li><strong>Write the first-responder card.</strong> One page: the order of volatility, the "do not" list, the call tree (who pages counsel, who pages the retainer). If it doesn't fit on one page, it's not a field card.</li>
+<li><strong>Design the chain-of-custody form.</strong> Fields: item ID, description, collected by/when/where, hash at acquisition, storage location, every access (who, when, purpose, hash re-verified), seal numbers. Rule: analysis on copies, originals sealed.</li>
+<li><strong>Run the scenario.</strong> Take the Meridian case (or your own): write the investigation plan with authority, collection order, the "do not" decisions, analysis gates, and the three-track decision log. Plant one complication — key evidence on a personal device, or logs aged out — and record how the plan adapts honestly.</li>
+<li><strong>Write the two reports.</strong> Technical (methods, hashes, artifact-to-conclusion traceability) and executive (proven vs. suspected, recommended actions). Have a non-technical reader tell you what they'd decide from the executive summary — if they can't, the report failed.</li>
+<li><strong>After-action on readiness.</strong> What did the investigation reveal about the step-1 gaps? The investigation's findings include findings about the program.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> For a system you control (homelab, VPS), write the forensic-readiness page: what logs exist and their retention, what you'd image and with what (even "I'd call a retainer — here's the one I'd pick and why"), and your first-responder card. Then test the weakest link: verify one log source actually retains what you claim — check its oldest entry.</p>
+<p><strong>Success test:</strong> Your page names a specific retention gap you found by checking, not assuming. If you assumed every retention setting, you did the exercise wrong — the check is the exercise.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The premature interview.</strong> Asking the suspect "about it" before collection is complete destroys evidence; the procedure exists to overrule the instinct.</li>
+<li><strong>Booting the evidence.</strong> Powering on a suspect machine or browsing its files alters the evidence and hands the other side an authenticity argument. Untrained first responders do helpful things; helpful things destroy cases.</li>
+<li><strong>The broken chain.</strong> Evidence collected carefully, then handed around unsigned and stored unlogged. Admissibility dies in the gaps, not at collection.</li>
+<li><strong>Analysis on originals.</strong> Working from the original makes every examination step an alteration step. Copies are cheap; authenticity arguments are expensive.</li>
+<li><strong>Single-track thinking.</strong> Collecting to HR standards, then discovering the case needs criminal-grade handling. Handle to the hardest standard from the start; you can't upgrade retroactively.</li>
+<li><strong>No litigation hold.</strong> Deletion under a normal retention schedule, after the duty to preserve attached, is spoliation — and spoliation inferences are worse than most evidence. Counsel decides when the hold attaches; IT executes it the same day.</li>
+<li><strong>Readiness theater.</strong> The retainer signed but never tested, the playbook counsel never reviewed, the write-blocker in a drawer nobody can find. Readiness is verified by drill, not by purchase order.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-86, Guide to Integrating Forensic Techniques into Incident Response</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, August 2006) — <em>read</em> Chapter 3 (the forensic process: collection, examination, analysis, reporting) and the data-source taxonomy; <em>note</em> its age honestly — pre-cloud, but the structure endures. Explicitly an IT view, not a law-enforcement view.</li>
+<li><strong>RFC 3227, Guidelines for Evidence Collection and Archiving</strong> (<a href="https://rfc-editor.org">rfc-editor.org</a>, February 2002) — <em>read</em> all of it; it's short. The order of volatility, transparency, collection steps, and chain of custody in a dozen pages.</li>
+<li><strong>NIJ, Electronic Crime Scene Investigation: A Guide for First Responders, Second Edition</strong> (<a href="https://ojp.gov">ojp.gov</a>, free DOJ publication) — <em>read</em> as the field manual for the non-specialist first responder; this is what your one-page card distills.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NIST SP 800-61 Rev. 3, Computer Security Incident Handling Guide</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, April 2025) — free; where forensics plugs into the incident-response lifecycle this lesson wraps around.</li>
+<li><strong>FIRST CSIRT Services Framework, v2.1</strong> (<a href="https://first.org">first.org</a>) — free; forensic and investigation services as a defined CSIRT offering — useful when scoping a retainer or building the team.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A first responder arrives to find the suspect's laptop running and docked. They shut it down "to preserve it," then boot it with a forensic USB. Name the two distinct evidence losses and the order-of-volatility principle each violates.</li>
+<li>Explain why analysts work from hashed copies rather than originals — what specific legal argument does the hash-at-acquisition defeat, and at which later steps must the hash be re-verified?</li>
+<li>An investigation collects evidence to support an HR termination. Midway, counsel decides a criminal referral is likely. What changes about the handling, and why can't the team "upgrade" retroactively?</li>
+<li>Distinguish forensic readiness from incident response: which of the four readiness components would have prevented the "logs aged out at 30 days" failure, and who owns that component?</li>
+<li>Predict the state of a chain-of-custody log six months into an investigation with no form and no procedure: which admissibility argument does the other side make?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your forensic-readiness assessment (four components scored, gaps with owners and dates), the one-page first-responder card, the chain-of-custody form, and the investigation plan with the three-track decision log — for the Meridian worked case in your own words, or better, for your own environment.</p>
+<p><strong>Honest claim:</strong> "I can design the program that makes investigations possible and run an investigation's evidence handling so findings survive scrutiny — what to collect in what order, how to prove it wasn't altered, when to bring in counsel and law enforcement."</p>
+<p><strong>Can't claim yet:</strong> "I can perform forensic analysis" — the bench work (timelines, memory forensics) is <a href="/g/dfir-deep/"><code>d-dfir-deep</code></a>'s territory; this lesson taught the management and legal frame, not the analysis. Nor "I can give legal advice" — this is issue-spotting for counsel, not counsel.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/dfir-deep/"><code>d-dfir-deep</code></a> — the analyst's bench this lesson manages: timelines, disk and memory forensics; reread it as the "what the readiness program feeds" companion.</li>
+<li><a href="/g/incident-response/"><code>c-incident-response</code></a> — the response lifecycle investigations run inside or alongside.</li>
+<li><a href="/g/logging-monitoring/"><code>e-logging-monitoring</code></a> — the retention decisions that determine whether evidence exists when you need it.</li>
+<li><a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> — preservation discipline rhymes with continuity's records discipline.</li>
+<li>Map refs: <strong>CISSP 7.1</strong> (this lesson); feeds <strong>CISSP 7.6</strong> (incident management) and <strong>1.4/1.5</strong> (legal and investigative requirements).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-investigation-forensics.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

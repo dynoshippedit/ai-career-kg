@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security awareness, education, and training: building the learning program | Learn Computer Stuff</title>
+<meta name="description" content="Design a one-year security learning program measured by behavior change. A free lesson in the security guidebook, serving CISSP objective 1.12.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/awareness-training/">
+<meta property="og:title" content="Security awareness, education, and training: building the learning program | Learn Computer Stuff"><meta property="og:description" content="Design a one-year security learning program measured by behavior change. A free lesson in the security guidebook, serving CISSP objective 1.12.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/awareness-training/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Security awareness, education, and training: building the learning program","item":"https://learncomputerstuff.dev/g/awareness-training/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Security awareness, education, and training: building the learning program</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Security awareness, education, and training: building the learning program</h1>
+<p class="lede prose">Every control in this guidebook assumes a human who knows what to do. The phishing email that the finance officer reports instead of clicking — or does not. The developer who recognizes a secret in a code review because training made it salient. The new hire who knows the acceptable-use policy because onboarding taught it, not because it was emailed as a PDF. Security awareness, education, and training is the program that builds those humans — and it is where most organizations run an annual checkbox video, measure completions, and declare victory while the click rate never moves. This lesson teaches the program as NIST now frames it: not a training course but a learning program, designed around audiences, measured by behavior change, and owned like any other security control.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (write a one-year security learning program plan — audience segments, topic calendar, phishing-simulation rules of engagement, effectiveness metrics — that a real organization could run)</td></tr><tr><th scope="row">Prerequisites</th><td>none beyond Stage D; bring the human-factor material from <a href="/g/soc-triage/"><code>c-soc-triage</code></a> (alert fatigue is what happens when the humans are the unpatched layer). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 1.12</strong> — security awareness, education, and training programs.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every control in this guidebook assumes a human who knows what to do. The phishing email that the finance officer reports instead of clicking — or does not. The developer who recognizes a secret in a code review because training made it salient. The new hire who knows the acceptable-use policy because onboarding taught it, not because it was emailed as a PDF. Security awareness, education, and training is the program that builds those humans — and it is where most organizations run an annual checkbox video, measure completions, and declare victory while the click rate never moves. This lesson teaches the program as NIST now frames it: not a training course but a learning program, designed around audiences, measured by behavior change, and owned like any other security control.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>No technical prerequisites beyond Stage D. This lesson is program design: audiences, objectives, delivery, measurement.</li>
+<li>Bring <a href="/g/soc-triage/"><code>c-soc-triage</code></a>'s human-factor material — fatigue, inattention, and workaround culture are the problems the program exists to reduce.</li>
+<li>Bring your <a href="/g/policy-docs/"><code>e-policy-docs</code></a> hierarchy — the program is how policy becomes known; a policy nobody has been taught is shelfware with extra steps.</li>
+<li>The work product is a one-year program plan for a fictional company, with the rules of engagement for phishing simulation and the metrics that prove effectiveness.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>The rename that matters.</strong> NIST SP 800-50 Rev. 1, <em>Building a Cybersecurity and Privacy Learning Program</em> (September 2024 — the primary source for this lesson, fetched in-session; it supersedes both the 2003 SP 800-50 and the 1998 SP 800-16) deliberately retired the old awareness/training/education three-tier split. The reason, stated in the publication itself: research with federal training managers showed the three terms meant different things to different people and caused confusion when describing what the program is for. The replacement term is <strong>CPLP — Cybersecurity and Privacy Learning Program</strong> — applied generically: whatever your organization calls its program, the goal is providing learning opportunities at every career stage, not sorting activities into three buckets. The lesson for practitioners: stop arguing about whether something is "awareness" or "training" and start asking whether it changes behavior.</p>
+<p><strong>Program design, end to end.</strong> A learning program is designed like any security control — with a purpose, an audience, and a measurement:</p>
+<ol>
+<li><strong>Needs assessment.</strong> What do the humans actually get wrong? Phishing-report rates, policy-violation patterns, incident root causes involving human action, audit findings about untrained roles. The program targets the observed failures, not a generic curriculum.</li>
+<li><strong>Audience segmentation.</strong> One size fits none: all-staff foundations (phishing, passwords, reporting), privileged users (the access they hold and the targeting they attract), developers (secure coding, secrets handling — coordinate with <a href="/g/sdlc/"><code>e-sdlc</code></a>), executives (their risk decisions and their attractiveness as targets), and new hires (onboarding that actually teaches the policy). Each segment gets objectives appropriate to its risk.</li>
+<li><strong>Learning objectives.</strong> Stated as behaviors, not topics: "report suspected phishing within 15 minutes" beats "understand phishing." Objectives are testable; topics are not.</li>
+<li><strong>Delivery.</strong> Varied by audience and attention budget: short modules, simulated phishing, tabletop participation, onboarding sessions, just-in-time nudges. The annual hour-long video is the minimum viable program, not the model.</li>
+<li><strong>Reinforcement.</strong> Learning decays. The program repeats, varies, and reinforces — the phishing simulation is monthly, not annual; the policy reminder arrives when the behavior matters.</li>
+<li><strong>Measurement of effectiveness.</strong> The program measures behavior change, not completions. Completion rate is an activity metric — it proves the video played. Report rate, click rate <em>trend</em>, time-to-report, and policy-violation recurrence are effectiveness metrics — they prove humans changed. An honest program reports both and optimizes for the second.</li>
+</ol>
+<p><strong>Phishing simulation: the rules of engagement.</strong> Simulated phishing is the program's most powerful and most dangerous tool — powerful because it measures real behavior, dangerous because it can destroy trust. The rules, written before the first simulation runs:</p>
+<ul>
+<li><strong>Purpose is learning, not punishment.</strong> Results go to the program, not to performance reviews — the moment a simulation feeds HR discipline, reporting dies and the metric becomes fear compliance.</li>
+<li><strong>No shaming.</strong> No public leaderboards of clickers, no "gotcha" emails from the CEO. Embarrassment teaches avoidance of the program, not of phishing.</li>
+<li><strong>Immediate, kind feedback.</strong> The click lands on a teaching moment — what the tell was, what to do next time — not a reprimand.</li>
+<li><strong>Report-rate over click-rate.</strong> The metric that matters is how many people <em>report</em> the phish, because reporting is the behavior that saves the organization. A program that drives clicks down by terrifying people has optimized the wrong thing.</li>
+<li><strong>Vary and escalate honestly.</strong> Templates evolve with the real threat landscape; difficulty ramps. But the simulation never impersonates a real person in a way that damages trust (no fake messages "from the CEO" that then require the CEO to explain), and the program's existence is not secret — people know simulations happen; they do not know when.</li>
+<li><strong>Exclude with care.</strong> Excluding executives "because they're busy" teaches the organization that security is for other people. Include everyone; tailor difficulty.</li>
+</ul>
+<p><strong>Roles and ownership.</strong> The program has a named owner (often the CISO's organization, sometimes a dedicated awareness lead), content owners per audience segment, and executive sponsorship — visible, not nominal. The CISO who has never taken the training is the program's credibility problem. Funding follows the measurement: effectiveness metrics justify the budget; completion metrics justify only the checkbox.</p>
+<p><strong>The governance home.</strong> The program lives under the governance charter (<a href="/g/governance/"><code>e-governance</code></a>): policy requires it, the risk committee sees its metrics, and the annual review asks whether behavior changed. A learning program outside governance is a marketing campaign.</p>
+<h3>Worked example: Copperline Freight — one-year program plan (fictional)</h3>
+<p><strong>The organization (fictional).</strong> Copperline Freight (fictional, continued from <a href="/g/governance/"><code>e-governance</code></a>): 240 staff across three sites — dispatchers, drivers, warehouse, finance, IT, executives. Current state: one annual video, 94% completion, phishing click rate unmeasured, no reporting button in the email client.</p>
+<p><strong>The plan (abridged — the full version is the artifact):</strong></p>
+<ul>
+<li><strong>Needs assessment findings:</strong> two 2025 incidents involved credential phishing of dispatchers; the finance team wires funds on email instruction; drivers use personal devices for dispatch messaging. The program targets these three behaviors first.</li>
+<li><strong>Audience segments and objectives:</strong></li>
+<li><em>All staff (240):</em> report suspected phishing via the new report button within 15 minutes; never act on financial instruction by email alone (verify by voice). Quarterly short modules plus monthly simulations.</li>
+<li><em>Dispatchers and finance (45):</em> targeted deep-dives — business-email-compromise patterns, voice-verification procedure for payment changes. The highest-risk segment gets the most attention.</li>
+<li><em>IT and privileged users (18):</em> admin-targeting awareness, secrets handling, the reporting expectations for their elevated risk. Coordinated with <a href="/g/iam/"><code>e-iam</code></a>'s privileged-access work.</li>
+<li><em>Executives (8):</em> whaling and impersonation briefing, their role in incident communications, visible participation in the program (credibility).</li>
+<li><em>New hires:</em> day-one security onboarding — acceptable use, reporting, phishing basics — before system access, not after.</li>
+<li><strong>Topic calendar (quarters):</strong> Q1 — phishing recognition and the report button (launch); Q2 — business email compromise and payment verification; Q3 — passwords, MFA, and device hygiene; Q4 — holiday-season social engineering and the annual review. Monthly phishing simulations throughout, difficulty ramping, templates drawn from the real threats the SOC sees (<a href="/g/soc-triage/"><code>c-soc-triage</code></a> feeds the template library).</li>
+<li><strong>Phishing simulation rules of engagement:</strong> purpose is learning; results never feed performance reviews; no public shaming; immediate teaching-moment feedback on click; report-rate is the headline metric; executives included; program existence announced, timing not.</li>
+<li><strong>Effectiveness metrics:</strong> phishing report rate (target: rising trend), click rate (target: falling trend — secondary), median time-to-report, training completion (activity — reported, not optimized), policy-violation recurrence for the three targeted behaviors, and new-hire onboarding completion before access grant. Reported quarterly to the risk committee.</li>
+<li><strong>Ownership:</strong> program owner — the security awareness lead (new role, reporting to the CISO); content owners per segment; executive sponsor — the CEO, who takes the training publicly in Q1.</li>
+</ul>
+<p><strong>Why this plan works:</strong> it starts from observed failures, segments by risk, states objectives as behaviors, measures effectiveness rather than activity, and puts the program under governance. The 94%-completion video is replaced, not supplemented — the plan says so explicitly, because "both" means the checkbox survives and the behavior never changes.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the program plan above, authored and self-reviewed in-session on 2026-10-10 against NIST SP 800-50 Rev. 1's CPLP framing. Transcript: <code>runs/e-awareness-training.log</code> (records the needs assessment, the segments, the simulation rules, the metrics, and the review checklist — no commands to transcribe).</p>
+<ol>
+<li><strong>Assess needs.</strong> List the organization's actual human-factor failures: phishing incidents, policy violations, audit findings, the behaviors behind recent incidents. Three concrete failures minimum — the program targets these, not a generic curriculum.</li>
+<li><strong>Segment the audience.</strong> All-staff, high-risk roles, privileged users, developers, executives, new hires. For each: what they must <em>do</em> differently, stated as behavior.</li>
+<li><strong>Build the calendar.</strong> Four quarters of topics tied to the needs assessment, with delivery methods per segment. Monthly phishing simulations with ramping difficulty.</li>
+<li><strong>Write the simulation rules.</strong> Purpose, no-punishment, no-shaming, feedback, report-rate as headline metric, executive inclusion, announcement policy. Written before the first simulation — retroactive rules are damage control.</li>
+<li><strong>Define the metrics.</strong> Effectiveness (report rate, time-to-report, behavior recurrence) separated from activity (completion). Targets as trends, not absolutes — the program improves behavior; it does not achieve a number.</li>
+<li><strong>Assign ownership and governance.</strong> Named owner, content owners, executive sponsor, quarterly reporting to the risk committee. Then schedule the annual program review.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write the one-year plan for an organization you know — your employer, your lab treated as an org, or a fictional company. Minimum: needs assessment with three real failures, four audience segments with behavioral objectives, the quarterly calendar, the simulation rules of engagement, and the metrics split (effectiveness vs activity).</p>
+<p><strong>Success test:</strong> Your plan replaces at least one checkbox activity with a behavioral intervention (not "in addition to" — replacement); your metrics include report-rate or an equivalent behavior metric as the headline; and the simulation rules are written before any simulation runs. If the plan could be executed without changing anyone's behavior, it is a calendar, not a program.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The annual checkbox video.</strong> One hour, once a year, completion measured, behavior unmeasured. The minimum viable program treated as the model.</li>
+<li><strong>Completion as victory.</strong> 94% completion reported as success while the click rate never moves. Activity metrics optimizing the wrong thing.</li>
+<li><strong>Shaming the clickers.</strong> Public leaderboards, "gotcha" emails, HR referrals. Trust in the program dies; reporting dies with it; the metric becomes fear compliance.</li>
+<li><strong>Punishment pipelines.</strong> Simulation results feeding performance reviews. The program becomes surveillance, and humans route around surveillance.</li>
+<li><strong>One size fits all.</strong> The same module for dispatchers, developers, and executives. Nobody's actual risk addressed; everybody's time wasted.</li>
+<li><strong>The excluded executive.</strong> "Too busy" for the simulation. The organization learns that security is for other people — from the top.</li>
+<li><strong>Secret simulations.</strong> People discover they were tested without ever being told a program exists. The betrayal response poisons every future security message.</li>
+<li><strong>No governance home.</strong> The program runs outside the charter, unmeasured by the risk committee, unfunded past the video license. <a href="/g/governance/"><code>e-governance</code></a>'s rule: what is not governed is not sustained.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-50 Rev. 1, Building a Cybersecurity and Privacy Learning Program</strong> (September 2024; <a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the CPLP framing and the program-design guidance; <em>note</em> the deliberate retirement of the awareness/training/education split and why. Free.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CISA Cybersecurity Awareness Month resources</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; campaign materials and themes — use as content inputs for your quarterly calendar, not as the program itself.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A program reports 96% training completion and has never measured phishing report rate. Explain which metric is activity and which is effectiveness — and what the program must change to measure the second.</li>
+<li>A CISO proposes feeding phishing-simulation click results into annual performance reviews "to drive accountability." Argue against it from the rules of engagement: what breaks, and what metric should be the headline instead?</li>
+<li>Explain the SP 800-50 Rev. 1 rename: why did NIST retire the awareness/training/education split, and what does the CPLP framing change about how you design the program?</li>
+<li>An organization excludes executives from phishing simulation "because they're busy." Name the two distinct failures (credibility and risk) and the rule that prevents both.</li>
+<li>Predict the state of a learning program two years after its owner leaves, with no governance home and no metrics beyond completion: what does the quarterly report to the risk committee look like, and what does it conceal?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your one-year program plan (needs assessment, audience segments with behavioral objectives, quarterly topic calendar, phishing-simulation rules of engagement, effectiveness-vs-activity metrics, ownership and governance) — for the Copperline worked case in your own words, or better, for a real organization.</p>
+<p><strong>Honest claim:</strong> "I can design a security learning program around observed human-factor failures — segmented, behavioral, measured by effectiveness — including phishing simulation with rules of engagement that build trust instead of destroying it."</p>
+<p><strong>Can't claim yet:</strong> "I can change an organization's security culture" — culture change is a multi-year leadership outcome; this lesson taught the program design that makes it possible, which is where the practitioner's leverage is.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/governance/"><code>e-governance</code></a>** — the program's home: charter, risk-committee reporting, annual review.</li>
+<li><a href="/g/policy-docs/"><code>e-policy-docs</code></a>** — the program's curriculum source: policy is what the program teaches.</li>
+<li><strong>C-SOC — <a href="/g/soc-triage/"><code>c-soc-triage</code></a></strong> — the template library: real phishing the SOC sees becomes the simulation content.</li>
+<li>Map refs: <strong>CISSP 1.12</strong> (this lesson); feeds <strong>CISSP 7.15</strong> (personnel security) and <strong>1.3</strong> (governance).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

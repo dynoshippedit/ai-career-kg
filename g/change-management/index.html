@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Change management: approving the change before it ships | Learn Computer Stuff</title>
+<meta name="description" content="How to run change management — the change request, CAB review with written rationale, change paths, and the emergency procedure that keeps a spine. A free lesson in the security guidebook, serving CISSP objective 7.9.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/change-management/">
+<meta property="og:title" content="Change management: approving the change before it ships | Learn Computer Stuff"><meta property="og:description" content="How to run change management — the change request, CAB review with written rationale, change paths, and the emergency procedure that keeps a spine. A free lesson in the security guidebook, serving CISSP objective 7.9.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/change-management/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Change management: approving the change before it ships","item":"https://learncomputerstuff.dev/g/change-management/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Change management: approving the change before it ships</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Change management: approving the change before it ships</h1>
+<p class="lede prose">Most outages are caused by changes, and most unauthorized changes were made by authorized people skipping the process. Change management is the discipline that puts a decision — with a rationale, a risk assessment, and a backout plan — between "I want to change this" and the change itself. It shows up in the Friday-afternoon firewall edit that took down the VPN, in the "temporary" config tweak that became permanent, in the audit finding of production changes with no record — and in the CAB meeting that actually caught the bad change before it shipped. Operations leads, SOC managers, and GRC analysts live here. It is the taught pair of <a href="/g/config-management/"><code>e-config-management</code></a>: the baseline defines the trusted state, change management governs how the trusted state moves, and drift detection catches what moved without permission.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (review change requests with written rationale and run the change process including emergencies)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/config-management/"><code>e-config-management</code></a> (the baseline that changes move — same batch, read as the pair); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.9</strong> — change management: reviewing, approving, and controlling changes to the trusted state.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Most outages are caused by changes, and most unauthorized changes were made by authorized people skipping the process. Change management is the discipline that puts a decision — with a rationale, a risk assessment, and a backout plan — between "I want to change this" and the change itself. It shows up in the Friday-afternoon firewall edit that took down the VPN, in the "temporary" config tweak that became permanent, in the audit finding of production changes with no record — and in the CAB meeting that actually caught the bad change before it shipped. Operations leads, SOC managers, and GRC analysts live here. It is the taught pair of <a href="/g/config-management/"><code>e-config-management</code></a>: the baseline defines the trusted state, change management governs how the trusted state moves, and drift detection catches what moved without permission.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have a baseline from <a href="/g/config-management/"><code>e-config-management</code></a> — change management is the process that updates it legitimately.</li>
+<li>You know the incident lifecycle from <a href="/g/incident-response/"><code>c-incident-response</code></a> — emergency changes borrow its urgency without borrowing its improvisation.</li>
+<li>No tools. The work products are documents: reviewed change requests (approve/reject with rationale), a change-process design, and an emergency-change procedure. Primary spine: <strong>NIST SP 800-128</strong> (change control within configuration management, August 2011) and <strong>SP 800-53 CM-3</strong> (baseline change control).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Change management is risk management applied to the act of changing things. Four elements.</p>
+<p><strong>The change request: the unit of decision.</strong> Every change — patch, config edit, firewall rule, deployment — arrives as a <strong>request</strong> with the same fields: what changes, why (the business or security reason), the risk assessment (what breaks if this goes wrong, who depends on it), the implementation plan (steps, in order), the test plan (how we verify it worked), the <strong>backout plan</strong> (how we undo it, and the criteria for deciding to), and the schedule (when, with what maintenance window). The request is where the thinking happens; a change that can't fill these fields isn't ready, which is itself a useful verdict. SP 800-53's CM-3 (baseline change control) is this in control language: changes to the baseline are controlled, documented, and approved — the baseline from <a href="/g/config-management/"><code>e-config-management</code></a> doesn't move without a request.</p>
+<p><strong>Review: approve, reject, or approve with conditions.</strong> The reviewer's job is not to rubber-stamp — it's to ask the questions the requester didn't. The standard <strong>change advisory board (CAB)</strong> is the review body: stakeholders who can see cross-impacts (network, security, application owners) meeting on a cadence matched to the change rate. But the expert's understanding goes past the meeting: the CAB is a <em>function</em>, not necessarily a weekly gathering — small organizations do it as an async review with the right approvers; what matters is that someone with standing to say no actually reads the request. Every decision is recorded with <strong>rationale</strong>: approved (why the risk is acceptable), rejected (what was wrong — missing backout plan, untested, wrong window), or approved with conditions (ship it after the load test, or with the monitoring alert pre-staged). The rationale is the audit trail and the teaching record — next quarter's reviewer learns from this quarter's reasons.</p>
+<p><strong>Change types and their paths.</strong> Not every change deserves the full CAB. The working model: <strong>standard changes</strong> (pre-approved, low-risk, routine — monthly patching per the <a href="/g/patch-management/"><code>e-patch-management</code></a> SLA, user provisioning per <a href="/g/iam/"><code>e-iam</code></a>) follow a documented procedure without per-instance review; <strong>normal changes</strong> go through the CAB; <strong>emergency changes</strong> take the fast path (below). The classification is itself a decision recorded in the process design — and the failure mode is everything becoming "emergency" to skip review, which the metrics catch (emergency-change rate trending up is a process failure, not a sign of urgency).</p>
+<p><strong>Emergency changes: speed with a spine.</strong> When production is down or exploitation is active, the normal path is too slow — but "emergency" doesn't mean "undocumented." The emergency procedure pre-decides: who can declare it (named role), the minimum review (one qualified approver, reachable now — the CAB chair's phone number, not a meeting), the minimum documentation (the request fields filled <em>after</em> the change if necessary, but filled — retrospectively within 24 hours), and the mandatory follow-up (the emergency change gets a post-implementation review at the next CAB: was it really an emergency? did the backout plan exist?). The retrospective review is the control that keeps the emergency path honest — without it, the fast path becomes the default path.</p>
+<h3>Worked example: Beacon Logistics — three change requests, reviewed</h3>
+<p><strong>The company (fictional, continued from <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> and <a href="/g/config-management/"><code>e-config-management</code></a>).</strong> Beacon's dispatch system runs on the hardened baseline from <a href="/g/config-management/"><code>e-config-management</code></a>. The CAB meets weekly; the security lead chairs. Three requests arrive.</p>
+<p><strong>CR-2026-118: Firewall rule for the new carrier integration — APPROVED WITH CONDITIONS (fictional).</strong> Request: open the dispatch app's API port to the carrier's IP range. Risk assessment: adequate (single range, documented business need). Test plan: present. Backout: rule removal, 5 minutes. <em>Review finding:</em> the carrier's range is a /16 — far broader than needed. <em>Decision:</em> approved on condition the rule is scoped to the carrier's documented /28, with a 90-day review (the range may change; the review catches it). Rationale recorded: the business need is real, the blast radius was not — the condition fixes the radius.</p>
+<p><strong>CR-2026-119: "Temporary" SSH password auth for weekend troubleshooting — REJECTED (fictional).</strong> Request: enable password SSH on the dispatch servers for the weekend, revert Monday. <em>Review finding:</em> this is the exact change the <a href="/g/config-management/"><code>e-config-management</code></a> drift scenario caught last month — the "temporary" change that becomes permanent. The requester can't name what's broken about key-based access; the underlying need (troubleshooting from home) is real but the VPN path already exists. <em>Decision:</em> rejected. Rationale recorded: the risk (credential-auth exposure on the crown-jewel system) exceeds the convenience, the need has an existing solution, and "temporary" has a documented history of permanence. The requester is directed to the VPN runbook — the review teaches, not just blocks.</p>
+<p><strong>CR-2026-120: Emergency — patch the KEV-listed VPN flaw — APPROVED VIA EMERGENCY PATH (fictional).</strong> Friday 16:00: the <a href="/g/patch-management/"><code>e-patch-management</code></a> emergency runbook triggers — KEV-listed CVE on the VPN concentrator. Declaration by the security lead per the runbook. Minimum review: the infrastructure lead approves by phone (named in the procedure). Minimum testing: the runbook's canary-plus-smoke, executed. Deployed 18:40, verified by scanner re-check. Documentation completed retrospectively by Monday 10:00. Post-implementation review at Wednesday's CAB: was the emergency path justified? Yes — KEV-listed, internet-facing, active exploitation reported. The review records one improvement: the carrier-notification template (from <a href="/g/incident-management/"><code>e-incident-management</code></a>'s comms plan) didn't cover emergency maintenance — added.</p>
+<p><strong>The process design (what Beacon wrote down).</strong> Change types and paths (standard/normal/emergency with classification criteria), the CAB charter (members, cadence, quorum, the async path for small weeks), the request template (the seven fields), the decision record (approve/reject/conditions with rationale — published where requesters can learn from it), the emergency procedure (declaration, minimum review, retrospective documentation deadline, mandatory post-implementation review), and the metrics: change success rate, emergency-change rate, unauthorized-change rate (from the drift checker — the <a href="/g/config-management/"><code>e-config-management</code></a> feed).</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the three reviewed change requests and the process design above, authored and self-reviewed in-session on 2026-10-10 against SP 800-128's change-control framing and SP 800-53 CM-3. Transcript: <code>runs/e-change-management.log</code>.</p>
+<ol>
+<li><strong>Write the request template.</strong> The seven fields: what, why, risk, implementation plan, test plan, backout plan, schedule. If a field can't be filled, the change isn't ready — write that rule into the template.</li>
+<li><strong>Design the paths.</strong> Standard (pre-approved procedures), normal (CAB review), emergency (fast path) — with the classification criteria that route each change. Define the emergency rate metric that catches path abuse.</li>
+<li><strong>Charter the CAB.</strong> Members (who sees cross-impacts), cadence, quorum, the async alternative. The function matters more than the meeting.</li>
+<li><strong>Review three requests.</strong> Write one of each verdict: approve, reject, approve-with-conditions — each with the rationale recorded. Plant the flaws deliberately: the oversized firewall scope, the "temporary" auth change, the missing backout plan. The review must catch what you planted; if it doesn't, the review criteria are weak.</li>
+<li><strong>Write the emergency procedure.</strong> Declaration authority, minimum review, minimum testing, retrospective documentation deadline, mandatory post-implementation review. Then the honesty test: would this procedure have caught last month's "emergency" that wasn't?</li>
+<li><strong>Define the metrics.</strong> Change success rate, emergency-change rate, unauthorized-change rate (fed by drift detection). Name who reads them and what trend triggers a process review.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Take the last three changes you made to a system you run (a config edit, an update, a firewall rule). Write each up as a change request with the seven fields — honestly, including the ones you skipped. Then review them as the CAB: what verdict would each get?</p>
+<p><strong>Success test:</strong> At least one of your past changes gets rejected or conditioned — the missing backout plan is the usual verdict. If all three pass cleanly, you're reviewing your own work too kindly; hand one to someone else.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The rubber stamp.</strong> The CAB that approves everything in eleven minutes. A review with no rejections is a review that didn't happen — the chair's job is to ask the unasked question.</li>
+<li><strong>"Temporary" as a change type.</strong> The permanent temporary change. Every temporary change gets an expiry and an owner, or it's rejected.</li>
+<li><strong>Everything is emergency.</strong> The fast path becomes the default path. The emergency-rate metric and the mandatory post-implementation review exist to catch exactly this.</li>
+<li><strong>No backout plan.</strong> The change that can't be undone, discovered mid-incident. Backout is a field on the template, not an afterthought — and the rollback criteria are decided before the change ships.</li>
+<li><strong>Undocumented approval.</strong> The hallway "yeah, go ahead." Approvals live in the decision record with rationale, or they didn't happen.</li>
+<li><strong>Change without test.</strong> Skipping verification because the change is "small." Small changes cause large outages; the test plan scales to the risk, it doesn't vanish for it.</li>
+<li><strong>The CAB as bottleneck.</strong> Review so slow that teams route around it. The async path, the standard-change pre-approvals, and a cadence matched to the change rate keep the process from becoming the problem it solves.</li>
+<li><strong>ITIL as the only answer.</strong> ITIL 4's change enablement is the commercial reference — and a paid framework, so this lesson teaches the function from free sources (one line, per the brief's rule). The function is what matters; the framework is one packaging.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-128, Guide for Security-Focused Configuration Management of Information Systems</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, August 2011) — <em>read</em> for change control as part of configuration management: changes to the baseline are identified, evaluated, approved, and documented.</li>
+<li><strong>NIST SP 800-53 Rev. 5, CM-3 (Baseline Change Control)</strong> — the control-language version: control changes to the baseline, document, approve, audit. Find it via the SP 800-53 publication page (<a href="https://csrc.nist.gov">csrc.nist.gov</a>).</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>SANS Information Security Policy Templates</strong> (<a href="https://sans.org">sans.org</a>) — free; the change-management policy template is the starting skeleton — fill it with your process, don't file it as-is.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A CAB approves forty changes in a twelve-minute meeting with no rejections and no conditions. Name the two distinct failures (one in review quality, one in change classification) and the metric that would have surfaced each.</li>
+<li>Explain why the emergency change procedure requires retrospective documentation and a post-implementation review — what specific abuse does each prevent, and what happens to the fast path without them?</li>
+<li>A "temporary" firewall rule from 2023 is found still active. Using the change-type model, explain which path it should have taken, what the expiry mechanism would have done, and whose metric catches it now.</li>
+<li>Distinguish the CAB as a function from the CAB as a meeting: what does the async review preserve, what does it lose, and when is the meeting the right form?</li>
+<li>Predict the emergency-change rate of an organization whose normal path takes three weeks: what does the rate look like after a year, and what does the post-implementation review conclude about the process?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your change-process design (types, paths, classification criteria), CAB charter, the request template, three reviewed requests (approve / reject / approve-with-conditions, each with rationale), the emergency procedure, and the metrics set — for the Beacon worked case in your own words, or better, for changes you actually make, with your last three real changes written up and reviewed.</p>
+<p><strong>Honest claim:</strong> "I can run change management — put a real decision with rationale between intent and implementation, review requests honestly, and keep the emergency path fast without letting it become the default."</p>
+<p><strong>Can't claim yet:</strong> "I can transform an organization's change culture" — the politics of getting engineers to actually use the process, at scale, is organizational work beyond the process design; this lesson taught the design that makes the culture change possible.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/config-management/"><code>e-config-management</code></a> — the baseline this process moves; the drift checker catches what moved without a request. Read as the pair.</li>
+<li><a href="/g/patch-management/"><code>e-patch-management</code></a> — routine patching flows through the standard-change path; emergency patching through the fast path.</li>
+<li><a href="/g/iam/"><code>e-iam</code></a> — provisioning changes follow the same request discipline (the joiner/mover/leaver tickets are changes too).</li>
+<li>Map refs: <strong>CISSP 7.9</strong> (this lesson); feeds <strong>CISSP 7.3</strong> (configuration management).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-change-management.log</code>. Note: ITIL 4 (change enablement) is a paid framework — one line per the brief's rule; this lesson teaches the function from free sources.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

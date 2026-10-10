@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incident management: the team, the escalation, and the communications | Learn Computer Stuff</title>
+<meta name="description" content="How to build the incident-management structure around the response lifecycle — team roles, escalation criteria, communications planning, and improvement metrics. A free lesson in the security guidebook, serving CISSP objective 7.6.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/incident-management/">
+<meta property="og:title" content="Incident management: the team, the escalation, and the communications | Learn Computer Stuff"><meta property="og:description" content="How to build the incident-management structure around the response lifecycle — team roles, escalation criteria, communications planning, and improvement metrics. A free lesson in the security guidebook, serving CISSP objective 7.6.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/incident-management/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Incident management: the team, the escalation, and the communications","item":"https://learncomputerstuff.dev/g/incident-management/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Incident management: the team, the escalation, and the communications</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Incident management: the team, the escalation, and the communications</h1>
+<p class="lede prose">The response lifecycle tells you <em>what</em> to do about an incident; incident management decides <em>who</em> does it, <em>who gets told</em>, and <em>how the organization gets better afterward</em>. It shows up in the incident where three teams all thought someone else owned containment, in the breach notification sent 40 days late because nobody owned the regulatory clock, in the executive who learned about the outage from a customer — and in the post-incident review that actually changed something. SOC managers, incident commanders, and GRC analysts live here. Note the split with <a href="/g/incident-response/"><code>c-incident-response</code></a>: that lesson taught the lifecycle you execute — preparation through lessons-learned, hands on. This lesson teaches the organization you build around it: the team structure and roles, the escalation criteria that route the right incident to the right people, the communications plan that keeps every stakeholder correctly informed, and the metrics that prove the program improves.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (stand up the incident-management structure — team, escalation, comms, metrics — around the response lifecycle)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/incident-response/"><code>c-incident-response</code></a> (the lifecycle this lesson organizes people around); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.6</strong> — managing incidents as an organizational discipline: team structure, escalation, communications, and improvement.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>The response lifecycle tells you <em>what</em> to do about an incident; incident management decides <em>who</em> does it, <em>who gets told</em>, and <em>how the organization gets better afterward</em>. It shows up in the incident where three teams all thought someone else owned containment, in the breach notification sent 40 days late because nobody owned the regulatory clock, in the executive who learned about the outage from a customer — and in the post-incident review that actually changed something. SOC managers, incident commanders, and GRC analysts live here. Note the split with <a href="/g/incident-response/"><code>c-incident-response</code></a>: that lesson taught the lifecycle you execute — preparation through lessons-learned, hands on. This lesson teaches the organization you build around it: the team structure and roles, the escalation criteria that route the right incident to the right people, the communications plan that keeps every stakeholder correctly informed, and the metrics that prove the program improves.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You know the incident-response lifecycle from <a href="/g/incident-response/"><code>c-incident-response</code></a> — preparation, detection, containment, eradication, recovery, lessons learned. This lesson staffs it.</li>
+<li>You have the BCP/DRP view from <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> — incident management hands off to continuity; know where that boundary is.</li>
+<li>No tools. The work products are documents: a team charter with roles, an escalation matrix, a communications plan, and a metrics set. Primary spine: <strong>NIST SP 800-61 Rev. 3</strong> (Computer Security Incident Handling Guide, April 2025 — the current revision, restructured around CSF 2.0).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Incident management is the scaffolding; the lifecycle is the work. Four structures carry it.</p>
+<p><strong>The team: roles, not heroes.</strong> An incident response team needs defined roles because incidents don't wait for org charts. The standard structure: an <strong>incident commander</strong> (owns the incident — priorities, decisions, the buck stops here; does <em>not</em> do the technical work), <strong>operations</strong> (containment, eradication, recovery — the hands), <strong>communications</strong> (internal updates, customer notices, regulatory filings — the voice), <strong>liaison roles</strong> (legal, HR, PR, executive sponsor — brought in by criteria, not by panic), and <strong>scribe</strong> (the log — every decision, timestamped; the role everyone skips and every post-incident review wishes existed). Two design rules. First, roles are <em>assigned per incident</em>, not per person — the on-call engineer can be incident commander for a SEV-3 and operations for a SEV-1. Second, every role has a named backup, because incidents don't respect vacations (the <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> tabletop already taught this). The team is sized for the organization's actual incident rate — a three-person "team" for a company with weekly SEV-2s is a burnout plan. SP 800-61 Rev. 3 frames the team within the broader incident-management function: the lifecycle phases are what the team executes, and the guide's CSF 2.0 alignment means the program is measured against governance outcomes, not just response speed.</p>
+<p><strong>Escalation: criteria, not vibes.</strong> Escalation answers two questions: <em>when does this get bigger</em> (analyst → incident commander → executive → board), and <em>when does it cross organizational boundaries</em> (IT → legal → HR → law enforcement → regulators → customers). The criteria are written in advance as a <strong>severity matrix</strong>: SEV-1 through SEV-4 (or your scale) defined by impact — data types involved, systems affected, customer impact, regulatory triggers — each with response-time targets, who gets paged, and who can declare or downgrade. The declaration authority is named: "the SOC lead can declare SEV-1; the incident commander can downgrade to SEV-2" — because the <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> lesson already showed what ambiguous authority costs. Escalation also covers the <em>lateral</em> moves people forget: when does HR join (insider suspected), when does legal join (before collection, per <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> — not after), when does the board get told (criteria, not the CEO's judgment at midnight). The matrix is reviewed after every SEV-1: did the right people join at the right time? If not, the criteria change.</p>
+<p><strong>Communications: the plan before the crisis.</strong> Every incident is also a communications event, and improvising the message mid-incident is how organizations say the wrong thing on the record. The <strong>communications plan</strong> specifies: <em>internal</em> (who gets status updates, on what cadence, through which channel — the war-room channel, the executive brief, the all-hands note); <em>customer</em> (notification criteria, pre-written templates for the common cases, who approves the words — legal reviews before send, always); <em>regulatory</em> (which breaches trigger which filings, the clocks — the plan lists the obligations, not the lawyer's phone number from memory); and <em>public</em> (who speaks — one voice, named in advance; everyone else refers inquiries to that voice). Two principles: <strong>pre-write the templates</strong> (the first customer notice is assembled from paragraphs written calmly, not drafted at 3 a.m.), and <strong>separate the technical channel from the stakeholder channel</strong> (the war room's raw speculation must never leak into the customer update — the scribe's log is internal, the comms lead's summary is external).</p>
+<p><strong>Metrics and improvement: the program learns or it rots.</strong> The post-incident review (blameless — the question is what the <em>system</em> allowed, not who failed) produces findings with owners and dates, the same discipline as <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>. The program-level metrics: <strong>MTTD</strong> (mean time to detect), <strong>MTTR</strong> (mean time to respond/recover — define which), <strong>escalation accuracy</strong> (did the severity match the reality?), <strong>recurrence</strong> (same root cause twice is a program failure), and <strong>exercise currency</strong> (when did each playbook last get tested). SP 800-61 Rev. 3's CSF alignment matters here: the metrics should roll up to governance — "are we improving?" is a board question, and the incident program needs an answer with numbers. The review cadence is the control: metrics reviewed quarterly by the security lead, annually with executives. A metrics set nobody reviews is decoration.</p>
+<h3>Worked example: Beacon Logistics — the incident-management structure</h3>
+<p><strong>The company (fictional, continued from <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a>).</strong> Beacon survived the ransomware scenario in the continuity lesson — barely, and the post-incident review found the management gaps: nobody owned the regulatory clock, the customer notice went out 18 hours late, and the war room had no scribe. This lesson builds what was missing.</p>
+<p><strong>The team charter (excerpt, fictional).</strong> Incident commander: the SOC lead (backup: the infrastructure lead). Operations: SOC analysts plus on-call infrastructure. Communications: the operations manager (backup: the customer-success lead) — owns internal updates, customer templates, regulatory filings checklist. Liaisons: legal (outside counsel, paged for any SEV-1/2), HR (insider criteria), executive sponsor (the COO, briefed at SEV-1). Scribe: rotating analyst assignment, non-optional — the charter states it plainly: <em>no scribe, no SEV-1 declaration.</em></p>
+<p><strong>The escalation matrix (excerpt, fictional).</strong></p>
+<p>| Severity | Criteria | Who joins | Response target |</p>
+<p>|---|---|---|---|</p>
+<p>| SEV-4 | single-user malware, contained | SOC analyst | 4 hours |</p>
+<p>| SEV-3 | multi-system event, no customer data | + incident commander | 1 hour |</p>
+<p>| SEV-2 | customer data potentially involved, or dispatch degraded | + legal, comms, COO briefed | 30 minutes |</p>
+<p>| SEV-1 | confirmed breach of customer data, or dispatch down | full team, board notified within 24h | 15 minutes |</p>
+<p>Declaration: SOC lead declares up; incident commander declares down. Lateral triggers written in: HR joins when an insider is suspected; counsel directs evidence handling from SEV-2 up (the <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> rule).</p>
+<p><strong>The communications plan (excerpt, fictional).</strong> Internal: war-room channel (technical, internal only), executive brief every 2 hours at SEV-1 (comms lead's summary, not the raw log). Customer: template library (three pre-written notices: "investigating," "confirmed with scope," "resolved"), legal review before any send, notification criteria tied to the severity matrix. Regulatory: the obligations checklist with clocks — filled from counsel's advice, not from memory. Public: the COO is the single voice; all inquiries route to comms.</p>
+<p><strong>Metrics and the first review.</strong> MTTD, MTTR (defined as declare-to-recover), escalation accuracy, recurrence, exercise currency — baselined this quarter, reviewed quarterly. The ransomware post-incident produced four findings with owners and dates, including this lesson's charter itself.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the team charter, escalation matrix, communications plan, and metrics set above, authored and self-reviewed in-session on 2026-10-10 against SP 800-61 Rev. 3's incident-management framing. Transcript: <code>runs/e-incident-management.log</code>.</p>
+<ol>
+<li><strong>Charter the team.</strong> For your fictional (or real) organization: incident commander, operations, communications, liaisons (legal, HR, executive), scribe — named roles with named backups. Write the two design rules into the charter: roles assigned per incident, and no SEV-1 without a scribe.</li>
+<li><strong>Write the severity matrix.</strong> Three to four levels, defined by impact (data, systems, customers, regulatory triggers) — each with response targets, who joins, and who can declare or downgrade. Then the lateral triggers: HR, legal, board — criteria, not judgment calls.</li>
+<li><strong>Plan the communications.</strong> Four audiences (internal, customer, regulatory, public), each with channel, cadence, owner, and approval. Pre-write one template per customer-notice case. Name the single public voice.</li>
+<li><strong>Define the metrics.</strong> MTTD, MTTR (define the endpoints), escalation accuracy, recurrence, exercise currency. Set the review cadence and name who reads them — quarterly with the security lead, annually with executives.</li>
+<li><strong>Run the tabletop against your own structure.</strong> Take the <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> ransomware scenario (or your own): walk it through the charter. Who declares? Who joins when? Who tells the customers, with what words, on whose approval? Record every ambiguity as a finding with an owner and a date — the tabletop tests the management structure, not the technical response.</li>
+<li><strong>Close the loop.</strong> The tabletop's findings become charter revisions. Date the next exercise and name its owner — the structure decays like every other document.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Write the severity matrix and communications plan for an organization you know (your employer, your homelab "company," a volunteer group). Then test it: pick a real past incident or outage and walk it through — who would have declared, who would have joined, who would have told whom?</p>
+<p><strong>Success test:</strong> The walkthrough surfaces at least two ambiguities (an unowned decision, a missing lateral trigger, a customer notice with no template). If your structure handles the past incident perfectly, pick a worse incident.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>No incident commander.</strong> Three teams, three theories, no one owning the decision. The IC role exists so the incident has exactly one decider.</li>
+<li><strong>No scribe.</strong> The post-incident review reconstructs decisions from memory and chat scrollback. The log is the cheapest role and the most skipped.</li>
+<li><strong>Escalation by vibes.</strong> "This feels big" as the criterion — under-escalation until it's undeniable, then over-escalation in panic. Written criteria, reviewed after every SEV-1.</li>
+<li><strong>Legal joins late.</strong> Evidence collected before counsel directed the handling — the <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> failure, caused by a missing lateral trigger in the matrix.</li>
+<li><strong>The 3 a.m. press release.</strong> Customer notice drafted mid-incident, unreviewed, saying the wrong thing on the record. Templates plus legal review exist to prevent exactly this.</li>
+<li><strong>War-room leakage.</strong> Raw technical speculation reaching customers or the public. Separate the channels; the comms lead's summary is the only external voice.</li>
+<li><strong>Blameful reviews.</strong> The post-incident that names who failed instead of what the system allowed — which guarantees the next incident's participants stay silent. Blameless is a design choice, not a kindness.</li>
+<li><strong>Metrics as decoration.</strong> MTTD on a slide nobody discusses. The review cadence — quarterly with the lead, annually with executives — is the control that makes metrics matter.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-61 Rev. 3, Computer Security Incident Handling Guide</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, April 2025) — <em>read</em> the incident-management framing and the lifecycle phases; <em>note</em> the CSF 2.0 restructuring — this is the current revision, and it treats incident response as part of risk management, not a standalone fire department.</li>
+<li><strong>FIRST CSIRT Services Framework, v2.1</strong> (<a href="https://first.org">first.org</a>) — <em>read</em> the service catalogue: what a CSIRT offers beyond response (coordination, communications, analysis) — useful when chartering the team or scoping what's in-house vs. contracted.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NIST SP 800-86, Guide to Integrating Forensic Techniques into Incident Response</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, August 2006) — free; the forensic support the escalation matrix must trigger — read for the collection/examination/analysis/reporting phases your liaisons need to understand.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A SEV-2 is declared at 02:00; the matrix says legal joins at SEV-2, but nobody pages counsel until 09:00 — meanwhile IT images the suspect systems. Name the two failures (one in execution, one in the matrix's design) and explain what the imaging delay cost.</li>
+<li>Explain why the scribe is a role rather than a task — what specifically breaks in the post-incident review when "everyone takes notes," and what does the charter's "no scribe, no SEV-1" rule buy?</li>
+<li>Distinguish escalation from notification: which one moves people into the response, which one moves information out, and what goes wrong when the same person owns both without a plan?</li>
+<li>A post-incident review concludes "the analyst should have escalated sooner." Using the blameless principle, rewrite the finding as a system failure — then name the matrix change that prevents recurrence.</li>
+<li>Predict the communications of an organization with no plan, 24 hours into a confirmed customer-data breach: who speaks, what do they say, and which of the four audiences is served worst?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your team charter (roles, backups, the per-incident assignment rule), severity matrix (criteria, response targets, declaration authority, lateral triggers), communications plan (four audiences, templates, approvals, the single public voice), and metrics set (definitions, baselines, review cadence) — for the Beacon worked case in your own words, or better, for an organization you actually serve, tested against a real past incident.</p>
+<p><strong>Honest claim:</strong> "I can build the incident-management structure — staff the response with clear roles, route the right incident to the right people by written criteria, keep every stakeholder correctly informed, and make the program improve from its own history."</p>
+<p><strong>Can't claim yet:</strong> "I can command a major incident" — incident command under real pressure, with lives or livelihoods on the line, is earned in exercises and real events; this lesson taught the structure that makes command possible, not the command itself.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/incident-response/"><code>c-incident-response</code></a> — the lifecycle this structure staffs; reread it as the "what the team executes" companion.</li>
+<li><a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> — the evidence handling the escalation matrix must trigger early.</li>
+<li><a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> — the handoff: incident management contains and recovers; continuity runs the business through it.</li>
+<li><a href="/g/board-communication/"><code>e-board-communication</code></a> — the executive and board briefing this plan's metrics feed.</li>
+<li>Map refs: <strong>CISSP 7.6</strong> (this lesson); feeds <strong>CISSP 7.1</strong> (investigations) and <strong>7.10–7.13</strong> (continuity and recovery).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-incident-management.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

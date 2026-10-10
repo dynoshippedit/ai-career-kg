@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Media protection: handling the physical object | Learn Computer Stuff</title>
+<meta name="description" content="How to protect the physical object — media inventory and labeling, custody in storage and transport, and sanitization per NIST SP 800-88. A free lesson in the security guidebook, serving CISSP objective 7.5.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/media-protection/">
+<meta property="og:title" content="Media protection: handling the physical object | Learn Computer Stuff"><meta property="og:description" content="How to protect the physical object — media inventory and labeling, custody in storage and transport, and sanitization per NIST SP 800-88. A free lesson in the security guidebook, serving CISSP objective 7.5.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/media-protection/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Media protection: handling the physical object","item":"https://learncomputerstuff.dev/g/media-protection/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Media protection: handling the physical object</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Media protection: handling the physical object</h1>
+<p class="lede prose">Data has a body. It lives on drives, tapes, USB sticks, printed pages, and the backup media in the off-site cage — and every one of those objects can be lost, stolen, sold, or thrown away with the data still on it. Media protection is the operational discipline for the physical object: how media is labeled, who may handle it, how it's stored and transported, and how it's sanitized when its job is done. It shows up in the decommissioned server sold with customer data on the disks, in the backup tape that fell off a truck, and in the audit finding that nobody knows where the archived drives are. Operations leads, GRC analysts, and anyone running a data center or a records room live here. Note the boundary with the data lifecycle: retention schedules govern data's <em>life</em> — how long information is kept. This lesson governs the physical <em>object's</em> handling — labeling, custody, transport, and destruction. The retention schedule says "keep seven years"; media protection says "here's the labeled, locked, inventoried drive it lives on, and here's how it's destroyed in year eight."</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (write media-handling and sanitization procedures an auditor can follow)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/security-program/"><code>e-security-program</code></a> (where handling rules get their authority); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.5</strong> — protecting resources and media in operation: handling, storage, transport, and sanitization.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Data has a body. It lives on drives, tapes, USB sticks, printed pages, and the backup media in the off-site cage — and every one of those objects can be lost, stolen, sold, or thrown away with the data still on it. Media protection is the operational discipline for the physical object: how media is labeled, who may handle it, how it's stored and transported, and how it's sanitized when its job is done. It shows up in the decommissioned server sold with customer data on the disks, in the backup tape that fell off a truck, and in the audit finding that nobody knows where the archived drives are. Operations leads, GRC analysts, and anyone running a data center or a records room live here. Note the boundary with the data lifecycle: retention schedules govern data's <em>life</em> — how long information is kept. This lesson governs the physical <em>object's</em> handling — labeling, custody, transport, and destruction. The retention schedule says "keep seven years"; media protection says "here's the labeled, locked, inventoried drive it lives on, and here's how it's destroyed in year eight."</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You understand that handling rules derive from classification — the retention schedule says how long; this lesson says how.</li>
+<li>You have seen the chain-of-custody discipline in <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> — media protection applies the same custody thinking to everyday operations, not just investigations.</li>
+<li>No tools. The work products are documents: a media-handling procedure, a labeling scheme, a sanitization decision table, and a transport log. Primary spine: <strong>NIST SP 800-88 Rev. 2</strong> (Guidelines for Media Sanitization, September 2025 — Rev. 1 withdrawn September 26, 2025).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>Media protection has four movements: know what you have, label it, control its custody, and sanitize it at the end.</p>
+<p><strong>Inventory and labeling: you can't protect what you can't find.</strong> The program starts with a <strong>media inventory</strong> — every piece of removable or portable media the organization owns, recorded with type, capacity, owner, classification of the data it holds, and location. Then <strong>labeling</strong>: the classification travels <em>on the object</em> — a sticker, tag, or marking stating the handling tier (e.g., CONFIDENTIAL — do not remove from the facility without authorization). Labels are the cheapest control in the discipline and the most skipped: an unlabeled drive is handled as unimportant by everyone who touches it, including the person who throws it away. The labeling scheme must be simple enough that people actually apply it — three or four tiers, visually distinct, with the handling rule printed on the label itself.</p>
+<p><strong>Custody: storage and transport.</strong> Media at rest lives in <strong>controlled storage</strong>: locked containers or rooms, with access limited to authorized handlers and logged. The control scales with the classification — the backup tapes for the crown-jewel system don't sit on an open shelf. Media in motion is the higher-risk state: <strong>transport procedures</strong> specify approved carriers or couriers, tamper-evident packaging, and a handoff log (who gave it to whom, when — the chain-of-custody discipline from <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a>, applied to routine operations). The classic failures are all transport failures: the tape on the passenger seat, the unencrypted USB in checked luggage, the "I'll bring the drive home and wipe it there." The procedure's answer is boring on purpose: only approved transport, only logged handoffs, no exceptions for convenience.</p>
+<p><strong>Sanitization: Clear, Purge, Destroy.</strong> When media is repurposed or retired, the data on it must be rendered unrecoverable to a level matching the information's sensitivity. SP 800-88 Rev. 2 defines three sanitization actions, and the definitions are worth quoting in paraphrase because the whole decision table hangs on them: <strong>Clear</strong> applies logical techniques to all user-addressable storage locations — rewriting with new values, or a factory reset where rewriting isn't supported — protecting against simple, non-invasive recovery. <strong>Purge</strong> applies physical or logical techniques (including firmware-level commands) that render recovery infeasible even with state-of-the-art laboratory techniques. <strong>Destroy</strong> renders recovery infeasible through physical destruction — disassemble, incinerate, shred, melt. The decision rule from 800-88: <em>think in terms of information confidentiality first, then apply considerations based on media type.</em> A hard drive leaving the organization after holding customer data gets Purged or Destroyed; the same drive moving between two equally-trusted systems inside the organization might be Cleared. And the honest edge the document states plainly: <strong>disposal without sanitization is only acceptable when disclosure would have no impact</strong> — no mission impact, no asset damage, no financial loss, no harm to individuals. Everything else gets sanitized, and the sanitization is <strong>verified</strong> — 800-88 dedicates a section to verifying equipment, personnel competence, and results, because an unverified wipe is a hope.</p>
+<p><strong>Cryptographic erase and the modern footnote.</strong> For encrypted media, destroying the keys can render the data unrecoverable — <strong>cryptographic erase (CE)</strong>. SP 800-88 treats CE carefully: it works only when the encryption was actually protecting the data (proper algorithms, keys never exposed, the full media encrypted including spare areas), and the document gives explicit "do not use CE" cases. The operations lesson: CE is a legitimate Purge-equivalent <em>when its preconditions are verified</em>, not a shortcut for drives you merely assume were encrypted. The procedure records the verification — key destruction witnessed, encryption scope confirmed — or it doesn't claim CE.</p>
+<p><strong>Roles: sanitization is nobody's hobby.</strong> SP 800-88 names the roles because the failures are always ownership failures: the system owner decides the sanitization level, the security officer verifies the method, property management controls the physical media, and users follow the handling rules. The procedure names names — "the IT asset manager" is a role; "Priya N." is an owner.</p>
+<h3>Worked example: Kestrel Components — media-protection procedures</h3>
+<p><strong>The company (fictional).</strong> Kestrel Components, 90 staff, precision manufacturing. Design files (the crown jewels) live on engineering workstations, a file server, nightly backup tapes, and a growing pile of retired drives in the storage room — the pile nobody owns.</p>
+<p><strong>The inventory and labeling.</strong> Every medium gets an asset tag and an entry: type, owner, data classification, location. Labels: three tiers — INTERNAL (green), CONFIDENTIAL (yellow, handling rule printed: "no removal from facility without manager approval"), RESTRICTED (red: "no removal, no copying, transport by bonded courier only"). The retired-drive pile gets inventoried first — twelve drives, three still containing design data, none labeled. Finding one, recorded: the pile existed because no procedure assigned ownership of retired media.</p>
+<p><strong>Custody procedures.</strong> Backup tapes: locked safe in the server room, sign-out log, only the backup operator and the IT lead have the combination. Transport to the off-site cage: bonded courier, tamper-evident bags, handoff log signed at both ends — monthly rotation, never in personal vehicles. USB sticks: banned for RESTRICTED data entirely (the procedure says so in one line, and the DLP rule enforces it — the <a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> companion).</p>
+<p><strong>The sanitization decision table (excerpt, fictional — per 800-88).</strong></p>
+<p>| Media | Situation | Decision | Verification |</p>
+<p>|---|---|---|---|</p>
+<p>| HDD, engineering workstation | redeploy inside engineering | Purge (firmware command) | full read-back verify, logged |</p>
+<p>| HDD, file server | leaves the organization (donation) | Destroy (shred) | certificate of destruction, witnessed |</p>
+<p>| Backup tapes, expired retention | retention ended, no hold | Destroy (degauss + shred) | witnessed, log entry |</p>
+<p>| SSD, laptop | employee departure | Purge; CE only if encryption preconditions verified | verification recorded or CE not claimed |</p>
+<p>| Paper, RESTRICTED | retention ended | Destroy (cross-cut shred) | witnessed batch log |</p>
+<p><strong>The transport log (excerpt, fictional):</strong> tape set KT-2026-10-03: sealed 2026-10-03 16:40 by backup operator D. Reyes, bag seal #88412; courier pickup 17:05, signed; cage receipt 2026-10-04 09:12, seal intact, signed by cage attendant. Three lines that would have answered every question about the tape that "fell off a truck."</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the inventory scheme, custody procedures, sanitization decision table, and transport log above, authored and self-reviewed in-session on 2026-10-10 against SP 800-88 Rev. 2's decision framework. Transcript: <code>runs/e-media-protection.log</code>.</p>
+<ol>
+<li><strong>Inventory the media.</strong> For your fictional (or real) organization, list every medium: drives, tapes, USB sticks, optical, paper archives, the retired pile nobody owns. Columns: type, owner, classification, location. The unowned pile is always the first finding.</li>
+<li><strong>Design the labeling scheme.</strong> Three or four tiers, visually distinct, handling rule on the label. Then the honesty check: would anyone actually apply these? If the scheme needs training to understand, simplify it.</li>
+<li><strong>Write the custody procedures.</strong> Storage (what's locked, who has access, what's logged) and transport (approved methods, packaging, handoff log). Include the one-line bans — the prohibitions that need no nuance.</li>
+<li><strong>Build the sanitization decision table.</strong> Per media type and situation: Clear, Purge, or Destroy, with the 800-88 rationale (confidentiality first, media type second). Add the verification column — method, witness, record. No row without verification.</li>
+<li><strong>Handle cryptographic erase honestly.</strong> If you claim CE anywhere, write the preconditions you'd verify (encryption scope, key custody, algorithm) and who verifies them. If you can't verify, the decision is Purge or Destroy, not CE.</li>
+<li><strong>Name the roles.</strong> System owner, security verifier, property custodian, users — named people, not titles. The retired-media pile gets an owner in this step.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Inventory your own media — old drives, USB sticks, backup disks, printed sensitive documents. For each: what's on it, where it is, what sanitization it needs. Then sanitize one item you've been meaning to deal with, using the decision table logic, and record what you did.</p>
+<p><strong>Success test:</strong> Your inventory includes at least one item whose contents you can't fully account for — that's the finding. Your sanitization record names the method and how you verified it. "I threw it away" without a method is the failure this lesson exists to prevent.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The unowned pile.</strong> Retired media with no owner and no procedure — the most common finding, and the source of most "sold with data on it" stories. Ownership is the first control.</li>
+<li><strong>Unlabeled media.</strong> Handled as unimportant by everyone, including whoever disposes of it. The label carries the classification to the point of disposal.</li>
+<li><strong>Transport by convenience.</strong> The passenger seat, the checked luggage, the personal vehicle. Transport is the highest-risk state; the procedure's boring answer is the protection.</li>
+<li><strong>Sanitization theater.</strong> The "wipe" nobody verified, the degauss applied to a drive degaussing can't touch (modern high-density media), the CE claimed on an unencrypted drive. Verification is part of the method, not an optional extra.</li>
+<li><strong>Clear where Purge was needed.</strong> Logical overwrite on media leaving the organization. The decision table exists so the choice is made by classification and media type, not by whoever has the screwdriver.</li>
+<li><strong>Disposal without decision.</strong> Thrown away because "it's just an old drive." 800-88's bar for skipping sanitization — no impact of any kind from disclosure — is deliberately almost unreachable.</li>
+<li><strong>The hold ignored.</strong> Media destroyed on schedule while a litigation hold was active. The retention schedule's disposal step and the legal hold must check each other — the <a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> link again.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-88 Rev. 2, Guidelines for Media Sanitization</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a> / <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, September 2025 — supersedes Rev. 1) — <em>read</em> the decision-flow (categorization, reuse, sanitization decision, verification, documentation) and the Clear/Purge/Destroy definitions; <em>skim</em> the media-specific technique tables.</li>
+<li><strong>NIST SP 800-53 Rev. 5, Media Protection (MP) family</strong> — the control catalog: MP-6 (media sanitization) is this lesson in control language. Find it via the SP 800-53 publication page (<a href="https://csrc.nist.gov">csrc.nist.gov</a>).</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>NIST SP 800-111, Guide to Storage Encryption Technologies for End User Devices</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, November 2007) — free; the encryption preconditions that make cryptographic erase an honest claim — read before you ever write "CE" in a decision table.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A company donates 40 decommissioned desktops after running a software "wipe" on each drive. Using the 800-88 decision rule (confidentiality first, media type second), explain what's wrong with this procedure — and what the verification column would have required.</li>
+<li>Explain why an unlabeled drive is a handling failure even if it's stored in a locked room — whose decision does the label change, and at which lifecycle point does that matter most?</li>
+<li>A laptop's SSD held customer data; IT claims cryptographic erase. Name the three preconditions 800-88 requires before CE is an honest claim, and the consequence if any one can't be verified.</li>
+<li>Distinguish media protection from the data lifecycle: the retention schedule says "destroy after seven years" — what decisions does this lesson's procedure still have to make at year seven?</li>
+<li>Predict the transport log of an organization with no procedure, six months after the backup rotation starts: what do the entries look like, and which entry is missing when a tape goes unaccounted for?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your media inventory (with the unowned pile found and assigned), labeling scheme, custody procedures (storage and transport with the handoff log), sanitization decision table (Clear/Purge/Destroy per media and situation, with verification per row), and named roles — for the Kestrel worked case in your own words, or better, for media you actually own.</p>
+<p><strong>Honest claim:</strong> "I can protect the physical object — inventory and label media, control its storage and transport, and decide and verify its sanitization by the book."</p>
+<p><strong>Can't claim yet:</strong> "I can run a certified destruction program" — witnessed destruction at regulatory scale, with the chain of evidence a regulator or court demands across thousands of assets, is its own operation; this lesson taught the procedure design, which is where the judgment lives.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/investigation-forensics/"><code>e-investigation-forensics</code></a> — chain of custody applied to investigations; the litigation hold that suspends your disposal schedule.</li>
+<li><a href="/g/detective-preventive/"><code>e-detective-preventive</code></a> — DLP and endpoint controls that enforce the handling rules (the USB ban needs a control behind it).</li>
+<li><a href="/g/security-program/"><code>e-security-program</code></a> — where the handling rules get their authority and their audit.</li>
+<li>Map refs: <strong>CISSP 7.5</strong> (this lesson); feeds <strong>CISSP 2.x</strong> (data security) and <strong>7.1</strong> (investigations).</li>
+</ul>
+<p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-media-protection.log</code>.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

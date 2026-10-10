@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assessing vulnerabilities across the architecture | Learn Computer Stuff</title>
+<meta name="description" content="Decompose a hybrid cloud-plus-IoT-plus-API architecture, name per-component vulnerability classes, rate with structural judgment, and prioritize fixes. A free lesson in the security guidebook, serving CISSP objective 3.5.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/arch-vuln-assessment/">
+<meta property="og:title" content="Assessing vulnerabilities across the architecture | Learn Computer Stuff"><meta property="og:description" content="Decompose a hybrid cloud-plus-IoT-plus-API architecture, name per-component vulnerability classes, rate with structural judgment, and prioritize fixes. A free lesson in the security guidebook, serving CISSP objective 3.5.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/arch-vuln-assessment/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Assessing vulnerabilities across the architecture","item":"https://learncomputerstuff.dev/g/arch-vuln-assessment/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Assessing vulnerabilities across the architecture</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Assessing vulnerabilities across the architecture</h1>
+<p class="lede prose">Vulnerability assessment usually means scanning: point the scanner at the network, collect the CVEs, argue about the criticals. That finds known bugs in known software. Architecture assessment asks the harder question — what is <em>structurally</em> wrong, the kind of wrong no scanner reports because the scanner checks configurations and the flaw is in the design. The missing authorization check between two microservices, the IoT fleet with one shared credential, the API that trusts its mobile client, the cloud storage bucket whose policy nobody owns: these are architecture vulnerabilities, and they are where the serious breaches live. This lesson teaches the assessment as a discipline: decompose the system, enumerate the vulnerability classes each component type invites, rate them, and recommend in priority order. It shows up in pre-deployment architecture reviews, in the risk assessment's technical appendix, and in the incident retrospective that concludes "we knew the trust boundary was wrong and shipped it anyway."</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (assess a hybrid architecture component by component, name the vulnerability classes per component, and write prioritized recommendations)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/appsec/"><code>d-appsec</code></a> (threat modeling), <a href="/g/cloud-security/"><code>d-cloud-security</code></a> (cloud threat model), <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (rating and response); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.5</strong> — assessing and mitigating vulnerabilities across architecture and system types.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Vulnerability assessment usually means scanning: point the scanner at the network, collect the CVEs, argue about the criticals. That finds known bugs in known software. Architecture assessment asks the harder question — what is <em>structurally</em> wrong, the kind of wrong no scanner reports because the scanner checks configurations and the flaw is in the design. The missing authorization check between two microservices, the IoT fleet with one shared credential, the API that trusts its mobile client, the cloud storage bucket whose policy nobody owns: these are architecture vulnerabilities, and they are where the serious breaches live. This lesson teaches the assessment as a discipline: decompose the system, enumerate the vulnerability classes each component type invites, rate them, and recommend in priority order. It shows up in pre-deployment architecture reviews, in the risk assessment's technical appendix, and in the incident retrospective that concludes "we knew the trust boundary was wrong and shipped it anyway."</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can threat-model an application (<a href="/g/appsec/"><code>d-appsec</code></a>) and reason about cloud trust boundaries (<a href="/g/cloud-security/"><code>d-cloud-security</code></a>).</li>
+<li>You can rate and respond to risk (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>) — ratings here use the same discipline: likelihood × impact, with owners and dates.</li>
+<li>No tools. The work product is a written architecture vulnerability assessment: component inventory, per-component vulnerability classes, ratings, and prioritized recommendations.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Decompose first.</strong> An architecture assessment begins with an inventory, not a scanner: every component, every data flow, every trust boundary, every identity the components use to talk to each other. The decomposition follows the data: where does it originate, where does it rest, where does it cross a boundary, and who can observe or alter it at each point. Components you cannot inventory are unassessed by definition — "the third-party video service" gets a row marked <em>limited visibility</em> with the assessment scoped to your integration boundary, not a pass.</p>
+<p><strong>Vulnerability classes per component type.</strong> Each architecture pattern invites characteristic flaw classes — not specific CVEs, but the <em>shapes</em> of failure. Assessing a component means asking which of its type's classes are present:</p>
+<ul>
+<li><strong>Cloud control plane and configuration:</strong> identity and permission sprawl (over-broad roles, long-lived keys), storage misconfiguration (public-by-default buckets, unencrypted volumes), network exposure (overly permissive security groups, management ports reachable from the internet), and logging blind spots (control-plane actions nobody records). The cloud's vulnerability class is <em>configuration at scale</em> — one bad policy replicated everywhere instantly.</li>
+<li><strong>APIs and microservices:</strong> broken object-level authorization (the caller names an object; nothing checks ownership), excessive data exposure (endpoints returning full objects the client filters), mass assignment (clients setting fields they shouldn't), missing rate limits and resource caps (one client starving the service), and <strong>service-to-service trust gaps</strong> — the internal API that authenticates nothing because "it's inside the VPC," the <a href="/g/secure-design/"><code>e-secure-design</code></a> complete-mediation failure in microservice clothes.</li>
+<li><strong>IoT and edge devices:</strong> shared or hardcoded credentials across the fleet, unencrypted or unauthenticated device-to-cloud channels, firmware without signed updates (the fleet you cannot patch is the fleet you will lose), physical exposure (devices an attacker can touch, extract, and clone), and telemetry spoofing (the cloud trusting whatever the device reports). The IoT vulnerability class is <em>scale times immutability</em> — thousands of devices you cannot easily reach, running code you cannot easily change.</li>
+<li><strong>Data stores:</strong> encryption without key management (the <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> failure), excessive privilege on service accounts, backups that bypass the production controls, and cross-tenant isolation enforced only in application code.</li>
+<li><strong>Identity and integration seams:</strong> every place two systems meet — SSO integrations, webhooks, third-party SDKs — invites confused-deputy and trust-boundary flaws: the webhook endpoint that doesn't verify signatures, the SDK with more permissions than the feature needs.</li>
+</ul>
+<p><strong>Rating.</strong> Each finding gets likelihood and impact in the organization's qualitative scale (from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>), plus two architecture-specific modifiers: <strong>blast radius</strong> (how much of the system the flaw reaches — a flaw in shared auth code outranks a flaw in one endpoint) and <strong>structural persistence</strong> (how hard the flaw is to fix — a design flaw costs an order of magnitude more than a configuration flaw, so it rates higher even at equal likelihood).</p>
+<p><strong>Recommendations in priority order.</strong> Recommendations are architectural, not patch-level: introduce the authorization service, rotate the fleet credential design, add the signature check — each with the component, the effort tier (configuration change / component change / architecture change), and the risk it retires. Priority follows rating, but structural fixes that unblock many smaller fixes come first even when their individual rating is moderate — fixing the shared auth library retires a dozen endpoint findings.</p>
+<p><strong>What assessment is not.</strong> It is not a penetration test (no exploitation — the assessment argues from design, and its findings are valid whether or not anyone has exploited them yet). It is not a compliance checklist (a compliant architecture can still be structurally wrong). And it is not a one-time event: the assessment is re-run when the architecture changes, because every new component brings its type's vulnerability classes with it.</p>
+<h3>Worked example: Harborline Logistics — hybrid architecture assessment</h3>
+<p><strong>The system (fictional).</strong> Harborline's fleet platform from <a href="/g/secure-design/"><code>e-secure-design</code></a>, now assessed as built: 2,000 vehicle telematics gateways (cellular IoT, ARM-based) report to a cloud ingestion API; a dispatch microservice cluster (12 services) serves the web app; a billing service reads from PostgreSQL; a third-party mapping SDK is embedded in the driver app; the fleet firmware updates over the air.</p>
+<p><strong>Findings (per component, rated High/Moderate/Low):</strong></p>
+<ol>
+<li><strong>IoT fleet — shared device credential (High).</strong> All 2,000 gateways authenticate to the ingestion API with the same client certificate. Blast radius: total — one extracted key impersonates the fleet. Structural persistence: high — rotating a shared credential across 2,000 devices is a fleet-wide operation. <em>Class:</em> hardcoded/shared credentials. <em>Recommendation:</em> per-device certificates issued at manufacturing/enrollment, with the attestation flow from <a href="/g/platform-security/"><code>e-platform-security</code></a> as the enrollment gate. Effort: architecture change.</li>
+<li><strong>Ingestion API — no per-device authorization (High).</strong> The API authenticates the fleet certificate but does not check <em>which</em> device is reporting — any valid fleet credential can submit telemetry for any vehicle. <em>Class:</em> broken object-level authorization. <em>Recommendation:</em> bind the device identity to the vehicle record at enrollment; reject telemetry for other vehicles. Effort: component change. (Note: finding 1 makes this worse — the shared credential means "any valid credential" is currently "anyone with the extracted key.")</li>
+<li><strong>Dispatch microservices — unauthenticated service mesh (High).</strong> Services call each other over the VPC with no mutual authentication; compromise of one service gives unauthenticated access to eleven others. <em>Class:</em> service-to-service trust gap (complete mediation failure). <em>Recommendation:</em> mutual TLS between services with per-service identities; the central authorization service from the design review as the policy point. Effort: architecture change — and it retires findings 4 and 5 below as instances.</li>
+<li><strong>Billing service — direct database reads (Moderate, structural).</strong> The design-review finding, still present: billing bypasses the API's authorization. <em>Class:</em> trust-boundary bypass. <em>Recommendation:</em> route through the API; remove database credentials from the billing host. Effort: component change.</li>
+<li><strong>Driver app — mapping SDK with excessive permissions (Moderate).</strong> The third-party SDK requests location-always and holds an API key with write scope to the dispatch service. <em>Class:</em> integration-seam over-privilege. <em>Recommendation:</em> scope the key to read-only map tiles; move dispatch writes server-side. Effort: configuration + component change. Visibility limit noted: the SDK's internals are unassessed — the assessment covers only the integration boundary.</li>
+<li><strong>Cloud storage — telemetry bucket policy (Moderate).</strong> Raw telemetry archives sit in a bucket whose policy grants the analytics contractor's whole organization read access, not the named analysts. <em>Class:</em> permission sprawl. <em>Recommendation:</em> scope to named identities; enable access logging on the bucket. Effort: configuration change.</li>
+<li><strong>Firmware updates — unsigned OTA images (High).</strong> Gateways accept firmware over the air with no signature verification — anyone who can reach the update endpoint (or spoof it) owns the fleet. <em>Class:</em> missing update integrity. <em>Recommendation:</em> signed firmware with the TPM-measured boot chain verifying before install; rollback protection. Effort: architecture change. This is the finding that keeps the assessor up at night: it converts every other fleet finding into full device compromise.</li>
+</ol>
+<p><strong>Prioritized recommendations:</strong> (1) signed firmware + measured boot (finding 7 — it underwrites fleet integrity, without which per-device credentials are theater); (2) per-device certificates with attestation enrollment (finding 1); (3) mutual TLS + central authorization in the service mesh (finding 3, retiring 4's class across services); (4) per-device authorization in ingestion (finding 2); (5) billing through the API (finding 4); (6) SDK scoping (finding 5); (7) bucket policy (finding 6). The ordering logic: fix the foundations that other fixes depend on first, then the blast-radius findings, then the configuration items.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The Harborline assessment above, authored and self-reviewed in-session on 2026-10-10. Transcript: <code>runs/e-arch-vuln-assessment.log</code>.</p>
+<ol>
+<li><strong>Inventory the architecture.</strong> List every component, data flow, trust boundary, and inter-component identity. Mark anything with limited visibility (third-party internals) explicitly — unassessed is a scope statement, not a pass.</li>
+<li><strong>Assign vulnerability classes per component.</strong> For each component, walk its type's class list (cloud config, API auth, IoT fleet, data store, integration seam) and record which classes are present, with the specific mechanism — not "auth issues" but "services call each other with no mutual authentication."</li>
+<li><strong>Rate with the two modifiers.</strong> Likelihood × impact, then adjust for blast radius and structural persistence. A design flaw with moderate likelihood outranks a configuration flaw with high likelihood — write down why.</li>
+<li><strong>Write architectural recommendations.</strong> Each names the component, the fix, the effort tier, and the risk retired. Note which recommendations retire other findings as instances — those go first.</li>
+<li><strong>Prioritize and justify the order.</strong> The priority list is an argument: foundations before instances, blast radius before convenience. If two findings tie, the structural one wins.</li>
+<li><strong>Close out.</strong> The assessment document: inventory, findings with ratings, prioritized recommendations, scope limits, and the re-assessment trigger (what architecture change re-opens it).</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Assess a hybrid system you can observe — your home lab plus a cloud account counts (the "IoT" can be any network device you own). Inventory, assign classes, rate, recommend.</p>
+<p><strong>Success test:</strong> You find at least one service-to-service trust gap (the internal path with no authentication) and at least one permission broader than the function needs. Your priority list justifies its order in writing — "fix the foundation first" must name which foundation and which findings depend on it.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Scanning instead of assessing.</strong> The scanner finds the unpatched library; the architecture review finds the missing authorization layer. Both matter; only one finds structural flaws. An assessment that never leaves the scanner output is a patch list wearing an assessment's name.</li>
+<li><strong>Component types assessed with the wrong class list.</strong> Applying web-app classes to an IoT fleet (looking for XSS on a telematics gateway) while missing the fleet's actual classes (shared credentials, unsigned firmware). The class list must match the component type.</li>
+<li><strong>Trust boundaries drawn where the firewall is.</strong> The assessment that treats "inside the VPC" as a boundary will miss every service-to-service finding. Boundaries are drawn where <em>authentication and authorization</em> happen, not where packets are filtered.</li>
+<li><strong>Third-party components waved through.</strong> "The vendor handles security" as a scope exclusion without assessing the integration seam. You cannot assess their internals; you must assess your boundary with them — signatures, scoping, minimum data.</li>
+<li><strong>Ratings without the structural modifier.</strong> A design flaw rated equal to a config flaw will be scheduled equal to a config flaw, and the design flaw will still be there in three years. Structural persistence is what makes architecture findings actually get fixed.</li>
+<li><strong>Recommendations as patch tickets.</strong> "Fix finding 4" without the architectural change that retires the class. Instance fixes without class fixes are how the same finding returns next assessment with a different component name.</li>
+<li><strong>The assessment that never re-runs.</strong> Architectures drift; every new service, device, and integration re-opens the assessment. No re-assessment trigger means the document describes a system that no longer exists.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-115, Technical Guide to Information Security Testing and Assessment</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — <em>read</em> the assessment methodology sections (planning, execution, reporting); <em>skim</em> the technique catalog. The method behind this lesson's walkthrough.</li>
+<li><strong>OWASP ASVS (Application Security Verification Standard)</strong> (<a href="https://owasp.org">owasp.org</a>) — <em>read</em> the API and access-control verification sections as the class list for the application components; <em>use</em> the rest as the requirement catalog.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>MITRE ATT&amp;CK</strong> (<a href="https://attack.mitre.org">attack.mitre.org</a>) — free; map each finding to the techniques it enables — the bridge from architecture flaw to adversary behavior.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; the control catalog for writing recommendations that trace to something (feeds <a href="/g/control-selection/"><code>e-control-selection</code></a>).</li>
+<li><strong>CISA physical security resources</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the IoT devices are physical objects — assess their physical exposure with the same seriousness as their firmware.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An assessment finds an unauthenticated internal API and rates it Low because "it's inside the VPC." Name the two errors (one in the trust-boundary reasoning, one in the rating) and re-rate it with the structural modifier.</li>
+<li>A scanner reports zero criticals on a microservice cluster whose services mutually trust each other with no authentication. Explain why the scanner is blind to the cluster's worst finding and which vulnerability class names it.</li>
+<li>Two findings: (a) a storage bucket with an over-broad policy (configuration change to fix), (b) a shared fleet credential across 2,000 devices (architecture change to fix). Both rate High on likelihood × impact. Argue the priority order using structural persistence.</li>
+<li>A third-party SDK is embedded in your mobile app. State precisely what the assessment can and cannot cover, and name the three integration-boundary controls the assessment must verify.</li>
+<li>Predict the next assessment's finding when this assessment's recommendations fix each instance but not the class: describe the finding's shape and which component it appears in.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your architecture vulnerability assessment — component inventory with trust boundaries, per-component vulnerability classes with specific mechanisms, ratings with the structural modifier, prioritized recommendations with effort tiers and retirement notes, scope limits, and the re-assessment trigger — for the Harborline case in your own words, or for a system you can observe.</p>
+<p><strong>Honest claim:</strong> "I can decompose a hybrid architecture, name the vulnerability classes each component type invites, rate findings with structural judgment, and prioritize architectural fixes."</p>
+<p><strong>Can't claim yet:</strong> "I can penetration-test the architecture" — exploitation is a separate discipline; this lesson argued from design.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/control-selection/"><code>e-control-selection</code></a> — recommendations become selections: trace each architectural fix to its control.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the rating discipline and the residual-risk statement this assessment feeds.</li>
+<li><a href="/g/patch-management/"><code>e-patch-management</code></a> — patch and vulnerability management operations: the operational half — the scanner findings this lesson deliberately set aside.</li>
+<li><a href="/g/cloud-security/"><code>d-cloud-security</code></a>, <a href="/g/appsec/"><code>d-appsec</code></a> — the component-type knowledge this assessment draws on.</li>
+<li>Map refs: <strong>CISSP 3.5</strong> (this lesson); feeds <strong>CISSP 6.1</strong> (assessment strategy) and <strong>7.8</strong> (vuln management operations).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

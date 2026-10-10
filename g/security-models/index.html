@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Formal security models: what &quot;secure&quot; means, precisely | Learn Computer Stuff</title>
+<meta name="description" content="State the rules of Bell-LaPadula, Biba, Clark-Wilson, and Brewer-Nash, run a Bell-LaPadula rule check in Python, and write model-selection rationales. A free lesson in the security guidebook, serving CISSP objective 3.2.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/security-models/">
+<meta property="og:title" content="Formal security models: what &quot;secure&quot; means, precisely | Learn Computer Stuff"><meta property="og:description" content="State the rules of Bell-LaPadula, Biba, Clark-Wilson, and Brewer-Nash, run a Bell-LaPadula rule check in Python, and write model-selection rationales. A free lesson in the security guidebook, serving CISSP objective 3.2.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/security-models/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Formal security models: what \"secure\" means, precisely","item":"https://learncomputerstuff.dev/g/security-models/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Formal security models: what &quot;secure&quot; means, precisely</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Formal security models: what &quot;secure&quot; means, precisely</h1>
+<p class="lede prose">Security policies are usually written in English, and English is where precision goes to die. "Only authorized users may see sensitive data" means something different to everyone who reads it — which is why the field built formal models: mathematical definitions of what "secure" means for a system, precise enough that you can prove whether a given state, or a given operation, preserves the property. Bell-LaPadula defined confidentiality as a property of information flow; Biba defined integrity as its dual; Clark-Wilson defined it as commercial common sense; Brewer-Nash defined it for conflict of interest. They show up in evaluated operating systems, in the mandatory access control labels of government systems, in the design rationale of any system that must <em>prove</em> an information-flow property rather than merely assert it, and on the CISSP because they are the vocabulary in which the profession argues about policy. You will not deploy Bell-LaPadula raw — but you will recognize its rules inside SELinux type enforcement, inside data-loss-prevention policies, and inside every "no read up, no write down" argument you will ever have.</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>2 (state each model's rules, run the BLP rule check, and write a selection rationale for a scenario)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/secure-design/"><code>e-secure-design</code></a> (complete mediation, least privilege as design goals); Python 3 on your machine (stdlib only)</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.2</strong> — formal models of security policy: confidentiality, integrity, and conflict-of-interest models, and selecting among them.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Security policies are usually written in English, and English is where precision goes to die. "Only authorized users may see sensitive data" means something different to everyone who reads it — which is why the field built formal models: mathematical definitions of what "secure" means for a system, precise enough that you can prove whether a given state, or a given operation, preserves the property. Bell-LaPadula defined confidentiality as a property of information flow; Biba defined integrity as its dual; Clark-Wilson defined it as commercial common sense; Brewer-Nash defined it for conflict of interest. They show up in evaluated operating systems, in the mandatory access control labels of government systems, in the design rationale of any system that must <em>prove</em> an information-flow property rather than merely assert it, and on the CISSP because they are the vocabulary in which the profession argues about policy. You will not deploy Bell-LaPadula raw — but you will recognize its rules inside SELinux type enforcement, inside data-loss-prevention policies, and inside every "no read up, no write down" argument you will ever have.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can state the design principles this lesson formalizes — complete mediation and least privilege (<a href="/g/secure-design/"><code>e-secure-design</code></a>).</li>
+<li>Python 3, stdlib only. The walkthrough runs locally; nothing touches the network.</li>
+<li>You will read sections of the original papers (all freely available): Bell and LaPadula's 1973/1976 MITRE reports, Brewer and Nash's 1989 IEEE paper, and university lecture notes on Clark-Wilson and Biba.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>What a model is.</strong> A security model has three parts: a set of <strong>subjects</strong> (active entities — users, processes), a set of <strong>objects</strong> (passive entities — files, records), and a set of <strong>rules</strong> governing which operations subjects may perform on objects. The model defines a property — "no confidential information flows to an uncleared subject" — and then proves that if the initial state satisfies it and every operation preserves it, the system stays secure. That proof structure is the whole point: models move security from assertion to argument.</p>
+<p><strong>Bell-LaPadula (confidentiality).</strong> Bell and LaPadula (MITRE, 1973–76) model multilevel security: every subject has a <strong>clearance</strong> and every object a <strong>classification</strong>, drawn from an ordered lattice (Unclassified &lt; Confidential &lt; Secret &lt; Top Secret, plus compartments). Two rules:</p>
+<ul>
+<li><strong>Simple security property ("no read up"):</strong> a subject may read an object only if the subject's clearance dominates the object's classification. Information flows from object to subject, so reading up would carry high information down.</li>
+<li>**\*-property ("no write down"):** a subject may write to an object only if the object's classification dominates the subject's clearance. Writing down would carry high information into a low object.</li>
+</ul>
+<p>Together they confine information to flow <em>upward or level</em> — never down. The model's power is its proof: the Basic Security Theorem shows the rules preserve security across state transitions. Its famous gaps: it says nothing about integrity (a low-integrity process can write <em>up</em> and corrupt high data — allowed by the rules), and it ignores covert channels. Real systems add the **strong \*-property** (read/write only at the same level) to close the write-up hole you will see in the demo.</p>
+<p><strong>Biba (integrity, the dual).</strong> Biba (MITRE, 1977) observed that integrity is the mirror image of confidentiality: assign <strong>integrity levels</strong> instead of clearances, and reverse the rules — <strong>no read down</strong> (a high-integrity subject must not read low-integrity data, lest it be contaminated) and <strong>no write up</strong> (low-integrity subjects must not modify high-integrity objects). Same lattice machinery, opposite direction. Where BLP protects secrets from the curious, Biba protects trusted data from the untrustworthy. It fits systems where correctness outranks secrecy — but the strict policy is so rigid that Biba also proposed weaker variants (low-water-mark, ring policies) that trade purity for usability.</p>
+<p><strong>Clark-Wilson (commercial integrity).</strong> Clark and Wilson (IEEE, 1987) argued that businesses don't think in lattices at all — they think in <strong>well-formed transactions</strong> and <strong>separation of duties</strong>. The model distinguishes <strong>constrained data items</strong> (CDIs, the data whose integrity matters) from unconstrained ones, and requires that CDIs change only through certified <strong>transformation procedures</strong> (TPs) — the double-entry bookkeeping of the digital world: the procedure, not the user's discretion, guarantees the result stays valid. <strong>Integrity verification procedures</strong> check the CDIs' consistency; access is mediated by triples (user, TP, CDI) so nobody can touch data except through approved procedures; and separation of duties is built in (the person who certifies a TP cannot be the person who executes it). Where BLP asks "what level are you?", Clark-Wilson asks "which approved procedure are you running, and who certified it?" It is the model of banking systems, and its vocabulary — well-formed transactions, separation of duties — is commercial security's native tongue.</p>
+<p><strong>Brewer-Nash, the Chinese Wall (conflict of interest).</strong> Brewer and Nash (IEEE, 1989) model a different problem: a consultancy whose analysts serve competing clients. Objects are grouped into <strong>conflict-of-interest classes</strong> (e.g., all banks), each containing <strong>datasets</strong> (individual clients). The rule: once a subject reads from one dataset in a class, the wall <em>rises</em> — the subject can never read from another dataset in the same class, because the first dataset's knowledge would taint the second engagement. Unlike BLP's static labels, the wall is <strong>dynamic</strong>: access history changes what is permitted next. Sanitized (public) data sits outside the wall and is freely readable. It is the model of investment banking, law firms, and any organization where the threat is not clearance but conflict.</p>
+<p><strong>How they relate.</strong> BLP and Biba are duals — same lattice, opposite flow, confidentiality versus integrity. Clark-Wilson abandons the lattice for procedures — integrity as <em>correct process</em> rather than <em>level hygiene</em>. Brewer-Nash abandons static labels for history — policy as a function of what you have already seen. Selecting among them is the expert judgment this lesson teaches.</p>
+<h3>Worked example: model selection for three scenarios</h3>
+<p><strong>Scenario A — military intelligence records system.</strong> Multiple classification levels, uncleared analysts must never see compartmented data, and the system's job is to prevent disclosure. <strong>Selection: Bell-LaPadula.</strong> The requirement is exactly BLP's property: information must never flow down. Biba is wrong here — integrity is secondary to preventing disclosure, and Biba's "no read down" would bizarrely forbid analysts from reading <em>unclassified</em> reference data. Clark-Wilson is wrong — there are no well-formed transactions, only read-mostly analysis. Brewer-Nash is wrong — the conflict structure is static hierarchy, not dynamic client conflicts.</p>
+<p><strong>Scenario B — a bank's ledger system.</strong> The catastrophe is not disclosure but an unbalanced book: unauthorized or malformed updates to account balances. <strong>Selection: Clark-Wilson.</strong> The requirement is that every state change goes through certified procedures (post, reconcile, audit) with separation of duties between the clerk who enters and the officer who approves. BLP is wrong — tellers legitimately see balances, and lattice labels add nothing to transaction correctness. Biba's strict policy is nearly unusable here (a clerk could never read a low-integrity memo and then post), and Brewer-Nash answers a question nobody asked.</p>
+<p><strong>Scenario C — a consultancy serving competing bidders.</strong> Analysts advise multiple clients; the danger is one client's strategy leaking into advice for a competitor. <strong>Selection: Brewer-Nash.</strong> The conflict structure is dynamic: the wall must rise based on which engagements each analyst has actually touched. BLP is wrong — there is no hierarchy of clearances, only a flat set of conflicts. Clark-Wilson is wrong — the procedures are bespoke advice, not certifiable transactions. Sanitized market data stays outside the wall for everyone.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/e-security-models.log</code>. Python 3, stdlib only, 2026-10-10, no network. The script implements BLP's two rules over a tiny labeled file set (4 subjects, 4 objects, levels 0–3) and evaluates 8 operations.</p>
+<ol>
+<li><strong>Read the transcript's setup.</strong> Four clearance levels (0=Unclassified … 3=Top Secret); subjects <code>analyst_smith</code> (2), <code>operator_jones</code> (1), <code>director_cho</code> (3); objects from <code>press_release.txt</code> (0) to <code>source_identities.txt</code> (3). All labels are fictional.</li>
+<li><strong>Check the two DENYs.</strong> <code>analyst_smith</code> reading <code>source_identities.txt</code> is denied — clearance 2 &lt; classification 3, the simple security property ("no read up"). <code>analyst_smith</code> writing <code>press_release.txt</code> is denied — writing down would move Secret information into an Unclassified object, the \*-property.</li>
+<li><strong>Find the allowed operation the model purists dislike.</strong> <code>operator_jones</code> (clearance 1) <em>writing</em> <code>source_identities.txt</code> (level 3) is ALLOWED — "no write down" permits write-up. This is BLP as published: the \<em>-property constrains only downward flow. Real systems close it with the strong \</em>-property (read/write at equal level only), because a low process writing high objects is an integrity disaster — which is exactly the gap Biba was built to address.</li>
+<li><strong>Verify the count.</strong> 6 allowed, 2 denied — matches the transcript. Reproduce it: run the script yourself with different labels and confirm the rule decisions change exactly where the dominance relation changes.</li>
+<li><strong>Write the selection rationale.</strong> For each of the three scenarios above, write one paragraph: the chosen model, the property it enforces, and why each of the other three fails. If you cannot name the failure mode of the rejected models, you have not understood the chosen one.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Extend the BLP script with Biba's rules as a second mode (integrity levels, no read down / no write up), then evaluate the same 8 operations under Biba and diff the decisions. Write one paragraph explaining, for each operation where the verdicts differ, which property (confidentiality vs integrity) the operation threatens.</p>
+<p><strong>Success test:</strong> Your diff shows exactly the operations where confidentiality and integrity rules diverge (hint: the two BLP DENYs and the write-up ALLOW behave differently under Biba). Your paragraph names the threatened property per operation without hedging.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Deploying the model instead of its lesson.</strong> Nobody runs raw BLP; its value is the vocabulary and the proof structure. Teams that "implement Bell-LaPadula" usually implement labels and call it done, without the state-machine discipline the theorem requires.</li>
+<li><strong>Confidentiality models for integrity problems.</strong> Applying BLP where Clark-Wilson belongs — labeling bank ledgers by secrecy while tellers run arbitrary SQL — protects the wrong property against the wrong threat.</li>
+<li><strong>The write-up hole.</strong> Forgetting that published BLP permits low-to-high writes, and therefore permits integrity corruption by design. The strong \*-property or a companion integrity model is not optional.</li>
+<li><strong>Static labels for dynamic conflicts.</strong> BLP labels never change with history; Brewer-Nash exists because some policies <em>must</em>. Using clearances for conflict-of-interest is a category error.</li>
+<li><strong>Ignoring the model's stated limits.</strong> BLP proves nothing about covert channels, availability, or correct initial labeling. A proof is only as strong as its assumptions — the initial secure state is assumed, not derived.</li>
+<li><strong>Lattice worship.</strong> Real organizations have incomparable categories (compartments) and messy exceptions; forcing a total order where none exists produces labels everyone ignores. The model serves the policy, not the reverse.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>Bell, D. E. &amp; LaPadula, L. J., "Secure Computer Systems: Mathematical Foundations"</strong> (MITRE MTR-2547, 1973; freely hosted mirror) — <em>read</em> the model definition and the security properties; <em>skim</em> the systems-theory framing. The founding document.</li>
+<li><strong>Brewer, D. F. C. &amp; Nash, M. J., "The Chinese Wall Security Policy"</strong> (IEEE Symposium on Security and Privacy, 1989; freely hosted mirror) — <em>read</em> the wall rules and the sanitized-data treatment; short and precise.</li>
+<li><strong>Cornell CS 513 lecture notes, "Commercial Security Policies"</strong> (<a href="https://cs.cornell.edu">cs.cornell.edu</a>) — <em>read</em> the Clark-Wilson treatment: well-formed transactions, the CDI/TP distinction, separation of duties. The clearest free exposition of the 1987 paper's argument.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>Purdue CS 526 handout 06, "Integrity Protection"</strong> (<a href="https://cs.purdue.edu">cs.purdue.edu</a>) — free; Biba's policies (strict, low-water-mark, ring) and the Clark-Wilson/Brewer-Nash summaries in one university handout.</li>
+<li><strong>NIST's Early Computer Security Papers collection</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — free; the historical context in which BLP was written, including the original bibliographic record.</li>
+<li><strong>MITRE ATT&amp;CK</strong> (<a href="https://attack.mitre.org">attack.mitre.org</a>) — free; not a model, but the modern catalog of what the models' adversaries actually do — read it to ground the abstractions.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Under BLP, a Secret-cleared analyst writes a summary into an Unclassified file. Name the rule violated, the information-flow direction the rule protects, and what the analyst must do instead under the strong \*-property.</li>
+<li>A bank proposes BLP labels on its ledger: tellers get "Confidential," the ledger is "Secret." Explain the category error — which property the bank actually needs, and which model enforces it.</li>
+<li>An analyst reads sanitized market data, then client A's strategy memo, then requests client B's memo (A and B compete). Under Brewer-Nash, which request is denied and why — and what is the status of the sanitized data throughout?</li>
+<li>Under Biba's strict integrity policy, a high-integrity reporting process needs to ingest a low-integrity web feed. Name the rule that blocks the naive design and sketch two compliant alternatives.</li>
+<li>Predict what breaks first when a consultancy implements Chinese-Wall policy with static BLP-style labels assigned at hire: the confidentiality of client data, the usability for new engagements, or the auditability — and describe the incident that reveals it.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the BLP script run on your machine (transcript showing allowed/denied per operation) plus your Biba-mode extension with the diff, and the three-scenario selection rationale written in your own words.</p>
+<p><strong>Honest claim:</strong> "I can state each model's rules, demonstrate what Bell-LaPadula permits and denies on a labeled system, and argue which model fits a scenario — including why the others don't."</p>
+<p><strong>Can't claim yet:</strong> "I can build a verified multilevel-secure system" — implementing an evaluated system (reference monitor, covert-channel analysis, formal proof) is a specialized engineering discipline; this lesson taught the models' logic and selection, not their construction.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/secure-design/"><code>e-secure-design</code></a> — reread complete mediation and least privilege now that you have seen their formal clothing.</li>
+<li><a href="/g/iam/"><code>e-iam</code></a> — authorization models: RBAC/ABAC as the discretionary, implementable cousins of these mandatory models.</li>
+<li><a href="/g/iam/"><code>e-iam</code></a> — mandatory vs discretionary control in a real enterprise: where labels help and where the lifecycle matters more.</li>
+<li>Map refs: <strong>CISSP 3.2</strong> (this lesson); feeds <strong>CISSP 5.4</strong> (authorization mechanisms).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure provisioning: ownership, inventory, and the CMDB | Learn Computer Stuff</title>
+<meta name="description" content="Design a provisioning workflow with ownership assignment and run an inventory audit that reconciles against the CMDB. A free lesson in the security guidebook, serving CISSP objective 2.3.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/asset-provisioning/">
+<meta property="og:title" content="Secure provisioning: ownership, inventory, and the CMDB | Learn Computer Stuff"><meta property="og:description" content="Design a provisioning workflow with ownership assignment and run an inventory audit that reconciles against the CMDB. A free lesson in the security guidebook, serving CISSP objective 2.3.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/asset-provisioning/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Secure provisioning: ownership, inventory, and the CMDB","item":"https://learncomputerstuff.dev/g/asset-provisioning/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Secure provisioning: ownership, inventory, and the CMDB</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Secure provisioning: ownership, inventory, and the CMDB</h1>
+<p class="lede prose">Every asset the organization owns was acquired, configured, assigned, and — eventually — retired by some process, or by no process at all. Provisioning is the discipline that makes it a process: the workflow that brings an asset into the environment securely, records it, assigns it an owner, and keeps that record true until the asset leaves. It shows up in the laptop that arrives with a standard image instead of a factory install, in the cloud account nobody can say who created, in the audit finding "47 devices on the network are not in the inventory," and in the decommissioned server still holding customer data because nobody owned its retirement.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design a provisioning workflow and run an inventory audit that reconciles)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/asset-classification/"><code>e-asset-classification</code></a> (the tiers and owners that provisioning records); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 2.3</strong> — secure provisioning of information and assets: ownership assignment, inventory, and asset management across the asset's life in the organization.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every asset the organization owns was acquired, configured, assigned, and — eventually — retired by some process, or by no process at all. Provisioning is the discipline that makes it a process: the workflow that brings an asset into the environment securely, records it, assigns it an owner, and keeps that record true until the asset leaves. It shows up in the laptop that arrives with a standard image instead of a factory install, in the cloud account nobody can say who created, in the audit finding "47 devices on the network are not in the inventory," and in the decommissioned server still holding customer data because nobody owned its retirement.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You have the classification scheme from <a href="/g/asset-classification/"><code>e-asset-classification</code></a> — provisioning records each asset's tier and owner at birth. Without the scheme, the inventory is a list without meaning.</li>
+<li>No tools. The work products are documents: a provisioning workflow and a completed inventory audit with reconciled findings.</li>
+<li>Primary spine: <strong>NIST CSF 2.0</strong> (CSWP 29, February 26, 2024), the Identify function's Asset Management category (ID.AM) — free; and <strong>NIST SP 800-53 Rev. 5</strong> (September 2020), CM-8 (system component inventory) — free.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Provisioning is birth with paperwork.</strong> An asset enters the organization through one of a few gates — purchase, cloud creation, employee onboarding (BYOD or issued device), software deployment, data acquisition — and each gate needs the same workflow: request, approval, secure configuration, recording, owner assignment, deployment, verification. The security content of each step:</p>
+<ul>
+<li><strong>Request and approval.</strong> Who may ask for an asset, and who approves. Unapproved assets are shadow IT by definition, and shadow IT is inventory's permanent enemy.</li>
+<li><strong>Secure configuration.</strong> The asset is built to a known-good baseline before it touches production: hardened image, patched, encrypted storage, logging enabled, default credentials replaced.</li>
+<li><strong>Recording.</strong> The asset enters the inventory with its identity: what it is, where it is, what it holds, its classification tier, its owner, its expected lifespan. CM-8's requirements are the checklist: the inventory must accurately reflect the system, include all components, avoid duplicate accounting, be at the granularity needed for tracking, and carry the accountability information the organization defines. "The spreadsheet" fails most of these; the lesson's position is that the inventory must be a system of record, not a file.</li>
+<li><strong>Owner assignment.</strong> Every asset gets exactly one owner — the person accountable for its protection decisions — at provisioning time, not later. The classification lesson assigned owners to <em>information types</em>; provisioning assigns owners to <em>assets</em>. The two meet in the record: this laptop (asset) holds Confidential patient data (type) owned by the CMO, while the laptop itself is owned by its assigned user under IT's custodianship.</li>
+<li><strong>Verification.</strong> Someone confirms the asset matches its record: right configuration, right owner, right location, logging working. Unverified provisioning is how the inventory and reality diverge on day one.</li>
+</ul>
+<p><strong>The inventory is a living record, not a list.</strong> CSF 2.0's ID.AM says what "living" means: ID.AM-01/02 (inventories of hardware, software, services, and systems are <em>maintained</em> — present tense, ongoing), ID.AM-03 (network communication and data flows represented), ID.AM-04 (supplier services inventoried), ID.AM-05 (assets prioritized by classification, criticality, resources, and mission impact), ID.AM-07 (inventories of data and metadata for designated data types), ID.AM-08 (everything managed throughout its lifecycle). Note ID.AM-05: the inventory is <em>prioritized</em>, not flat — classification flows into the inventory and tells the organization which assets matter most. And ID.AM-08 closes the loop: the inventory follows the asset from provisioning to decommissioning.</p>
+<p><strong>The CMDB is the inventory grown up.</strong> A Configuration Management Database records not just assets but their relationships: this application runs on these servers, depends on this database, holds this data. The CMDB is what turns "which systems hold Restricted assay data?" from a week-long investigation into a query. Its failure modes are well known: stale (nobody updates it on change — the number-one CMDB killer) and disconnected (the cloud inventory and the on-prem inventory never meet). The discipline that keeps it alive is the same as the inventory's: updates driven by the change process, audited by reconciliation.</p>
+<p><strong>The inventory audit is the reconciliation.</strong> Periodically — and always before an audit or a major change — the organization reconciles the record against reality: network discovery vs. the CMDB, purchase records vs. deployed assets, assigned owners vs. the HR roster (departed owners are orphaned assets), data-flow diagrams vs. actual traffic. Every discrepancy is a finding with a decision, an owner, and a date — the same discipline as the access review in <a href="/g/iam/"><code>e-iam</code></a>. The audit is also where shadow IT surfaces: the discovered asset with no record is either provisioned properly now or removed.</p>
+<p><strong>Deprovisioning closes the loop.</strong> Provisioning's mirror: when an asset leaves service, data is sanitized per the handling matrix (SP 800-88 Rev. 2), the CMDB record is marked retired with history retained, credentials are revoked, and the owner is released. The asset that skips deprovisioning becomes the ghost server: unpatched, unmonitored, still holding data.</p>
+<h3>Worked example: Aster Diagnostics — provisioning workflow and inventory audit</h3>
+<p><strong>The company (fictional, continued).</strong> Aster Diagnostics, 240 people. Today: laptops are imaged by IT from a checklist (good), cloud resources are created by any engineer with console access (bad — no approval, no record), and the "inventory" is a spreadsheet last reconciled fourteen months ago.</p>
+<p><strong>The provisioning workflow (all asset classes, one gate each).</strong></p>
+<ol>
+<li><strong>Request.</strong> Ticket in the ITSM system: what, why, which project, requested owner. Cloud resources: requested through the same ticket — the console's "create" button is not a request process.</li>
+<li><strong>Approval.</strong> Manager approval for standard items; security review for anything holding Confidential or above, anything internet-facing, anything processing patient data. Approval records the classification tier the asset will hold.</li>
+<li><strong>Secure build.</strong> Laptops: standard hardened image (encrypted disk, EDR, logging). Servers/cloud: baseline template from the hardened catalog — no hand-built production systems. Credentials: no defaults; secrets in the vault from birth.</li>
+<li><strong>Record.</strong> CMDB entry created <em>before</em> deployment: asset ID, type, location, owner, classification tier of data it will hold, expected lifespan, related assets (which system it belongs to, which data flows through it).</li>
+<li><strong>Deploy and verify.</strong> Asset goes live; a second person (or automated check) verifies configuration matches baseline, logging is flowing, and the CMDB record is accurate. Verification is a checklist item, not a hope.</li>
+<li><strong>Change-driven updates.</strong> Every subsequent change (move, reimage, repurpose, owner change) updates the CMDB record as part of the change ticket — the change process feeds the inventory, which is the only sustainable way to keep it current.</li>
+<li><strong>Deprovision.</strong> Retirement ticket: data sanitized per the handling matrix, CMDB record marked retired (not deleted — the history matters for forensics and audits), credentials revoked, owner released.</li>
+</ol>
+<p><strong>The inventory audit (one quarter's run, fictional).</strong> Method: automated network discovery plus cloud-account enumeration, reconciled against the CMDB; purchase records sampled against deployed assets; owner list checked against the HR roster.</p>
+<p>Findings (fictional, labeled):</p>
+<ol>
+<li><strong>Shadow cloud:</strong> 23 cloud instances with no CMDB record, created directly in the console over six months. <em>Decision: 17 claimed by project owners and provisioned retroactively through the workflow (recorded, owners assigned, baselines verified); 6 with no claimant shut down after data review.</em></li>
+<li><strong>Stale ownership:</strong> 31 assets owned by departed employees. <em>Decision: ownership transferred to current team leads within two weeks; HR-feed trigger added so departures reassign asset ownership automatically.</em></li>
+<li><strong>Ghost server:</strong> a decommissioned lab server still powered on, still on the network, holding Confidential patient data from 2024 — it never got a retirement ticket. <em>Decision: data sanitized per 800-88r2, server decommissioned properly, CMDB history retained; retirement-ticket requirement added to the decommissioning checklist.</em></li>
+<li><strong>Duplicate accounting:</strong> 14 laptops recorded in both the CMDB and the old spreadsheet, with conflicting owners. <em>Decision: spreadsheet retired as a system of record; CMDB declared authoritative; duplicates merged with the verified owner.</em></li>
+<li><strong>Unverified builds:</strong> 9 servers deployed in the last quarter with no verification record. <em>Decision: verified retroactively (2 needed remediation); verification checklist made a merge-gate — no record, no production.</em></li>
+</ol>
+<p><strong>Audit close-out:</strong> every finding has a decision, an owner, and a date. The next audit is scheduled (quarterly discovery reconciliation; annual full audit). The CMDB is declared the authoritative inventory — one system of record, which is the finding that fixes findings 1 and 4 structurally.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" for this lesson is the provisioning workflow and inventory audit above, authored and self-reviewed in-session on 2026-10-10 against CSF 2.0 ID.AM and SP 800-53 CM-8. Transcript: <code>runs/e-asset-provisioning.log</code> (records scope, workflow design decisions, audit findings, and review notes).</p>
+<ol>
+<li><strong>Map the gates.</strong> For your fictional (or real lab) organization, list every way an asset enters: purchase, cloud creation, onboarding, software install, data acquisition. For each gate, answer: is there a request process, an approval, a secure build, a record, an owner, a verification? The gates with no process are your shadow-IT surface.</li>
+<li><strong>Write the workflow.</strong> Seven steps as above, adapted to your scale. The non-negotiables: approval records the classification tier; the CMDB record is created before deployment; verification is a checklist item; changes update the record.</li>
+<li><strong>Define the record.</strong> What fields the inventory carries per asset (identity, location, owner, tier, lifespan, relationships). CM-8's test: accurate, complete, no duplicates, right granularity, accountability information present.</li>
+<li><strong>Run the audit.</strong> Reconcile discovery against the record, purchases against deployments, owners against the roster. Drive each discrepancy to a decision with an owner and a date.</li>
+<li><strong>Close the loop.</strong> Deprovisioning workflow: sanitize, mark retired (never delete the history), revoke, release. Then schedule the next audit and declare the authoritative system of record.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Run an inventory audit on systems you actually control — your homelab, your VPS fleet, your cloud account. Reconcile what you can discover (running instances, installed machines, registered domains) against what you have recorded (notes, docs, memory). Then write the provisioning checklist you will follow for the next asset you create.</p>
+<p><strong>Success test:</strong> The audit finds at least one asset you forgot you had, or one record that is wrong about an asset's purpose or owner. Every discrepancy gets a decision (record it properly or decommission it) with a date.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The spreadsheet of record.</strong> A file that one person updates, nobody audits, and fourteen months of drift turns into fiction. The inventory must be a system with change-driven updates, not a document.</li>
+<li><strong>Cloud exceptionalism.</strong> "The CMDB is for physical stuff." Cloud assets are assets — ID.AM-02 says software, services, and systems, with no on-prem qualifier. The console's create button is the largest ungoverned provisioning gate in most organizations.</li>
+<li><strong>Ownerless assets.</strong> Everything has an owner on paper; the paper names someone who left two years ago. Ownership must be re-validated against the roster, and departures must trigger reassignment.</li>
+<li><strong>The ghost fleet.</strong> Retired-in-name-only assets: powered on, unpatched, holding data. Deprovisioning is a workflow with a ticket, not an intention.</li>
+<li><strong>Duplicate accounting.</strong> The same asset in two systems with two owners — CM-8 names this explicitly as a failure. One authoritative system of record; everything else is a view.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST CSF 2.0</strong> (CSWP 29, February 26, 2024; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> the Identify function's Asset Management category (ID.AM-01 through ID.AM-08): the maintained inventories, the prioritization by classification (ID.AM-05), the lifecycle management (ID.AM-08). This is the inventory program in framework language.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (September 2020; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> CM-8 (system component inventory): the accuracy, completeness, no-duplicate-accounting, and review requirements. The worked case's record definition is CM-8 operationalized.</li>
+<li><strong>NIST SP 800-88 Rev. 2</strong> (September 2025; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>skim</em> for the deprovisioning step: the sanitization methods the retirement ticket invokes.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>SANS Data Inventory Management Policy template</strong> (<a href="https://sans.org">sans.org</a>, free) — a starting skeleton for the written inventory policy; fill it with your record definition, don't file it blank.</li>
+<li><strong>SANS Information Security Policy Templates</strong> (<a href="https://sans.org">sans.org</a>, free library) — the broader set for the provisioning workflow's policy home.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>An engineer creates 23 cloud instances directly in the console over six months; none are in the CMDB. Name the workflow gate that failed, explain why "we'll record them later" structurally guarantees recurrence, and describe the fix that addresses the gate rather than the instances.</li>
+<li>A decommissioned server is found still powered on and holding Confidential data. Explain why this is a provisioning-process failure rather than a one-off mistake, naming the missing workflow step and the record-keeping rule it violates.</li>
+<li>Distinguish the data owner from the asset owner using the laptop-holding-patient-data example: who decides the data's classification, who is accountable for the laptop's protection, and where do the two records meet?</li>
+<li>The CMDB has forty fields per asset and nobody trusts it. Explain the failure (over-detail), what it costs (false confidence), and the minimal field set that restores trust.</li>
+<li>Predict the state of an inventory program two years after its author leaves, with change tickets no longer updating the CMDB and no audit ever scheduled: which ID.AM subcategory fails first, what discovers the failure, and which single practice would have prevented the drift?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your provisioning workflow (the gates, the seven steps, the record definition, the deprovisioning close-out) plus a completed inventory audit — for the Aster worked case in your own words, or better, for systems you actually control.</p>
+<p><strong>Honest claim:</strong> "I can bring assets into an environment securely and keep the inventory honest — the provisioning workflow, ownership assignment, and the audit that reconciles the record against reality."</p>
+<p><strong>Can't claim yet:</strong> "I can run enterprise IT asset management" — procurement integration and software-license compliance are their own operations; this lesson taught the security core they rest on.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/asset-classification/"><code>e-asset-classification</code></a> — the tiers and owners the provisioning record carries; the inventory without the scheme is a list without meaning.</li>
+<li><a href="/g/handling-requirements/"><code>e-handling-requirements</code></a> — the handling matrix the deprovisioning step invokes; retirement without sanitization is abandonment.</li>
+<li><a href="/g/data-lifecycle/"><code>e-data-lifecycle</code></a> — the asset's data gets its own lifecycle; the two records (asset, data) meet at decommissioning.</li>
+<li><a href="/g/iam/"><code>e-iam</code></a> — the HR-feed pattern for ownership reassignment; the same authoritative-source discipline applied to assets.</li>
+<li>Map refs: <strong>CISSP 2.3</strong> (this lesson); feeds <strong>CISSP 2.4</strong> (destruction at retirement), <strong>2.5</strong> (end-of-life), <strong>7.5</strong> (resource protection).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

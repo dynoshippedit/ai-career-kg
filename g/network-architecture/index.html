@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Network architecture: drawing the lines attackers must cross | Learn Computer Stuff</title>
+<meta name="description" content="Design network zones, trust boundaries, and zero-trust enforcement for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.1.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/network-architecture/">
+<meta property="og:title" content="Network architecture: drawing the lines attackers must cross | Learn Computer Stuff"><meta property="og:description" content="Design network zones, trust boundaries, and zero-trust enforcement for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.1.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/network-architecture/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Network architecture: drawing the lines attackers must cross","item":"https://learncomputerstuff.dev/g/network-architecture/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Network architecture: drawing the lines attackers must cross</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Network architecture: drawing the lines attackers must cross</h1>
+<p class="lede prose"><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> taught you the mechanism: what a packet carries and what a firewall rule matches. This lesson is the decision layer above it: which boundaries a network should have, where each one sits, what crosses it, and why. It shows up in every architecture review ("why is the vendor VPN allowed into the same VLAN as the domain controllers?"), every incident where lateral movement turned one compromised workstation into a company-wide event, and every design document that has to place NAC, firewalls, and monitoring before anyone buys hardware. Security architects and network security engineers own these drawings — and defend them against the two enemies of good segmentation: convenience and budget.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design a segmentation scheme and defend every trust boundary in it)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> (packets, ports, and what a firewall rule actually matches); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 4.1</strong> — secure network architecture design. (Objectives 4.2 and 4.3 are the companion lessons <a href="/g/network-components/"><code>e-network-components</code></a> and <a href="/g/secure-channels/"><code>e-secure-channels</code></a>.)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> taught you the mechanism: what a packet carries and what a firewall rule matches. This lesson is the decision layer above it: which boundaries a network should have, where each one sits, what crosses it, and why. It shows up in every architecture review ("why is the vendor VPN allowed into the same VLAN as the domain controllers?"), every incident where lateral movement turned one compromised workstation into a company-wide event, and every design document that has to place NAC, firewalls, and monitoring before anyone buys hardware. Security architects and network security engineers own these drawings — and defend them against the two enemies of good segmentation: convenience and budget.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read a packet and a firewall rule (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>) — this lesson never explains ports again; it decides where the rules live.</li>
+<li>Bring the habit from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> of writing decisions with owners and dates. A segmentation diagram without a decision log is decoration.</li>
+<li>No tools. The work product is a design review document for a fictional company.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A network is not one thing; it is a set of <strong>zones</strong> separated by <strong>trust boundaries</strong>. A zone is a group of systems that share a trust level and a policy — corporate workstations, the data-center server tier, the factory floor, the guest Wi-Fi. A trust boundary is the line between zones where trust changes and policy is enforced: traffic crossing it is inspected, filtered, logged, and denied by default. The entire discipline is deciding where those lines go and what crosses them.</p>
+<p><strong>Segmentation is containment, not prevention.</strong> No boundary stops a determined attacker forever. What segmentation buys is <em>blast radius control</em>: the compromised printer should not reach the payroll database. That is why the design question is never "is this network secure" but "when (not if) something inside is hostile, what can it reach?" Draw every path a compromised asset in each zone could take to the company's crown jewels, and the missing boundaries reveal themselves.</p>
+<p><strong>Mechanisms, from coarse to fine.</strong> VLANs carve a switch into separate broadcast domains — useful for organizing traffic, but a VLAN tag is not a security boundary by itself; inter-VLAN traffic must pass through a firewall or router with policy. <strong>Firewalls</strong> between zones enforce that policy: default deny, explicit allows, stateful connection tracking. <strong>Micro-segmentation</strong> pushes policy to the workload or host — each server enforces its own allow-list — which is how you segment east-west traffic a perimeter firewall never sees. <strong>NAC (network access control)</strong> decides <em>before</em> connectivity: a device authenticating to the network (typically via 802.1X) is identified, posture-checked, and placed in the right zone or quarantined. NAC is the bouncer; the firewall is the wall.</p>
+<p><strong>Zero trust, per NIST SP 800-207.</strong> The modern statement of the architecture: trust is never granted by network location; it is evaluated per session, per resource. SP 800-207 (August 2020) states seven tenets — every resource treated as a resource (no implicit zones of trust), all communication secured regardless of location, per-session grants with least privilege, access determined by dynamic policy (identity, asset state, behavior, environment), continuous monitoring of asset posture, dynamic authentication and authorization before every access, and collection of state data to improve policy. The logical components: the <strong>policy engine</strong> (makes the grant/deny decision), the <strong>policy administrator</strong> (executes it), the <strong>policy enforcement point</strong> (the PEP — in the traffic path, enforcing), and the <strong>trust algorithm</strong> (the decision function consuming identity, posture, behavioral and environmental attributes). Deployment varies — device agent/gateway, enclave-based, resource portal — but the principle is constant: the network is transport, and access decisions are explicit and continuous.</p>
+<p><strong>The DMZ and the management plane.</strong> Internet-facing services live in a <strong>DMZ</strong>: reachable from the internet, but not trusted by the interior — the firewall between DMZ and inside is as strict as the one facing the internet. The <strong>management network</strong> — the interfaces you use to administer firewalls, switches, and hypervisors — is its own zone, reachable only from admin workstations over encrypted, authenticated channels.</p>
+<p><strong>Third-party connectivity</strong> is where segmentation designs die. Vendors need access — to the HVAC controller, the CNC line, the SaaS integration. The architecture answer: vendors never join your zones. They land in an isolated vendor segment (a jump host or bastion in the DMZ), authenticate strongly, get time-bounded access to exactly the named systems, and every session is logged. The flat vendor VPN — "they needed access, so we gave them the same VPN as employees" — is how a compromised vendor becomes a compromised enterprise.</p>
+<p><strong>Remote access and monitoring points.</strong> The VPN concentrator sits at the edge, in front of the interior firewall, and remote users land in a zone of their own — filtered like any other untrusted source, then posture-checked. The design also places <strong>monitoring</strong>: IDS/IPS sensors and packet-capture points at zone boundaries (full detail in <a href="/g/network-components/"><code>e-network-components</code></a>), because a boundary you cannot see across is one you cannot prove is working.</p>
+<p><strong>AI training environments</strong> get micro-segmentation: GPU clusters hold the company's most valuable data (training sets, model weights) and generate east-west traffic perimeter tools never inspect. The cluster's zone permits only the training workflow's communication paths — and treats an unexpected outbound connection from a training job as the primary threat to design against.</p>
+<h3>The design method (SP 800-207 §7.3, adapted)</h3>
+<p>NIST's migration steps read as a design checklist: identify the actors (who and what needs access), identify the assets (what must be protected), identify key processes and their risks, formulate the access policies, then identify candidate solutions. In practice: inventory first, draw the current flat reality, propose zones from data sensitivity and blast radius, place enforcement at each boundary, and record every decision — including the ones you deferred.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" is the segmentation design review below, authored and self-reviewed in-session on 2026-10-10 against SP 800-207's structure. Transcript: <code>runs/e-network-architecture.log</code>.</p>
+<p><strong>The company (fictional).</strong> Harborlight Manufacturing: 450 employees, two plants, a corporate HQ. Today the network is flat — one large address space, the firewall only at the internet edge, plant-floor controllers reachable from any workstation, vendors on the employee VPN.</p>
+<p><strong>Step 1 — inventory and current state.</strong> Actors: employees, plant operators, maintenance vendors, remote engineers, the R&amp;D team training defect-detection models on a GPU cluster. Assets: ERP and payroll, CNC controllers and PLCs, engineering file shares, the training dataset and model weights, customer order data. Headline finding: a compromised workstation can reach the PLCs — no trust boundary exists between corporate IT and the plant floor.</p>
+<p><strong>Step 2 — the zone map.</strong> Eight zones: (1) Corporate user zone, (2) Data-center services, (3) DMZ (public web, customer portal), (4) Plant OT zone (controllers, HMIs — no internet path), (5) R&amp;D/AI training zone (GPU cluster, dataset storage), (6) Management zone (admin interfaces of every network device), (7) Guest Wi-Fi (internet only), (8) Vendor access segment (jump hosts, isolated). Each zone gets a one-line trust statement: e.g., "OT zone: trusted devices, untrusted traffic — every flow crossing its boundary is explicitly allowed or denied."</p>
+<p><strong>Step 3 — trust boundaries and enforcement.</strong> Boundary table (excerpt): Corporate→Data-center: firewall, default deny, only the application's required ports; DMZ→Interior: firewall, deny all initiated from DMZ inward except the portal's database replica pull through a dedicated proxy; Corporate→OT: firewall, deny by default, allow only the historian server's read-only feed <em>out</em> of OT and two named engineering workstations <em>in</em> via jump host; AI zone→anywhere: deny all except training-data ingest from the labeled source and artifact export through the artifact repository — no direct internet; Management zone: reachable only from admin workstations, MFA'd, encrypted.</p>
+<p><strong>Step 4 — zero-trust decisions per tenet.</strong> Per-session grants for the OT jump host (no standing vendor access — tenet 3); device posture checks on the corporate NAC before data-center access (tenet 5); all inter-zone traffic encrypted where the protocol allows, authenticated everywhere (tenet 2); the trust algorithm's inputs named per zone (tenet 4): user identity + device certificate + patch posture for corporate; service identity + workload attestation for the AI cluster.</p>
+<p><strong>Step 5 — NAC placement.</strong> 802.1X on all wired access ports and corporate Wi-Fi: unknown devices land in quarantine (internet only, remediation portal); known devices are profiled into the corporate zone. Printers and other non-802.1X devices go through MAC-based exception with a documented inventory — each exception named, not a blanket bypass.</p>
+<p><strong>Step 6 — vendor and remote access.</strong> Vendors: VPN into the vendor segment only, MFA, time-bounded tickets, jump host with session recording to the named OT asset. Remote engineers: VPN concentrator at the edge, posture check, landing in a remote-access zone filtered identically to the vendor segment — location grants nothing.</p>
+<p><strong>Step 7 — monitoring points and the decision log.</strong> IDS sensors on SPAN feeds at: internet edge, DMZ boundaries, OT boundary, AI-zone boundary. Every allow/deny at a trust boundary logs to the SIEM (your <a href="/g/log-sources/"><code>c-log-sources</code></a> lesson names what to collect). The design states the detection goal per sensor: edge = inbound attack, OT boundary = any unexpected flow (the OT allow-list is small enough that <em>any</em> anomaly is notable), AI zone = outbound anomalies. Finally, the decision log: each boundary decision records what was decided, why, owner, date, and what was deferred (e.g., "micro-segmentation inside the data center deferred to phase 2 — owner: network lead, revisit 2027-Q1"). Deferred items with owners and dates are plans; without them, holes.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Draw the zone map and boundary table for a network you know — your home lab, your employer's (from memory, unclassified), or a fictional company of your invention. Minimum: five zones, every trust boundary named with its enforcement mechanism, NAC placement decided, and a vendor-access design.</p>
+<p><strong>Success test:</strong> For each zone, you can name one compromised asset inside it and list exactly what it can and cannot reach — with the firewall rule or NAC policy that enforces each answer. Any "it probably can't" without a named enforcement point is a gap in your design, not in the attacker's.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The flat network with a strong perimeter.</strong> The firewall at the edge is excellent and irrelevant once the attacker is inside — which phishing guarantees eventually. Perimeter-only is the architecture ransomware loves.</li>
+<li><strong>VLANs mistaken for security boundaries.</strong> VLANs organize; firewalls enforce. Inter-VLAN routing with "allow all" is a flat network wearing a costume.</li>
+<li><strong>The DMZ that trusts inward.</strong> A web server in the DMZ with an open path to the interior database "for performance" is just an internet-facing interior server.</li>
+<li><strong>Firewall rule sprawl.</strong> Ten years of "temporary" any-any rules nobody owns. Every rule needs an owner and a review date or it becomes permanent.</li>
+<li><strong>NAC in monitor-only mode forever.</strong> Deployed, never enforced, because enforcement might break something. A control that is never enforced is a monitoring project with a NAC price tag.</li>
+<li><strong>Third-party flat access.</strong> The vendor VPN that lands vendors in the employee zone. Compromise the vendor, inherit their access.</li>
+<li><strong>Unencrypted east-west traffic.</strong> "It's inside the firewall." The firewall never sees host-to-host traffic in the data center; the sniffer on the compromised hypervisor does.</li>
+<li><strong>Zero trust as a product purchase.</strong> Tenets are architecture decisions, not a SKU. Buying a "zero trust" appliance while the vendor VPN stays flat is theater.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-207, Zero Trust Architecture</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>, August 2020) — <em>read</em> §2.1 (the seven tenets — the vocabulary of the whole discipline), §3 (logical components: policy engine/administrator/enforcement point, the trust algorithm, deployment models); <em>read</em> §7.3 (the migration steps — the design checklist this lesson adapts); <em>skim</em> §4 (deployment scenarios, including contracted/nonemployee access).</li>
+<li><strong>NIST SP 800-207's deployment scenarios</strong> are the closest thing to worked examples in the standard — match your company's shape to one of them before inventing your own.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>CISA: Layering Network Security Through Segmentation</strong> (<a href="https://cisa.gov">cisa.gov</a>, infographic) — free; the one-page visual of the zone model to check your diagram against.</li>
+<li><strong>CISA: Zero Trust Maturity Model</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; the roadmap view: where an organization sits today and what the next step costs in effort.</li>
+<li><strong>NSA: Network Infrastructure Security Guidance</strong> (March 2022; mirrored PDF) — free; the hardening companion to this lesson's architecture — segmentation plus device hardening, written for network administrators.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A flat network has an excellent edge firewall and gets ransomwared through a phishing email. Explain, using the blast-radius frame, why the edge firewall's quality was irrelevant — and name the single boundary whose absence mattered most.</li>
+<li>Compare what a VLAN provides versus what a firewall between zones provides. An engineer says "we segmented with VLANs, so we're done." What is missing, concretely?</li>
+<li>A maintenance vendor needs weekly access to one PLC. Design the access (segment, authentication, bounds, logging) and explain why "add them to the employee VPN" fails the per-session, least-privilege tenets.</li>
+<li>The R&amp;D GPU cluster trains on proprietary data and a training job opens an outbound connection to an unknown host. Which boundary and which monitoring point catches this, and what does the boundary's policy say about the flow?</li>
+<li>Predict the state of a firewall ruleset five years after the architect who wrote it leaves, if no rule has an owner or review date. Which class of rule accumulates, and what incident reveals it?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your segmentation design review — current-state findings, zone map with trust statements, boundary table (each boundary: enforcement mechanism, default posture, named exceptions), NAC placement decision, vendor and remote-access design, monitoring points with detection goals, and the decision log with owners and dates — for the Harborlight worked case in your own words, or better, for a real network you know.</p>
+<p><strong>Honest claim:</strong> "I can design a network's trust boundaries and defend each one — I can say what each zone contains, what crosses each boundary, what enforces it, and what a compromise in any zone can reach."</p>
+<p><strong>Can't claim yet:</strong> "I can implement and operate this network" — device configuration, firewall rule authoring, and NAC tuning are their own engineering work; this lesson taught the architecture decisions those implementations must satisfy. (<a href="/g/network-components/"><code>e-network-components</code></a> is the hardening companion.)</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/network-components/"><code>e-network-components</code></a> — the hardening companion: what each device at your boundaries must look like.</li>
+<li><a href="/g/secure-channels/"><code>e-secure-channels</code></a> — the traffic companion: which encrypted channel each inter-zone and remote flow should use.</li>
+<li><a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> — the mechanism layer under every boundary decision here.</li>
+<li><a href="/g/log-sources/"><code>c-log-sources</code></a> — what each monitoring point feeds the SIEM.</li>
+<li>Map refs: <strong>CISSP 4.1</strong> (this lesson); feeds <strong>CISSP 4.2</strong> (components), <strong>4.3</strong> (channels), and <strong>7.7</strong> (operating the detective measures your boundaries host).</li>
+</ul>
+<p><em>Sources fetched 2026-10-10: NIST SP 800-207 (<a href="https://csrc.nist.gov/pubs/sp/800/207/final">csrc.nist.gov/pubs/sp/800/207/final</a>); CISA Layering Network Security Through Segmentation; CISA Zero Trust Maturity Model; NSA Network Infrastructure Security Guidance (Mar 2022). Full ledger in the batch manifest.</em></p>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

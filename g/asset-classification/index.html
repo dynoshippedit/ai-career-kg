@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Classifying information and assets: the scheme everything else hangs on | Learn Computer Stuff</title>
+<meta name="description" content="Build a four-tier classification scheme — tiers, examples, handling hooks, owners — anchored in impact per FIPS 199 and NIST SP 800-60. A free lesson in the security guidebook, serving CISSP objective 2.1.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/asset-classification/">
+<meta property="og:title" content="Classifying information and assets: the scheme everything else hangs on | Learn Computer Stuff"><meta property="og:description" content="Build a four-tier classification scheme — tiers, examples, handling hooks, owners — anchored in impact per FIPS 199 and NIST SP 800-60. A free lesson in the security guidebook, serving CISSP objective 2.1.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/asset-classification/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Classifying information and assets: the scheme everything else hangs on","item":"https://learncomputerstuff.dev/g/asset-classification/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Classifying information and assets: the scheme everything else hangs on</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Classifying information and assets: the scheme everything else hangs on</h1>
+<p class="lede prose">Every security program eventually faces the question "protect what, from whom, how much?" — and every answer that skips classification is either uniform (everything gets the maximum, which nobody can afford) or arbitrary (protection follows whoever shouted loudest). Classification is the discipline that makes the answer deliberate: an inventory of information and assets, each assigned a tier that encodes how bad it would be if its confidentiality, integrity, or availability were compromised. It shows up in the data-classification policy auditors ask for first, in the "is this Restricted or just Internal?" argument between engineering and legal, in the cloud migration where nobody can say which buckets hold customer data, and in the breach notification analysis that starts by asking what classification the exposed records carried.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (produce a classification scheme — tiers, examples, handling hooks, owners — that survives a review)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (impact thinking, qualitative scales); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 2.1</strong> — identifying and classifying information and assets: deciding what an organization has, what it is worth protecting, and how sensitive each thing is.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every security program eventually faces the question "protect what, from whom, how much?" — and every answer that skips classification is either uniform (everything gets the maximum, which nobody can afford) or arbitrary (protection follows whoever shouted loudest). Classification is the discipline that makes the answer deliberate: an inventory of information and assets, each assigned a tier that encodes how bad it would be if its confidentiality, integrity, or availability were compromised. It shows up in the data-classification policy auditors ask for first, in the "is this Restricted or just Internal?" argument between engineering and legal, in the cloud migration where nobody can say which buckets hold customer data, and in the breach notification analysis that starts by asking what classification the exposed records carried.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can rate impact with reasons from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — classification is impact rating applied to information, with organizational teeth.</li>
+<li>No tools. The work product is a document: a classification scheme with four tiers, examples, handling hooks, and named owners. Bring the habit of writing reasons, owners, and dates.</li>
+<li>Primary spine: <strong>NIST SP 800-60 Vol. 1 Rev. 1</strong> (Guide for Mapping Types of Information and Information Systems to Security Categories, August 2008) and <strong>FIPS 199</strong> (Standards for Security Categorization, February 2004). Both are free.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Classification answers one question: what is the impact if this goes wrong?</strong> Not "is this secret?" — impact. The federal government's formulation, which the industry's schemes all descend from, is FIPS 199: for each of three security objectives — <strong>confidentiality</strong> (no unauthorized disclosure), <strong>integrity</strong> (no unauthorized modification), <strong>availability</strong> (accessible when needed) — assign a potential impact of <strong>low, moderate, or high</strong>. A system's security category is then the triple {(confidentiality, impact), (integrity, impact), (availability, impact)}, and the overall level is the highest of the three — the high-water mark.</p>
+<p>Three ideas in that paragraph do most of the work:</p>
+<p><strong>Impact is per objective, not per thing.</strong> A patient-results database is high confidentiality impact (disclosure harms people and triggers breach law) and high availability impact (clinicians need it during care), but its integrity impact is a separate judgment — and a public marketing site is low confidentiality, low integrity, moderate availability. Rating the thing once, on one axis, is how organizations end up encrypting the lunch menu and leaving the backup tapes in an unlocked closet.</p>
+<p><strong>The high-water mark forces honesty.</strong> The overall category is the <em>highest</em> impact across the three objectives, not the average: a system that is low confidentiality but high availability still needs high-availability controls. Averaging would let a low score cancel a high one — the mistake the formula exists to prevent.</p>
+<p><strong>Aggregation changes the answer.</strong> SP 800-60's process explicitly adjusts the provisional levels for special factors — and aggregation is the most important one: a database of one thousand records at moderate confidentiality becomes high when it holds ten million, because the impact of a breach scales with the count. The classification of a collection is not the classification of a sample. Cloud storage, data lakes, and backups are where this bites: each object looks moderate, the bucket is high.</p>
+<p><strong>The commercial four-tier scheme.</strong> Outside the federal system, organizations typically use labeled tiers. The common shape — Public, Internal, Confidential, Restricted — compresses the same impact logic into labels people will actually use. The tiers must be:</p>
+<ul>
+<li><strong>Ordered and few.</strong> Four is the sweet spot: fewer and the top tier becomes a dumping ground; more and nobody can keep them straight. Each tier needs a one-sentence definition anchored in impact, not "sensitive stuff."</li>
+<li><strong>Exemplified.</strong> Every tier carries concrete examples from the organization's own data — abstract definitions drift, examples don't.</li>
+<li><strong>Owned.</strong> Every information type has a <strong>data owner</strong> — the business person accountable for classification decisions — distinct from the <strong>custodian</strong> (IT, who implements controls) and the <strong>steward</strong> (who tends data quality). Classification without an owner is a suggestion.</li>
+<li><strong>Connected to handling.</strong> A tier that implies no handling rule is decoration. Each tier must hook to handling requirements — labeling, storage, transmission, disposal — which is the next lesson's entire subject. Write the scheme and the handling matrix together, or the scheme will never be used.</li>
+</ul>
+<p><strong>Classification vs. categorization.</strong> The vocabulary matters: in the NIST frame, you <em>classify information types</em> and <em>categorize systems</em> — the system's category derives from the information it holds (adjusted for its use and connectivity). In commercial speech the two words blur, but the direction is what matters: the data's sensitivity drives the system's protection level, not the other way around. A hardened server holding Public data is wasted hardening; a default-configured server holding Restricted data is the finding.</p>
+<p><strong>What counts as an asset.</strong> Information is the asset class this objective cares about most, but the inventory behind the scheme covers the containers too: systems, devices, media, software, services, credentials. You cannot protect what you have not inventoried — which is why provisioning and inventory (the third lesson) and the scheme are built together.</p>
+<h3>Worked example: Aster Diagnostics — four-tier classification scheme</h3>
+<p><strong>The company (fictional).</strong> Aster Diagnostics: 240 people, clinical lab plus a SaaS portal where patients view results. Data lives in a LIMS (lab information management system), a patient portal, a data warehouse, email, file shares, and laptops. Today: no classification; everything is treated the same, which in practice means the minimum.</p>
+<p><strong>The scheme (four tiers, impact-anchored).</strong></p>
+<p>| Tier | Definition (impact if confidentiality is breached) | Aster examples | Owner (role) |</p>
+<p>|---|---|---|---|</p>
+<p>| <strong>Public</strong> | Disclosure causes no harm; integrity matters more than secrecy | Marketing site, published test catalog, job postings | Marketing lead |</p>
+<p>| <strong>Internal</strong> | Disclosure causes embarrassment or minor competitive harm; not regulated | Internal memos, org charts, non-sensitive operational metrics | COO |</p>
+<p>| <strong>Confidential</strong> | Disclosure causes material harm: regulatory breach-notification duties, significant competitive damage, or harm to individuals | Patient lab results, employee PII (HR records), customer contracts | Chief Medical Officer (patient data); HR director (employee data) |</p>
+<p>| <strong>Restricted</strong> | Disclosure causes severe harm: loss of the business's core advantage, large-scale regulatory action, or danger to individuals | Assay R&amp;D trade secrets (proprietary test algorithms), master cryptographic keys, de-identified research datasets whose re-identification is feasible | CTO (R&amp;D); CISO (keys) |</p>
+<p><strong>Design decisions recorded (fictional, authored in-session):</strong></p>
+<ol>
+<li><strong>Patient data is Confidential, not Restricted.</strong> The impact analysis: disclosure triggers breach-notification law and harms individuals — squarely Confidential. Reserving Restricted for the smaller set (trade secrets, keys) keeps the top tier small enough to actually protect. A Restricted tier containing half the company's data is a tier nobody can enforce.</li>
+<li><strong>De-identified research data is Restricted, not Internal.</strong> Re-identification risk was the deciding factor: the dataset plus the lab's other holdings could re-identify subjects, so the <em>aggregate</em> impact is high even though each record looks anonymous. This is the aggregation adjustment from SP 800-60, applied commercially.</li>
+<li><strong>Every type has one owner.</strong> Dual-owned types from the first draft were split: the CMO owns the clinical content, the CTO owns the platform. The auditor's question — "who decided?" — must have one answer.</li>
+<li><strong>The scheme hooks to handling.</strong> Each tier row points at the handling matrix (next lesson). The scheme was not approved until the matrix existed — unhooked tiers are decoration.</li>
+</ol>
+<h2>4. Walkthrough</h2>
+<p><strong>Worked-case lesson — no command line.</strong> The "run" for this lesson is the classification scheme above, authored and self-reviewed in-session on 2026-10-10 against SP 800-60 Rev. 1's process. Transcript: <code>runs/e-asset-classification.log</code> (records scope, tier decisions, ownership assignments, and the review checklist — there are no commands to transcribe).</p>
+<ol>
+<li><strong>Inventory the information types.</strong> For your fictional (or real lab) organization, list every distinct type of information: customer data, employee data, financials, IP, logs, backups, credentials. Ten to twenty types is the right order of magnitude; fewer and you have missed the containers (backups, logs), more and you are listing fields instead of types.</li>
+<li><strong>Rate impact per objective.</strong> For each type, assign low/moderate/high for confidentiality, integrity, and availability, with a one-sentence reason each. The reasons are the work — a rating without a reason is a guess, and the review in step 5 exists to interrogate the guesses.</li>
+<li><strong>Apply the adjustments.</strong> Aggregation (does the collection's impact exceed any sample's?), legal/regulatory overlay (does a law set a floor?), and special factors (re-identification, key material, safety impact). Record each adjustment and why.</li>
+<li><strong>Compress into tiers.</strong> Group the rated types into four labeled tiers with impact-anchored definitions and organization-specific examples. If a tier holds more than half your types, split it or redefine it — the dumping-ground test.</li>
+<li><strong>Assign one owner per type.</strong> Name the role, not the person. Resolve every dual-ownership dispute now; the scheme is not finished while any type has two owners or none.</li>
+<li><strong>Hook every tier to handling.</strong> Write the one-line handling implication per tier (the full matrix is the next lesson's artifact). A tier with no handling hook goes back to step 4.</li>
+</ol>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Classify the information in a system you actually run — your homelab, your VPS, your personal cloud storage. Inventory the types (including backups and logs — the containers people forget), rate confidentiality/integrity/availability impact with reasons, compress into tiers, and name the owner of each type (you, wearing different hats, counts — write the hats down).</p>
+<p><strong>Success test:</strong> Your scheme has at least one type whose tier surprised you on first rating (the aggregation adjustment usually produces one), every type has exactly one owner, and each tier has a handling hook you could implement.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The dumping-ground top tier.</strong> Everything "important" becomes Restricted, and Restricted becomes unenforceable. The top tier must be small — if it is not, the definitions are wrong.</li>
+<li><strong>Secrecy as the only axis.</strong> Classifying on confidentiality alone and forgetting integrity and availability. The modified lab result and the unreachable patient portal are both failures the scheme should have priced.</li>
+<li><strong>The sample-vs-collection error.</strong> Rating one record instead of the database. Aggregation is the most common under-classification in practice, and it is exactly what breach-notification math punishes.</li>
+<li><strong>Orphan types.</strong> Information with no owner — usually the logs, the backups, the shared drive nobody admits to creating. The inventory step exists to surface them; the ownership step exists to adopt them.</li>
+<li><strong>The unhooked scheme.</strong> A beautiful four-tier policy that changes no handling rule. Classification that does not drive handling, provisioning, and retention is a document, not a control — the matrix in the next lesson is the enforcement.</li>
+<li><strong>Tier names without definitions.</strong> "Confidential" meaning one thing to legal and another to engineering. The one-sentence impact definition per tier is load-bearing; the examples are the calibration. And schemes decay: data changes sensitivity over time, so the scheme needs a review trigger — the inventory audit in the provisioning lesson is one.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>NIST SP 800-60 Vol. 1 Rev. 1, Guide for Mapping Types of Information and Information Systems to Security Categories</strong> (August 2008; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>read</em> sections 3–4: the categorization process, provisional impact levels, and the adjustment factors (aggregation especially). This is the method the worked case follows.</li>
+<li><strong>FIPS Publication 199, Standards for Security Categorization of Federal Information and Information Systems</strong> (February 2004; <a href="https://csrc.nist.gov">csrc.nist.gov</a>, free) — <em>read</em> the whole thing; it is short. The {(confidentiality, impact), (integrity, impact), (availability, impact)} triple and the high-water-mark rule originate here.</li>
+<li><strong>NIST SP 800-53 Rev. 5</strong> (September 2020; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — <em>skim</em> as the control catalog that consumes categorizations; <em>read</em> RA-2 (security categorization) to see where the scheme plugs into a control program.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>SANS Information Security Policy Templates</strong> (<a href="https://sans.org">sans.org</a>, free library) — includes a data inventory management policy template; a starting skeleton for the written scheme — fill it with your own impact ratings, don't file it blank.</li>
+<li><strong>NIST SP 800-60 Vol. 2 Rev. 1</strong> (August 2008; <a href="https://nvlpubs.nist.gov">nvlpubs.nist.gov</a>, free) — the appendices: provisional impact levels for common information types, with rationale. <em>Use</em> as calibration for your own ratings, not as a substitute for them.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>A database holds ten million customer records, each individually rated moderate confidentiality impact. Explain, using the aggregation adjustment, why the collection is rated high — and what changes downstream (handling, retention, breach math) when it is.</li>
+<li>A de-identified research dataset is classified Internal because "no record identifies anyone." Lay out the re-identification argument that moves it to Restricted, and name the information the argument depends on.</li>
+<li>Two executives both claim ownership of the patient portal's data. Explain why the scheme cannot be finished until this is resolved, and propose the split that gives the auditor one answer per data type.</li>
+<li>Distinguish classifying information from categorizing a system, using the hardened-server-holding-Public-data example: what is wasted, what is missing, and which direction does the protection decision flow?</li>
+<li>Predict the state of a four-tier scheme three years after its author leaves, with the top tier holding sixty percent of the company's data types and no review ever scheduled. Which failure modes from §6 are present, and which single fix addresses the most of them?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your classification scheme — the information-type inventory, per-objective impact ratings with reasons, the four tiers with impact-anchored definitions and organization-specific examples, one named owner per type, and the handling hook per tier — for the Aster worked case reproduced in your own words, or better, for a system you actually run.</p>
+<p><strong>Honest claim:</strong> "I can identify an organization's information assets and classify them by impact — I can say what each type is worth protecting, why, and who decided."</p>
+<p><strong>Can't claim yet:</strong> "I can run an enterprise data-governance program" — stewardship councils and automated discovery are their own practice; this lesson taught the scheme, where the judgment is formed.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/handling-requirements/"><code>e-handling-requirements</code></a> — the handling matrix this scheme hooks to; classification without handling is decoration.</li>
+<li><a href="/g/asset-provisioning/"><code>e-asset-provisioning</code></a> — ownership and inventory as an operating process: the scheme's owners and types become the CMDB's records.</li>
+<li><a href="/g/data-lifecycle/"><code>e-data-lifecycle</code></a> — each classified type gets a lifecycle: retention, remanence, destruction.</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the impact-rating method this lesson applies; reread it as the "how to rate honestly" companion.</li>
+<li>Map refs: <strong>CISSP 2.1</strong> (this lesson); feeds <strong>CISSP 2.2</strong> (handling), <strong>2.3</strong> (provisioning), <strong>2.4</strong> (lifecycle roles).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of ninety-eight in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all ninety-eight lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>
