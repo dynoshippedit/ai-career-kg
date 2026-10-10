@@ -1,0 +1,72 @@
+# Run log: ai-sec-automation walkthrough
+Date: 2026-10-10 · Author: subagent (AI track lesson authoring)
+Tool versions: Python 3.12.3 (stock, no packages installed) · browser.open text fetch for research
+Environment: lesson authored in ~/workspace/learncomputerstuff/guidebook/lessons/
+
+## What was done
+1. Re-verified the two primary SANS pages in-session via browser.open:
+   - https://www.sans.org/sec598 — 1074 lines of course-page text; confirms
+     "preparing you for the GASAE certification exam"; subject areas read from
+     "What You'll Learn" + the six syllabus section headings (automation
+     playbooks offense/defense, detection-as-code pipelines, LLM-powered
+     enrichment/detection workflows, RAG agents, red-team AI agents, AI-augmented
+     defensive playbooks, continuous purple teaming, cloud automation).
+   - https://www.sans.org/sec535 — 768 lines of course-page text; confirms
+     "preparing you for the GOAA certification exam"; subject areas read from
+     "What You'll Learn" + the three syllabus section headings (AI-powered
+     recon/OSINT, AI-assisted network enumeration and vulnerability
+     prioritization, AI-assisted web exploitation, AI-generated phishing and
+     deepfakes, AI-assisted patch diffing, AI-assisted malware development,
+     control evasion, agentic malware).
+   Both pages paraphrased in the lesson — no syllabus text reproduced, no exam
+   objectives listed. GASAE/GOAA pairing confirmed from the SANS pages' own
+   "prepares you for" statements; the guessed GIAC URL 404'd and was dropped
+   (GIAC pages are not cited in the lesson).
+2. Re-verified CISA "Require Multifactor Authentication" in-session (53 lines;
+   MFA ranked strongest-to-weakest, phishing-resistant first) — cited in §7 as
+   the credential-theft defense.
+3. Wrote lessons/ai-sec-automation.md to the ten-section spec (2498 words,
+   10 `##` sections, Stage AI track, Level 2 stated honestly in the ID line).
+4. Wrote the §4 detection plan as data and validated it with
+   /tmp/ai-sec-automation-plan.py (defensive rendering only — no network, no
+   attack tooling, nothing executed beyond text rendering).
+
+## Transcript (python3 /tmp/ai-sec-automation-plan.py)
+ALL CHECKS PASSED (4 chain steps, 5 SEC535 pairs, 5 SEC598 pairs)
+- 4/4 chain steps name defender logs, a detection, and a response
+- 5/5 SEC535 attack concepts paired with a defense and defender telemetry
+- 5/5 SEC598 automation concepts paired with a safeguard and what the defender detects
+- Rendered detection-plan table written into the lesson's §4 verbatim
+
+## Self-review pass (2026-10-10)
+- [x] Ten `##` sections in the §6 order; ID line states Stage (AI track) and Level 2
+      with what finishes the job (paid courses + authorized-lab work).
+- [x] "Paid" line present once, in §7: "Both SEC598 and SEC535 are paid SANS
+      courses — this lesson teaches their subject areas from free material only."
+- [x] Zero currency symbols in the file (checked: no €/£/¥, no $ amounts).
+- [x] Every SEC535 attack concept in §3 is paired with its defense AND defender
+      telemetry — verified programmatically above.
+- [x] No working attack-automation code, no C2/evasion tooling, no phishing kit
+      content anywhere in lesson or script. Attacker concepts are named as
+      concepts with "(no instructions)" in the walkthrough header.
+- [x] §7 resources ≤ 3, all free, each with a ledger row:
+      MITRE ATLAS (atlas.mitre.org — cookie-walled; existing verified rows
+      2026-10-09 stand, gap already logged), SigmaHQ/sigma (existing verified
+      row 2026-10-09), CISA Require MFA (re-verified in-session 2026-10-10).
+- [x] Dwell-time figures labeled illustrative in §4 header and §5 success test —
+      not measurements, not quoted as facts.
+- [x] §8 questions are explain/predict, not recall; §9 honest claim / can't-claim
+      both present; §10 cross-links use real lesson ids present in lessons/
+      (c-sigma-detection, d-redteam-concepts, ai-threat-modeling,
+      e-incident-management).
+- [x] Word count 2498 (1,200–2,500 range); voice matches the track (plain,
+      direct, second person); no "guaranteed"/"job-ready"/hiring statistics.
+- Correction noted during authoring: first draft §3 ran 1,212 words (file
+  3,058); trimmed concept entries to 2,498. No content removed — only
+  tightened prose; all five SEC598 and five SEC535 concepts still taught.
+
+## Not run by us
+- None in this lesson. The walkthrough is a worked case by design (per the
+  task: "no CLI by design is fine"); the validation script ran and passed.
+- ATLAS live verification still needs a live browser (pre-existing gap, not
+  re-opened here).

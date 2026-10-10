@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API abuse: the flaws that live behind the JSON | Learn Computer Stuff</title>
+<meta name="description" content="API abuse: broken object-level authorization, mass assignment and excessive data exposure behind the JSON — reproduced locally and fixed. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/api-abuse/">
+<meta property="og:title" content="API abuse: the flaws that live behind the JSON | Learn Computer Stuff"><meta property="og:description" content="API abuse: broken object-level authorization, mass assignment and excessive data exposure behind the JSON — reproduced locally and fixed. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/api-abuse/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"API abuse: the flaws that live behind the JSON","item":"https://learncomputerstuff.dev/g/api-abuse/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>API abuse: the flaws that live behind the JSON</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>API abuse: the flaws that live behind the JSON</h1>
+<p class="lede prose">Modern applications are APIs wearing a web page as a costume: the front end is JavaScript calling JSON endpoints, and the mobile app talks to the same endpoints directly. Testers who only click the UI miss the real attack surface — the endpoints themselves, including the ones the UI never calls. OWASP's <strong>API Security Top 10:2023</strong> exists because APIs fail in their own characteristic ways, and its #1 item — <strong>API1:2023 Broken Object Level Authorization</strong> — is the single most common API flaw in the wild. This lesson takes you to Level 3: you will find and prove four API abuse classes against a local demo, fix them, and verify the fixes.</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-api-abuse.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/idor/"><code>b-idor</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>OWASP API Security Top 10:2023 (API1, API3, API4) · CWE-862, CWE-200, CWE-915</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Modern applications are APIs wearing a web page as a costume: the front end is JavaScript calling JSON endpoints, and the mobile app talks to the same endpoints directly. Testers who only click the UI miss the real attack surface — the endpoints themselves, including the ones the UI never calls. OWASP's <strong>API Security Top 10:2023</strong> exists because APIs fail in their own characteristic ways, and its #1 item — <strong>API1:2023 Broken Object Level Authorization</strong> — is the single most common API flaw in the wild. This lesson takes you to Level 3: you will find and prove four API abuse classes against a local demo, fix them, and verify the fixes.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including JSON bodies and status codes.</li>
+<li>You understand the IDOR lesson's core pattern — the server trusting client-supplied identifiers — because API1 is that pattern at API scale.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local demo app, a PortSwigger API-testing lab, or a bounty program whose scope explicitly includes the API. API endpoints not referenced by the UI are still in scope only if the program says so — an undocumented endpoint is not an invitation. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl and a JSON eye (python3 -m json.tool). No proxy required for this lesson's class, though you will want one later.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>An API endpoint does three things the developer must get right: <strong>decide who you are</strong> (authentication), <strong>decide whether you may touch this object</strong> (authorization), and <strong>decide what you may send and receive</strong> (input/output shaping). The four flaws below are the four decisions skipped.</p>
+<p><strong>Broken Object Level Authorization (BOLA, API1:2023).</strong> <code>GET /api/users/2</code> while authenticated as user 1 returns user 2's record. The endpoint checks <em>that</em> you are logged in but never checks <em>whether this object is yours</em>. It is IDOR's bigger sibling: IDOR is usually taught on web pages, BOLA is the same flaw in the JSON layer, and it is #1 on the API Top 10 because APIs expose object references (IDs in paths) everywhere. <strong>Why it arises:</strong> the developer wrote one handler for "get user by id" and tested it with their own id.</p>
+<p><strong>Excessive data exposure (CWE-200).</strong> <code>GET /api/users/me</code> returns the full database row — password hash, SSN, internal notes — because the handler serializes the ORM object directly instead of a shaped response. The front end only displays the name, so nobody noticed the extra fields. <strong>Why it arises:</strong> frameworks make "return the object" a one-liner and "return the DTO" actual work. The attacker doesn't need to break in; the API hands over the data with a valid session.</p>
+<p><strong>Mass assignment (CWE-915).</strong> <code>POST /api/users {&quot;name&quot;:&quot;mallory&quot;,&quot;role&quot;:&quot;admin&quot;}</code> creates an admin, because the handler binds every JSON field to the model — including fields the client should never set. <strong>Why it arises:</strong> the same model class is used for the database and the request binding, and the developer never listed which fields are client-writable. Also called auto-binding.</p>
+<p><strong>Missing rate limits (API4:2023 Unrestricted Resource Consumption).</strong> No limit on requests per minute means credential stuffing, enumeration (<code>/api/users/1</code> … <code>/api/users/10000</code>), and algorithmic-complexity DoS all run at full speed. <strong>Why it arises:</strong> rate limiting is infrastructure the developer assumes "someone else" configured.</p>
+<p><strong>How defenders see it.</strong> API abuse is <em>visible</em> in logs, which is the good news: BOLA probing looks like one authenticated principal touching many object IDs (especially sequential IDs); excessive-data exposure is found in code review (ORM object → response) and in response-size anomalies; mass assignment shows up as unexpected fields in request bodies; missing rate limits show up as the absence of 429s under load. Detection rule shapes: alert on one principal accessing N distinct object IDs in M minutes; alert on 200-responses whose bodies contain <code>password_hash</code>-shaped fields; schema-validate request bodies and log rejected fields.</p>
+<h3>Worked example: the Harborlight users API</h3>
+<p>A minimal JSON API (stdlib Python, local only — the walkthrough runs it). Four endpoints, four flaws, each proven with curl:</p>
+<ul>
+<li><code>GET /api/users/2</code> as user 1 → <strong>200 with user 2's full record</strong> (BOLA — no per-object check).</li>
+<li><code>GET /api/users/me</code> → <strong>200 with password hash, SSN, internal notes</strong> (excessive data exposure — full ORM row serialized).</li>
+<li><code>POST /api/users {&quot;name&quot;:&quot;mallory&quot;,&quot;role&quot;:&quot;admin&quot;}</code> → <strong>201 with <code>&quot;role&quot;:&quot;admin&quot;</code></strong> (mass assignment — the field was bound straight to the model).</li>
+<li>Ten rapid <code>POST /api/users</code> → <strong>ten 201s, zero 429s</strong> (no rate limiting — enumeration and stuffing run unthrottled).</li>
+</ul>
+<p>The fix, in the same app: per-object authorization check (<code>uid == current_user</code> or an ownership lookup) returning 403; a shaped DTO on <code>/me</code> (id + name only); an allow-list of writable fields on create (role forced server-side); a simple per-endpoint rate limit (5/minute → 429). Re-test all four: 403, DTO, role dropped, 429s. Then the general rule: <strong>authorize every object, shape every response, allow-list every input, throttle every endpoint</strong> — four sentences that prevent four vulnerability classes.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-api-abuse.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-10. The demo app stands in for the PortSwigger API labs the reader uses (no Docker on this machine — see gaps).</p>
+<ol>
+<li><strong>Start the app.</strong> Save the <code>app.py</code> from this lesson's companion and run it on port 8331. Confirm the baseline: <code>curl -s localhost:8331/api/users/me</code> returns user 1's record. You are "logged in" as user 1 for the whole exercise.</li>
+<li><strong>Prove BOLA.</strong> <code>curl -s localhost:8331/api/users/2</code> — observe user 2's full record returned with HTTP 200. You asked for another user's object and the server complied without checking ownership. Write down the request/response pair — this is the finding.</li>
+<li><strong>Prove excessive data exposure.</strong> Look at the <code>/me</code> response from step 1: <code>password_hash</code>, <code>ssn</code>, <code>internal_notes</code>. The front end displays only the name. List every field the UI doesn't need — each one is data the API should never have sent.</li>
+<li><strong>Prove mass assignment.</strong> <code>curl -s -X POST localhost:8331/api/users -d &#x27;{&quot;name&quot;:&quot;mallory&quot;,&quot;role&quot;:&quot;admin&quot;}&#x27;</code> — observe <code>&quot;role&quot;:&quot;admin&quot;</code> in the 201 response. Then <code>GET /api/users/3</code> to confirm the role persisted. The client chose its own privilege level.</li>
+<li><strong>Prove missing rate limits.</strong> Ten rapid POSTs in a loop — observe ten <code>201</code> responses and zero <code>429</code>s. On a real target this is the green light for enumeration and credential stuffing; here it is the missing control, demonstrated.</li>
+<li><strong>Apply the fix.</strong> Restart with <code>FIXED=1</code> on port 8332: per-object check, DTO response, writable-field allow-list, 5/minute rate limit.</li>
+<li><strong>Verify the fix — four cases.</strong> <code>/api/users/2</code> → 403; <code>/me</code> → id+name only; the <code>role</code> field → dropped (forced <code>user</code>); the 6th rapid POST → 429. A fix that breaks legitimate use is not a fix — confirm <code>/me</code> still works for user 1.</li>
+</ol>
+<p>No step above is marked "not run by us" — all four flaws and all four fixes ran locally. The demo's "authentication" is a hardcoded user (labeled in the companion); real session handling is <a href="/g/session-auth/"><code>b-session-auth</code></a>'s subject.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger API-testing lab (the "exploiting a mass assignment vulnerability" lab is the closest match for one class; the API testing topic covers the rest). Enumerate the API surface first: map every endpoint, method, and parameter from normal UI traffic plus the API documentation if the lab provides it. Then test each of the four classes in order: BOLA (swap IDs), excessive data (diff the response against what the UI shows), mass assignment (add a privileged field), rate limits (burst and watch for 429).</p>
+<p><strong>Success test:</strong> A one-page report per class tested: the endpoint, the exact requests, the evidence (response excerpts), the fix stated as the general rule it violates (authorize/shape/allow-list/throttle), and the defender detection (which log, which pattern). If a class is <em>not</em> vulnerable, document the control you found — a characterized defense is a result.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"The UI doesn't show it, so it's safe."</strong> Undocumented and UI-unreferenced endpoints are the attacker's favorite targets. Enumerate the API, not the UI.</li>
+<li><strong>Testing BOLA with your own ID only.</strong> The flaw is in the <em>other</em> IDs. Always test cross-object access with two principals.</li>
+<li><strong>Fixing mass assignment with a denylist.</strong> Blocking <code>role</code> while leaving <code>is_admin</code>, <code>permissions[]</code>, or nested objects bindable is the same flaw wearing a hat. Allow-list writable fields.</li>
+<li><strong>Rate limiting by IP only.</strong> Behind NATs and proxies, one IP is many users — and attackers rotate IPs. Limit by principal + endpoint, and treat the absence of 429s as the finding.</li>
+<li><strong>Calling the DTO "the fix" for BOLA.</strong> Shaping the response doesn't stop the unauthorized <em>access</em> — it only hides fields. BOLA needs the authorization check; the DTO is a separate fix for a separate flaw.</li>
+<li><strong>Assuming GraphQL/REST differences matter here.</strong> They don't for these four classes — BOLA, over-exposure, mass assignment, and missing throttles exist identically in both. (<a href="/g/graphql/"><code>b-graphql</code></a> covers what GraphQL adds on top.)</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>OWASP API Security Top 10:2023</strong> (<a href="https://owasp.org/API-Security">owasp.org/API-Security</a> — verified 2026-10-10): the canonical list — API1 BOLA, API3 BOPLA, API4 resource consumption. <em>Read</em> the risk descriptions for API1–API4; <em>skim</em> the rest.</li>
+<li><strong>PortSwigger Web Security Academy — API testing</strong> (<a href="https://portswigger.net/web-security/api-testing">portswigger.net/web-security/api-testing</a> — verified 2026-10-10): how the flaws are found in practice. <em>Read</em> fully, then do the labs.</li>
+<li><strong>CWE-862</strong> (<a href="https://cwe.mitre.org/data/definitions/862.html">cwe.mitre.org/data/definitions/862.html</a> — verified 2026-10-09): Missing Authorization — the weakness behind BOLA. <em>Skim</em>; cite the ID.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger API testing labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — free): mass assignment, BOLA, and excessive-data labs, hosted and authorized.</li>
+<li><strong>OWASP API Security Top 10 details</strong> (<a href="https://owasp.org/API-Security">owasp.org/API-Security</a> — free): prevention cheat-sheet mappings per risk.</li>
+<li><strong><a href="/g/graphql/"><code>b-graphql</code></a></strong> (this guidebook): what GraphQL adds on top of these four classes — introspection, nested-query DoS, field-level authorization.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why BOLA is the API version of IDOR, and why APIs make it <em>more</em> common than classic web apps do.</li>
+<li>A <code>GET /api/users/me</code> returns 40 fields; the UI displays 6. Explain the flaw, who it hurts even though "only the user sees their own data," and the fix.</li>
+<li>You POST <code>{&quot;name&quot;:&quot;x&quot;,&quot;role&quot;:&quot;admin&quot;}</code> and get 201 with admin. The developer "fixes" it by rejecting requests containing the string <code>role</code>. Explain two ways this fix fails and state the correct fix.</li>
+<li>An API returns 200 to 1,000 rapid login attempts with no 429. Name the missing control, the two attacks it enables, and where you would implement it.</li>
+<li>Explain the difference between fixing BOLA and fixing excessive data exposure — why one fix does not cover the other.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the four one-page reports from "On your own" (or the local-demo equivalents with exact requests): endpoint, evidence, the general rule violated, the fix, the defender detection.</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can enumerate an API surface, find and prove BOLA, excessive data exposure, mass assignment, and missing rate limits on an authorized target, and verify each fix. You cannot yet claim: production API security review — real APIs add versioning, gateway policies, and business-logic flows (<a href="/g/business-logic/"><code>b-business-logic</code></a>) that this lesson's four classes don't cover.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/graphql/"><code>b-graphql</code></a> — the same four classes plus what GraphQL adds: introspection, nested-query DoS, field-level authorization.</li>
+<li><a href="/g/business-logic/"><code>b-business-logic</code></a> — API6:2023 (sensitive business flows) lives here: the flaw isn't the endpoint, it's the <em>flow</em>.</li>
+<li><a href="/g/session-auth/"><code>b-session-auth</code></a> — the authentication half that BOLA assumes is already done.</li>
+<li>Map refs: <strong>OWASP API Security Top 10:2023 (API1, API3, API4)</strong> · <strong>CWE-862</strong> · <strong>CWE-200</strong> · <strong>CWE-915</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

@@ -1,6 +1,17 @@
+---
+lesson_id: e-auth-systems
+slug: auth-systems
+stage: E
+level: 3
+prerequisites: [e-iam, a-http-depth]
+roles: []
+map_refs: ["CISSP 5.6"]
+test_date: 2026-10-10
+description: "Plan an MFA and passwordless rollout — phases, recovery, SSO migration, authenticator lifecycle — for a fictional company. A free lesson in the security guidebook, serving CISSP objective 5.6."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Implementing authentication systems: the rollout, not the theory
 
-**ID:** `e-auth-systems` · **Stage:** E (Expert) · **Level:** 3 (write and defend an authentication implementation and rollout plan) · **Prerequisites:** `e-iam` (the lifecycle and strategy this lesson implements), `a-http-depth` (authentication schemes: passwords, tokens, OAuth/OIDC flows); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 5.6** — implementing authentication systems.
 

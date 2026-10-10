@@ -1,6 +1,17 @@
+---
+lesson_id: c-log-sources
+slug: log-sources
+stage: C
+level: 3
+prerequisites: [a-linux-cli, a-tcpip-ports]
+roles: [soc-analyst, security-analyst, dfir]
+map_refs: []
+test_date: 2026-10-09
+description: "Log sources that matter: endpoint, network, identity, email, cloud — what each sees, what goes blind without it, and cross-source correlation. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · fictional sample logs parsed with CLI tools"
+---
 # Log Sources That Matter
 
-**ID:** `c-log-sources` · **Stage:** C (Professional) · **Level:** 3 (source selection + live parsing + blind-spot reasoning) · **Prerequisites:** `a-linux-cli` (command line), `a-tcpip-ports` (what the network telemetry describes).
 
 ---
 

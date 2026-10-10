@@ -1,6 +1,17 @@
+---
+lesson_id: e-detective-preventive
+slug: detective-preventive
+stage: E
+level: 3
+prerequisites: [c-soc-triage, c-sigma-detection]
+roles: []
+map_refs: ["CISSP 7.7"]
+test_date: 2026-10-10
+description: "How to choose, place, and tune detective and preventive controls in operation — IDS/IPS, honeypots, DLP, and allow-listing. A free lesson in the security guidebook, serving CISSP objective 7.7."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Detective and preventive measures in operation: choosing, placing, and tuning controls
 
-**ID:** `e-detective-preventive` · **Stage:** E (Expert) · **Level:** 3 (select, place, and tune detective and preventive controls for a SOC's needs) · **Prerequisites:** `c-soc-triage` (the alerts these controls produce), `c-sigma-detection` (the detection logic this lesson puts into operation); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.7** — operating detective and preventive measures: what each control type does, where it goes, and how it stays effective.
 

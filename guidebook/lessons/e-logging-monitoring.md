@@ -1,6 +1,17 @@
+---
+lesson_id: e-logging-monitoring
+slug: logging-monitoring
+stage: E
+level: 3
+prerequisites: [c-log-sources, c-soc-triage]
+roles: []
+map_refs: ["CISSP 7.2"]
+test_date: 2026-10-10
+description: "How to design the logging and monitoring program — event taxonomy, retention schedule, log integrity, and the SOC workflow that turns logs into detections. A free lesson in the security guidebook, serving CISSP objective 7.2."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Logging and monitoring operations: deciding what gets watched, and by whom
 
-**ID:** `e-logging-monitoring` · **Stage:** E (Expert) · **Level:** 3 (design a logging program — what to log, retention, and the SOC workflow that consumes it) · **Prerequisites:** `c-log-sources` (reading logs — this lesson is the program that produces them), `c-soc-triage` (the analyst workflow this lesson staffs and tunes); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.2** — logging and monitoring as an operations discipline: event selection, retention, and the monitoring program.
 

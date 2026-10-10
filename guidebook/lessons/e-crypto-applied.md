@@ -1,6 +1,17 @@
+---
+lesson_id: e-crypto-applied
+slug: crypto-applied
+stage: E
+level: 3
+prerequisites: [a-http-depth]
+roles: [cloud-security, iam-engineer]
+map_refs: ["CISSP 3.6"]
+test_date: 2026-10-09
+description: "Applied cryptography: hashes, modes, signatures, PKI path validation and the key lifecycle — ECB-vs-CBC demonstrated live, TLS 1.3 handshake run locally. A free hands-on lesson in the security guidebook, serving CISSP objective 3.6."
+dateline: "Walkthrough run 2026-10-09 · OpenSSL 3.0.13, loopback only, nothing external touched"
+---
 # Applied cryptography: what the primitives do, and how they break
 
-**ID:** `e-crypto-applied` · **Stage:** E (Expert) · **Level:** 3 (use the primitives correctly, read a certificate chain, spot the misuse) · **Prerequisites:** Stage A cryptography concepts (hashing vs encryption, symmetric vs asymmetric); `a-http-depth` (TLS layering); OpenSSL 3.x on your machine.
 
 **Map ref:** serves **CISSP objective 3.6** — cryptographic solutions: lifecycle, methods, PKI, key management, signatures. (Objective 3.7, cryptanalytic attack methods, is taught in `e-cryptanalysis`.)
 

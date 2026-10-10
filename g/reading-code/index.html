@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>Reading code through a vulnerability</h1>
 <p class="lede prose">Every vulnerability you will ever find is a story about input: where it enters, what touches it, and where it lands. Source code is where that story is written down — and the ability to <em>read</em> it, following one value from the browser to the database, is what separates "ran a scanner" from "understood the flaw." Scanners flag candidates; readers confirm them. In bug bounty work, the disclosed reports worth studying all read like code traces: "the <code>user</code> parameter flows from the route handler into this query builder unescaped." This lesson teaches exactly that move, in the two languages web vulnerabilities live in: enough JavaScript to follow client-side behavior, and enough SQL to see how a query is built and where user input enters it. You are not learning to write applications. You are learning to <em>interrogate</em> them.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (apply — you can trace untrusted input through unfamiliar source and name where it becomes dangerous)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (requests/responses), <a href="/g/python-security/"><code>a-python-security</code></a> (reading scripts), <a href="/g/sqli/"><code>b-sqli</code></a> (recommended — the vulnerability family this lesson traces)</td></tr><tr><th scope="row">Map references</th><td>Stage A foundation; the reading half of <a href="/g/python-security/"><code>a-python-security</code></a>; direct prerequisite for every Stage B web-vulnerability lesson.</td></tr>
+<tr><th scope="row">Stage</th><td>Stage A · Foundations</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/python-security/"><code>a-python-security</code></a>, <a href="/g/sqli/"><code>b-sqli</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>Stage A foundation; the reading half of <a href="/g/python-security/"><code>a-python-security</code></a>; direct prerequisite for every Stage B web-vulnerability lesson.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -256,7 +257,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

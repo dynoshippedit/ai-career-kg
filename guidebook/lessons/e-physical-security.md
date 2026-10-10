@@ -1,6 +1,17 @@
+---
+lesson_id: e-physical-security
+slug: physical-security
+stage: E
+level: 3
+prerequisites: []
+roles: []
+map_refs: ["CISSP 7.14"]
+test_date: 2026-10-10
+description: "How to run physical security day to day — guards and post orders, the badge lifecycle, mantraps and doors, CCTV operation, and environmental controls. A free lesson in the security guidebook, serving CISSP objective 7.14."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Physical security in operation: running the building's defenses day to day
 
-**ID:** `e-physical-security` · **Stage:** E (Expert) · **Level:** 3 (run the physical-security operation — people, procedures, and environmental controls in daily use) · **Prerequisites:** none beyond Stage D breadth — this is the operations view; no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.14** — implementing and operating physical security: the day-to-day running of the controls.
 

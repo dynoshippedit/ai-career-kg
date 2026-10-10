@@ -1,6 +1,17 @@
+---
+lesson_id: a-tcpip-ports
+slug: tcpip-ports
+stage: A
+level: 3
+prerequisites: [a-dns-depth]
+roles: [soc-analyst, security-analyst, pentester, cloud-security]
+map_refs: []
+test_date: 2026-10-10
+description: "TCP/IP and ports: the handshake, connection states, what a port really is — observed live with ss on loopback. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · loopback only; UDP step not run by us (sandbox blocks UDP loopback); packet-capture step re-ran 2026-10-10 with real tcpdump"
+---
 # TCP/IP and ports
 
-**ID:** `a-tcpip-ports` · **Stage:** A (Foundations) · **Level:** 3 (mechanism — you can explain the handshake, read connection states, and say what a port is without hand-waving) · **Prerequisites:** `a-dns-depth` (names resolve to addresses; this lesson moves bytes to those addresses).
 
 **Map refs:** Pre-map foundations; feeds `a-http-depth`, Stage B (every vulnerability lesson opens connections), Stage D (network forensics reads these states).
 

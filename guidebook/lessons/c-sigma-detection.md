@@ -1,6 +1,17 @@
+---
+lesson_id: c-sigma-detection
+slug: sigma-detection
+stage: C
+level: 3
+prerequisites: [c-log-sources, c-soc-triage]
+roles: [soc-analyst, security-analyst, dfir]
+map_refs: []
+test_date: 2026-10-09
+description: "Writing detections with Sigma: rule anatomy against the spec, the tuning loop, and detection-as-code discipline — measured, not asserted. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · rule validated and evaluated against labeled corpora"
+---
 # Writing Detections with Sigma
 
-**ID:** `c-sigma-detection` · **Stage:** C (Professional) · **Level:** 3 (rule anatomy + live evaluation + tuning loop) · **Prerequisites:** `c-log-sources` (what the telemetry looks like), `c-soc-triage` (who consumes the alert).
 
 ---
 

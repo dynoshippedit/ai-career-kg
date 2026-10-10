@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Race conditions: when &quot;check, then act&quot; isn&#x27;t atomic | Learn Computer Stuff</title>
+<meta name="description" content="Race conditions: when check-then-act isn&#x27;t atomic — TOCTOU flaws reproduced locally with parallel requests, then fixed with atomic operations. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/race-conditions/">
+<meta property="og:title" content="Race conditions: when &quot;check, then act&quot; isn&#x27;t atomic | Learn Computer Stuff"><meta property="og:description" content="Race conditions: when check-then-act isn&#x27;t atomic — TOCTOU flaws reproduced locally with parallel requests, then fixed with atomic operations. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/race-conditions/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Race conditions: when \"check, then act\" isn't atomic","item":"https://learncomputerstuff.dev/g/race-conditions/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Race conditions: when &quot;check, then act&quot; isn&#x27;t atomic</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Race conditions: when &quot;check, then act&quot; isn&#x27;t atomic</h1>
+<p class="lede prose">Most web code runs as <strong>check, then act</strong>: check the coupon is unused, then apply the discount; check the balance covers the transfer, then move the money; check the username is free, then create the account. Between the check and the act there is a gap — database writes, payment calls, network round-trips — and in that gap, a second request can pass the <em>same</em> check. Both requests then act. The single-use coupon is redeemed twice; the balance goes negative; the "unique" username exists twice. This lesson generalizes the <a href="/g/business-logic/"><code>b-business-logic</code></a> coupon race into the full class, and takes you to Level 3: you will win the race locally, then close it.</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-race-conditions.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/business-logic/"><code>b-business-logic</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-367 (Time-of-check Time-of-use) · PortSwigger Web Security Academy (Race conditions)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Most web code runs as <strong>check, then act</strong>: check the coupon is unused, then apply the discount; check the balance covers the transfer, then move the money; check the username is free, then create the account. Between the check and the act there is a gap — database writes, payment calls, network round-trips — and in that gap, a second request can pass the <em>same</em> check. Both requests then act. The single-use coupon is redeemed twice; the balance goes negative; the "unique" username exists twice. This lesson generalizes the <a href="/g/business-logic/"><code>b-business-logic</code></a> coupon race into the full class, and takes you to Level 3: you will win the race locally, then close it.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You have done <a href="/g/business-logic/"><code>b-business-logic</code></a> — its coupon race is this lesson's worked example, extended to the general check-then-act pattern.</li>
+<li>You understand threads at the level of "two things happening at once" — the walkthrough uses two threads; the concept is concurrent requests, however they arrive.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy race-conditions lab, or a bounty program whose scope explicitly includes the asset. Race testing sends <em>bursts</em> of requests — confirm the program tolerates burst traffic before you start, and keep every burst small and local-first. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: Python 3 (threads) and curl. No proxy needed.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>The vulnerable shape, in pseudocode:</p>
+<pre><code>if coupon.uses_left &gt; 0:      # CHECK
+    ...slow work here...       # the window: DB write, payment call
+    coupon.uses_left -= 1      # ACT
+    apply_discount()</code></pre>
+<p>Request A checks: <code>uses_left</code> is 1, proceeds. Before A acts, request B checks: <code>uses_left</code> is <em>still</em> 1 (A hasn't decremented yet), proceeds. Both act. The coupon was single-use; it has now been used twice, and <code>uses_left</code> reads -1 — the arithmetic itself testifies.</p>
+<p><strong>Why it arises in real code.</strong> The developer tested sequentially: redeem, redeem again, second one correctly rejected. Sequential testing can <em>never</em> find a race — the flaw exists only in the interleaving. And the window is invisible in code review unless you're looking for it: the check and the act are each correct; only their <em>non-atomicity</em> is wrong. The wider the window between them (a payment-gateway call, an email send), the easier the race is to win.</p>
+<p><strong>The general class.</strong> Anywhere state is read, then written based on the read:</p>
+<ul>
+<li><strong>Balances and transfers:</strong> check-then-debit across two requests → negative balances, duplicated payouts.</li>
+<li><strong>Unique constraints:</strong> check-username-free then insert → duplicates (the database's UNIQUE constraint is the atomic fix).</li>
+<li><strong>Limited inventory / ticket sales:</strong> check-stock then decrement → overselling.</li>
+<li><strong>Password-reset / token consumption:</strong> check-valid then consume → token reuse.</li>
+<li><strong>File uploads:</strong> check-extension then save → the TOCTOU the CWE is named for (time-of-check vs time-of-use on the filesystem).</li>
+</ul>
+<p><strong>Why single-request testing misses it.</strong> Scanners send one request at a time. So do humans clicking through the UI. Races require <em>concurrency</em>: two requests in flight simultaneously, timed to land inside the window. That is also why races are flaky — sometimes you win, sometimes you don't — and why the finding must include the <em>mechanism</em> (the check/act gap you identified in code or behavior), not just "it worked once."</p>
+<p><strong>How defenders see it.</strong> The arithmetic testifies: <code>uses_left = -1</code>, negative balances, duplicate usernames, two redemptions one millisecond apart in the logs. Detection rule shapes: alert on invariant violations the application should never produce (negative counters, duplicate "unique" values); alert on near-simultaneous duplicate actions from one principal. In code review: any read-then-write on shared state without atomicity — the fix shapes below are what you look for.</p>
+<h3>Worked example: the coupon race, generalized</h3>
+<p>A coupon endpoint (stdlib Python, local only — the walkthrough runs it): <code>POST /redeem {&quot;coupon&quot;: &quot;SAVE10&quot;}</code> checks <code>uses_left &gt; 0</code>, sleeps 0.3s (standing in for the slow work — DB write, payment call), then decrements and applies the discount.</p>
+<ul>
+<li>Sequential: redeem → 200; redeem again → 409 "already used." Correct — and this is exactly what the developer tested.</li>
+<li>Race: two threads redeem <em>concurrently</em> → <strong>both 200</strong>, <code>uses_left</code> reads <strong>-1</strong>, redemptions = 2. The single-use coupon was used twice. The -1 is the proof: no legitimate sequence of operations produces it.</li>
+</ul>
+<p>The fix, in the same app: the check and the act happen <strong>under one lock</strong> (in production: a database transaction with row locking, or an atomic compare-and-set / single UPDATE with a WHERE clause on the expected state). Re-run the race: one 200, one 409, <code>uses_left</code> = 0. Then the general rule: <strong>make check-and-act atomic</strong> — the database, not application code, is the arbiter of shared state.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-race-conditions.log</code>. Clean environment: stock Python 3.12, loopback only, 2026-10-10. The 0.3s sleep stands in for real slow work (labeled in the companion); the race mechanism is identical.</p>
+<ol>
+<li><strong>Start the app.</strong> Save the <code>app.py</code> from this lesson's companion and run it on port 8340. Confirm the baseline: <code>GET /state</code> → <code>uses_left: 1</code>.</li>
+<li><strong>Prove sequential correctness.</strong> Redeem once → 200 with the discount. Redeem again → 409 "already used." Write down: the developer's test suite passes. This is why the flaw shipped.</li>
+<li><strong>Win the race.</strong> Restart the app (fresh single-use coupon), then fire two concurrent redeems via the companion's threading snippet → <strong>both 200</strong>. <code>GET /state</code> → <code>uses_left: -1</code>, <code>redemptions: 2</code>. The -1 is your finding — quote it verbatim in your notes.</li>
+<li><strong>Say the mechanism out loud.</strong> Both threads passed the check before either acted, because the 0.3s window sits between them. The flaw is the <em>gap</em>, not the check and not the act.</li>
+<li><strong>Apply the fix.</strong> Restart with <code>FIXED=1</code> on port 8341: check+act under a single lock.</li>
+<li><strong>Verify the fix.</strong> Same two-thread race → one 200, one 409; <code>uses_left</code> = 0. Then the sequential test still passes (redeem → 200, redeem → 409). A fix that breaks legitimate redemption is not a fix.</li>
+<li><strong>Read the defender view.</strong> The companion logs each redemption with a timestamp. Find your two same-millisecond redemptions. Write the detection rule: alert on invariant violations (negative <code>uses_left</code>, duplicate redemptions of single-use coupons) — the arithmetic testifying, as section 3 says.</li>
+</ol>
+<p>No step above is marked "not run by us" — the sequential baseline, the race win, and the fix verification all ran locally. Multi-host races (the window spanning servers) are the production variant; the mechanism and fix are identical.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy race-conditions lab (start with "Limit overrun race conditions"). First <em>find the check-then-act gap</em>: read the lab's behavior the way section 3 teaches — what is checked, what is acted, and what slow work sits between them. Then race it with a small burst (the Academy's Turbo Intruder or a 2-thread script — keep it minimal), and confirm the invariant violation.</p>
+<p><strong>Success test:</strong> A one-page report: the check/act/window identified (with the evidence for each), the race result (exact responses, the invariant violation quoted), the fix stated as the atomicity rule for that stack, and the defender detection (which log, which invariant). If the race doesn't win in 5 attempts, document the attempts and the window analysis — a characterized race surface is a result; flakiness is data.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>Testing sequentially and declaring it safe.</strong> The developer's test passed. Yours must be concurrent — the flaw exists only in the interleaving.</li>
+<li><strong>"It worked once" as the finding.</strong> Races are flaky by nature. The finding is the <em>mechanism</em> (check/act/window) plus the invariant violation, not a single lucky run. Show the -1.</li>
+<li><strong>Fixing with a sleep or a retry.</strong> Adding delays narrows the window; it doesn't close it. Attackers widen windows (slowloris-style) faster than you narrow them. Atomicity or nothing.</li>
+<li><strong>Locking in application code across hosts.</strong> A Python lock fixes one process; production runs N processes behind a load balancer. The atomicity must live in the shared state: the database (transactions, row locks, conditional writes), not the app tier.</li>
+<li>**Forgetting the <em>read</em> side.** Some races are check-check-act: <em>two</em> checks race (username-free checked twice). Audit every read of shared state, not just the writes.</li>
+<li><strong>Burst-testing outside authorized scope.</strong> Race testing is, by definition, abnormal traffic. Confirm burst tolerance in the scope <em>before</em> the first burst — this class has its own authorization footnote.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — Race conditions</strong> (<a href="https://portswigger.net/web-security/race-conditions">portswigger.net/web-security/race-conditions</a> — verified 2026-10-10): the canonical treatment — limit overruns, multi-endpoint races, single-endpoint races. <em>Read</em> fully, then do the labs.</li>
+<li><strong>CWE-367</strong> (<a href="https://cwe.mitre.org/data/definitions/367.html">cwe.mitre.org/data/definitions/367.html</a> — verified 2026-10-10): Time-of-check Time-of-use Race Condition. <em>Skim</em>; cite the ID.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger race-condition labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — free): the lab set this lesson's method was built for, hosted and authorized.</li>
+<li><strong><a href="/g/business-logic/"><code>b-business-logic</code></a></strong> (this guidebook): the coupon race as a business-logic finding — this lesson is its generalization to the concurrency class.</li>
+<li><strong>Your database's locking docs</strong> (<a href="https://postgresql.org">postgresql.org</a> or <a href="https://dev.mysql.com">dev.mysql.com</a> — free): <code>SELECT ... FOR UPDATE</code>, transactions, and conditional writes — the production fix, from the primary source.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why the developer's sequential test (redeem → 200, redeem → 409) passed while the vulnerability was present, and what test would have caught it.</li>
+<li><code>uses_left</code> reads -1 after your test. Explain why no legitimate sequence of operations produces this value, and why it is stronger evidence than "both requests returned 200."</li>
+<li>A developer "fixes" the race by adding a 2-second delay before the check. Explain why this doesn't work, and state the correct fix.</li>
+<li>The app runs on 4 servers behind a load balancer. Explain why the Python-lock fix from the walkthrough is insufficient here, and where the atomicity must live.</li>
+<li>Explain the difference between a check-then-act race and a check-check-act race, with an example of each.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": check/act/window, the race result with the invariant violation quoted, the atomicity fix for that stack, defender detection — plus your local-demo notes (sequential baseline, the -1, the fixed-build verification).</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can identify check-then-act gaps, win races with concurrent requests on authorized targets, and verify atomicity fixes. You cannot yet claim: production concurrency review — multi-host atomicity design (distributed locks, transaction isolation levels) is the operational layer this lesson points at but doesn't teach.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/business-logic/"><code>b-business-logic</code></a> (re-read) — the coupon race as a business-logic finding; compare the <em>logic</em> flaw with the <em>concurrency</em> flaw in the same feature.</li>
+<li><a href="/g/api-abuse/"><code>b-api-abuse</code></a> — API4:2023 (unrestricted resource consumption) is the rate-limit cousin; races are what throttles <em>don't</em> fix.</li>
+<li><a href="/g/sdlc/"><code>e-sdlc</code></a> — where the "test concurrently" requirement belongs in a development process.</li>
+<li>Map refs: <strong>CWE-367</strong> · <strong>PortSwigger Race conditions</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

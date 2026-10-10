@@ -1,6 +1,17 @@
+---
+lesson_id: a-osint-research
+slug: osint-research
+stage: A
+level: 3
+prerequisites: [a-http-depth, b-authorization-scope]
+roles: [pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "OSINT and research discipline: passive vs active recon, what 'public' means, the standard sources, and documentation a stranger can re-derive — on a fictional target. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · fictional target, local files only, passive recon — no real target touched"
+---
 # OSINT and research discipline
 
-**ID:** `a-osint-research` · **Stage:** A (Foundations) · **Level:** 3 (apply — you can conduct passive reconnaissance against public sources and document it to a professional standard) · **Prerequisites:** `a-http-depth` (you will read a lot of HTTP), `b-authorization-scope` (the rules that make this lesson safe — read it first if you haven't).
 
 **Map refs:** Stage A foundation; the passive half of `b-methodology`'s reconnaissance phase; feeds every Stage B engagement.
 

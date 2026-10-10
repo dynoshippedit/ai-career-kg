@@ -1,6 +1,17 @@
+---
+lesson_id: e-control-testing
+slug: control-testing
+stage: E
+level: 3
+prerequisites: [b-methodology, e-assessment-strategy]
+roles: []
+map_refs: ["CISSP 6.2"]
+test_date: 2026-10-10
+description: "Select and sequence control-testing methods — reviews, scans, validation — stating what each proves, for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.2."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Control testing: choosing the method that proves the claim
 
-**ID:** `e-control-testing` · **Stage:** E (Expert) · **Level:** 3 (select, scope, and sequence test methods for a control set — and say what each result proves) · **Prerequisites:** `b-methodology` (the engagement walkthrough — this lesson is the program-level method-selection view above it), `e-assessment-strategy` (the strategy this lesson's methods serve); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 6.2** — security control testing methods.
 

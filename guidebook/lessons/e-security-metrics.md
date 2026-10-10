@@ -1,6 +1,17 @@
+---
+lesson_id: e-security-metrics
+slug: security-metrics
+stage: E
+level: 3
+prerequisites: [c-soc-triage, c-log-sources, e-security-program]
+roles: []
+map_refs: ["CISSP 6.3"]
+test_date: 2026-10-10
+description: "Specify a SOC measurement program: KPI/KRI definitions, sources, collection, and cadence for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.3."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Security metrics: measuring the program without lying to yourself
 
-**ID:** `e-security-metrics` · **Stage:** E (Expert) · **Level:** 3 (specify a measurement program: definitions, data sources, collection method, cadence — for a real SOC) · **Prerequisites:** `c-soc-triage` (where the SOC's data comes from), `c-log-sources` (what gets collected); `e-security-program` (the board-level metrics this lesson's program feeds — this is the measurement-program view, not the board-memo view).
 
 **Map ref:** serves **CISSP objective 6.3** — collecting security process data.
 

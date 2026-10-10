@@ -1,6 +1,17 @@
+---
+lesson_id: e-security-models
+slug: security-models
+stage: E
+level: 2
+prerequisites: [e-secure-design]
+roles: []
+map_refs: ["CISSP 3.2"]
+test_date: 2026-10-10
+description: "State the rules of Bell-LaPadula, Biba, Clark-Wilson, and Brewer-Nash, run a Bell-LaPadula rule check in Python, and write model-selection rationales. A free lesson in the security guidebook, serving CISSP objective 3.2."
+dateline: "Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched"
+---
 # Formal security models: what "secure" means, precisely
 
-**ID:** `e-security-models` · **Stage:** E (Expert) · **Level:** 2 (state each model's rules, run the BLP rule check, and write a selection rationale for a scenario) · **Prerequisites:** `e-secure-design` (complete mediation, least privilege as design goals); Python 3 on your machine (stdlib only).
 
 **Map ref:** serves **CISSP objective 3.2** — formal models of security policy: confidentiality, integrity, and conflict-of-interest models, and selecting among them.
 

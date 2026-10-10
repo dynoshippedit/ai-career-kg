@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JWT and OAuth flaws: trusting the token more than the verifier deserves | Learn Computer Stuff</title>
+<meta name="description" content="JWT and OAuth flaws: trusting the token more than the verifier deserves — algorithm confusion, none-alg, and scope flaws reproduced locally, then fixed. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/jwt-oauth/">
+<meta property="og:title" content="JWT and OAuth flaws: trusting the token more than the verifier deserves | Learn Computer Stuff"><meta property="og:description" content="JWT and OAuth flaws: trusting the token more than the verifier deserves — algorithm confusion, none-alg, and scope flaws reproduced locally, then fixed. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/jwt-oauth/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"JWT and OAuth flaws: trusting the token more than the verifier deserves","item":"https://learncomputerstuff.dev/g/jwt-oauth/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>JWT and OAuth flaws: trusting the token more than the verifier deserves</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>JWT and OAuth flaws: trusting the token more than the verifier deserves</h1>
+<p class="lede prose">JSON Web Tokens carry identity between services: <code>header.payload.signature</code>, base64url-encoded, the signature proving the payload wasn't tampered with. OAuth 2.0 is the delegation protocol that hands those tokens out ("log in with Google," API authorization grants). Both fail in characteristic, testable ways — and the failures are almost never in the cryptography. They are in the <em>verifier</em>: the code that decides whether to trust a token, and the redirect validation that decides where OAuth codes go. This lesson takes you to Level 3: you will forge tokens three ways against a local verifier, bypass an OAuth redirect check, and verify the fixes. (<a href="/g/http-depth/"><code>a-http-depth</code></a> taught the format; this lesson teaches the flaws.)</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-jwt-oauth.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/crypto/"><code>a-crypto</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-287 (Improper Authentication) · CWE-347 (Improper Verification of Cryptographic Signature) · RFC 7519 (JWT) · RFC 6749 (OAuth 2.0)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>JSON Web Tokens carry identity between services: <code>header.payload.signature</code>, base64url-encoded, the signature proving the payload wasn't tampered with. OAuth 2.0 is the delegation protocol that hands those tokens out ("log in with Google," API authorization grants). Both fail in characteristic, testable ways — and the failures are almost never in the cryptography. They are in the <em>verifier</em>: the code that decides whether to trust a token, and the redirect validation that decides where OAuth codes go. This lesson takes you to Level 3: you will forge tokens three ways against a local verifier, bypass an OAuth redirect check, and verify the fixes. (<a href="/g/http-depth/"><code>a-http-depth</code></a> taught the format; this lesson teaches the flaws.)</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including Authorization headers.</li>
+<li>You know what a digital signature proves — and what defeats it (<a href="/g/crypto/"><code>a-crypto</code></a>'s misuse pairs: unverified signatures, wrong keys).</li>
+<li>You can hand-decode base64url and HMAC-sign a string in Python (the walkthrough does it step by step; no JWT library needed — building tokens by hand is the lesson).</li>
+<li>Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is <em>authentication bypass</em> — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: Python 3, curl, OpenSSL (for the RSA keypair the key-confusion demo needs).</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A JWT is three parts: <code>header.payload.signature</code>. The header names the algorithm (<code>{&quot;alg&quot;:&quot;HS256&quot;}</code>); the payload carries claims (<code>sub</code>, <code>role</code>, <code>exp</code>, <code>aud</code>, <code>iss</code>); the signature is computed over <code>header.payload</code> with the server's key. Verification <em>should</em> mean: parse the header, look up the expected algorithm (server-side, never from the token), verify the signature with the right key, then check every claim the security decision depends on (<code>exp</code>, <code>aud</code>, <code>iss</code>).</p>
+<p>Every flaw below is the verifier skipping a step:</p>
+<p><strong><code>alg=none</code>: the signature that isn't.</strong> The attacker sets the header to <code>{&quot;alg&quot;:&quot;none&quot;}</code> and drops the signature. A verifier that <em>trusts the token's own <code>alg</code> claim</em> skips verification entirely — and accepts a fully attacker-written payload. <strong>Why it arises:</strong> the verification code switches on the token-supplied algorithm instead of an allow-list the server controls. (Some libraries historically supported <code>none</code> for "unsecured" use cases; the bug is accepting it where security was intended.)</p>
+<p><strong>Key confusion (RS256→HS256): the public key as a password.</strong> The server verifies RS256 (RSA) tokens with its RSA <em>public</em> key — which is public by design. The attacker crafts a token with <code>alg: HS256</code>, signs it with HMAC using <em>the RSA public key bytes as the HMAC secret</em> (downloadable from the server's JWKS endpoint), and the confused verifier — using one key variable for both algorithms — checks the HMAC against the public key and accepts. <strong>Why it arises:</strong> one code path, one key variable, two algorithms with different key semantics. The fix is architectural: never let the token choose the algorithm; bind each key to exactly one algorithm.</p>
+<p><strong><code>exp</code>/<code>aud</code>/<code>iss</code> ignored: the claims nobody reads.</strong> A verifier that checks the signature but never checks expiry accepts a stolen token forever; one that skips <code>aud</code> accepts tokens minted for a <em>different</em> service; one that skips <code>iss</code> accepts tokens from a different issuer. <strong>Why it arises:</strong> the JWT library verifies the signature and returns the payload; the <em>application</em> never validates the claims. Signature validity and token <em>acceptability</em> are two different checks.</p>
+<p><strong>OAuth <code>redirect_uri</code> games: where the code goes.</strong> In the authorization-code flow, the client tells the authorization server where to send the code (<code>redirect_uri</code>). If the server validates it with a <em>prefix match</em> (<code>startswith(&quot;https://trusted-app.example&quot;)</code>), the attacker registers <code>https://trusted-app.example.evil.example/</code> — a different domain that passes the prefix check — and the authorization code (which becomes an access token) goes to the attacker. Related games: unregistered <code>redirect_uri</code> parameters, <code>state</code> not validated (CSRF on the login flow), and <code>scope</code> escalation where the token request asks for more than the user granted. <strong>Why it arises:</strong> string matching instead of exact allow-list comparison, and optional parameters treated as decorative.</p>
+<p><strong>How defenders see it.</strong> <code>alg=none</code> in Authorization headers is a near-certain attack signal — legitimate clients never send it. Algorithm <em>changes</em> for one principal (RS256 yesterday, HS256 today) is the key-confusion tripwire. Expired-token reuse shows up as <code>exp</code> far in the past on otherwise valid signatures. OAuth abuse shows up in <code>redirect_uri</code> values: unexpected domains, subdomains of trusted names, and authorization codes redeemed from unexpected IPs. Detection rule shapes: alert on <code>alg:none</code> tokens; alert on algorithm flips per issuer; alert on <code>redirect_uri</code> values not in the exact allow-list.</p>
+<h3>Worked example: the Harborlight verifier</h3>
+<p>A login/admin app (stdlib Python, local only — the walkthrough runs it) with a deliberately buggy verifier:</p>
+<ul>
+<li>Baseline: <code>/login?user=alice</code> → a real HS256 token; <code>/admin</code> with it → 401 (valid token, but <code>role: user</code> — the verifier works for the honest case).</li>
+<li><strong><code>alg=none</code>:</strong> hand-build <code>{&quot;alg&quot;:&quot;none&quot;}</code> + <code>{&quot;role&quot;:&quot;admin&quot;}</code> + empty signature → <code>/admin</code> → <strong>200, "admin panel."</strong> The verifier trusted the token's own algorithm claim and skipped verification.</li>
+<li><strong>Expired token:</strong> a correctly-signed token with <code>exp</code> two hours in the past → <strong>200.</strong> The signature checked out; nobody read the expiry.</li>
+<li><strong>Key confusion:</strong> fetch the server's <em>public</em> RSA key from <code>/pubkey</code>, HMAC-sign an admin payload with the public-key bytes as the secret, set <code>alg: HS256</code> → <strong>200.</strong> The verifier used its RSA public key as an HMAC secret — the classic confusion, reproduced for real.</li>
+<li><strong>OAuth <code>redirect_uri</code>:</strong> <code>/oauth-check?redirect_uri=https://trusted-app.example.evil.example/steal</code> → <strong>"redirect allowed: True."</strong> The prefix match approved an attacker domain.</li>
+</ul>
+<p>The fix, in the same app: strict algorithm allow-list (<code>HS256</code> only, server-chosen), signature verified with the <em>correct</em> key, <code>exp</code>/<code>aud</code>/<code>iss</code> all checked, <code>redirect_uri</code> compared by exact match against the allow-list. Re-test: <code>alg=none</code> → 401, key confusion → 401, expired → 401, bypass domain → False, legitimate callback → True, legitimate login → 403 (valid token, not admin — correct). Then the general rule: <strong>the server chooses the algorithm, the key, and the acceptable claims — the token chooses none of them.</strong></p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-jwt-oauth.log</code>. Clean environment: stock Python 3.12, OpenSSL 3.0.13 (RSA keygen), loopback only, 2026-10-10. Tokens are built by hand (base64url + HMAC) — no JWT library, because the construction <em>is</em> the lesson.</p>
+<ol>
+<li><strong>Start the app.</strong> Save the <code>app.py</code> from this lesson's companion and run it on port 8342. Confirm the baseline: log in as alice, call <code>/admin</code> with the token → 401 (role=user). The verifier works for honest tokens.</li>
+<li><strong>Decode a token by hand.</strong> Split the login token on <code>.</code>, base64url-decode the header and payload, read the claims. Say out loud which claims the security decision <em>should</em> depend on.</li>
+<li><strong>Forge <code>alg=none</code>.</strong> Build the header <code>{&quot;alg&quot;:&quot;none&quot;,&quot;typ&quot;:&quot;JWT&quot;}</code>, the payload with <code>&quot;role&quot;:&quot;admin&quot;</code>, empty signature → <code>/admin</code> → 200. Write down the request/response pair — this is the finding.</li>
+<li><strong>Forge the expired token.</strong> Sign (with the confused key, as this verifier expects) a payload with <code>exp</code> two hours in the past → 200. The signature verified; the expiry was never read. (The walkthrough log records a correction: the first attempt signed with the wrong key and 401'd — the signature must match what <em>this</em> verifier checks, which is itself part of the finding.)</li>
+<li><strong>Run the key confusion for real.</strong> <code>GET /pubkey</code> → the RSA public key (it's public — that's the point). HMAC-sign your admin payload with those exact bytes, set <code>alg: HS256</code> → <code>/admin</code> → 200. Write down, in one sentence, whose key you used and why the verifier accepted it.</li>
+<li><strong>Bypass the redirect check.</strong> <code>/oauth-check?redirect_uri=https://trusted-app.example.evil.example/steal</code> → True. Explain why the prefix matched and what the attacker's domain actually is.</li>
+<li><strong>Apply the fix.</strong> Restart with <code>FIXED=1</code> on port 8343: allow-listed alg, correct key, exp/aud/iss enforced, exact-match redirect allow-list.</li>
+<li><strong>Verify the fix — six cases.</strong> <code>alg=none</code> → 401; key confusion → 401; expired → 401; bypass domain → False; legitimate callback → True; legitimate login → 403 (valid, not admin). A fix that breaks legitimate logins is not a fix.</li>
+<li><strong>Read the defender view.</strong> The companion logs Authorization headers. Find your <code>alg=none</code> token in the log. Write the detection rules: alert on <code>alg:none</code>; alert on algorithm flips per issuer; alert on <code>redirect_uri</code> values outside the exact allow-list.</li>
+</ol>
+<p>No step above is marked "not run by us" — all three forgeries, the redirect bypass, and all six fix verifications ran locally. (<code>kid</code> path traversal and <code>jku</code>/<code>x5u</code> header injection are named in section 6 as the next rungs; they are concept-level here, lab-bounded in PortSwigger's JWT labs.)</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy JWT lab (start with "JWT authentication bypass via unverified signature," then the <code>none</code> and key-confusion labs in order). For each lab: (1) decode the provided token by hand first — never skip the reading step; (2) apply exactly one forgery class per attempt; (3) record which claim the verifier failed to enforce.</p>
+<p><strong>Success test:</strong> A one-page report per lab: the token decoded (header + claims quoted), the forgery class applied, the exact request/response proving it, the verifier-side root cause (which check was missing), the fix stated as the general rule it violates, and the defender detection (which log, which pattern). If a lab's verifier resists your forgery, document the check that stopped you — a characterized defense is a result.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"The library handles it."</strong> Libraries verify signatures; <em>applications</em> validate claims. The most common JWT bug is the gap between those two sentences. Read your library's docs for what it does <em>not</em> check.</li>
+<li><strong>Trusting the token's <code>alg</code>.</strong> The algorithm is a server-side decision. Any code path that reads <code>alg</code> from the token to choose the verification method is the vulnerability.</li>
+<li><strong>One key variable for two algorithms.</strong> RS256 and HS256 keys must live in separate variables with separate code paths — or better, separate verification functions that each accept exactly one algorithm.</li>
+<li><strong>Checking expiry "later."</strong> <code>exp</code> is checked at verification time or not at all. "We'll check it in the handler" means the handler that forgets.</li>
+<li><strong><code>kid</code> and <code>jku</code>/<code>x5u</code> headers.</strong> The key-ID header that becomes a path traversal (<code>kid: ../../dev/null</code> → null key → empty HMAC secret) and the URL headers that let the attacker supply the verification key — the next two rungs. Know they exist; practice them in the labs.</li>
+<li><strong>OAuth <code>state</code> left unvalidated.</strong> Without <code>state</code>, the login flow is CSRF-able: the attacker completes <em>their</em> OAuth flow in <em>your</em> browser. Always bind and validate <code>state</code>.</li>
+<li><strong>Scope as a suggestion.</strong> If the token endpoint grants whatever scope is requested, the authorization step is theater. Validate granted scopes server-side against what the user actually approved.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>RFC 7519</strong> (<a href="https://rfc-editor.org/rfc/rfc7519.txt">rfc-editor.org/rfc/rfc7519.txt</a> — verified 2026-10-10): JSON Web Token — the claims registry (<code>exp</code>, <code>aud</code>, <code>iss</code>, <code>sub</code>) and the JOSE header. <em>Read</em> §4 (claims); <em>note</em> what the RFC says the <em>application</em> must validate.</li>
+<li><strong>RFC 6749</strong> (<a href="https://rfc-editor.org/rfc/rfc6749.txt">rfc-editor.org/rfc/rfc6749.txt</a> — verified 2026-10-09): OAuth 2.0 — the authorization-code flow and <code>redirect_uri</code> handling. <em>Read</em> §4.1 (code flow); <em>note</em> §4.1.2's exact-match language.</li>
+<li><strong>PortSwigger Web Security Academy — JWT attacks</strong> (<a href="https://portswigger.net/web-security/jwt">portswigger.net/web-security/jwt</a> — verified 2026-10-10): the canonical flaw catalog — unverified signature, <code>none</code>, key confusion, <code>kid</code>/<code>jku</code>. <em>Read</em> fully, then do the labs in order.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger JWT + OAuth labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — free): the ordered lab set this lesson's method mirrors, hosted and authorized.</li>
+<li><strong>RFC 8725 (JWT BCP)</strong> (<a href="https://rfc-editor.org">rfc-editor.org</a> — free): the best-practices RFC — the fix list in standards language. <em>Skim</em> after the labs.</li>
+<li><strong><a href="/g/crypto/"><code>a-crypto</code></a></strong> (this guidebook): signatures — what they prove, and the misuse pairs this lesson weaponizes.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why <code>alg=none</code> works only against verifiers that read the algorithm <em>from the token</em>, and what the server-side allow-list looks like.</li>
+<li>The server publishes its RSA public key at <code>/pubkey</code>. Explain step by step how you turn that into an accepted admin token, and which line of the verifier is the bug.</li>
+<li>A token has a valid signature but <code>exp</code> is yesterday. Explain the two checks (signature validity vs token acceptability) and which one failed to happen.</li>
+<li><code>redirect_uri=https://trusted-app.example.evil.example/</code> passes a prefix check for <code>https://trusted-app.example</code>. Explain why, state the correct check, and explain what the attacker does with the authorization code.</li>
+<li>Explain why hand-building tokens (base64url + HMAC, no library) is the right way to <em>learn</em> this class, even though production code must use a vetted library.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page reports from "On your own" (one per lab): token decoded, forgery class, exact proof, root cause, the general rule violated, defender detection — plus your local-demo notes (the three forgeries, the redirect bypass, the six fixed-build cases).</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can decode JWTs by hand, forge <code>alg=none</code>, expired-claim, and key-confusion tokens against vulnerable verifiers on authorized targets, bypass prefix-match redirect validation, and verify the complete fix. You cannot yet claim: OAuth/OIDC implementation review — <code>kid</code>/<code>jku</code> exploitation, PKCE analysis, and multi-IdP trust design are the deeper layer this lesson points at.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/crypto/"><code>a-crypto</code></a> (re-read the signature misuse pairs) — now that you've seen what "unverified signature" buys an attacker.</li>
+<li><a href="/g/session-auth/"><code>b-session-auth</code></a> — sessions done right: what should have been in that cookie instead of a confused JWT.</li>
+<li><a href="/g/api-abuse/"><code>b-api-abuse</code></a> — where forged tokens get <em>used</em>: BOLA with an admin token is the combination that ends engagements.</li>
+<li>Map refs: <strong>CWE-287</strong> · <strong>CWE-347</strong> · <strong>RFC 7519</strong> · <strong>RFC 6749</strong> · <strong>PortSwigger JWT/OAuth</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

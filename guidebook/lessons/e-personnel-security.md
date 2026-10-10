@@ -1,6 +1,17 @@
+---
+lesson_id: e-personnel-security
+slug: personnel-security
+stage: E
+level: 3
+prerequisites: [e-iam]
+roles: []
+map_refs: ["CISSP 1.8"]
+test_date: 2026-10-10
+description: "Run the human side of hiring, transfer, departure, and travel security with owners and timing. A free lesson in the security guidebook, serving CISSP objective 1.8."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Personnel security: the human side of the employment lifecycle
 
-**ID:** `e-personnel-security` · **Stage:** E (Expert) · **Level:** 3 (produce a termination checklist and access-revocation runbook for a privileged departure, plus a travel-security briefing — with owners and timing for every action) · **Prerequisites:** `e-iam` (the technical joiner–mover–leaver lifecycle — this lesson is the HR-security and policy view of the same lifecycle, not a repeat of it). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.8** — personnel security across hiring, employment, and departure.
 

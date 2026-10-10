@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Applied cryptography: what the primitives do, and how they break</h1>
 <p class="lede prose">Cryptography is the one part of security where the math is essentially never the problem and the <em>use</em> of the math is almost always the problem. Nobody breaks AES; they store the key next to the data, or use ECB mode, or roll their own protocol, or let a certificate expire on a Friday. This lesson is the professional's view: you will not design ciphers — you will choose primitives correctly, manage keys through their lifecycle, read a PKI trust chain, and recognize the five misuses that defeat otherwise sound cryptography. It shows up in every architecture review ("where are the keys?"), every TLS misconfiguration finding, every "we encrypt at rest" claim that needs a follow-up question, and in the CISSP as Domain 3's most practical objective.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · OpenSSL 3.0.13, loopback only, nothing external touched</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · OpenSSL 3.0.13, loopback only, nothing external touched</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (use the primitives correctly, read a certificate chain, spot the misuse)</td></tr><tr><th scope="row">Prerequisites</th><td>Stage A cryptography concepts (hashing vs encryption, symmetric vs asymmetric); <a href="/g/http-depth/"><code>a-http-depth</code></a> (TLS layering); OpenSSL 3.x on your machine</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.6</strong> — cryptographic solutions: lifecycle, methods, PKI, key management, signatures. (Objective 3.7, cryptanalytic attack methods, is taught in <a href="/g/cryptanalysis/"><code>e-cryptanalysis</code></a>.)</td></tr>
+<tr><th scope="row">Stage</th><td>Stage E · Expert</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.6</strong> — cryptographic solutions: lifecycle, methods, PKI, key management, signatures. (Objective 3.7, cryptanalytic attack methods, is taught in <a href="/g/cryptanalysis/"><code>e-cryptanalysis</code></a>.)</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -242,7 +243,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

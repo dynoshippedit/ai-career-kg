@@ -1,6 +1,17 @@
+---
+lesson_id: e-secure-channels
+slug: secure-channels
+stage: E
+level: 3
+prerequisites: [a-http-depth, e-network-architecture]
+roles: []
+map_refs: ["CISSP 4.3"]
+test_date: 2026-10-10
+description: "Select TLS, VPN, SSH, and messaging channels per traffic class with written rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.3."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Secure channels: which encrypted path for which traffic, and why
 
-**ID:** `e-secure-channels` · **Stage:** E (Expert) · **Level:** 3 (select and justify the communication channel for every traffic class in an architecture) · **Prerequisites:** `a-http-depth` (the TLS handshake step by step — this lesson decides *when* to use it, not how it works), `e-network-architecture` (the zones whose traffic needs channels); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 4.3** — secure communication channels.
 

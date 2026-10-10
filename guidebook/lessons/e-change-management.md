@@ -1,6 +1,17 @@
+---
+lesson_id: e-change-management
+slug: change-management
+stage: E
+level: 3
+prerequisites: [e-config-management]
+roles: []
+map_refs: ["CISSP 7.9"]
+test_date: 2026-10-10
+description: "How to run change management — the change request, CAB review with written rationale, change paths, and the emergency procedure that keeps a spine. A free lesson in the security guidebook, serving CISSP objective 7.9."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Change management: approving the change before it ships
 
-**ID:** `e-change-management` · **Stage:** E (Expert) · **Level:** 3 (review change requests with written rationale and run the change process including emergencies) · **Prerequisites:** `e-config-management` (the baseline that changes move — same batch, read as the pair); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.9** — change management: reviewing, approving, and controlling changes to the trusted state.
 

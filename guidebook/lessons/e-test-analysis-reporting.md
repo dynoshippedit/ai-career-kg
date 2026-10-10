@@ -1,6 +1,17 @@
+---
+lesson_id: e-test-analysis-reporting
+slug: test-analysis-reporting
+stage: E
+level: 3
+prerequisites: [c-cvss, b-methodology]
+roles: []
+map_refs: ["CISSP 6.4"]
+test_date: 2026-10-10
+description: "Triage findings, rate risk with context, and write the two-layer report with remediation tracking for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.4."
+dateline: "Local demo run and reviewed 2026-10-10 · transcript runs/e-test-analysis-reporting.log"
+---
 # Test analysis and reporting: from ten thousand findings to decisions
 
-**ID:** `e-test-analysis-reporting` · **Stage:** E (Expert) · **Level:** 3 (triage findings, rate risk honestly, and write a report that drives remediation) · **Prerequisites:** `c-cvss` (severity scoring by hand — this lesson uses the score, not the math), `b-methodology` (the reporting phase this lesson professionalizes); no targets, one local Python demo in §4.
 
 **Map ref:** serves **CISSP objective 6.4** — analyzing test output and reporting.
 

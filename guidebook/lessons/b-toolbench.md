@@ -1,6 +1,17 @@
+---
+lesson_id: b-toolbench
+slug: toolbench
+stage: B
+level: 2
+prerequisites: [b-authorization-scope, b-methodology, a-http-depth, a-linux-cli]
+roles: [pentester]
+map_refs: []
+test_date: 2026-10-10
+description: "The toolbench: fifteen tool phases in activation order — for each, the one question it answers, the free tool that answers it, and what it cannot tell you. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · loopback only; nmap/Semgrep/Chromium steps re-ran 2026-10-10; remaining tools marked not run by us with reader procedures"
+---
 # The toolbench: fifteen phases, one question each
 
-**ID:** `b-toolbench` · **Stage:** B (Practitioner) · **Level:** 2 (operate: answer each phase's question on a prepared target; level 3 when the phases chain across a full finding) · **Prerequisites:** `b-authorization-scope`; `b-methodology`; `a-http-depth`; `a-linux-cli`.
 
 **Map refs:** the fifteen tool phases in activation order (owner's tool catalog); feeds every `b-…` vulnerability lesson.
 

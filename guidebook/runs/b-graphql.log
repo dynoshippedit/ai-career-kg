@@ -1,0 +1,23 @@
+=== b-graphql walkthrough ===
+date: 2026-10-10
+tool versions: graphql-core 3.3.0, stock Python 3.12.3, urllib
+environment: loopback only (127.0.0.1:8338 vulnerable, :8339 fixed); REAL GraphQL engine, not a simulation
+
+=== b-graphql walkthrough ===
+date: 2026-10-10; tools: graphql-core 3.3.0, stock Python 3.12.3, urllib; loopback only
+--- 1. baseline ---
+(200, {'data': {'user': {'name': 'alice'}}, 'errors': [], 'elapsed': 0.005})
+--- 2. introspection: dump the schema ---
+introspection 200; types found: ['Query', 'User', 'ID', 'String', 'Post', 'Comment', 'Boolean']
+--- 3. field-level authz: ssn readable by anyone ---
+{'user': {'name': 'alice', 'ssn': '000-00-0001'}}
+--- 4. nested-query DoS (depth 6, 5x fanout per level) ---
+status 200, 17143 response chars in 0.02s <- nested expansion
+--- 5. FIXED build ---
+introspection: (400, {'errors': ['ValueError: introspection disabled']})
+ssn field: {'data': {'user': {'name': 'alice', 'ssn': None}}, 'errors': ['forbidden: field-level authorization\n\nGraphQL request:1:22\n1 | { user(id: 1) { name ssn } }\n  |                      ^'], 'elapsed': 0.013}
+deep query: (400, {'errors': ['ValueError: query depth 5 exceeds limit 4']})
+legit still works: {'user': {'name': 'alice', 'email': 'alice@example.com'}}
+
+--- cleanup ---
+demo servers killed by PID after the run

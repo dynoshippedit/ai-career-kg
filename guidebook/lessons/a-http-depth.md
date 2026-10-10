@@ -1,6 +1,17 @@
+---
+lesson_id: a-http-depth
+slug: http-depth
+stage: A
+level: 3
+prerequisites: []
+roles: [soc-analyst, security-analyst, pentester, appsec, cloud-security, iam-engineer, grc-analyst]
+map_refs: []
+test_date: 2026-10-09
+description: "HTTP in depth: requests, responses, cookies, JWTs and TLS — explained byte by byte, with every walkthrough step run locally. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · loopback only, nothing external touched"
+---
 # HTTP in depth
 
-**ID:** `a-http-depth` · **Stage:** A (Foundations) · **Level:** 3 (mechanism — you can explain every byte on the wire) · **Prerequisites:** Linux command line basics (Stage A shell lesson), Python 3 and curl installed.
 
 ---
 

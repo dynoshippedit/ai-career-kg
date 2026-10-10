@@ -1,6 +1,17 @@
+---
+lesson_id: ai-llm-architecture
+slug: llm-architecture
+stage: AI
+level: 3
+prerequisites: [ai-prompt-injection]
+roles: []
+map_refs: ["CAISP ch1", "CAISP ch2"]
+test_date: 2026-10-09
+description: "How LLM applications are built: tokens, embeddings, the transformer mechanism, the RAG/tool/agent stack — and the attack surface of every layer, mapped. A free lesson in the security guidebook, serving CAISP chapters 1–2."
+dateline: "Walkthrough run 2026-10-09 · deterministic stack simulation, no model needed"
+---
 # How LLM applications are built and where they are attacked
 
-**ID:** `ai-llm-architecture` · **Stage:** AI track · **Level:** 3 (mechanism + attack-surface mapping on your own app) · **Prerequisites:** `ai-prompt-injection` (you already know the #1 risk; this lesson shows you the machine it lives in); Stage A Python and HTTP; Stage B injection mindset.
 
 **Map refs:** **CAISP chapters 1–2** (Introduction to AI Security; Understanding and Attacking Large Language Models); MITRE ATLAS (tactic/technique structure); feeds `ai-llm-top10`, `ai-supply-chain`, `ai-governance`.
 

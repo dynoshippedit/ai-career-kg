@@ -1,6 +1,17 @@
+---
+lesson_id: b-business-logic
+slug: business-logic
+stage: B
+level: 3
+prerequisites: [b-idor, b-sqli, b-xss]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "Business-logic flaws: map the workflow, violate its assumptions — price tampering, coupon races and negative quantities, with server-side fixes and business-anomaly detection. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo shop (price tamper, coupon race, negative quantity)"
+---
 # Business-logic flaws: when the code works and the rules don't
 
-**ID:** `b-business-logic` · **Stage:** B (Practitioner) · **Level:** 3 (methodology + live workflow abuse + server-side fix verification) · **Prerequisites:** `b-idor`, `b-sqli`, `b-xss` (the full wave-1 set — this is the synthesis lesson), B-AUTH (authorization discipline)
 
 ---
 

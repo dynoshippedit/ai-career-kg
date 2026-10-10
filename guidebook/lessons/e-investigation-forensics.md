@@ -1,6 +1,17 @@
+---
+lesson_id: e-investigation-forensics
+slug: investigation-forensics
+stage: E
+level: 3
+prerequisites: [c-incident-response, d-dfir-deep]
+roles: []
+map_refs: ["CISSP 7.1"]
+test_date: 2026-10-10
+description: "How to run investigations as a management and legal discipline — forensic readiness, evidence handling, chain of custody, and working with counsel and law enforcement. A free lesson in the security guidebook, serving CISSP objective 7.1."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Investigations and digital forensics: the management and legal view
 
-**ID:** `e-investigation-forensics` · **Stage:** E (Expert) · **Level:** 3 (design a forensic-readiness program and run an investigation's evidence handling so it survives legal scrutiny) · **Prerequisites:** `c-incident-response` (the response lifecycle this wraps around), `d-dfir-deep` (the analyst bench work this lesson manages — timelines, memory and disk forensics); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.1** — how investigations are run: evidence, investigative techniques, digital forensics, and the legal frame that makes evidence admissible.
 

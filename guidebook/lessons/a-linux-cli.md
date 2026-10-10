@@ -1,6 +1,17 @@
+---
+lesson_id: a-linux-cli
+slug: linux-cli
+stage: A
+level: 3
+prerequisites: [a-tcpip-ports]
+roles: [soc-analyst, security-analyst, pentester, appsec, cloud-security, iam-engineer]
+map_refs: []
+test_date: 2026-10-09
+description: "Linux command line for security work: files, permissions, processes, logs, pipes and SSH keys — the instrument every later lesson assumes. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local scratch dir; shell ran as root (flagged in-lesson)"
+---
 # Linux command line for security work
 
-**ID:** `a-linux-cli` · **Stage:** A (Foundations) · **Level:** 3 (operate — you can navigate, inspect, and control a Linux system from the shell, unaided) · **Prerequisites:** None. This is the bench everything else runs on; if you arrived from `a-tcpip-ports`, you already know why the machine matters.
 
 **Map refs:** Pre-map foundations; feeds every later lesson (all walkthroughs assume this).
 

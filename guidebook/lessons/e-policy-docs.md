@@ -1,6 +1,17 @@
+---
+lesson_id: e-policy-docs
+slug: policy-docs
+stage: E
+level: 3
+prerequisites: [e-governance]
+roles: []
+map_refs: ["CISSP 1.6"]
+test_date: 2026-10-10
+description: "Author a four-tier document set — policy, standard, procedure, guideline — with traceability both ways. A free lesson in the security guidebook, serving CISSP objective 1.6."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Security policy, standards, procedures, and guidelines: the document hierarchy
 
-**ID:** `e-policy-docs` · **Stage:** E (Expert) · **Level:** 3 (author a three-tier document set — policy, standard, procedure — for one control area, plus the guideline, with owners and review dates) · **Prerequisites:** `e-governance` (the charter that gives policy its authority). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.6** — security policy, standards, procedures, and guidelines.
 

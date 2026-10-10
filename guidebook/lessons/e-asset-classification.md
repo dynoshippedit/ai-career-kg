@@ -1,6 +1,17 @@
+---
+lesson_id: e-asset-classification
+slug: asset-classification
+stage: E
+level: 3
+prerequisites: [e-risk-assessment]
+roles: [grc-analyst]
+map_refs: ["CISSP 2.1"]
+test_date: 2026-10-10
+description: "Build a four-tier classification scheme — tiers, examples, handling hooks, owners — anchored in impact per FIPS 199 and NIST SP 800-60. A free lesson in the security guidebook, serving CISSP objective 2.1."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Classifying information and assets: the scheme everything else hangs on
 
-**ID:** `e-asset-classification` · **Stage:** E (Expert) · **Level:** 3 (produce a classification scheme — tiers, examples, handling hooks, owners — that survives a review) · **Prerequisites:** `e-risk-assessment` (impact thinking, qualitative scales); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 2.1** — identifying and classifying information and assets: deciding what an organization has, what it is worth protecting, and how sensitive each thing is.
 

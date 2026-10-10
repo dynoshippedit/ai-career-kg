@@ -1,6 +1,17 @@
+---
+lesson_id: b-session-auth
+slug: session-auth
+stage: B
+level: 3
+prerequisites: [a-http-depth, b-csrf]
+roles: [security-analyst, pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "Broken authentication and session management: fixation, predictable tokens, missing rate limits — reproduced locally, fixed, with MFA as the structural answer. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us"
+---
 # Broken authentication and session management: proving who you are, and staying proven
 
-**ID:** `b-session-auth` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + local reproduction of fixation, token-predictability and missing rate-limit + fix verification) · **Prerequisites:** `a-http-depth` (cookies, Set-Cookie semantics), `b-csrf` (what the session cookie carries), B-AUTH (authorization discipline)
 
 ---
 

@@ -1,6 +1,17 @@
+---
+lesson_id: c-cvd
+slug: cvd
+stage: C
+level: 3
+prerequisites: [b-methodology]
+roles: [pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Coordinated vulnerability disclosure: finding the security contact, writing the report, negotiating the timeline, publishing responsibly — Heartbleed vs the zero-day drops. A free lesson in the security guidebook."
+dateline: "Worked case authored 2026-10-09 · local security.txt lab run; no command line beyond it"
+---
 # Coordinated vulnerability disclosure
 
-**ID:** `c-cvd` · **Stage:** C (Professional) · **Level:** 3 (run a real disclosure end to end, unaided, without causing harm) · **Prerequisites:** Stage B (you can find and prove a vulnerability); `b-methodology` (the reporting phase — a disclosure is a report with a clock attached).
 
 **Map ref:** Stage C milestone lesson — a completed coordinated disclosure is half the stage's milestone.
 

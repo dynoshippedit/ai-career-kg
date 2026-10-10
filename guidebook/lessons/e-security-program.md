@@ -1,6 +1,17 @@
+---
+lesson_id: e-security-program
+slug: security-program
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, e-sdlc, c-incident-response]
+roles: [grc-analyst]
+map_refs: []
+test_date: 2026-10-09
+description: "Running a security program: strategy in the Govern loop, the metrics that matter vs vanity metrics (KPI vs KRI), risk-based prioritization, and the program charter as the worked artifact. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Running a security program
 
-**ID:** `e-security-program` · **Stage:** E (Expert) · **Level:** 3 (produce a complete, defensible program charter unaided) · **Prerequisites:** `e-risk-assessment` (the register this program runs on); `e-sdlc` (the gates this program operates); `c-incident-response` (the capability this program must be able to field). No command line in this lesson.
 
 **Map ref:** brief §5 "Running a security program"; **CISSP Domain 1** (Security and Risk Management) at program level; NIST CSF 2.0; NIST SP 800-55; feeds `e-board-communication`, the Stage E capstone path.
 

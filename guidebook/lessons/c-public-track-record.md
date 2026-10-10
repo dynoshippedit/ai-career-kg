@@ -1,6 +1,17 @@
+---
+lesson_id: c-public-track-record
+slug: public-track-record
+stage: C
+level: 3
+prerequisites: [c-cvd, c-cve-program, c-vuln-ecosystem, b-methodology]
+roles: [security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Building a public track record: write-ups that teach — root cause first, mechanism re-derivable, honest impact — the Project Zero bar, one finding in two formats. A free lesson in the security guidebook."
+dateline: "Worked write-up authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Building a public track record: write-ups that teach
 
-**ID:** `c-public-track-record` · **Stage:** C (Professional) · **Level:** 3 (worked write-up authored to the bar; publication is reader-side) · **Prerequisites:** `c-cvd` (the disclosure path), `c-cve-program` (the permanent record), `c-vuln-ecosystem` (how findings get ranked), `b-methodology` (the engagement the finding came from).
 
 **Map refs:** serves the Stage C professional-recognition track — this lesson is the recognition pathway's keystone: every earlier stage's proof artifacts become entries here.
 

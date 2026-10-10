@@ -1,6 +1,17 @@
+---
+lesson_id: e-governance
+slug: governance
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, e-board-communication]
+roles: []
+map_refs: ["CISSP 1.3"]
+test_date: 2026-10-10
+description: "Draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale. A free lesson in the security guidebook, serving CISSP objective 1.3."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Security governance: aligning security with business strategy
 
-**ID:** `e-governance` · **Stage:** E (Expert) · **Level:** 3 (draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale) · **Prerequisites:** `e-risk-assessment` (risk language, qualitative scales); `e-board-communication` (how governance reports upward). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.3** — security governance: aligning security with business strategy.
 

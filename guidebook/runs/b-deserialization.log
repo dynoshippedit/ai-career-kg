@@ -1,0 +1,29 @@
+=== b-deserialization walkthrough ===
+date: 2026-10-10
+tool versions: stock Python 3.12.3 (pickle, hmac, hashlib), urllib
+environment: loopback only (127.0.0.1:8336 vulnerable, :8337 fixed JSON+HMAC)
+safety note: payload writes a BENIGN marker file /tmp/deserwalk/PWNED-marker, labeled in companion; local only
+
+=== b-deserialization walkthrough ===
+date: 2026-10-10; tools: stock Python 3.12.3 (pickle, hmac), urllib; loopback only
+1. login cookie (base64 pickle): gASVEwAAAAAAAAB9lIwEdXNlcpSMBWFsaWNllHMu...
+   decoded: {'user': 'alice'}
+2. dashboard: welcome, alice
+--- 4. FIXED build (JSON + HMAC) ---
+cookie shape: eyJ1c2VyIjogImFsaWNlIn0=.83458...
+legit: 200 welcome, alice
+tampered -> HTTP Error 403: Forbidden
+pickle-vs-fixed -> HTTP Error 400: Bad Request
+
+--- cleanup ---
+demo servers killed by PID; marker file removed
+
+--- 3. code execution at unpickle time (logged honestly) ---
+The evil-cookie request returned HTTP 400 (the handler does data['user'] on the
+unpickle result, and the __reduce__ payload returned int 0 from os.system -> TypeError).
+BUT the marker file /tmp/deserwalk/PWNED-marker existed afterward (verified with
+ls -la, timestamped during the run): os.system ran INSIDE pickle.loads, before the
+application ever touched the result. The 400 is the app choking on the return value;
+the execution had already happened. This ordering - code runs during parsing,
+before application logic - is the lesson's core mechanism, demonstrated.
+(marker file removed after verification)

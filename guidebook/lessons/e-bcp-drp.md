@@ -1,6 +1,17 @@
+---
+lesson_id: e-bcp-drp
+slug: bcp-drp
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, c-incident-response]
+roles: [grc-analyst]
+map_refs: ["CISSP 1.7", "CISSP 7.10", "CISSP 7.11", "CISSP 7.12", "CISSP 7.13"]
+test_date: 2026-10-09
+description: "Business continuity and disaster recovery: the BIA, RTO/RPO as decisions, recovery strategy selection, and a tabletop exercise — worked end to end. A free lesson in the security guidebook, serving CISSP objectives 1.7, 7.10–7.13."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Business continuity and disaster recovery: deciding what survives the outage
 
-**ID:** `e-bcp-drp` · **Stage:** E (Expert) · **Level:** 3 (produce a BIA and a tested recovery plan for a real system) · **Prerequisites:** `e-risk-assessment` (impact thinking, qualitative scales); `c-incident-response` (the first hours of the bad day); no command line in this lesson.
 
 **Map ref:** serves **CISSP objectives 1.7, 7.10, 7.11, 7.12, 7.13** — BIA and continuity requirements, recovery strategies, DR planning, DR testing, BC planning and exercises.
 

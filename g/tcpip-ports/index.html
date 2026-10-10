@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>TCP/IP and ports</h1>
 <p class="lede prose">Every connection you will ever investigate or exploit is TCP (or UDP) to an IP address and a port. The SOC analyst triaging "suspicious outbound connection" is reading exactly the states this lesson teaches: who connected to whom, on what port, and whether the handshake completed. The penetration tester whose scan shows "port 8080 open" is reading a completed handshake. The incident responder deciding whether data left the network is asking whether a connection was ever ESTABLISHED. Ports are also the first access-control boundary you will meet — a firewall is, at its simplest, a list of which ports may complete handshakes. Learn what a port really is now, and "open port," "listening service," and "connection" stop being vocabulary and become things you can observe.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; UDP step not run by us (sandbox blocks UDP loopback); packet-capture step re-ran 2026-10-10 with real tcpdump</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · loopback only; UDP step not run by us (sandbox blocks UDP loopback); packet-capture step re-ran 2026-10-10 with real tcpdump</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism — you can explain the handshake, read connection states, and say what a port is without hand-waving)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/dns-depth/"><code>a-dns-depth</code></a> (names resolve to addresses; this lesson moves bytes to those addresses)</td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds <a href="/g/http-depth/"><code>a-http-depth</code></a>, Stage B (every vulnerability lesson opens connections), Stage D (network forensics reads these states).</td></tr>
+<tr><th scope="row">Stage</th><td>Stage A · Foundations</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/dns-depth/"><code>a-dns-depth</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds <a href="/g/http-depth/"><code>a-http-depth</code></a>, Stage B (every vulnerability lesson opens connections), Stage D (network forensics reads these states).</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -246,7 +247,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-a/">Stage A · Foundations</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

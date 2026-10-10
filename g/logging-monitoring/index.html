@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Logging and monitoring operations: deciding what gets watched, and by whom</h1>
 <p class="lede prose">Every detection the SOC ever makes rests on a decision somebody made months earlier: log this event, keep it this long, send it to the people watching. Logging and monitoring operations is the discipline of making those decisions deliberately — the event taxonomy (what's worth recording), the retention policy (how long each category lives, and where), and the monitoring program (who watches, how alerts get tuned, how coverage is measured). It shows up in the breach where the evidence aged out at 30 days, in the SOC drowning in unactionable alerts, and in the audit finding that nobody reviews the firewall logs anyone. SOC managers, detection engineers, and GRC analysts live here. Note the split with <a href="/g/log-sources/"><code>c-log-sources</code></a>: that lesson taught you to parse a log line. This lesson teaches the organization's decisions about which log lines exist at all, how long they survive, and what the watch floor does with them.</p>
-<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (design a logging program — what to log, retention, and the SOC workflow that consumes it)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/log-sources/"><code>c-log-sources</code></a> (reading logs — this lesson is the program that produces them), <a href="/g/soc-triage/"><code>c-soc-triage</code></a> (the analyst workflow this lesson staffs and tunes); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.2</strong> — logging and monitoring as an operations discipline: event selection, retention, and the monitoring program.</td></tr>
+<tr><th scope="row">Stage</th><td>Stage E · Expert</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/log-sources/"><code>c-log-sources</code></a>, <a href="/g/soc-triage/"><code>c-soc-triage</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.2</strong> — logging and monitoring as an operations discipline: event selection, retention, and the monitoring program.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -256,7 +257,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><em>Worked case authored and self-reviewed 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-logging-monitoring.log</code>.</em></p>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

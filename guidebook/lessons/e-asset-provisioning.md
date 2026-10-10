@@ -1,6 +1,17 @@
+---
+lesson_id: e-asset-provisioning
+slug: asset-provisioning
+stage: E
+level: 3
+prerequisites: [e-asset-classification]
+roles: []
+map_refs: ["CISSP 2.3"]
+test_date: 2026-10-10
+description: "Design a provisioning workflow with ownership assignment and run an inventory audit that reconciles against the CMDB. A free lesson in the security guidebook, serving CISSP objective 2.3."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Secure provisioning: ownership, inventory, and the CMDB
 
-**ID:** `e-asset-provisioning` · **Stage:** E (Expert) · **Level:** 3 (design a provisioning workflow and run an inventory audit that reconciles) · **Prerequisites:** `e-asset-classification` (the tiers and owners that provisioning records); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 2.3** — secure provisioning of information and assets: ownership assignment, inventory, and asset management across the asset's life in the organization.
 

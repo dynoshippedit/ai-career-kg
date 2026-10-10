@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · AI track</span><h1>Prompt injection, the #1 LLM risk</h1>
 <p class="lede prose">Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications — <strong>LLM01</strong> in both the 2025 and 2026 editions — because it is the failure mode from which the others follow: if an attacker can make the model follow their instructions instead of yours, every downstream control (tool permissions, output handling, data boundaries) is suddenly negotiable. It appears in MITRE ATLAS as technique <strong>AML.T0051</strong>. It is the first thing a CAISP candidate meets in chapter 3, the first thing a red team tries against any LLM app, and the mechanism behind the real incidents you have read about — assistants tricked by webpages they summarized, agents manipulated through the tickets they processed. If you build, buy, or secure anything with an LLM in it, this is the threat model you learn first.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough steps 1–4 run 2026-10-09 · step 5 (live model) not run by us</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough steps 1–4 run 2026-10-09 · step 5 (live model) not run by us</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + demonstrated defense + detection)</td></tr><tr><th scope="row">Prerequisites</th><td>how LLM applications are built (tokens, system prompts, retrieval/RAG, tool calling — the <code>ai-01</code> lesson); Stage B injection mindset; Python 3</td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM01:2026</strong> (edition released 2026-08-04 — always name the edition; codes were renumbered from 2025); <strong>MITRE ATLAS AML.T0051</strong>; <strong>CAISP chapter 3</strong>.</td></tr>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td>None — see §2 for what to have ready. <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM01:2026</strong> (edition released 2026-08-04 — always name the edition; codes were renumbered from 2025); <strong>MITRE ATLAS AML.T0051</strong>; <strong>CAISP chapter 3</strong>.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -257,7 +258,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

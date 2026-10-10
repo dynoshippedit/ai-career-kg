@@ -1,6 +1,17 @@
+---
+lesson_id: e-handling-requirements
+slug: handling-requirements
+stage: E
+level: 3
+prerequisites: [e-asset-classification]
+roles: []
+map_refs: ["CISSP 2.2"]
+test_date: 2026-10-10
+description: "Turn classification tiers into enforceable handling rules — labeling, storage, transmission, disposal — as a testable matrix. A free lesson in the security guidebook, serving CISSP objective 2.2."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Handling requirements: what each classification tier demands
 
-**ID:** `e-handling-requirements` · **Stage:** E (Expert) · **Level:** 3 (write handling rules per tier — labeling, storage, transmission, disposal — and turn them into an enforceable matrix) · **Prerequisites:** `e-asset-classification` (the four tiers this lesson operationalizes); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 2.2** — information and asset handling requirements: the rules that turn a classification label into actual protection.
 

@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · AI track</span><h1>AI attacks and defenses in the build pipeline</h1>
 <p class="lede prose">Every model you will ever deploy passed through a pipeline: data was collected, a training or fine-tuning job ran, an artifact was packaged, it landed in a registry, and something deployed it. That pipeline is an attack surface with its own threat model, and it is where the most consequential AI compromises happen — not because the model was clever, but because the build was trusted. ML platform engineers, AI security engineers, and DevSecOps teams own this. CAISP puts it in chapter 4 for a reason: securing the pipeline is the DevOps half of AI security, and everything the track taught about provenance in <a href="/g/supply-chain/"><code>ai-supply-chain</code></a> only works if the pipeline that produces the provenance is itself trustworthy.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · deterministic pipeline simulation, no model, no network</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · deterministic pipeline simulation, no model, no network</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + pipeline hardening on your own build, each attack paired with its defense)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/supply-chain/"><code>ai-supply-chain</code></a> (hashes, signing, admission policies); <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (the stack you are protecting); <a href="/g/git-github/"><code>a-git-github</code></a> (the artifact pipeline); Python 3</td></tr><tr><th scope="row">Map references</th><td><strong>CAISP chapter 4</strong> (AI Attacks and Defenses Using DevOps); <strong>OWASP LLM Top 10:2026, LLM05</strong> (Data and Model Poisoning) and <strong>LLM04</strong> (Supply Chain); MITRE ATLAS — Training Data Poisoning, AI Supply Chain Compromise, Publish Poisoned AI Artifacts; SLSA; feeds <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a>, <a href="/g/ai-governance/"><code>ai-governance</code></a>.</td></tr>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/supply-chain/"><code>ai-supply-chain</code></a>, <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a>, <a href="/g/git-github/"><code>a-git-github</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td><strong>CAISP chapter 4</strong> (AI Attacks and Defenses Using DevOps); <strong>OWASP LLM Top 10:2026, LLM05</strong> (Data and Model Poisoning) and <strong>LLM04</strong> (Supply Chain); MITRE ATLAS — Training Data Poisoning, AI Supply Chain Compromise, Publish Poisoned AI Artifacts; SLSA; feeds <a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a>, <a href="/g/ai-governance/"><code>ai-governance</code></a>.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -246,7 +247,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

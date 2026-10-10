@@ -1,6 +1,17 @@
+---
+lesson_id: d-dfir-deep
+slug: dfir-deep
+stage: D
+level: 3
+prerequisites: [c-incident-response, c-log-sources, a-linux-cli, d-malware-analysis]
+roles: [soc-analyst, security-analyst, dfir]
+map_refs: []
+test_date: 2026-10-09
+description: "DFIR deep: disk, memory and network forensics — the order of volatility, evidence handling, timeline construction from labeled data, and hypothesis-driven threat hunting. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · labeled synthetic evidence; tool runs on real images are reader-side in their own lab"
+---
 # DFIR deep: disk, memory, network forensics
 
-**ID:** `d-dfir-deep` · **Stage:** D (Specialist) · **Level:** 3 (evidence handling + timeline construction from labeled data; tool runs on real images are reader-side in their own lab) · **Prerequisites:** `c-incident-response` (the lifecycle this lesson serves), `c-log-sources` (where evidence lives), `a-linux-cli` (the tools that touch it), `d-malware-analysis` (what the implant looks like when you find it).
 
 **Map refs:** serves the Stage D DFIR specialist track; feeds detection engineering (`c-sigma-detection`).
 

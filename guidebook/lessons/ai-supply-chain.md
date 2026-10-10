@@ -1,6 +1,17 @@
+---
+lesson_id: ai-supply-chain
+slug: supply-chain
+stage: AI
+level: 3
+prerequisites: [ai-llm-architecture, ai-llm-top10, a-git-github]
+roles: []
+map_refs: ["CAISP ch6"]
+test_date: 2026-10-09
+description: "AI supply chain security: provenance, hashes, CycloneDX AIBOMs, Sigstore keyless signing, and the pickle hazard — demonstrated locally. A free hands-on lesson in the security guidebook, serving CAISP chapter 6."
+dateline: "Walkthrough steps 1–5 run 2026-10-09 · step 6 (live keyless signing) not run by us"
+---
 # AI supply chain security
 
-**ID:** `ai-supply-chain` · **Stage:** AI track · **Level:** 3 (mechanism + provenance verification on your own artifacts + admission policy) · **Prerequisites:** `ai-llm-architecture` (where weights enter the stack); `ai-llm-top10` (LLM04:2026, expanded here); `a-git-github` (hashes, commits, remotes).
 
 **Map refs:** **OWASP Top 10 for LLM Applications 2026, LLM04:2026** (edition released 2026-08-04 — always name the edition); **CAISP chapter 6**.
 

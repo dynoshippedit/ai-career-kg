@@ -1,6 +1,17 @@
+---
+lesson_id: e-personnel-safety
+slug: personnel-safety
+stage: E
+level: 3
+prerequisites: []
+roles: []
+map_refs: ["CISSP 7.15"]
+test_date: 2026-10-10
+description: "How to protect the people — travel-security briefings, workplace-violence prevention, duress and check-in procedures. A free lesson in the security guidebook, serving CISSP objective 7.15."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Personnel safety: protecting the people, not just the accounts
 
-**ID:** `e-personnel-safety` · **Stage:** E (Expert) · **Level:** 3 (produce a travel-security briefing and a workplace-safety procedure set) · **Prerequisites:** none technical — this is the human-safety view; no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.15** — personnel safety and security concerns: travel security, workplace violence prevention, duress, and protective concepts.
 

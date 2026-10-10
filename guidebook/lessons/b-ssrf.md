@@ -1,6 +1,17 @@
+---
+lesson_id: b-ssrf
+slug: ssrf
+stage: B
+level: 3
+prerequisites: [a-http-depth, b-idor]
+roles: [pentester, appsec, cloud-security]
+map_refs: []
+test_date: 2026-10-09
+description: "SSRF: when the server fetches what you tell it to — loopback, cloud-metadata angle, filter bypasses and the allow-list fix. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app; metadata tree is a labeled loopback simulation"
+---
 # SSRF: when the server fetches what you tell it to
 
-**ID:** `b-ssrf` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction + fix verification) · **Prerequisites:** `a-http-depth` (HTTP in depth), `b-idor` (the trust-the-client pattern), B-AUTH (authorization discipline: you test only what you are allowed to touch).
 
 **Map refs:** OWASP Top 10:2025 A01 (SSRF folded into Broken Access Control) · WSTG-INPV-19 · CWE-918
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-secops-concepts
+slug: secops-concepts
+stage: E
+level: 3
+prerequisites: [e-iam]
+roles: []
+map_refs: ["CISSP 7.4"]
+test_date: 2026-10-10
+description: "How to apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — plus a zero-trust gap assessment. A free lesson in the security guidebook, serving CISSP objective 7.4."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Foundational security operations concepts: the principles you run on
 
-**ID:** `e-secops-concepts` · **Stage:** E (Expert) · **Level:** 3 (apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — and assess a zero-trust gap) · **Prerequisites:** `e-iam` (the lifecycle and access review where these principles get applied); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.4** — the foundational concepts of security operations, used as operating principles rather than vocabulary.
 

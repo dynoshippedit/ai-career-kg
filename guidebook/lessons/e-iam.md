@@ -1,6 +1,17 @@
+---
+lesson_id: e-iam
+slug: iam
+stage: E
+level: 3
+prerequisites: [a-http-depth, a-linux-cli, b-session-auth]
+roles: [cloud-security, cloud-security, iam-engineer]
+map_refs: ["CISSP 5.1", "CISSP 5.2", "CISSP 5.3", "CISSP 5.4", "CISSP 5.5"]
+test_date: 2026-10-09
+description: "Identity and access management: the joiner-mover-leaver lifecycle, assurance levels, federation, RBAC/ABAC, privileged access — with a full access review worked case. A free lesson in the security guidebook, serving CISSP objectives 5.1–5.5."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Identity and access management: who gets in, and to what
 
-**ID:** `e-iam` · **Stage:** E (Expert) · **Level:** 3 (design an identity lifecycle and run an access review that holds up) · **Prerequisites:** `a-http-depth` (authentication schemes), `a-linux-cli` (users, groups, permissions), `b-session-auth` (what broken auth looks like); no command line in this lesson.
 
 **Map ref:** serves **CISSP objectives 5.1–5.5** — access control, identification/authentication strategy, federated identity, authorization models, the provisioning lifecycle. (Objective 5.6, implementing authentication systems, is taught hands-on in Stage A and Stage D.)
 

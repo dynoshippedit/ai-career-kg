@@ -1,6 +1,17 @@
+---
+lesson_id: b-methodology
+slug: methodology
+stage: B
+level: 2
+prerequisites: [b-authorization-scope]
+roles: [security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Engagement methodology: OWASP WSTG, PTES, and NIST SP 800-115, and the six phases from scoping to reporting — the repeatable process behind every engagement. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Engagement methodology: WSTG, PTES, and NIST SP 800-115
 
-**ID:** `b-methodology` · **Stage:** B (Practitioner) · **Level:** 2 (operate: follow the methodology on a prepared target; the vulnerability lessons are the path to 3) · **Prerequisites:** `b-authorization-scope`; Stage A complete.
 
 **Map refs:** OWASP WSTG v4.2 (12 categories, `WSTG-<CAT>-<NN>` IDs); PTES seven phases (verified on the primary page 2026-10-09); NIST SP 800-115 (Final, Sept 2008; three methods, three phases).
 

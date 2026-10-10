@@ -1,6 +1,17 @@
+---
+lesson_id: e-arch-vuln-assessment
+slug: arch-vuln-assessment
+stage: E
+level: 3
+prerequisites: [d-appsec, d-cloud-security, e-risk-assessment]
+roles: []
+map_refs: ["CISSP 3.5"]
+test_date: 2026-10-10
+description: "Decompose a hybrid cloud-plus-IoT-plus-API architecture, name per-component vulnerability classes, rate with structural judgment, and prioritize fixes. A free lesson in the security guidebook, serving CISSP objective 3.5."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Assessing vulnerabilities across the architecture
 
-**ID:** `e-arch-vuln-assessment` · **Stage:** E (Expert) · **Level:** 3 (assess a hybrid architecture component by component, name the vulnerability classes per component, and write prioritized recommendations) · **Prerequisites:** `d-appsec` (threat modeling), `d-cloud-security` (cloud threat model), `e-risk-assessment` (rating and response); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.5** — assessing and mitigating vulnerabilities across architecture and system types.
 

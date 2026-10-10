@@ -1,6 +1,17 @@
+---
+lesson_id: e-facility-design
+slug: facility-design
+stage: E
+level: 3
+prerequisites: [e-risk-assessment]
+roles: []
+map_refs: ["CISSP 3.8"]
+test_date: 2026-10-10
+description: "Review a facility design against CPTED, layered defense, and site-selection factors, writing findings fixable at the design stage. A free lesson in the security guidebook, serving CISSP objective 3.8."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Site and facility design: security before the first brick
 
-**ID:** `e-facility-design` · **Stage:** E (Expert) · **Level:** 3 (review a facility design against CPTED, layered defense, and site selection — findings with recommendations) · **Prerequisites:** `e-risk-assessment`; no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.8** — site and facility design principles: CPTED, layered defense, and site selection.
 

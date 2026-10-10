@@ -1,6 +1,17 @@
+---
+lesson_id: a-windows-concepts
+slug: windows-concepts
+stage: A
+level: 2
+prerequisites: [a-linux-cli]
+roles: [soc-analyst, security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson's concepts in Windows form, taught from Microsoft's own docs with exact reader procedures. A free lesson in the security guidebook."
+dateline: "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09"
+---
 # Windows concepts for security
 
-**ID:** `a-windows-concepts` · **Stage:** A (Foundations) · **Level:** 2 (recognize and operate guided — every hands-on step below was **not run by us**; no Windows machine exists on the build bench. Run them on your own Windows VM to reach level 3) · **Prerequisites:** `a-linux-cli` (the same concepts in Linux form — this lesson is the translation).
 
 **Map refs:** Stage A foundation; pairs with `a-linux-cli`; feeds `c-log-sources` (Windows event IDs) and `d-malware-analysis` (Windows-native analysis).
 

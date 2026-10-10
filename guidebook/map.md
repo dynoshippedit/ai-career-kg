@@ -256,3 +256,4 @@ ai-governance ──→ c-ai-tooling (governing AI vs wielding AI tooling)
 
 - `/g/map-cissp/`: all 62 objectives (1.1–8.5), guidebook paraphrases, lesson links or gaps. **17 of 62 have a lesson** (1.7, 1.9, 3.6, 5.1–5.5, 7.10–7.13, 8.1–8.5). 45 gaps logged (see gaps.md).
 - `/g/map-caisp/`: 7 chapters → lessons. **7 of 7 have a lesson.** CAISP kept separate from CertNexus CAIP (one line, never merged).
+| `ai-sec-automation` | AI security automation: concepts | AI track | 2 — concepts + detection: name the SEC598/SEC535 subject areas, pair every attack concept with defense and telemetry, write a detection plan | `ai-llm-architecture`, `ai-llm-top10`, `c-soc-triage` | AI track; GASAE/GOAA light maps | GASAE + GOAA subject areas as concepts (SANS SEC598/SEC535) |

@@ -1,6 +1,17 @@
+---
+lesson_id: b-sqli
+slug: sqli
+stage: B
+level: 3
+prerequisites: [a-http-depth, a-git-github]
+roles: [security-analyst, pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "SQL injection: when input becomes the query — in-band, blind and time-based families reproduced locally, then fixed with parameterized queries. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)"
+---
 # SQL injection: when your input becomes the query
 
-**ID:** `b-sqli` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction in three families + fix verification) · **Prerequisites:** `a-http-depth` (HTTP in depth), `a-git-github` (the evidence pipeline), B-AUTH (authorization discipline: you test only what you are allowed to touch), enough SQL to read a `SELECT` statement.
 
 **Map refs:** OWASP Top 10:2025 A05 Injection · WSTG-INPV-05 · CWE-89
 

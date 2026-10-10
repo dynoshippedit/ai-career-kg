@@ -1,6 +1,17 @@
+---
+lesson_id: b-csrf
+slug: csrf
+stage: B
+level: 3
+prerequisites: [a-http-depth, b-idor]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-10
+description: "CSRF: when the victim's browser does the attacker's work — token defense, SameSite, and the no-state-changing-GET rule. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app; browser-click sub-step re-ran 2026-10-10 (headless Chromium)"
+---
 # CSRF: when the victim's browser does the attacker's work
 
-**ID:** `b-csrf` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction + fix verification) · **Prerequisites:** `a-http-depth` (cookies, same-origin policy, GET vs POST), `b-idor` (server-side trust), B-AUTH (authorization discipline: you test only what you are allowed to touch).
 
 **Map refs:** OWASP Top 10:2025 A01 · WSTG-SESS-05 · CWE-352
 

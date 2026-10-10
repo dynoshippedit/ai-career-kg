@@ -1,6 +1,17 @@
+---
+lesson_id: c-soc-triage
+slug: soc-triage
+stage: C
+level: 3
+prerequisites: [a-linux-cli, b-session-auth]
+roles: [soc-analyst, security-analyst]
+map_refs: []
+test_date: 2026-10-09
+description: "SOC triage: from alert to decision — the eight-stage pipeline, impossible-travel and beaconing decision trees, and the five classification buckets. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · labeled fictional event set; decision trees executed locally"
+---
 # SOC Triage: From Alert to Decision
 
-**ID:** `c-soc-triage` · **Stage:** C (Professional) · **Level:** 3 (triage workflow + live decision trees + classification discipline) · **Prerequisites:** `a-linux-cli` (command line), `b-session-auth` (what account-compromise looks like from the attack side).
 
 ---
 

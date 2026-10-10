@@ -1,6 +1,17 @@
+---
+lesson_id: e-patch-management
+slug: patch-management
+stage: E
+level: 3
+prerequisites: [c-vuln-ecosystem, c-cvss]
+roles: []
+map_refs: ["CISSP 7.8"]
+test_date: 2026-10-10
+description: "How to run the patching operation — KEV-driven prioritization, severity-to-timeline SLAs, the exception register, and the emergency-patching runbook. A free lesson in the security guidebook, serving CISSP objective 7.8."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Patch and vulnerability management operations: from CVE to deployed fix
 
-**ID:** `e-patch-management` · **Stage:** E (Expert) · **Level:** 3 (run the patching operation — SLA policy, exception process, emergency runbook) · **Prerequisites:** `c-vuln-ecosystem` (CVE, KEV, EPSS — the inputs this lesson acts on), `c-cvss` (severity scoring the SLA consumes); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.8** — patch and vulnerability management as an operations discipline: timelines, exceptions, and the emergency path.
 

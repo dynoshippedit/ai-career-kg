@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI security automation: concepts | Learn Computer Stuff</title>
+<meta name="description" content="AI security automation concepts: the SEC598 and SEC535 subject areas as concepts — every attack concept paired with its defense and defender-detectable telemetry. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/ai-sec-automation/">
+<meta property="og:title" content="AI security automation: concepts | Learn Computer Stuff"><meta property="og:description" content="AI security automation concepts: the SEC598 and SEC535 subject areas as concepts — every attack concept paired with its defense and defender-detectable telemetry. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/ai-sec-automation/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"AI security automation: concepts","item":"https://learncomputerstuff.dev/g/ai-sec-automation/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>AI security automation: concepts</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · AI track</span><h1>AI security automation: concepts</h1>
+<p class="lede prose">You are a SOC analyst, a detection engineer, or the person on a purple team who has to answer "what changes when the attacker uses AI?" The SANS subject areas for this ground are SEC598 (automation for offense, defense, and cloud) and SEC535 (AI-enabled attack techniques) — but the job never asks you to recite a syllabus. It asks you to do one thing: read an attack chain, say where automation compresses the attacker's time, and build defenses that compress your own response loop in return. AI does not invent new attack steps. It makes the old steps faster, broader, and more personalized — and that asymmetry is what you must plan against. This lesson gives you the concept map, with every attack concept paired with its defense and the telemetry that exposes it.</p>
+<p><span class="eyebrow">Level 2 · Operate</span> — do it by following steps on a prepared target</p>
+<p class="dateline">Walkthrough finalized 2026-10-10 · runs/ai-sec-automation.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td><strong>Level 2 · Operate</strong> — do it by following steps on a prepared target</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a>, <a href="/g/llm-top10/"><code>ai-llm-top10</code></a>, <a href="/g/soc-triage/"><code>c-soc-triage</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>GASAE (SEC598) and GOAA (SEC535) subject areas as concepts — the site's lighter GASAE/GOAA knowledge maps come later.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>You are a SOC analyst, a detection engineer, or the person on a purple team who has to answer "what changes when the attacker uses AI?" The SANS subject areas for this ground are SEC598 (automation for offense, defense, and cloud) and SEC535 (AI-enabled attack techniques) — but the job never asks you to recite a syllabus. It asks you to do one thing: read an attack chain, say where automation compresses the attacker's time, and build defenses that compress your own response loop in return. AI does not invent new attack steps. It makes the old steps faster, broader, and more personalized — and that asymmetry is what you must plan against. This lesson gives you the concept map, with every attack concept paired with its defense and the telemetry that exposes it.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> — the app stack, the agent loop, and RAG: the machinery both courses' subject areas run on.</li>
+<li><a href="/g/llm-top10/"><code>ai-llm-top10</code></a> — the 2026 risks; the defenses in this lesson answer specific risks from that list, not attacks in general.</li>
+<li><a href="/g/soc-triage/"><code>c-soc-triage</code></a> — how an alert becomes an investigation. Know the unaccelerated workflow to judge whether automation's acceleration is honest.</li>
+<li>No command line. The walkthrough is a worked detection plan — a defensive work product. Tools: a text editor and the §7 sources.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>Automation vs AI automation.</strong> Deterministic automation: <em>if</em> this alert fires, <em>then</em> run these steps. AI automation adds a model in the loop — generating text, code, or decisions — often inside an agent that plans, calls tools, observes, and plans again. The deterministic part gives repeatability; the model gives adaptability; the agent gives speed. Each gain has a defensive cost, and this lesson prices those costs.</p>
+<p><strong>The compression principle.</strong> The SEC535 subject areas contain no step an attacker could not do by hand. What models change is speed (minutes instead of days), scale (thousands of personalized lures instead of dozens), and iteration (the tool reads its own error output and adjusts). A defender tuned for a manual attacker's dwell time defends last year's threat. Your counter-move (the SEC598 half): compress your own loop until the asymmetry closes.</p>
+<h3>The SEC598 subject areas, as concepts</h3>
+<p><strong>LLM-assisted detection engineering.</strong> An analyst describes the behavior in words; the model drafts the rule; tests ship with it. Made safe by <em>detection-as-code</em>: rules versioned, peer-reviewed, run in CI against known-good and known-bad events before production. What the defender detects: rule drift, CI failures, and coverage gaps. A rule that never fired on a known-bad event is hope, not coverage.</p>
+<p><strong>SOAR playbooks.</strong> Triggers fire actions — isolate the host, revoke the session, open the ticket — without a human typing each step. Made safe by treating playbooks as code with human-in-the-loop gates on irreversible actions. What the defender detects: execution logs, failed or overridden actions, time-to-containment per run.</p>
+<p><strong>Agentic investigation assistants.</strong> RAG over your logs and docs: the model retrieves evidence and summarizes it for the analyst — the <a href="/g/soc-triage/"><code>c-soc-triage</code></a> workflow, accelerated. Made safe by read-only tools, scoped retrieval, and the prompt-injection defenses from <a href="/g/prompt-injection/"><code>ai-prompt-injection</code></a> (the assistant reads attacker-controlled data every shift). What the defender detects: anomalous tool calls, out-of-scope retrieval, hallucinated citations. Trust the summary exactly as far as you verify the evidence.</p>
+<p><strong>Red-team AI agents and continuous emulation.</strong> Software that runs attacker behaviors against your own environment on a schedule to prove detections fire. Made honest by purple teaming: every emulated behavior maps to a detection, and a miss becomes a backlog item with an owner and a date. What the defender detects: the schedule, the gaps found, time-to-detect per behavior. Emulation that never misses is stale.</p>
+<p><strong>Cloud automation and infrastructure as code.</strong> Infrastructure declared in code, deployed identically. Made safe by policy-as-code plus drift detection. What the defender detects: configuration diffs and the audit trail of who changed what.</p>
+<h3>The SEC535 subject areas, as concepts — each paired with its defense</h3>
+<p><strong>AI-assisted reconnaissance at scale.</strong> Models read public data — DNS, certificate logs, job postings, exposed APIs — and assemble the target picture faster than any human. Defense: exposure reduction plus monitoring the channels attackers poll. Telemetry: DNS query spikes, certificate transparency logs, unusual API patterns, firewall/WAF probe counts, honeypot and honeytoken touches.</p>
+<p><strong>AI-crafted phishing and deepfakes (text, audio, video).</strong> Models write personalized lures and synthesize trusted voices and faces. Defense in two layers — technical: phishing-resistant MFA, DMARC/DKIM/SPF, lookalike-domain monitoring; procedural: a verification workflow for sensitive requests (call back on a known number). Telemetry: email authentication results, MFA push-challenge anomalies (an unprompted push is an attack signal), and helpdesk "was this real?" reports.</p>
+<p><strong>AI-assisted web exploitation.</strong> The model drafts injection payloads and iterates against error messages — the Stage B flaw classes with a faster assistant at the keyboard. Defense: parameterized queries, server-side validation, patching; the WAF is a speed bump, never the fix. Telemetry: WAF blocks, application error-rate spikes, request-rate anomalies on specific endpoints, failed-auth bursts.</p>
+<p><strong>AI-assisted patch diffing.</strong> Models compare pre- and post-patch binaries to find silently fixed bugs, shrinking the window between patch release and exploitability. Defense: patch quickly, prioritize by known exploitation (the KEV discipline from <a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a>), virtual-patch at the WAF where the real patch cannot ship. Telemetry: patch-lag metrics per asset class, and threat-intel showing which patches are being diffed — the window is measured, not assumed.</p>
+<p><strong>AI-assisted malware, evasion, and agentic malware.</strong> Models generate or rewrite malicious code that adapts in the environment. Defense: behavioral EDR over signatures, application allow-listing, memory-protection telemetry, least privilege. Telemetry: process-tree anomalies, unsigned DLL loads, security-service tamper events, and outbound patterns that look scheduled rather than human.</p>
+<h3>The worked example: one automated minute, both vocabularies</h3>
+<p>A model drafts a spear-phishing lure for a finance employee (SEC535: AI-crafted phishing). The stolen session is replayed by an automated script (automated credential use). A second agent enumerates internal shares and moves laterally to a file server (automated lateral movement). At the telemetry the vocabularies meet: the gateway logs the auth result, the identity provider logs the impossible sign-in, the EDR logs the enumeration's process tree. No new steps — compressed steps. The walkthrough turns that into a plan.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>No command line by design</strong> — transcript: <code>runs/ai-sec-automation.log</code>. The walkthrough is the detection plan below, authored 2026-10-10 and validated by a script (Python 3.12.3) asserting every chain step names defender logs, detection, and response, and every attack concept carries a defense and telemetry. Reproduce the shape for your own chain.</p>
+<p><strong>Scenario:</strong> Meridian Analytics (fictional) — AI-assisted phishing → credential theft → automated lateral movement. Dwell figures are illustrative estimates, not measurements; they show where automation moves the asymmetry.</p>
+<p>| # | Chain step (attacker concept, no instructions) | Defender logs | Detection that fires | Response | Illustrative dwell: manual → AI-automated |</p>
+<p>|---|---|---|---|---|---|</p>
+<p>| 1 | AI-drafted spear phishing to finance staff | Email gateway (SPF/DKIM/DMARC results, URL rewrites); lookalike-domain watch | Phishing-resistant MFA enrollment check; auth-failure + push-anomaly rule; helpdesk "is this real?" reports | Block sender domain; revoke sessions for clickers; force re-enrollment where needed | Hours to craft 50 lures → minutes to craft 5,000 |</p>
+<p>| 2 | Credential theft and session replay | IdP sign-in logs (device, IP, ASN, session token); MFA challenge log | Impossible-travel / new-device / ASN-change rules; a push challenge nobody asked for | Revoke refresh tokens; step-up to phishing-resistant MFA; contain the account | Minutes–hours of manual replay → seconds of scripted replay |</p>
+<p>| 3 | Automated internal enumeration (shares, users, services) | EDR process trees; SMB/RDP session logs; DNS queries to internal names | Lateral-movement Sigma rules (new-service creation, credential-dump patterns, mass SMB reads); honeytoken touches | Isolate host via playbook gate; snapshot memory for DFIR; block outbound C2-pattern traffic | Hours–days of careful manual probing → minutes of agent-driven probing |</p>
+<p>| 4 | Automated lateral movement to the file server | NetFlow; authentication event logs; file-access audit logs | Anomalous admin-share access; first-seen service creation on the target; impossible-time file access | Isolate both hosts; rotate affected credentials; invoke the incident-response lifecycle from <a href="/g/incident-response/"><code>c-incident-response</code></a> | Days of dwell before discovery → detection must fire in minutes or the plan has failed |</p>
+<p><strong>What automation changes about dwell time.</strong> The attacker's dwell compresses at <em>every</em> step, and the compression compounds: step 1's scale feeds step 2's speed feeds step 3's breadth. The only honest counter is compressing the detection→response loop to match — which is why SEC598 exists. Manual triage of 5,000 lures is impossible, so the plan requires enrichment automation (the gateway verdict arrives with the alert), detection-as-code (lateral-movement rules versioned and tested, not ad hoc queries), and playbook containment (isolation behind a human gate, firing in minutes). Wherever a link stays manual, the dwell column says "discovered weeks later."</p>
+<p><strong>Self-review checklist</strong> (in the log): concrete logs at every step (no "monitor the network"); detection logic families named; irreversible-action gates in every response; every attack concept paired with defense and telemetry; dwell figures labeled illustrative; no attack tooling named as a how-to.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick a different AI-automated chain — AI-assisted recon → patch diffing → AI-assisted web exploitation, or deepfake vishing → helpdesk password reset → VPN access. Write its detection plan in the walkthrough's shape: numbered steps, attacker concept (no instructions), defender logs, the detection that fires, the response with its human-in-the-loop gate, and the manual-vs-automated dwell column with figures labeled illustrative.</p>
+<p><strong>Success test:</strong> A stranger can answer from your plan: what logs each step needs, which detection fires, where human gates sit, and where dwell time compresses. Any step whose defense is empty or says "best practices" fails — name the control and the telemetry.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>A tooling shopping list.</strong> The SEC535 subject areas describe concepts adversaries use; your job is the defense and the telemetry, not the kit. Anyone who reads this lesson as a how-to has misread it — §9 tests that you can tell the difference.</li>
+<li><strong>Automation without gates.</strong> The playbook that isolates hosts on any "suspicious process" alert will isolate the wrong host at 3 a.m. Irreversible actions sit behind human approval; the gate is part of the automation, not an obstacle.</li>
+<li><strong>LLM-hallucinated detections.</strong> A model-drafted rule that never fired on a known-bad event is not coverage. Detection-as-code means the tests are the proof — versioned, peer-reviewed, run in CI.</li>
+<li><strong>Detection confused with prevention.</strong> Email filters detect phishing; phishing-resistant MFA defeats stolen credentials. Know which layer each control lives in, or you will celebrate a detector for doing a preventer's job badly.</li>
+<li><strong>No verification workflow for voice and video.</strong> The deepfake defense is procedural, not technical: a callback on a known number, an out-of-band confirmation. No workflow means the vishing call works regardless of tooling.</li>
+<li><strong>Stale emulations, false confidence.</strong> Red-team AI agents that always pass are testing last year's behaviors. Rotate emulations against current techniques or the purple-team loop is theater.</li>
+<li><strong>Over-trust in agent summaries.</strong> An investigation assistant that hallucinates a citation puts fiction in your incident report. Verify the retrieved evidence before quoting the summary.</li>
+<li><strong>Forgetting the asymmetry.</strong> A plan that assumes manual dwell time is already beaten. The §4 dwell column is the discipline: name the compression, then the counter-compression.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Both SEC598 and SEC535 are paid SANS courses — this lesson teaches their subject areas from free material only.</p>
+<ul>
+<li><strong>SEC598: AI and Security Automation for Red, Blue, and Purple Teams</strong> (<a href="https://sans.org/sec598">sans.org/sec598</a>) — <em>read</em> "What You'll Learn" and the syllabus section headings (the automation subject areas); <em>skip</em> instructor bios and marketing.</li>
+<li><strong>SEC535: Offensive AI — Attack Tools and Techniques</strong> (<a href="https://sans.org/sec535">sans.org/sec535</a>) — <em>read</em> "What You'll Learn" and the syllabus section headings (the AI-enabled attack subject areas); <em>skip</em> the same marketing.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>MITRE ATLAS</strong> (<a href="https://atlas.mitre.org">atlas.mitre.org</a>) — free; the adversary-tactics knowledge base for AI attacks. Use it as the behavior vocabulary for the SEC535 concepts: look up each concept's technique, read the data sources it lists, and turn those into your detection plan's log column.</li>
+<li><strong>SigmaHQ sigma rule repository</strong> (<a href="https://github.com/SigmaHQ/sigma">github.com/SigmaHQ/sigma</a>) — free; community detection rules written as code. Use it as detection-as-code in practice: read how a rule declares its log source, detection logic, and false-positive notes — the shape your §5 detection column should imitate.</li>
+<li><strong>CISA "Require Multifactor Authentication"</strong> (<a href="https://cisa.gov">cisa.gov</a>) — free; MFA methods ranked from most to least secure, phishing-resistant first. Use it as the credential-theft defense that answers the AI-phishing concept: why automated credential replay fails against security keys.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Walk through the §4 chain and name the telemetry at each step. Explain which telemetry survives automation's speed-up (process trees, auth logs) and which degrades (human report volume, manual review queues).</li>
+<li>An organization runs red-team AI agents weekly with no detection mapping. Explain the two things that go wrong and what the purple-team loop from §3 adds to fix each.</li>
+<li>A SOAR playbook auto-isolates any host with a "suspicious process" alert. Name the §6 failure mode and the gate that fixes it — then explain what you lose by adding that gate.</li>
+<li>Your LLM-drafted lateral-movement rule fires on 2% of all logins. Using detection-as-code practice: coverage or noise — and what must the CI tests contain for the answer to be trustworthy?</li>
+<li>An executive gets a voice call from "the CEO" authorizing an urgent wire transfer. Give the defender's two-layer answer (technical control + verification workflow), name what you log, and explain which layer fails first if the workflow is missing.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> your §5 detection plan — numbered steps in the walkthrough's shape, every attack concept paired with defense and telemetry, irreversible actions behind named human gates, dwell figures labeled illustrative.</p>
+<p><strong>Honest claim:</strong> "I can name the SEC598/SEC535 subject areas as concepts, pair each attack concept with its defense and telemetry, and write a detection plan for an AI-automated chain."</p>
+<p><strong>Can't claim yet:</strong> "I can build or run AI security automation or adversary tooling" — that is authorized-lab and paid-course work. This lesson is the concept map that work assumes; the map is not the territory.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> — write the rules the detection column names, as versioned, tested code.</li>
+<li><a href="/g/redteam-concepts/"><code>d-redteam-concepts</code></a> — the ATT&amp;CK behavior language your emulation mapping and purple-team loop are expressed in.</li>
+<li><a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> — turn the lens around: threat-model the AI system itself, with its own trust boundaries.</li>
+<li><a href="/g/incident-management/"><code>e-incident-management</code></a> — the lifecycle your automated containment feeds; automation accelerates the loop, it does not replace it.</li>
+<li>Map refs: GASAE and GOAA subject areas as concepts — the site's lighter GASAE/GOAA knowledge maps come later; CAISP ch. 2 context arrives via <a href="/g/llm-top10/"><code>ai-llm-top10</code></a>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

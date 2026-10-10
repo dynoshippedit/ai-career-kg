@@ -1,0 +1,23 @@
+=== b-race-conditions walkthrough ===
+date: 2026-10-10
+tool versions: stock Python 3.12.3 (threading, urllib)
+environment: loopback only (127.0.0.1:8340 vulnerable, :8341 fixed); 0.3s sleep stands in for real slow work (DB/payment), labeled in companion
+
+=== b-race-conditions walkthrough ===
+date: 2026-10-10; tools: stock Python 3.12.3 (threading, urllib); loopback only
+--- 1. sequential baseline: redeem twice ---
+first: (200, {'discount_cents': 1000})
+second: ('ERR', 'HTTP Error 409: Conflict')
+state: {"uses_left": 0, "redemptions": 1}
+--- 2. RACE: two concurrent redeems of a 1-use coupon ---
+thread A: (200, {'discount_cents': 1000})
+thread B: (200, {'discount_cents': 1000})
+state: {"uses_left": -1, "redemptions": 2}
+uses_left went to -1: the single-use coupon was redeemed TWICE
+--- 3. FIXED build: same race, check+act under one lock ---
+thread A: (200, {'discount_cents': 1000})
+thread B: ('ERR', 'HTTP Error 409: Conflict')
+state: {"uses_left": 0, "redemptions": 1}
+
+--- cleanup ---
+demo servers killed by PID after the run

@@ -1,6 +1,17 @@
+---
+lesson_id: e-platform-security
+slug: platform-security
+stage: E
+level: 3
+prerequisites: [e-secure-design, e-crypto-applied]
+roles: []
+map_refs: ["CISSP 3.4"]
+test_date: 2026-10-10
+description: "Survey boot integrity, memory protection, virtualization isolation, and key storage across deployment options and write a conditional recommendation. A free lesson in the security guidebook, serving CISSP objective 3.4."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Platform security: the ground your architecture stands on
 
-**ID:** `e-platform-security` · **Stage:** E (Expert) · **Level:** 3 (survey a platform's security capabilities and write a deployment recommendation with conditions) · **Prerequisites:** `e-secure-design` (platform capabilities as design inputs), `e-crypto-applied` (what the encryption primitives guarantee); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.4** — platform security capabilities: memory protection, hardware roots of trust, secure boot, virtualization isolation, and encryption.
 

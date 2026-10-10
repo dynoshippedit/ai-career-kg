@@ -1,6 +1,17 @@
+---
+lesson_id: ai-governance
+slug: ai-governance
+stage: AI
+level: 2
+prerequisites: [ai-llm-top10, e-risk-assessment]
+roles: [grc-analyst]
+map_refs: ["CAISP ch7"]
+test_date: 2026-10-09
+description: "Governing AI: the NIST AI RMF functions, the Generative AI Profile, EU AI Act risk tiers as concepts, and ISO/IEC 42001 noted as paid — applied to a full risk register. A free lesson in the security guidebook, serving CAISP chapter 7."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Governing AI
 
-**ID:** `ai-governance` · **Stage:** AI track · **Level:** 2 (framework literacy + applied classification in a worked case — this lesson maps obligations to controls; operating a full governance program is the work of Stage E and the role path) · **Prerequisites:** `ai-llm-top10` (you must know the risks before you govern them); `e-risk-assessment` (the risk method this lesson applies).
 
 **Map refs:** **CAISP chapter 7** (Emerging Threats, Governance, and Compliance in AI); NIST AI RMF 1.0; NIST AI 600-1 Generative AI Profile; EU AI Act (risk tiers as concepts). *Not* CertNexus CAIP — a separate credential the site lists separately; never merged.
 

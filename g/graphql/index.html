@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL abuse: the query language that trusts the querier | Learn Computer Stuff</title>
+<meta name="description" content="GraphQL abuse: the query language that trusts the querier — introspection, BOLA on queries, and resource exhaustion reproduced locally, then locked down. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/graphql/">
+<meta property="og:title" content="GraphQL abuse: the query language that trusts the querier | Learn Computer Stuff"><meta property="og:description" content="GraphQL abuse: the query language that trusts the querier — introspection, BOLA on queries, and resource exhaustion reproduced locally, then locked down. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/graphql/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"GraphQL abuse: the query language that trusts the querier","item":"https://learncomputerstuff.dev/g/graphql/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>GraphQL abuse: the query language that trusts the querier</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>GraphQL abuse: the query language that trusts the querier</h1>
+<p class="lede prose">GraphQL replaces REST's fixed endpoints with a single endpoint that answers <em>whatever shape the client asks for</em>: the client writes the query, the server resolves it. That flexibility is the feature — and the attack surface. Everything in <a href="/g/api-abuse/"><code>b-api-abuse</code></a> (BOLA, over-exposure, mass assignment, missing throttles) exists identically in GraphQL, and GraphQL adds three of its own: <strong>introspection</strong> (the API documents itself to attackers), <strong>nested-query DoS</strong> (the client controls the work factor), and <strong>field-level authorization gaps</strong> (one resolver without a check leaks one field to everyone). This lesson takes you to Level 3 on the GraphQL-specific three, against a real GraphQL server running locally.</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-graphql.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/api-abuse/"><code>b-api-abuse</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-862 (Missing Authorization) · CWE-770 (Allocation of Resources Without Limits) · GraphQL spec (introspection)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>GraphQL replaces REST's fixed endpoints with a single endpoint that answers <em>whatever shape the client asks for</em>: the client writes the query, the server resolves it. That flexibility is the feature — and the attack surface. Everything in <a href="/g/api-abuse/"><code>b-api-abuse</code></a> (BOLA, over-exposure, mass assignment, missing throttles) exists identically in GraphQL, and GraphQL adds three of its own: <strong>introspection</strong> (the API documents itself to attackers), <strong>nested-query DoS</strong> (the client controls the work factor), and <strong>field-level authorization gaps</strong> (one resolver without a check leaks one field to everyone). This lesson takes you to Level 3 on the GraphQL-specific three, against a real GraphQL server running locally.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including JSON bodies.</li>
+<li>You have done <a href="/g/api-abuse/"><code>b-api-abuse</code></a> — the four base classes are assumed; this lesson covers only what GraphQL <em>adds</em>.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local GraphQL server (graphql-core, real engine), a PortSwigger API/GraphQL lab, or a bounty program whose scope explicitly includes the API. Introspection is <em>enabled by default</em> in most frameworks — probing it on an authorized target is normal testing. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl or any HTTP client that posts JSON. No special GraphQL client needed.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A GraphQL server exposes one endpoint (usually <code>/graphql</code>). You POST <code>{&quot;query&quot;: &quot;{ user(id: 1) { name } }&quot;}</code> and get back exactly the shape you asked for. Three consequences:</p>
+<p><strong>Introspection: the schema asks to be read.</strong> By default, a GraphQL server answers <code>__schema</code> queries — a complete dump of every type, field, argument, and mutation it supports, including the ones the UI never calls. Attackers use it the way you would use API documentation: to find the interesting fields. <strong>Why it arises:</strong> introspection is on by default in development and nobody turns it off in production. The fix is one configuration flag — which tells you how often it is forgotten.</p>
+<p><strong>Nested-query DoS: the client sets the price.</strong> <code>{ user { posts { comments { author { posts { comments { text } } } } } } }</code> — each level fans out (5 posts × 5 comments × 5 authors × ...). The client wrote a short string; the server does exponential work. REST endpoints have fixed cost; GraphQL queries have <em>client-chosen</em> cost. <strong>Why it arises:</strong> resolvers are written per-field with no global view of what a nested query costs. Defenses: query depth limits, query cost analysis (assign each field a cost, reject over budget), pagination caps, timeouts.</p>
+<p><strong>Field-level authorization: one resolver, one missing check.</strong> <code>ssn</code> resolves for any caller because its resolver never asks "may <em>this</em> principal see <em>this</em> field?" Object-level authz (<a href="/g/api-abuse/"><code>b-api-abuse</code></a>'s BOLA) is not enough: the user object is legitimately readable, but the <em>field</em> isn't. <strong>Why it arises:</strong> authorization is checked at the query root ("is this user logged in?") and assumed to cover everything beneath it. Every sensitive field needs its own check, in its own resolver.</p>
+<p><strong>How defenders see it.</strong> <code>__schema</code> / <code>__type</code> in request bodies is the introspection tripwire — legitimate clients almost never send these in production. Nested-query abuse shows up as requests with extreme brace depth and response-time outliers on <code>/graphql</code>. Field-level gaps are found in code review (resolvers without authz checks) and in testing (request every sensitive field as a low-privilege principal). Detection rule shapes: alert on introspection queries in production traffic; alert on <code>/graphql</code> requests over N levels deep or over M ms.</p>
+<h3>Worked example: the Harborlight GraphQL demo</h3>
+<p>A real GraphQL server (graphql-core 3.3.0, local only — the walkthrough runs it): <code>Query.user(id:)</code>, <code>User.posts</code>, <code>Post.comments</code>, <code>Comment.author</code> — each level fans out 5x, and <code>User.ssn</code> has no authorization check.</p>
+<ul>
+<li>Baseline: <code>{ user(id: 1) { name } }</code> → <code>{&quot;name&quot;: &quot;alice&quot;}</code>. The engine is real.</li>
+<li>Introspection: <code>{ __schema { types { name } } }</code> → the full type list (<code>Query</code>, <code>User</code>, <code>Post</code>, <code>Comment</code> — plus every field, on request). The API documented itself to you.</li>
+<li>Field-level gap: <code>{ user(id: 1) { name ssn } }</code> → <code>{&quot;name&quot;: &quot;alice&quot;, &quot;ssn&quot;: &quot;000-00-0001&quot;}</code>. No check in the resolver; the sensitive field came back to an unprivileged query.</li>
+<li>Nested DoS: the 6-level nesting query → <strong>17,143 response chars in 0.02s</strong> from a 90-char query. The work factor is yours to choose; the server's bill grows exponentially with depth.</li>
+</ul>
+<p>The fix, in the same server: introspection disabled (400 on <code>__schema</code>), per-field authorization on <code>ssn</code> (null + "forbidden"), query depth limit of 4 (400 on the deep query). Re-test all three, plus a legitimate query to confirm the API still works. Then the general rule: <strong>introspection off in production, cost/depth limits on every query, authorization in every sensitive resolver</strong> — three lines that close the three GraphQL-specific classes.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-graphql.log</code>. Clean environment: graphql-core 3.3.0, stock Python 3.12, loopback only, 2026-10-10. A real GraphQL engine, not a simulation.</p>
+<ol>
+<li><strong>Start the server.</strong> Save the <code>app.py</code> from this lesson's companion (<code>pip install graphql-core</code> first) and run it on port 8338. Confirm the baseline: POST <code>{&quot;query&quot;: &quot;{ user(id: 1) { name } }&quot;}</code> to <code>/graphql</code> → <code>{&quot;name&quot;: &quot;alice&quot;}</code>.</li>
+<li><strong>Dump the schema via introspection.</strong> POST <code>{ __schema { types { name } } }</code> → the type list. Then go one deeper: <code>{ __type(name: &quot;User&quot;) { fields { name } } }</code> → every field on User, including <code>ssn</code>. Write down what an attacker learns from these two queries alone.</li>
+<li><strong>Prove the field-level gap.</strong> POST <code>{ user(id: 1) { name ssn } }</code> → the SSN returns. You are an unprivileged querier; the resolver never asked. This is the finding — quote the exact query and response.</li>
+<li><strong>Prove the nesting multiplier.</strong> POST the 6-level nesting query from the companion → note the response size vs the query size. Compute the ratio. Then <em>think</em>, don't run: what would depth 10 do at 5x fanout? (The math is the lesson; the server is grateful you didn't.)</li>
+<li><strong>Apply the fix.</strong> Restart with <code>FIXED=1</code> on port 8339: introspection disabled, <code>ssn</code> resolver checks authorization, depth limit 4.</li>
+<li><strong>Verify the fix — four cases.</strong> Introspection → 400; <code>ssn</code> → null + forbidden error; the deep query → 400 depth-exceeded; a legitimate <code>{ user(id: 1) { name email } }</code> → 200 with data. A fix that breaks the API is not a fix.</li>
+<li><strong>Read the defender view.</strong> The companion logs query strings. Find your <code>__schema</code> probe and your deep query. Write the two detection rules: alert on introspection strings in production traffic; alert on queries over the depth limit — and note that the depth rule only works if the <em>limit</em> exists server-side.</li>
+</ol>
+<p>No step above is marked "not run by us" — introspection, the field gap, the nesting multiplier, and all four fix verifications ran against the real engine locally.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a public GraphQL API in a bounty program's scope, or a PortSwigger lab covering GraphQL. In order: (1) send the introspection query — record whether it answers and what you learn; (2) request every field on the principal object type as the lowest-privilege principal you have, diffing against what the UI shows; (3) construct a nested query two levels deeper than the UI ever goes and measure the response-time delta (do <em>not</em> run an actual DoS — measure, then stop).</p>
+<p><strong>Success test:</strong> A one-page report: introspection status (on/off, evidence), the field-level test matrix (field × principal → allowed/denied, with the gaps named), the nesting measurement (depth vs response time, no DoS performed), the three fixes stated for that stack, and the defender detection (which log, which patterns). If introspection is off, document how you confirmed it — a characterized defense is a result.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"It's just like REST."</strong> The four base classes transfer; the three GraphQL-specific ones don't exist in REST. Test for all seven.</li>
+<li><strong>Disabling introspection and declaring victory.</strong> Introspection-off hides the schema; it doesn't fix the field-level gaps or the nesting cost. It is obscurity, not authorization.</li>
+<li><strong>Depth limits alone.</strong> A depth-4 query can still be expensive if each level fans out 1000x (pagination without caps). Depth limits + cost analysis + pagination caps, together.</li>
+<li><strong>Measuring DoS by actually DoSing.</strong> On an authorized target, measure the <em>scaling</em> (depth vs time on small increments) and report the projection. Running the full exponential query is the impact, not the test — and outside scope it is an attack.</li>
+<li><strong>Forgetting mutations.</strong> Introspection dumps mutations too. Every mutation is an endpoint — test each one with the <a href="/g/api-abuse/"><code>b-api-abuse</code></a> four classes.</li>
+<li><strong>Assuming the framework handles authz.</strong> Frameworks provide the <em>hook</em> (directives, middleware); the checks are still yours to write, per field, per resolver.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>GraphQL spec — Introspection</strong> (<a href="https://spec.graphql.org">spec.graphql.org</a> — verified 2026-10-10): what <code>__schema</code> is <em>supposed</em> to do, which is why it's on by default. <em>Read</em> the introspection section; <em>note</em> the spec assumes a trusted context.</li>
+<li><strong>PortSwigger Web Security Academy — API testing</strong> (<a href="https://portswigger.net/web-security/api-testing">portswigger.net/web-security/api-testing</a> — verified 2026-10-10): the GraphQL-relevant methodology. <em>Read</em> the GraphQL sections.</li>
+<li><strong>CWE-862 / CWE-770</strong> (<a href="https://cwe.mitre.org">cwe.mitre.org</a> — verified 2026-10-09/10): Missing Authorization and Uncontrolled Resource Consumption. <em>Skim</em>; cite the IDs.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>graphql-core docs</strong> (<a href="https://graphql-core-3.readthedocs.io">graphql-core-3.readthedocs.io</a> — free): the engine from this lesson's walkthrough — read the execution model to understand what a nested query costs.</li>
+<li><strong><a href="/g/api-abuse/"><code>b-api-abuse</code></a></strong> (this guidebook): the four base classes, unchanged in GraphQL — BOLA, over-exposure, mass assignment, throttles.</li>
+<li><strong>OWASP API Security Top 10:2023</strong> (<a href="https://owasp.org/API-Security">owasp.org/API-Security</a> — free): API4 (resource consumption) and API1 (BOLA) are the GraphQL-relevant entries.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain why GraphQL introspection is enabled by default, what an attacker learns from <code>__schema</code>, and why disabling it is obscurity rather than a fix.</li>
+<li>A 90-character query produces a 17KB response in 0.02s. Explain the fanout mechanism, and why REST endpoints don't have this property.</li>
+<li>The <code>ssn</code> field returns data to any caller while the <code>user</code> object itself is legitimately readable. Explain why object-level authorization doesn't cover this, and where the check belongs.</li>
+<li>A team sets a query depth limit of 10 and declares the DoS class fixed. Explain two ways expensive queries still get through, and state the complete defense.</li>
+<li>Explain why every GraphQL mutation must be tested with the four <a href="/g/api-abuse/"><code>b-api-abuse</code></a> classes, even though this lesson focused on queries.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": introspection status, the field×principal matrix, the nesting measurement (no DoS performed), the three fixes for that stack, defender detection — plus your local-demo notes (the three proofs and four fix verifications).</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can probe GraphQL introspection, test field-level authorization, measure nested-query cost scaling, and verify the three fixes — on authorized targets, without performing denial of service. You cannot yet claim: production GraphQL security review — persisted queries, cost-analysis tuning, and gateway policy design are the operational layer this lesson doesn't cover.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/api-abuse/"><code>b-api-abuse</code></a> (re-read) — the four base classes that apply unchanged; GraphQL is the <em>added</em> surface, not a replacement.</li>
+<li><a href="/g/race-conditions/"><code>b-race-conditions</code></a> — the next class where the client's freedom of action is the vulnerability.</li>
+<li><a href="/g/vuln-ecosystem/"><code>c-vuln-ecosystem</code></a> — where GraphQL's <code>__schema</code> habit meets the attacker's reconnaissance workflow.</li>
+<li>Map refs: <strong>CWE-862</strong> · <strong>CWE-770</strong> · <strong>GraphQL spec (introspection)</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

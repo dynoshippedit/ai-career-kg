@@ -1,6 +1,17 @@
+---
+lesson_id: e-threat-modeling-concepts
+slug: threat-modeling-concepts
+stage: E
+level: 3
+prerequisites: [e-sdlc, ai-threat-modeling]
+roles: []
+map_refs: ["CISSP 1.10"]
+test_date: 2026-10-10
+description: "Survey STRIDE, PASTA, OCTAVE, and attack trees, and choose the right methodology per situation. A free lesson in the security guidebook, serving CISSP objective 1.10."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Threat modeling concepts and methodologies: choosing how to think about what can go wrong
 
-**ID:** `e-threat-modeling-concepts` · **Stage:** E (Expert) · **Level:** 3 (select a threat-modeling methodology for a given situation and justify the choice — strengths, limits, staffing, and what the output feeds) · **Prerequisites:** `e-sdlc` (where you did hands-on STRIDE on a real design); `ai-threat-modeling` (the AI-specific variant). This lesson is the methodology survey at governance level — not a repeat of either. No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.10** — threat modeling concepts and methodologies.
 

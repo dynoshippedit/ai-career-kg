@@ -1,6 +1,17 @@
+---
+lesson_id: d-redteam-concepts
+slug: redteam-concepts
+stage: D
+level: 2
+prerequisites: [a-http-depth, a-tcpip-ports, c-soc-triage, c-log-sources]
+roles: [soc-analyst, security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Red team operations concepts: ATT&CK as the behavior language (15 tactics, v19.2), C2 and evasion as concepts, what defenders see, and the purple-team loop — with beaconing statistics run locally. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · synthetic data on loopback; emulation tooling is reader-side in their own lab"
+---
 # Red team operations: concepts
 
-**ID:** `d-redteam-concepts` · **Stage:** D (Specialist) · **Level:** 2 (recognize the behavior language, map observations to it, describe what defenders should see — hands-on execution lives in your own lab, not here) · **Prerequisites:** `a-http-depth`, `a-tcpip-ports`, `c-soc-triage` (what a defender sees), `c-log-sources` (where telemetry comes from), B-AUTH (authorization discipline).
 
 **Map refs:** **MITRE ATT&CK Enterprise v19.2** (tactic list verified 2026-10-09; 15 tactics — the April 2026 split of Defense Evasion into Stealth + Defense Impairment is taught, the stale 14-tactic list is not). Serves the Stage D red-team specialist track.
 

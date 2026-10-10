@@ -1,5 +1,22 @@
 # STATE.md — security guidebook build
 
+**Last updated:** 2026-10-10 · **Phase:** Frontmatter refactor — lessons as data (brief §4)
+
+## Frontmatter refactor (2026-10-10)
+
+Brief §4 requires lessons stored as data with fields for stage, level, prerequisites, roles, map references, sources and test date, with paths/maps/stages/counts generated from those fields.
+
+**Done:**
+- All 110 lesson files carry YAML frontmatter: `lesson_id, slug, stage, level, prerequisites, roles, map_refs, test_date, description, dateline`. The old `**ID:**` meta line was removed (redundant); the prose `**Map refs:**` line stays as body content.
+- `build_site.py` refactored: `load_registry()` reads + validates every frontmatter block (hard build error on any inconsistency); the LESSONS table is deleted; LINKMAP/TOTAL derive from the registry; CISSP_DOMAINS and CAISP_CHAPTERS are prose-only (objective/chapter → lessons inverted from `map_refs` at build); PATHS/STAGES keep editorial ordering but every id is validated against frontmatter.
+- Every lesson page renders a visible level badge ("Level 3 · Apply — do it unaided on an unfamiliar authorized target…") and prerequisites as links.
+- 9 new crew lessons integrated: `a-crypto` (A, L2, CISSP 3.6), `b-api-abuse`, `b-ssti`, `b-xxe`, `b-deserialization`, `b-graphql`, `b-race-conditions`, `b-jwt-oauth` (B, L3), `ai-sec-automation` (AI, L2, walkthrough being finalized). New lessons have `roles: []` (path placement pending).
+
+**Verification gate:** 130 pages build with zero errors; 4,988 internal links, 0 broken; all 110 lesson pages show the level badge + prerequisites row; zero regressions vs pre-refactor snapshot (only intended additions: stage-a +crypto, stage-b +api-abuse/ssti/xxe/deserialization/graphql/race-conditions/jwt-oauth, map-cissp 3.6 +crypto).
+
+**Data contract:** frontmatter is canonical. New lessons must ship with frontmatter or the build fails loudly. `map.md` is a frozen research artifact.
+
+
 **Last updated:** 2026-10-10 · **Phase:** Governance-framework lessons (integrated, uncommitted)
 
 ## Governance-framework lessons — 2026-10-10 (integrated)
@@ -349,3 +366,29 @@ Integration (working tree only — NOT committed, NOT pushed): `build_site.py` e
 **CSV hygiene:** file rewritten with proper quoting mid-sprint (backup sources.csv.bak-20261009); schema intact.
 
 **Open decisions carried:** (1) OWASP LLM Top 10 2026-vs-2025 edition question (brief still says 2025); (2) walkthrough substitution policy. **Standing rule held:** nothing committed or pushed; site rebuilt in working tree only.
+
+## ai-sec-automation — 2026-10-10 (written, unintegrated)
+
+Dino's order: whole permissions, keep going. One AI-track lesson written to the full 10-part spec, original prose, zero currency symbols.
+
+- `lessons/ai-sec-automation.md` (2,498 words, exactly 10 `##` sections) — SEC598 subject areas (automation for offense, defense, and cloud: LLM-assisted detection engineering, SOAR playbooks, agentic investigation assistants, red-team AI agents + continuous emulation, cloud IaC) and SEC535 subject areas (AI-enabled attack techniques: recon at scale, AI-crafted phishing + deepfakes, AI-assisted web exploitation, patch diffing, AI-assisted malware/evasion + agentic malware) taught as concepts. Every attack concept paired with its defense and defender-detectable telemetry; the compression principle (AI compresses speed/scale/iteration, not steps) as the through-line. "Paid" line in §7 once, teach-from-free-material only. ≤3 free resources (MITRE ATLAS, SigmaHQ sigma, CISA MFA). Walkthrough: worked detection plan for AI-assisted phishing → credential theft → automated lateral movement as the defensive work product — defender logs, firing detections, responses with human-in-the-loop gates, illustrative manual-vs-automated dwell column. Validation script (Python 3.12.3) rendered the plan as data and asserted every step names logs + detection + response and every attack concept carries defense + telemetry — all checks passed. Transcript + self-review in `runs/ai-sec-automation.log`. Level 2 stated honestly in the ID line; what finishes the job (paid courses + authorized-lab work) named.
+
+Sources: 3 new `verified` ledger rows (SEC598 + SEC535 pages re-fetched in-session 2026-10-10 — GASAE/GOAA pairings confirmed from the pages' own "prepares you for" statements; CISA Require MFA re-verified 2026-10-10). GIAC pages not cited (guessed giac.org URL 404'd; sibling ledger rows 318–319 carry the GIAC objective statements). ATLAS still cookie-walled (pre-existing gap).
+
+NOT integrated: build_site.py untouched, no build run, no commit, no push — integration is a separate agent's job per the task. Deliverables: lesson file, run log, 3 sources.csv rows. LESSONS-tuple fields for the integrator: lid=`ai-sec-automation`, slug=`ai-sec-automation`, stage=AI track, Level 2, description "AI security automation as concepts: the SEC598 and SEC535 subject areas with every attack technique paired to its defense and defender telemetry, and a detection plan for an AI-automated attack chain."
+
+## Brief-compliance integration — 2026-10-10 (integrator)
+
+**ai-sec-automation integrated:** Lesson picked up by the frontmatter-driven builder (106 lessons in registry); page built at /g/sec-automation/ (slug `sec-automation`, lesson_id `ai-sec-automation`). GASAE map links resolve. Note: Child A's STATE entry named slug `ai-sec-automation` but the file's frontmatter says `sec-automation` — page builds and links work; slug choice is editorial.
+
+**CISSP AI notes integrated:** `CISSP_AI_NOTES` dict added to build_site.py; all 8 domains now carry an AI-note line linking AI-track lessons. Verdict (from ISC2's "Exam Guidance for Artificial Intelligence," Sept 1, 2026): exam content, not commentary. The "AI in the outline" header note updated to cite the document.
+
+**Four light maps built:** LIGHT_MAPS data + build code in build_site.py; pages at /g/map-aigp/ (4/4), /g/map-gasae/ (10/10), /g/map-goaa/ (7/10, 3 honest gaps), /g/map-aaism/ (3/3). Four doors added to g/index.html Knowledge maps grid. Sitemap: 4 URLs added (223 total, valid XML).
+
+**Verification:** All 6 map/lesson pages have exactly one h1; 214 internal links checked, 0 broken. Build runs clean.
+
+**sources.csv:** 315 rows, 311 verified. Repaired a malformed row (Child B's Exam Guidance row had unquoted commas shifting columns); re-added 2 GIAC rows lost in the repair from the handoff data. One pre-existing exception: man-pages row (local, operator-added).
+
+**Directory:** 35 rows added to data/catalog.json (889 → 924) — done in a prior unit, schema unchanged.
+
+**Not committed, not pushed** (parent's lane).

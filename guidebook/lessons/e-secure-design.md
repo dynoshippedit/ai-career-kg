@@ -1,6 +1,17 @@
+---
+lesson_id: e-secure-design
+slug: secure-design
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, d-appsec]
+roles: []
+map_refs: ["CISSP 3.1"]
+test_date: 2026-10-10
+description: "Apply the eight Saltzer and Schroeder design principles in an architecture review, trace requirements to controls, and survey platform capabilities for a deployment decision. A free lesson in the security guidebook, serving CISSP objectives 3.1, 3.3 and 3.4."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Secure design principles: engineering judgment before controls
 
-**ID:** `e-secure-design` · **Stage:** E (Expert) · **Level:** 3 (run an architecture review: apply each principle with pass/fail rationale, trace controls to requirements) · **Prerequisites:** `e-risk-assessment`, `d-appsec`; no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.1** — design principles for engineering trustworthy systems: Saltzer and Schroeder's principles applied as reviewable requirements. (Control selection and platform capabilities are taught in `e-control-selection` and `e-platform-security`.)
 

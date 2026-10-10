@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · AI track</span><h1>The OWASP LLM Top 10 beyond prompt injection</h1>
 <p class="lede prose">Prompt injection is the risk everyone has heard of; the other nine are the risks that actually fill incident reports. When a vendor says "our model doesn't leak training data," that is a claim about LLM02. When a team discovers their RAG answers questions about another customer's documents, that is LLM09. When an agent deletes a production database because a ticket told it to, that is LLM03 wearing LLM01's clothes. The Top 10 is the shared vocabulary of this field: threat models cite it, vendor questionnaires ask about it, CAISP chapter 3 is organized around it, and every lesson in this track hangs off one of its entries. Learn it as a map, not a checklist — the value is in knowing which risk a new situation belongs to, so you reach for the right defense.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · deterministic classification drill, no model needed</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · deterministic classification drill, no model needed</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + defense per risk + classification on unseen scenarios)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/prompt-injection/"><code>ai-prompt-injection</code></a> (LLM01:2026, taught in its own lesson); <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (the stack each risk plugs into)</td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications, 2026 edition</strong> (released 2026-08-04; codes renumbered from 2025 — always name the edition); <strong>CAISP chapter 3</strong>.</td></tr>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/prompt-injection/"><code>ai-prompt-injection</code></a>, <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications, 2026 edition</strong> (released 2026-08-04; codes renumbered from 2025 — always name the edition); <strong>CAISP chapter 3</strong>.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -256,7 +257,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

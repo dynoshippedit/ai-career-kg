@@ -1,6 +1,17 @@
+---
+lesson_id: e-risk-assessment
+slug: risk-assessment
+stage: E
+level: 3
+prerequisites: []
+roles: [grc-analyst]
+map_refs: ["CISSP 1.9"]
+test_date: 2026-10-09
+description: "Risk assessment as a worked case: scope, rate, respond and report, end to end — serving CISSP objective 1.9. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Risk assessment as a worked case
 
-**ID:** `e-risk-assessment` · **Stage:** E (Expert) · **Level:** 3 (produce a complete, defensible assessment) · **Prerequisites:** Stage C vulnerability thinking (you can name realistic threats and vulnerabilities); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.9** — risk management concepts end to end.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: a-reading-code
+slug: reading-code
+stage: A
+level: 3
+prerequisites: [a-http-depth, a-python-security, b-sqli]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "Reading code through a vulnerability: tracing untrusted input from a JavaScript form to a SQL query — source, path, sink — with the injection located by reading. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database"
+---
 # Reading code through a vulnerability
 
-**ID:** `a-reading-code` · **Stage:** A (Foundations) · **Level:** 3 (apply — you can trace untrusted input through unfamiliar source and name where it becomes dangerous) · **Prerequisites:** `a-http-depth` (requests/responses), `a-python-security` (reading scripts), `b-sqli` (recommended — the vulnerability family this lesson traces).
 
 **Map refs:** Stage A foundation; the reading half of `a-python-security`; direct prerequisite for every Stage B web-vulnerability lesson.
 

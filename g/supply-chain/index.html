@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · AI track</span><h1>AI supply chain security</h1>
 <p class="lede prose">Every model you have ever downloaded is someone else's build artifact, produced on someone else's infrastructure, from data you have never seen. The question "is this model what it claims to be?" is the entire lesson, and it is asked in more places than people realize: pulling weights from a hub before fine-tuning, vendoring a dataset for training, adding a plugin to an agent, deploying a container that serves the model, auditing a vendor who says their model is "certified clean." CAISP devotes its sixth chapter to this because the AI supply chain has every classic supply-chain failure — typosquatting, compromised publishers, tampered artifacts, unvetted dependencies — plus two AI-specific ones: weight files that execute code on load, and training data that implants behavior. This lesson teaches provenance as a discipline: how to know what you have, how to prove it has not changed, and what a poisoned upstream looks like to a defender.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough steps 1–5 run 2026-10-09 · step 6 (live keyless signing) not run by us</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough steps 1–5 run 2026-10-09 · step 6 (live keyless signing) not run by us</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + provenance verification on your own artifacts + admission policy)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (where weights enter the stack); <a href="/g/llm-top10/"><code>ai-llm-top10</code></a> (LLM04:2026, expanded here); <a href="/g/git-github/"><code>a-git-github</code></a> (hashes, commits, remotes)</td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM04:2026</strong> (edition released 2026-08-04 — always name the edition); <strong>CAISP chapter 6</strong>.</td></tr>
+<tr><th scope="row">Stage</th><td>AI track</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a>, <a href="/g/llm-top10/"><code>ai-llm-top10</code></a>, <a href="/g/git-github/"><code>a-git-github</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td><strong>OWASP Top 10 for LLM Applications 2026, LLM04:2026</strong> (edition released 2026-08-04 — always name the edition); <strong>CAISP chapter 6</strong>.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -250,7 +251,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

@@ -1,6 +1,17 @@
+---
+lesson_id: b-bug-bounty
+slug: bug-bounty
+stage: B
+level: 3
+prerequisites: [b-authorization-scope, b-idor, b-security-headers]
+roles: [pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Bug bounty mechanics: how programs define scope and safe harbor, how triage decides, and how to write a report a stranger can reproduce — the dry run before your first real submission. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · report-drafting worked case; no real submission, no live target"
+---
 # Bug bounty mechanics: how authorized testing is actually offered to beginners
 
-**ID:** `b-bug-bounty` · **Stage:** B (Practitioner) · **Level:** 3 (apply: read a program's policy cold, stay in scope, and write a triage-ready report) · **Prerequisites:** `b-authorization-scope` (read first — non-negotiable), the Stage B vulnerability classes (`b-idor` through `b-security-headers`).
 
 ---
 

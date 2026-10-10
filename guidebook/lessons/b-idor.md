@@ -1,6 +1,17 @@
+---
+lesson_id: b-idor
+slug: idor
+stage: B
+level: 3
+prerequisites: [a-http-depth]
+roles: [security-analyst, pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "IDOR: how a missing authorization check lets one user read another's data — reproduced locally, fixed, and verified. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)"
+---
 # IDOR: Insecure Direct Object References
 
-**ID:** `b-idor` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction + fix verification) · **Prerequisites:** `a-http-depth` (HTTP in depth), B-AUTH (authorization discipline: you test only what you are allowed to touch, with accounts you own), an interception proxy or curl.
 
 ---
 

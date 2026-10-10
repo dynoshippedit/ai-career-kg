@@ -367,3 +367,47 @@ All 45 remaining objectives were written as Stage E lessons in the CISSP coverag
 
 1. **OWASP LLM Top 10 edition: 2026.** The guidebook teaches the verified current edition (released 2026-08-04, codes renumbered). Brief-2 §5's "2025" is amended by this decision. No lesson changes needed — lessons already teach 2026.
 2. **Walkthrough substitution policy: ACCEPTED.** Clearly labeled local-demo/deterministic substitutions and "not run by us" markers stand as the guidebook's honesty policy. Production-ready = every step is either run-with-transcript or honestly marked, not Docker-on-this-box. Docker/model/Windows/sshd steps remain marked and re-runnable by the reader.
+
+## Brief-compliance wave — directory additions (2026-10-10)
+
+Brief §8 Phase 4: 35 directory-worthy resources added to data/catalog.json (889 → 924 rows; `count` field updated; schema unchanged; no existing rows touched). All 35 come from `verified` sources.csv rows not already in the catalog: OWASP Cheat Sheet Series, PortSwigger Web Security Academy, MITRE ATLAS, ATT&CK Navigator, CWE, CAPEC, CISA KEV catalog, FIRST CVSS v4.0 spec, EPSS, Wazuh, Security Onion, Velociraptor, YARA docs, Ghidra, pwn.college, Nmap, Semgrep, SLSA, Sigstore, CycloneDX, CERT CVD Guide, CVE Program CNA directory, RFC 8446, RFC 9110, REMnux, OpenSSH manuals, PTES Technical Guidelines, CISA, MalwareBazaar, Hacker101, Intigriti researcher resources, LOLBAS, Project Zero blog, Python docs, CIS Critical Security Controls v8.1. Verification dates filled from the ledger (v field). Five duplicate URLs found during dedup were pre-existing catalog rows (LangChain, SnowPro, MLOps Zoomcamp, WCAG) — left untouched.
+
+## Light knowledge maps: AIGP / GASAE / GOAA / AAISM — 2026-10-10 (research done, integration pending)
+
+All four outlines were fetched from the issuer in-session on 2026-10-10 and ledgered as `verified` (8 new rows; sources.csv now 324 rows). Domain-level only, per brief §4. Domain titles are the issuers' words; outcome statements paraphrased; no exam questions or outline text reproduced.
+
+- **AIGP (IAPP):** BoK v2.1, effective 2026-02-02 (supersedes 2.0.1) — 4 domains, all map to lessons (4/4).
+- **GASAE (GIAC):** "Exam Certification Objectives & Outcome Statements" — 10 objectives, all map to lessons (10/10). GASAE maps use the `ai-sec-automation` lesson, which is being written in parallel by another agent; the integrator must check it exists in LESSONS before building (it was absent from build_site.py at research time).
+- **GOAA (GIAC):** "Exam Certification Objectives & Outcome Statements" — 10 objectives; 7/10 map to lessons. Three with no lesson, logged honestly: "Audio, Image, and Video Deepfakes" (no deepfake lesson exists in the guidebook), "Creating Phishing Emails with AI" and "Social Engineering Fundamentals" (no social-engineering lesson; the guidebook's safety line excludes phishing tooling — do not close these by writing how-to content). "Creating Malicious Software with AI" maps to `d-malware-analysis` (analysis/detection, not authoring); "Bypassing Defensive Controls" maps to `d-exploit-concepts` (concepts + the mitigation landscape) — the map's notes must keep this framing visible.
+- **AAISM (ISACA):** exam content outline — 3 job practice domains, all map to lessons (3/3). Prerequisite CONFIRMED at isaca.org: active CISM or CISSP required (press release, in-session). ISACA's other AI credentials CONFIRMED as separate at isaca.org: AAIA (Advanced in AI Audit, launched May 2025) and AAIR (Advanced in AI Risk) — three credentials, not one. The AAISM map must carry the prerequisite note and must not imply AAISM is ISACA's only AI credential.
+- SANS pairings verified in-session at sans.org: SEC598 → GASAE (5 course sections → 10 objectives), SEC535 → GOAA (3 sections → 10 objectives). Courses are paid; the maps teach the subject areas from free lessons. Nothing paywalled blocked the research — every outline was read in full at the primary source.
+
+## Frontmatter refactor (2026-10-10)
+
+Brief §4 data contract implemented: all 107 lessons carry YAML frontmatter (stage, level, prerequisites, roles, map_refs, test_date); the builder generates the registry, link map, counts, path membership validation, stage listings, and knowledge-map references from it. Verification gate passed (128 pages, 4,936 internal links 0 broken, zero regressions).
+
+Open from this work:
+- 6 new crew lessons (`a-crypto`, `b-api-abuse`, `b-ssti`, `b-xxe`, `b-deserialization`, `ai-sec-automation`) have `roles: []` — not yet placed in role paths.
+- `ai-sec-automation` has no runs log yet; its dateline says the walkthrough is being finalized. Test date to be confirmed.
+- Sitemap is still hand-maintained (no builder).
+- `map.md` frozen as a research artifact; frontmatter is now canonical.
+
+## Brief-compliance wave (2026-10-10)
+
+**AI-track SEC598/SEC535 lesson** (`ai-sec-automation`): SANS SEC598 + SEC535 re-verified in-session 2026-10-10 (GASAE/GOAA pairings confirmed from the pages' own statements). Lesson teaches both subject areas as concepts paired with defenses and defender telemetry; SANS courses named as paid in one line; walkthrough = worked detection plan for an AI-automated attack chain.
+
+**CISSP AI-note verdict: exam content, not commentary.** The per-domain AI notes live in ISC2's "Exam Guidance for Artificial Intelligence" (Sept 1, 2026), which maps AI topics across 50+ exam domains / 200 subtasks woven into all eight CISSP domains via the normal 3-year refresh cycle. The CISSP certification page itself carries only a banner, not per-domain notes (brief §3's premise corrected). All eight domains now carry an AI-note line on /g/map-cissp/ linking AI-track lessons.
+
+**Four light knowledge maps** (brief §4): /g/map-aigp/ (4/4), /g/map-gasae/ (10/10), /g/map-goaa/ (7/10 — deepfakes, AI phishing email, social-engineering fundamentals honestly unmapped; safety line excludes phishing/malware how-tos), /g/map-aaism/ (3/3; AAISM needs active CISM or CISSP; AAIA/AAIR named as separate ISACA credentials). All outlines verified in-session at the primary issuers 2026-10-10.
+
+**Directory**: 35 rows added to data/catalog.json (889 → 924), all from verified ledger rows, schema unchanged, no existing rows touched.
+
+## Frontmatter refactor (2026-10-10)
+
+Brief §4 data contract implemented: all 109 lessons carry YAML frontmatter (stage, level, prerequisites, roles, map_refs, test_date, description, dateline); the builder generates the registry, link map, counts, path membership validation, stage listings, and knowledge-map references from it. The 320-line LESSONS hand table is deleted; CISSP_DOMAINS and CAISP_CHAPTERS are prose-only (mapping inverted from frontmatter at build). Verification gate passed (131 pages, 5,013 internal links 0 broken, zero regressions vs pre-refactor).
+
+Open from this work:
+- 9 new crew lessons (`a-crypto`, `b-api-abuse`, `b-ssti`, `b-xxe`, `b-deserialization`, `b-graphql`, `b-race-conditions`, `b-jwt-oauth`, `ai-sec-automation`) have `roles: []` — not yet placed in role paths.
+- `ai-sec-automation` has no runs log yet; its dateline says the walkthrough is being finalized. Test date to be confirmed.
+- Sitemap is still hand-maintained (no builder).
+- `map.md` frozen as a research artifact; frontmatter is now canonical.

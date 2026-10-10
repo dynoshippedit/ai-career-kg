@@ -1,6 +1,17 @@
+---
+lesson_id: e-system-lifecycle
+slug: system-lifecycle
+stage: E
+level: 3
+prerequisites: [e-secure-design, e-sdlc]
+roles: []
+map_refs: ["CISSP 3.10"]
+test_date: 2026-10-10
+description: "Write a gate-review template with security deliverables per phase, complete one gate review to a go/no-go decision, and plan secure disposal. A free lesson in the security guidebook, serving CISSP objective 3.10."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # The information system lifecycle: security at every gate
 
-**ID:** `e-system-lifecycle` · **Stage:** E (Expert) · **Level:** 3 (write a gate-review template with security deliverables per phase, and complete one gate review with a go/no-go decision) · **Prerequisites:** `e-secure-design` (requirements as phase inputs), `e-sdlc` (the development lifecycle's security activities); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.10** — the information system lifecycle: security integration across phases, gate reviews, and secure disposal.
 

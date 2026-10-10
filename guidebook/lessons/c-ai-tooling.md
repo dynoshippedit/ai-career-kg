@@ -1,6 +1,17 @@
+---
+lesson_id: c-ai-tooling
+slug: ai-tooling
+stage: C
+level: 3
+prerequisites: [c-public-track-record, ai-governance, c-cvd]
+roles: []
+map_refs: []
+test_date: 2026-10-09
+description: "AI tooling professionals use: Anthropic's Cyber Verification Program as the dated worked example — three tiers, what each admits, and why it is access to tooling, never a credential. A free lesson in the security guidebook."
+dateline: "Evidence map authored 2026-10-09 · CVP details dated 2026-10-06 (announcement); primary URL to re-fetch at publish"
+---
 # AI tooling professionals use: the Cyber Verification Program as the worked example
 
-**ID:** `c-ai-tooling` · **Stage:** C (Professional) · **Level:** 3 (program mechanics + evidence mapping; application is reader-side) · **Prerequisites:** `c-public-track-record` (the track record this lesson maps), `ai-governance` (how the field governs AI), `c-cvd` (what "reported vulnerabilities" means in practice).
 
 **Map refs:** serves the Stage C professional-recognition track and the AI track — the brief's §3 correction governs this entire lesson.
 

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XXE: when the parser works for the attacker | Learn Computer Stuff</title>
+<meta name="description" content="XXE: when the XML parser works for the attacker — external entity injection reproduced locally, then fixed with secure parser configuration. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/xxe/">
+<meta property="og:title" content="XXE: when the parser works for the attacker | Learn Computer Stuff"><meta property="og:description" content="XXE: when the XML parser works for the attacker — external entity injection reproduced locally, then fixed with secure parser configuration. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/xxe/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"XXE: when the parser works for the attacker","item":"https://learncomputerstuff.dev/g/xxe/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>XXE: when the parser works for the attacker</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>XXE: when the parser works for the attacker</h1>
+<p class="lede prose">XML is still everywhere: SOAP APIs, SAML assertions, document uploads (DOCX/XLSX are zipped XML), SVG images, configuration files. An XML parser that resolves <strong>external entities</strong> will fetch URLs and read files <em>on the attacker's behalf</em> — which makes XXE the XML-flavored cousin of SSRF, plus a denial-of-service variant (billion laughs) that needs no network at all. This lesson takes you to Level 3: you will reproduce entity expansion against a local parser, understand why real-world parsers are more dangerous than the demo, and verify the hardening.</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-xxe.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/ssrf/"><code>b-ssrf</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-611 (Improper Restriction of XML External Entity Reference) · PortSwigger Web Security Academy (XXE)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>XML is still everywhere: SOAP APIs, SAML assertions, document uploads (DOCX/XLSX are zipped XML), SVG images, configuration files. An XML parser that resolves <strong>external entities</strong> will fetch URLs and read files <em>on the attacker's behalf</em> — which makes XXE the XML-flavored cousin of SSRF, plus a denial-of-service variant (billion laughs) that needs no network at all. This lesson takes you to Level 3: you will reproduce entity expansion against a local parser, understand why real-world parsers are more dangerous than the demo, and verify the hardening.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You understand the SSRF lesson's shape — the server acting on attacker-chosen destinations — because XXE's file-read/SSRF impact is that shape through an XML parser.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local parser demo, a PortSwigger Academy XXE lab, or a bounty program whose scope explicitly includes the asset. Never point an external-entity payload at a real file on a real target to "see if it works" — the file content in the response <em>is</em> the exfiltration. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl or any HTTP client. The payloads are small enough to write by hand.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>XML lets a document define its own shortcuts called <strong>entities</strong>:</p>
+<pre><code>&lt;!DOCTYPE note [
+  &lt;!ENTITY greeting &quot;Hello, world&quot;&gt;
+]&gt;
+&lt;note&gt;&amp;greeting;&lt;/note&gt;</code></pre>
+<p><code>&amp;greeting;</code> expands to <code>Hello, world</code>. Entities can also be <strong>external</strong>: instead of a literal value, the definition points at a URL or file, and the parser fetches it:</p>
+<pre><code>&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;
+]&gt;
+&lt;root&gt;&amp;xxe;&lt;/root&gt;</code></pre>
+<p>A parser with external entities enabled reads <code>/etc/passwd</code> and puts its content where <code>&amp;xxe;</code> was. Change the SYSTEM identifier to <code>http://169.254.169.254/...</code> and you have SSRF through the parser. <strong>Why it arises in real code:</strong> the developer enabled a feature-rich XML parser with default settings, and the defaults of several major parsers (Java's, libxml2's, .NET's older ones, PHP's) historically resolved external entities. The developer never asked "what can the <em>document</em> make my parser do?"</p>
+<p><strong>Billion laughs: the DoS variant.</strong> Entities can reference other entities:</p>
+<pre><code>&lt;!ENTITY lol &quot;lollollollollollollollollollol&quot;&gt;
+&lt;!ENTITY lol2 &quot;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&amp;lol;&quot;&gt;
+&lt;!ENTITY lol3 &quot;&amp;lol2;&amp;lol2;...&quot;&gt;  &lt;!-- ten more levels --&gt;</code></pre>
+<p>A few hundred bytes of definitions expand to gigabytes — exponential amplification. No network, no exfiltration, just a parser consuming all memory. It is called "billion laughs" after the <code>lol</code> entity names in the original report.</p>
+<p><strong>What the demo shows honestly.</strong> Python's <code>xml.etree</code> — the walkthrough's parser — <em>expands internal entities</em> (billion laughs works, demonstrated) but <em>refuses external entities</em> (raises an error, demonstrated). Real-world parsers in other ecosystems resolve external entities unless hardened — that is where the file-read and SSRF impact lives, and it is taught here at concept level with the exact hardening, practiced hands-on in PortSwigger's labs. The lesson's honesty rule: the demo proves what <em>this</em> parser does; the dangerous behavior is named, sourced, and not pretended about.</p>
+<p><strong>How defenders see it.</strong> <code>&lt;!DOCTYPE</code> and <code>&lt;!ENTITY</code> in request bodies are the tripwire — legitimate XML from your own clients rarely contains either (your schemas don't use DTDs). Alert on both strings in XML-bearing endpoints. In code review: any XML parser configured with DTD processing or external-entity resolution enabled; <code>DocumentBuilderFactory</code> without <code>disallow-doctype-decl</code>; <code>XmlReader</code> without <code>DtdProcessing.Prohibit</code>. The fix is parser configuration, and the detection is the DOCTYPE string.</p>
+<h3>Worked example: the upload demo</h3>
+<p>An XML upload endpoint (stdlib Python, local only — the walkthrough runs it):</p>
+<ul>
+<li>Benign <code>&lt;root&gt;hello&lt;/root&gt;</code> → parsed, 5 chars. Baseline.</li>
+<li>Billion-laughs document (300 bytes of entity definitions) → parsed, <strong>30,000 chars</strong> of expanded text. The 1000x amplification is the vulnerability: scale the definitions slightly and the parser falls over.</li>
+<li>External-entity document (<code>SYSTEM &quot;file:///etc/hostname&quot;</code>) → <strong>rejected by the parser</strong> (this parser doesn't resolve externals — the dangerous behavior is documented, not demonstrated, per the honesty rule above).</li>
+</ul>
+<p>The fix, in the same app: <strong>reject any document containing a DOCTYPE</strong> — no DTD means no entities of either kind. Re-test: billion laughs → 400 rejected; benign XML → still parses. Then the general rule for real stacks: disable DTD processing and external-entity resolution in the parser configuration (the OWASP XML Security Cheat Sheet lists the exact flags per parser), and prefer JSON where the format is your choice.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-xxe.log</code>. Clean environment: stock Python 3.12 (<code>xml.etree</code>), loopback only, 2026-10-10. The demo parser stands in for the resolving parsers the reader meets in PortSwigger's labs (see the honesty note in section 3).</p>
+<ol>
+<li><strong>Start the app.</strong> Save the <code>app.py</code> from this lesson's companion and run it on port 8334. Confirm the baseline: POST <code>&lt;root&gt;hello&lt;/root&gt;</code> to <code>/upload</code> → 200, parsed.</li>
+<li><strong>Prove entity expansion.</strong> POST the billion-laughs document (in the companion) → 200 with <code>text_len=30000</code> from ~300 bytes of definitions. Compute the amplification factor and write it down — this number is the finding.</li>
+<li><strong>Probe external entities.</strong> POST the <code>SYSTEM &quot;file:///etc/hostname&quot;</code> document → 400, parser refuses. Write down <em>exactly</em> what happened (refusal, not resolution) and why this parser differs from Java/libxml2/.NET defaults — the difference is the lesson.</li>
+<li><strong>Apply the fix.</strong> Restart with <code>HARDENED=1</code> on port 8335: any <code>&lt;!DOCTYPE</code> → 400.</li>
+<li><strong>Verify the fix — two cases.</strong> Billion laughs → 400 rejected; benign XML → 200, still parses. A fix that breaks legitimate documents is not a fix.</li>
+<li><strong>Read the defender view.</strong> The companion logs the raw request bodies. Find your <code>&lt;!ENTITY</code> and <code>&lt;!DOCTYPE</code> strings. Write the detection rule: alert on either string in XML-bearing request bodies — and note beside it that your own clients' schemas never emit them.</li>
+</ol>
+<p>No step above is marked "not run by us" — expansion, refusal, and hardening all ran locally. External-entity <em>resolution</em> (the file-read/SSRF impact) is PortSwigger-lab material by design: the concept, the parser flags, and the detection are taught here; the resolving behavior is practiced there.</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy XXE lab (start with "Exploiting XXE using external entities to retrieve files"). Before touching the lab, read its parser context: the lab tells you the stack. Then: (1) prove entity <em>definition</em> is processed (billion-laughs-shaped probe, small), (2) escalate to the file read exactly as the lab documents, (3) state the parser-hardening fix for that stack from the OWASP cheat sheet.</p>
+<p><strong>Success test:</strong> A one-page report: the parser/stack, the expansion proof (with the amplification factor), the file-read evidence (exact request/response), the per-parser hardening flags, and the defender detection (which log, which strings). If the lab's parser is already hardened, document the hardening you found — a characterized defense is a result.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"Our parser doesn't resolve externals, so we're safe."</strong> Billion laughs needs no external resolution — internal entity expansion alone is a DoS. Harden against <em>both</em>.</li>
+<li><strong>Allowlists of "safe" SYSTEM URLs.</strong> <code>file:///etc/passwd</code> blocked but <code>http://169.254.169.254/</code> allowed is SSRF through the parser. The fix is disabling the feature, not filtering its targets.</li>
+<li><strong>Testing file reads against real files on real targets.</strong> The file content in the response is exfiltration the moment it works. In labs, read the lab's designated canary file; nowhere else.</li>
+<li><strong>Assuming JSON APIs can't have XXE.</strong> The content type is negotiated, not declared: if the endpoint <em>parses</em> XML anywhere in the chain (a library, a middleware, a document converter), the XML you send is the XML that matters. Test what is parsed, not what the docs say.</li>
+<li><strong>Forgetting SVG and document uploads.</strong> SVG is XML. DOCX is zipped XML. "File upload" features are XML parser features in disguise — the XXE checklist applies to every upload that gets parsed.</li>
+<li><strong>Partial hardening.</strong> Disabling external entities but leaving DTDs on still allows billion laughs. The cheat sheet's rule is total: disallow DOCTYPE declarations entirely unless the application genuinely needs DTDs (it almost never does).</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — XXE</strong> (<a href="https://portswigger.net/web-security/xxe">portswigger.net/web-security/xxe</a> — verified 2026-10-10): the canonical treatment — file retrieval, SSRF via XXE, blind XXE via out-of-band techniques. <em>Read</em> fully, then do the labs.</li>
+<li><strong>OWASP XML Security Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org/cheatsheets/XML_Security_Cheat_Sheet.html">cheatsheetseries.owasp.org/cheatsheets/XML_Security_Cheat_Sheet.html</a> — verified 2026-10-10): per-parser hardening flags (Java, .NET, Python, PHP). <em>Read</em> the section for your stack; this is the fix.</li>
+<li><strong>CWE-611</strong> (<a href="https://cwe.mitre.org/data/definitions/611.html">cwe.mitre.org/data/definitions/611.html</a> — verified 2026-10-10): Improper Restriction of XML External Entity Reference. <em>Skim</em>; cite the ID.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger XXE labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — free): file-retrieval and blind XXE labs, hosted and authorized.</li>
+<li><strong><a href="/g/ssrf/"><code>b-ssrf</code></a></strong> (this guidebook): the SSRF half of XXE's impact — the metadata-service angle applies through parsers too.</li>
+<li><strong>OWASP XXE Prevention Cheat Sheet</strong> (via the XML Security sheet above — free): the one-page fix summary.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain the difference between an internal entity and an external entity, and which of billion laughs / file-read each one enables.</li>
+<li>A 300-byte XML document produces 30,000 characters of parsed text. Explain the amplification mechanism and why no network access was needed.</li>
+<li>Your parser refuses <code>SYSTEM &quot;file:///etc/hostname&quot;</code> with "undefined entity." Explain what this tells you about the parser's configuration, and what you would check next on a Java stack.</li>
+<li>A developer "fixes" XXE by blocking the string <code>file://</code> in uploads. Explain two bypasses (SSRF via http:// to metadata; billion laughs needs no URL at all) and state the correct fix.</li>
+<li>Explain why SVG upload features and DOCX processing belong on the XXE checklist, even though the feature is called "image upload" or "document import."</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": parser/stack, expansion proof with amplification factor, file-read evidence, per-parser hardening flags, defender detection.</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can prove XML entity expansion, characterize a parser's external-entity behavior, apply the DOCTYPE-rejection hardening, and write the detection rule — on authorized targets. You cannot yet claim: blind-XXE exfiltration technique on live stacks — the out-of-band escalation is lab-bounded practice in PortSwigger's labs.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/ssrf/"><code>b-ssrf</code></a> (re-read the metadata angle) — XXE's SSRF impact is the same destination reached through a parser.</li>
+<li><a href="/g/deserialization/"><code>b-deserialization</code></a> — the next "parser works for the attacker" class: untrusted input reaching object construction.</li>
+<li><a href="/g/malware-analysis/"><code>d-malware-analysis</code></a> — document-format parsing as an attack surface from the defender's side.</li>
+<li>Map refs: <strong>CWE-611</strong> · <strong>PortSwigger XXE</strong> · <strong>OWASP XML Security Cheat Sheet</strong>.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

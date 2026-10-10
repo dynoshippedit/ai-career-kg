@@ -1,0 +1,18 @@
+=== b-ssti walkthrough ===
+date: 2026-10-10
+tool versions: stock Python 3.12.3, curl 8.5.0
+environment: loopback only (127.0.0.1:8333); toy eval-based engine, deliberately worst-practice, labeled as such
+
+=== b-ssti walkthrough ===
+Sat Oct 10 04:05:09 UTC 2026
+tool versions: stock Python 3.12.3, curl 8.5.0
+environment: loopback only; toy eval-based engine, labeled deliberately vulnerable
+--- 1. baseline ---
+Hello, alice!
+--- 2. injection {{7*7}} in template source ---
+Hello, 49!
+--- 3. fixed build: input treated as data ---
+<html><body><h1>Hello, {{7*7}}!</h1></body></html>
+
+--- cleanup ---
+demo server killed by PID after the run; port 8333 verified free

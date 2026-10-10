@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Broken authentication and session management: proving who you are, and staying proven</h1>
 <p class="lede prose">Authentication is the gate every other control stands behind: if an attacker can become the victim, authorization checks are answering the wrong question. It sits in <strong>OWASP Top 10:2025 A07 — Authentication Failures</strong>, tested per <strong>WSTG-ATHN</strong>. You meet it in bounty programs (login, reset, and session endpoints are always in scope and always attacked), in SOC work (authentication logs are the highest-volume telemetry you will ever triage), and in AppSec reviews (session handling is where homegrown auth goes wrong).</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + local reproduction of fixation, token-predictability and missing rate-limit + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (cookies, Set-Cookie semantics), <a href="/g/csrf/"><code>b-csrf</code></a> (what the session cookie carries), B-AUTH (authorization discipline)</td></tr>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/csrf/"><code>b-csrf</code></a> <span class="muted">(full list in §2)</span></td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -239,7 +240,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p>Next: <a href="/g/security-headers/"><code>b-security-headers</code></a> (cookie flags and browser defenses as the deployed layer for everything this lesson proved). Map refs: <strong>OWASP Top 10:2025 A07 — Authentication Failures</strong>; WSTG-ATHN; CWE-287 (improper authentication), CWE-384 (session fixation); feeds Stage C disclosure (auth findings are the most common first CVE) and the SOC-analyst path (auth logs are the triage bread and butter).</p>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

@@ -1,6 +1,17 @@
+---
+lesson_id: e-retention-eol
+slug: retention-eol
+stage: E
+level: 3
+prerequisites: [e-data-lifecycle]
+roles: []
+map_refs: ["CISSP 2.5"]
+test_date: 2026-10-10
+description: "Build a retention and destruction schedule with legal basis and computable triggers, plus legal-hold and secure-decommissioning procedures. A free lesson in the security guidebook, serving CISSP objective 2.5."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Retention schedules and end-of-life: when to let go, and how
 
-**ID:** `e-retention-eol` · **Stage:** E (Expert) · **Level:** 3 (build a retention and destruction schedule with legal basis, and handle end-of-life systems securely) · **Prerequisites:** `e-data-lifecycle` (the lifecycle map this lesson turns into a schedule); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 2.5** — asset retention and end-of-life/support: how long to keep things, on what authority, and how to retire systems without leaving data or access behind.
 

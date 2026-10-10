@@ -1,6 +1,17 @@
+---
+lesson_id: e-ethics
+slug: ethics
+stage: E
+level: 2
+prerequisites: [ai-governance]
+roles: []
+map_refs: ["CISSP 1.1"]
+test_date: 2026-10-10
+description: "Argue real security-work dilemmas from the ISC2 Code of Ethics' four canons, in priority order. A free lesson in the security guidebook, serving CISSP objective 1.1."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Professional ethics in security work: the Code is the floor, not the ceiling
 
-**ID:** `e-ethics` · **Stage:** E (Expert) · **Level:** 2 (argue a security ethics dilemma from a professional code's canons, in writing, naming which canon decides) · **Prerequisites:** none beyond Stage D; bring the AI-ethics material from `ai-governance` (it extends the same reasoning to AI systems). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.1** — professional ethics in security work.
 

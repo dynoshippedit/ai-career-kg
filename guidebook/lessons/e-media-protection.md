@@ -1,6 +1,17 @@
+---
+lesson_id: e-media-protection
+slug: media-protection
+stage: E
+level: 3
+prerequisites: [e-security-program]
+roles: []
+map_refs: ["CISSP 7.5"]
+test_date: 2026-10-10
+description: "How to protect the physical object — media inventory and labeling, custody in storage and transport, and sanitization per NIST SP 800-88. A free lesson in the security guidebook, serving CISSP objective 7.5."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Media protection: handling the physical object
 
-**ID:** `e-media-protection` · **Stage:** E (Expert) · **Level:** 3 (write media-handling and sanitization procedures an auditor can follow) · **Prerequisites:** `e-security-program` (where handling rules get their authority); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.5** — protecting resources and media in operation: handling, storage, transport, and sanitization.
 

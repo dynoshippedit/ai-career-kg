@@ -2,14 +2,18 @@
 """Build the security guidebook section into the learncomputerstuff.dev static site.
 
 Usage: python3 build_site.py
-Reads:  lessons/*.md (the 10-part lesson spec, markdown)
+Reads:  lessons/*.md (the 10-part lesson spec, markdown + YAML frontmatter)
 Writes: <repo>/g/<slug>/index.html  (one per lesson)
         <repo>/g/index.html          (guidebook entry page)
 
+Brief §4: lessons are data. Every lesson file carries frontmatter
+(lesson_id, slug, stage, level, prerequisites, roles, map_refs, test_date,
+description, dateline); the registry, link map, counts, path membership,
+stage listings and knowledge-map references are all generated from it.
 The HTML reuses the site's own inline CSS verbatim (extracted from the homepage)
 so design tokens, header, nav, footer and voice stay native. No external
-dependencies. Re-run for future batches: add the lesson .md, extend LESSONS,
-run again.
+dependencies. Re-run for future batches: add the lesson .md with frontmatter,
+append its id to ORDER, run again.
 """
 import html
 import re
@@ -37,331 +41,134 @@ def numword(n):
     return ones[h] + " hundred" + ("" if rest == 0 else " " + numword(rest))
 
 # lesson id -> url slug
-LESSONS = [
-    # (lesson_id, slug, stage_label, dateline_note, meta_description)
-    ("a-http-depth", "http-depth", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · loopback only, nothing external touched",
-     "HTTP in depth: requests, responses, cookies, JWTs and TLS — explained byte by byte, with every walkthrough step run locally. A free lesson in the security guidebook."),
-    ("b-idor", "idor", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)",
-     "IDOR: how a missing authorization check lets one user read another's data — reproduced locally, fixed, and verified. A free hands-on lesson in the security guidebook."),
-    ("e-risk-assessment", "risk-assessment", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Risk assessment as a worked case: scope, rate, respond and report, end to end — serving CISSP objective 1.9. A free lesson in the security guidebook."),
-    ("ai-prompt-injection", "prompt-injection", "AI track",
-     "Walkthrough steps 1–4 run 2026-10-09 · step 5 (live model) not run by us",
-     "Prompt injection, the #1 LLM application risk (OWASP LLM Top 10 2026, LLM01:2026): mechanism, code-level defenses and detection. A free lesson in the security guidebook."),
-    # --- Stage A foundation batch (2026-10-09) ---
-    ("a-dns-depth", "dns-depth", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · loopback only; TCP form of DNS used (sandbox blocks UDP)",
-     "DNS in depth: the resolution chain, message format, record types, caching and DNSSEC — every step run locally against a toy authoritative server. A free lesson in the security guidebook."),
-    ("a-tcpip-ports", "tcpip-ports", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · loopback only; UDP step not run by us (sandbox blocks UDP loopback); packet-capture step re-ran 2026-10-10 with real tcpdump",
-     "TCP/IP and ports: the handshake, connection states, what a port really is — observed live with ss on loopback. A free lesson in the security guidebook."),
-    ("a-linux-cli", "linux-cli", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · local scratch dir; shell ran as root (flagged in-lesson)",
-     "Linux command line for security work: files, permissions, processes, logs, pipes and SSH keys — the instrument every later lesson assumes. A free lesson in the security guidebook."),
-    ("a-git-github", "git-github", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · local repos only; GitHub-side steps not run by us",
-     "Git and GitHub: snapshots, staging, branching, remotes and pull requests — the evidence pipeline for the whole program. A free hands-on lesson in the security guidebook."),
-    # --- Stage B web-vulnerability wave (2026-10-09) ---
-    ("b-sqli", "sqli", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)",
-     "SQL injection: when input becomes the query — in-band, blind and time-based families reproduced locally, then fixed with parameterized queries. A free hands-on lesson in the security guidebook."),
-    ("b-command-injection", "command-injection", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)",
-     "OS command injection: shell metacharacters, blind time-delay proofs, and why allow-lists beat blocklists — reproduced locally and fixed. A free hands-on lesson in the security guidebook."),
-    ("b-ssrf", "ssrf", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app; metadata tree is a labeled loopback simulation",
-     "SSRF: when the server fetches what you tell it to — loopback, cloud-metadata angle, filter bypasses and the allow-list fix. A free hands-on lesson in the security guidebook."),
-    ("b-csrf", "csrf", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app; browser-click sub-step re-ran 2026-10-10 (headless Chromium)",
-     "CSRF: when the victim's browser does the attacker's work — token defense, SameSite, and the no-state-changing-GET rule. A free hands-on lesson in the security guidebook."),
-    # --- Stage B web-vulnerability wave, continued (2026-10-09) ---
-    ("b-xss", "xss", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo app; browser-execution sub-steps re-ran 2026-10-10 (headless Chromium)",
-     "Cross-site scripting: reflected, stored and DOM-based — the trust-boundary mechanism, context-aware output encoding, and CSP as defense in depth. A free hands-on lesson in the security guidebook."),
-    ("b-business-logic", "business-logic", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo shop (price tamper, coupon race, negative quantity)",
-     "Business-logic flaws: map the workflow, violate its assumptions — price tampering, coupon races and negative quantities, with server-side fixes and business-anomaly detection. A free hands-on lesson in the security guidebook."),
-    ("b-session-auth", "session-auth", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us",
-     "Broken authentication and session management: fixation, predictable tokens, missing rate limits — reproduced locally, fixed, with MFA as the structural answer. A free hands-on lesson in the security guidebook."),
-    ("b-security-headers", "security-headers", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · local demo; browser-enforcement sub-steps re-ran 2026-10-10 (headless Chromium)",
-     "Security headers and browser defenses: CSP, HSTS, frame-ancestors, nosniff, cookie flags — what each buys, verified header by header with curl. A free hands-on lesson in the security guidebook."),
-    ("b-bug-bounty", "bug-bounty", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · report-drafting worked case; no real submission, no live target",
-     "Bug bounty mechanics: how programs define scope and safe harbor, how triage decides, and how to write a report a stranger can reproduce — the dry run before your first real submission. A free lesson in the security guidebook."),
-    # --- Stage C detection/operations wave (2026-10-09) ---
-    ("c-soc-triage", "soc-triage", "Stage C · Professional",
-     "Walkthrough run 2026-10-09 · labeled fictional event set; decision trees executed locally",
-     "SOC triage: from alert to decision — the eight-stage pipeline, impossible-travel and beaconing decision trees, and the five classification buckets. A free lesson in the security guidebook."),
-    ("c-log-sources", "log-sources", "Stage C · Professional",
-     "Walkthrough run 2026-10-09 · fictional sample logs parsed with CLI tools",
-     "Log sources that matter: endpoint, network, identity, email, cloud — what each sees, what goes blind without it, and cross-source correlation. A free hands-on lesson in the security guidebook."),
-    ("c-sigma-detection", "sigma-detection", "Stage C · Professional",
-     "Walkthrough run 2026-10-09 · rule validated and evaluated against labeled corpora",
-     "Writing detections with Sigma: rule anatomy against the spec, the tuning loop, and detection-as-code discipline — measured, not asserted. A free hands-on lesson in the security guidebook."),
-    ("c-incident-response", "incident-response", "Stage C · Professional",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Incident response basics: the NIST SP 800-61 Rev. 3 lifecycle and the full IR report — timeline, scope, ordered containment, honest limitations. A free lesson in the security guidebook."),
-    # --- Stage C disclosure wave (2026-10-09) ---
-    ("c-cvd", "cvd", "Stage C · Professional",
-     "Worked case authored 2026-10-09 · local security.txt lab run; no command line beyond it",
-     "Coordinated vulnerability disclosure: finding the security contact, writing the report, negotiating the timeline, publishing responsibly — Heartbleed vs the zero-day drops. A free lesson in the security guidebook."),
-    ("c-cve-program", "cve-program", "Stage C · Professional",
-     "Real CVE record fetched via CVE API 2026-10-09 · fictional request worksheet; no real submission",
-     "The CVE Program: 555 CNAs, the request path, Record Format 5.2.0, and the credits field that puts your name in the permanent record. A free lesson in the security guidebook."),
-    ("c-cvss", "cvss", "Stage C · Professional",
-     "Walkthrough run 2026-10-09 · v3.1 equations and FIRST's v4.0 reference implementation reproduced all published scores",
-     "CVSS v3.1 and v4.0 scored by hand: the metric groups, three official calibration cases, and where the versions disagree — including E:U collapsing 7.7 to 5.2. A free hands-on lesson in the security guidebook."),
-    ("c-vuln-ecosystem", "vuln-ecosystem", "Stage C · Professional",
-     "Walkthrough run 2026-10-09 · live EPSS, CISA KEV CSV, three-method ranking comparison",
-     "CWE, CAPEC, CISA KEV, EPSS — and where enrichment comes from now that NVD enriches only prioritized CVEs. A free hands-on lesson in the security guidebook."),
-    # --- Stage E CISSP-domain wave (2026-10-09) ---
-    ("e-iam", "iam", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Identity and access management: the joiner-mover-leaver lifecycle, assurance levels, federation, RBAC/ABAC, privileged access — with a full access review worked case. A free lesson in the security guidebook, serving CISSP objectives 5.1–5.5."),
-    ("e-crypto-applied", "crypto-applied", "Stage E · Expert",
-     "Walkthrough run 2026-10-09 · OpenSSL 3.0.13, loopback only, nothing external touched",
-     "Applied cryptography: hashes, modes, signatures, PKI path validation and the key lifecycle — ECB-vs-CBC demonstrated live, TLS 1.3 handshake run locally. A free hands-on lesson in the security guidebook, serving CISSP objective 3.6."),
-    ("e-sdlc", "sdlc", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Secure SDLC: threat modeling with STRIDE, security gates per phase, the SSDF practice groups, and metrics that measure effectiveness — with a gate review worked case. A free lesson in the security guidebook, serving CISSP objectives 8.1–8.5."),
-    ("e-bcp-drp", "bcp-drp", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Business continuity and disaster recovery: the BIA, RTO/RPO as decisions, recovery strategy selection, and a tabletop exercise — worked end to end. A free lesson in the security guidebook, serving CISSP objectives 1.7, 7.10–7.13."),
-    # --- CISSP coverage wave (2026-10-10): the 45 remaining objectives ---
-    ("e-ethics", "ethics", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Argue real security-work dilemmas from the ISC2 Code of Ethics' four canons, in priority order. A free lesson in the security guidebook, serving CISSP objective 1.1."),
-    ("e-security-concepts", "security-concepts", "Stage E · Expert",
-     "Local demo run 2026-10-10 (transcript in runs/e-security-concepts.log) · worked case authored and reviewed 2026-10-10",
-     "Map a system's assets onto confidentiality, integrity, availability and the AAA properties, and name the trade-offs. A free lesson in the security guidebook, serving CISSP objective 1.2."),
-    ("e-governance", "governance", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Draft a security governance charter that ties security decisions to business objectives, with roles, reporting lines, and a framework rationale. A free lesson in the security guidebook, serving CISSP objective 1.3."),
-    ("e-cyber-law", "cyber-law", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Build an obligation-to-evidence compliance matrix from GDPR and related regimes. A free lesson in the security guidebook, serving CISSP objective 1.4."),
-    ("e-investigations", "investigations", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Run the investigation-type decision tree: administrative, criminal, civil, regulatory. A free lesson in the security guidebook, serving CISSP objective 1.5."),
-    ("e-policy-docs", "policy-docs", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Author a four-tier document set — policy, standard, procedure, guideline — with traceability both ways. A free lesson in the security guidebook, serving CISSP objective 1.6."),
-    ("e-personnel-security", "personnel-security", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Run the human side of hiring, transfer, departure, and travel security with owners and timing. A free lesson in the security guidebook, serving CISSP objective 1.8."),
-    ("e-threat-modeling-concepts", "threat-modeling-concepts", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Survey STRIDE, PASTA, OCTAVE, and attack trees, and choose the right methodology per situation. A free lesson in the security guidebook, serving CISSP objective 1.10."),
-    ("e-supply-chain-risk", "supply-chain-risk", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Complete a vendor risk assessment ending in a residual-risk decision with owner and date. A free lesson in the security guidebook, serving CISSP objective 1.11."),
-    ("e-awareness-training", "awareness-training", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Design a one-year security learning program measured by behavior change. A free lesson in the security guidebook, serving CISSP objective 1.12."),
-    ("e-asset-classification", "asset-classification", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Build a four-tier classification scheme — tiers, examples, handling hooks, owners — anchored in impact per FIPS 199 and NIST SP 800-60. A free lesson in the security guidebook, serving CISSP objective 2.1."),
-    ("e-handling-requirements", "handling-requirements", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Turn classification tiers into enforceable handling rules — labeling, storage, transmission, disposal — as a testable matrix. A free lesson in the security guidebook, serving CISSP objective 2.2."),
-    ("e-asset-provisioning", "asset-provisioning", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Design a provisioning workflow with ownership assignment and run an inventory audit that reconciles against the CMDB. A free lesson in the security guidebook, serving CISSP objective 2.3."),
-    ("e-data-lifecycle", "data-lifecycle", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · local demo run 2026-10-10",
-     "Trace five data types across the lifecycle — roles, collection, location, retention, remanence, destruction per SP 800-88 Rev. 2 — with a live deletion-vs-overwrite demo. A free lesson in the security guidebook, serving CISSP objective 2.4."),
-    ("e-retention-eol", "retention-eol", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Build a retention and destruction schedule with legal basis and computable triggers, plus legal-hold and secure-decommissioning procedures. A free lesson in the security guidebook, serving CISSP objective 2.5."),
-    ("e-data-protection-controls", "data-protection-controls", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · local demo run 2026-10-10",
-     "Select protective controls per data state — at rest, in transit, in use — with scoping, key management, DLP, and compliance mapping; the selection view above e-crypto-applied's primitives. A free lesson in the security guidebook, serving CISSP objective 2.6."),
-    ("e-secure-design", "secure-design", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Apply the eight Saltzer and Schroeder design principles in an architecture review, trace requirements to controls, and survey platform capabilities for a deployment decision. A free lesson in the security guidebook, serving CISSP objectives 3.1, 3.3 and 3.4."),
-    ("e-security-models", "security-models", "Stage E · Expert",
-     "Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched",
-     "State the rules of Bell-LaPadula, Biba, Clark-Wilson, and Brewer-Nash, run a Bell-LaPadula rule check in Python, and write model-selection rationales. A free lesson in the security guidebook, serving CISSP objective 3.2."),
-    ("e-control-selection", "control-selection", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Derive testable security requirements, select and tailor NIST SP 800-53 controls with written rationale, and defend the omissions. A free lesson in the security guidebook, serving CISSP objective 3.3."),
-    ("e-platform-security", "platform-security", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Survey boot integrity, memory protection, virtualization isolation, and key storage across deployment options and write a conditional recommendation. A free lesson in the security guidebook, serving CISSP objective 3.4."),
-    ("e-arch-vuln-assessment", "arch-vuln-assessment", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Decompose a hybrid cloud-plus-IoT-plus-API architecture, name per-component vulnerability classes, rate with structural judgment, and prioritize fixes. A free lesson in the security guidebook, serving CISSP objective 3.5."),
-    ("e-cryptanalysis", "cryptanalysis", "Stage E · Expert",
-     "Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched",
-     "Compute brute-force and birthday-bound estimates, demonstrate classical frequency analysis in Python, and pair every attack method with its defense. A free lesson in the security guidebook, serving CISSP objective 3.7."),
-    ("e-facility-design", "facility-design", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Review a facility design against CPTED, layered defense, and site-selection factors, writing findings fixable at the design stage. A free lesson in the security guidebook, serving CISSP objective 3.8."),
-    ("e-facility-controls", "facility-controls", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Complete a five-family facility controls checklist — perimeter, access, environmental, power, fire — with findings, owners, and dates. A free lesson in the security guidebook, serving CISSP objective 3.9."),
-    ("e-system-lifecycle", "system-lifecycle", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Write a gate-review template with security deliverables per phase, complete one gate review to a go/no-go decision, and plan secure disposal. A free lesson in the security guidebook, serving CISSP objective 3.10."),
-    ("e-network-architecture", "network-architecture", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Design network zones, trust boundaries, and zero-trust enforcement for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.1."),
-    ("e-network-components", "network-components", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Harden firewalls, IDS/IPS, switches, wireless, and NAC with placement rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.2."),
-    ("e-secure-channels", "secure-channels", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Select TLS, VPN, SSH, and messaging channels per traffic class with written rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.3."),
-    ("e-auth-systems", "auth-systems", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Plan an MFA and passwordless rollout — phases, recovery, SSO migration, authenticator lifecycle — for a fictional company. A free lesson in the security guidebook, serving CISSP objective 5.6."),
-    ("e-assessment-strategy", "assessment-strategy", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Write an annual assessment strategy: coverage tiers, assessor classes, cadence, and scoping rules for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.1."),
-    ("e-control-testing", "control-testing", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Select and sequence control-testing methods — reviews, scans, validation — stating what each proves, for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.2."),
-    ("e-security-metrics", "security-metrics", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Specify a SOC measurement program: KPI/KRI definitions, sources, collection, and cadence for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.3."),
-    ("e-test-analysis-reporting", "test-analysis-reporting", "Stage E · Expert",
-     "Local demo run and reviewed 2026-10-10 · transcript runs/e-test-analysis-reporting.log",
-     "Triage findings, rate risk with context, and write the two-layer report with remediation tracking for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.4."),
-    ("e-security-audits", "security-audits", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "Write an audit plan for one control family and complete a five-part finding for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.5."),
-    ("e-investigation-forensics", "investigation-forensics", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to run investigations as a management and legal discipline — forensic readiness, evidence handling, chain of custody, and working with counsel and law enforcement. A free lesson in the security guidebook, serving CISSP objective 7.1."),
-    ("e-logging-monitoring", "logging-monitoring", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to design the logging and monitoring program — event taxonomy, retention schedule, log integrity, and the SOC workflow that turns logs into detections. A free lesson in the security guidebook, serving CISSP objective 7.2."),
-    ("e-config-management", "config-management", "Stage E · Expert",
-     "Worked case authored and drift-demo run 2026-10-10 · local demo on fictional files, transcript in runs/e-config-management.log",
-     "How to write a hardening baseline for a server role and operate drift detection against it — with a real local demo of the baseline-and-compare mechanism. A free lesson in the security guidebook, serving CISSP objective 7.3."),
-    ("e-secops-concepts", "secops-concepts", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to apply need-to-know, least privilege, separation of duties, and defense in depth as daily operating decisions — plus a zero-trust gap assessment. A free lesson in the security guidebook, serving CISSP objective 7.4."),
-    ("e-media-protection", "media-protection", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to protect the physical object — media inventory and labeling, custody in storage and transport, and sanitization per NIST SP 800-88. A free lesson in the security guidebook, serving CISSP objective 7.5."),
-    ("e-incident-management", "incident-management", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to build the incident-management structure around the response lifecycle — team roles, escalation criteria, communications planning, and improvement metrics. A free lesson in the security guidebook, serving CISSP objective 7.6."),
-    ("e-detective-preventive", "detective-preventive", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to choose, place, and tune detective and preventive controls in operation — IDS/IPS, honeypots, DLP, and allow-listing. A free lesson in the security guidebook, serving CISSP objective 7.7."),
-    ("e-patch-management", "patch-management", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to run the patching operation — KEV-driven prioritization, severity-to-timeline SLAs, the exception register, and the emergency-patching runbook. A free lesson in the security guidebook, serving CISSP objective 7.8."),
-    ("e-change-management", "change-management", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to run change management — the change request, CAB review with written rationale, change paths, and the emergency procedure that keeps a spine. A free lesson in the security guidebook, serving CISSP objective 7.9."),
-    ("e-physical-security", "physical-security", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to run physical security day to day — guards and post orders, the badge lifecycle, mantraps and doors, CCTV operation, and environmental controls. A free lesson in the security guidebook, serving CISSP objective 7.14."),
-    ("e-personnel-safety", "personnel-safety", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "How to protect the people — travel-security briefings, workplace-violence prevention, duress and check-in procedures. A free lesson in the security guidebook, serving CISSP objective 7.15."),
-    # --- AI security track wave (2026-10-09) ---
-    ("ai-llm-architecture", "llm-architecture", "AI track",
-     "Walkthrough run 2026-10-09 · deterministic stack simulation, no model needed",
-     "How LLM applications are built: tokens, embeddings, the transformer mechanism, the RAG/tool/agent stack — and the attack surface of every layer, mapped. A free lesson in the security guidebook, serving CAISP chapters 1–2."),
-    ("ai-llm-top10", "llm-top10", "AI track",
-     "Walkthrough run 2026-10-09 · deterministic classification drill, no model needed",
-     "The OWASP LLM Top 10:2026 beyond prompt injection — data, system and agency risks, each with mechanism and defense. A free lesson in the security guidebook, serving CAISP chapter 3."),
-    ("ai-supply-chain", "supply-chain", "AI track",
-     "Walkthrough steps 1–5 run 2026-10-09 · step 6 (live keyless signing) not run by us",
-     "AI supply chain security: provenance, hashes, CycloneDX AIBOMs, Sigstore keyless signing, and the pickle hazard — demonstrated locally. A free hands-on lesson in the security guidebook, serving CAISP chapter 6."),
-    ("ai-governance", "ai-governance", "AI track",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Governing AI: the NIST AI RMF functions, the Generative AI Profile, EU AI Act risk tiers as concepts, and ISO/IEC 42001 noted as paid — applied to a full risk register. A free lesson in the security guidebook, serving CAISP chapter 7."),
-    # --- Stage D specialist wave 1 (2026-10-09) ---
-    ("d-redteam-concepts", "redteam-concepts", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · synthetic data on loopback; emulation tooling is reader-side in their own lab",
-     "Red team operations concepts: ATT&CK as the behavior language (15 tactics, v19.2), C2 and evasion as concepts, what defenders see, and the purple-team loop — with beaconing statistics run locally. A free lesson in the security guidebook."),
-    ("d-malware-analysis", "malware-analysis", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · synthetic benign training files only; real YARA via yara-python; detonation is reader-side in their isolated lab",
-     "Malware analysis concepts: static vs dynamic, the triage workflow (hash, strings, entropy), YARA rule craft with false-positive discipline — demonstrated on synthetic samples with a real YARA engine. A free hands-on lesson in the security guidebook."),
-    ("d-cloud-security", "cloud-security", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · local IAM policy analysis with Cloudsplaining; live-account scanning is reader-side in their own account",
-     "Cloud security: the shared-responsibility line, IAM policies read as code, the classic misconfigurations, and posture auditing with Prowler and ScoutSuite — policies analyzed for real with Cloudsplaining. A free hands-on lesson in the security guidebook."),
-    ("d-appsec", "appsec", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · STRIDE worked case + teaching-sketch SAST with triage; real Semgrep step re-ran 2026-10-10; ZAP step is reader-side",
-     "Application security: STRIDE threat modeling, the SAST/DAST/IAST/SCA scanner families and their blind spots, secure-SDLC integration, and code-review technique — with a scanner-blind-spot demo run locally. A free hands-on lesson in the security guidebook."),
-    # --- Stage B mechanics wave (2026-10-09) ---
-    ("b-authorization-scope", "authorization-scope", "Stage B · Practitioner",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Authorization, scope, and the hard rules: the gating lesson — written authorization, rules-of-engagement contents, the law in plain terms, and the six hard rules quoted verbatim. A free lesson in the security guidebook."),
-    ("b-methodology", "methodology", "Stage B · Practitioner",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Engagement methodology: OWASP WSTG, PTES, and NIST SP 800-115, and the six phases from scoping to reporting — the repeatable process behind every engagement. A free lesson in the security guidebook."),
-    ("b-toolbench", "toolbench", "Stage B · Practitioner",
-     "Walkthrough run 2026-10-09 · loopback only; nmap/Semgrep/Chromium steps re-ran 2026-10-10; remaining tools marked not run by us with reader procedures",
-     "The toolbench: fifteen tool phases in activation order — for each, the one question it answers, the free tool that answers it, and what it cannot tell you. A free hands-on lesson in the security guidebook."),
-    ("b-practice-targets", "practice-targets", "Stage B · Practitioner",
-     "Procedures verified against the projects' own READMEs 2026-10-09 · container runs not run by us (no Docker on the build machine)",
-     "Setting up practice targets locally: DVWA, Juice Shop, WebGoat, crAPI and DVGA, one verified command each, bound to localhost — so you never need a live system. A free lesson in the security guidebook."),
-    # --- Stage A remainder wave (2026-10-09) ---
-    ("a-python-security", "python-security", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · Python 3.12.3, loopback only, stdlib only, nothing external touched",
-     "Python for security tooling: reading and changing small scripts — HTTP requests, response parsing, sockets, arguments and files — with every walkthrough step run locally. A free hands-on lesson in the security guidebook."),
-    ("a-reading-code", "reading-code", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database",
-     "Reading code through a vulnerability: tracing untrusted input from a JavaScript form to a SQL query — source, path, sink — with the injection located by reading. A free lesson in the security guidebook."),
-    ("a-windows-concepts", "windows-concepts", "Stage A · Foundations",
-     "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09",
-     "Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson's concepts in Windows form, taught from Microsoft's own docs with exact reader procedures. A free lesson in the security guidebook."),
-    ("a-osint-research", "osint-research", "Stage A · Foundations",
-     "Walkthrough run 2026-10-09 · fictional target, local files only, passive recon — no real target touched",
-     "OSINT and research discipline: passive vs active recon, what 'public' means, the standard sources, and documentation a stranger can re-derive — on a fictional target. A free lesson in the security guidebook."),
-    # --- AI track completion + program leadership (2026-10-09) ---
-    ("ai-pipeline", "ai-pipeline", "AI track",
-     "Walkthrough run 2026-10-09 · deterministic pipeline simulation, no model, no network",
-     "AI attacks and defenses in the build pipeline: training-data poisoning, build provenance, registry hygiene, and the red-team CI gate — each attack taught with the defense that catches it. A free hands-on lesson in the security guidebook, serving CAISP chapter 4."),
-    ("ai-threat-modeling", "threat-modeling-ai", "AI track",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Threat modeling AI systems: data-flow mapping, trust boundaries at the prompt, retrieval and tool layers, STRIDE adapted to AI, and MITRE ATLAS as the attacker's library — a complete worked threat model. A free lesson in the security guidebook, serving CAISP chapter 5."),
-    ("e-security-program", "security-program", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Running a security program: strategy in the Govern loop, the metrics that matter vs vanity metrics (KPI vs KRI), risk-based prioritization, and the program charter as the worked artifact. A free lesson in the security guidebook."),
-    ("e-board-communication", "board-communication", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Board-level communication: translating technical risk into business decisions — the one-page board memo as the worked artifact, what to report, what to leave out, and the director test. A free lesson in the security guidebook."),
-    # --- Final wave: Stage D wave 2 + Stage C remainder (2026-10-09) ---
-    ("d-dfir-deep", "dfir-deep", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · labeled synthetic evidence; tool runs on real images are reader-side in their own lab",
-     "DFIR deep: disk, memory and network forensics — the order of volatility, evidence handling, timeline construction from labeled data, and hypothesis-driven threat hunting. A free hands-on lesson in the security guidebook."),
-    ("d-exploit-concepts", "exploit-concepts", "Stage D · Specialist",
-     "Walkthrough run 2026-10-09 · mitigation mechanics demonstrated live (ASLR, checksec survey); exploitation technique is reader-side on pwn.college",
-     "Exploit development and reverse engineering concepts: how a flaw becomes control of execution, and the mitigation landscape (NX, ASLR, canaries, RELRO) that makes it expensive — demonstrated live, training targets only. A free lesson in the security guidebook."),
-    ("c-public-track-record", "public-track-record", "Stage C · Professional",
-     "Worked write-up authored and reviewed 2026-10-09 · no command line in this lesson",
-     "Building a public track record: write-ups that teach — root cause first, mechanism re-derivable, honest impact — the Project Zero bar, one finding in two formats. A free lesson in the security guidebook."),
-    ("c-ai-tooling", "ai-tooling", "Stage C · Professional",
-     "Evidence map authored 2026-10-09 · CVP details dated 2026-10-06 (announcement); primary URL to re-fetch at publish",
-     "AI tooling professionals use: Anthropic's Cyber Verification Program as the dated worked example — three tiers, what each admits, and why it is access to tooling, never a credential. A free lesson in the security guidebook."),
-    # --- Governance-framework lessons (2026-10-10) ---
-    ("e-csf-20", "csf-20", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "NIST Cybersecurity Framework 2.0: outcomes not actions — the 6 Functions, 22 Categories, Current-vs-Target profiles, and Tiers, with a worked gap assessment. A free lesson in the security guidebook."),
-    ("e-iso27001", "iso27001", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "ISO/IEC 27001:2022: the ISMS, Clauses 4–10, the 93-control Annex A catalog, and the Statement of Applicability — taught from free sources (the standard is paid). A free lesson in the security guidebook."),
-    ("e-soc2", "soc2", "Stage E · Expert",
-     "Worked case authored and reviewed 2026-10-10 · no command line in this lesson",
-     "SOC 2 and the Trust Services Criteria: the examination engagement, the five criteria, Type I vs Type II, and how to scope it — with a worked scoping memo. A free lesson in the security guidebook."),
+# ================= Lesson registry: generated from frontmatter =================
+# Brief §4: lessons are data, one file each. Every lesson file carries YAML
+# frontmatter with: lesson_id, slug, stage, level, prerequisites, roles,
+# map_refs, test_date, description, dateline. Everything below is DERIVED from
+# those fields. The only hand list here is ORDER (editorial sequence for the
+# index page) — validated against the registry at load.
+STAGE_LABELS = {
+    "A": "Stage A · Foundations",
+    "B": "Stage B · Practitioner",
+    "C": "Stage C · Professional",
+    "D": "Stage D · Specialist",
+    "E": "Stage E · Expert",
+    "AI": "AI track",
+}
+
+# Brief §1: the four levels every lesson states.
+LEVELS = {
+    1: ("Recognize", "name it and spot it"),
+    2: ("Operate", "do it by following steps on a prepared target"),
+    3: ("Apply", "do it unaided on an unfamiliar authorized target, and explain "
+                  "why it worked and what would have stopped it"),
+    4: ("Extend", "work from the primary sources, build or change the tooling, "
+                   "find what the references miss, publish something others verify"),
+}
+
+
+def parse_frontmatter(md: str):
+    """Minimal YAML-subset parser for lesson frontmatter. Handles flat
+    key: value pairs and inline [a, b] lists; values may be double-quoted."""
+    if not md.startswith("---\n"):
+        return None
+    end = md.index("\n---", 4)
+    fm = {}
+    for line in md[4:end].split("\n"):
+        line = line.strip()
+        if not line or ":" not in line:
+            continue
+        key, val = line.split(":", 1)
+        val = val.strip()
+        if val.startswith("[") and val.endswith("]"):
+            inner = val[1:-1].strip()
+            items = []
+            cur, in_q = "", False
+            for ch in inner:
+                if ch == '"':
+                    in_q = not in_q
+                elif ch == "," and not in_q:
+                    items.append(cur.strip().strip('"'))
+                    cur = ""
+                else:
+                    cur += ch
+            if cur.strip():
+                items.append(cur.strip().strip('"'))
+            fm[key.strip()] = [i for i in items if i]
+        else:
+            if val.startswith('"') and val.endswith('"') and len(val) >= 2:
+                val = val[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+            fm[key.strip()] = val
+    return fm
+
+
+def load_registry():
+    """Read every lessons/*.md frontmatter block into the lesson registry,
+    validating every field. Any inconsistency is a hard build error."""
+    reg = {}
+    for path in sorted((GUIDEBOOK / "lessons").glob("*.md")):
+        md = path.read_text()
+        fm = parse_frontmatter(md)
+        if fm is None:
+            raise SystemExit(f"build error: {path.name} has no YAML frontmatter")
+        lid = fm.get("lesson_id") or ""
+        if not lid:
+            raise SystemExit(f"build error: {path.name} frontmatter lacks lesson_id")
+        if lid != path.stem:
+            raise SystemExit(f"build error: lesson_id {lid!r} != filename {path.stem!r}")
+        if lid in reg:
+            raise SystemExit(f"build error: duplicate lesson_id {lid!r}")
+        for f in ("slug", "stage", "level", "test_date", "description", "dateline"):
+            if f not in fm or fm[f] in ("", []):
+                raise SystemExit(f"build error: {lid} frontmatter lacks {f}")
+        if fm["stage"] not in STAGE_LABELS:
+            raise SystemExit(f"build error: {lid} has unknown stage {fm['stage']!r}")
+        try:
+            fm["level"] = int(fm["level"])
+        except ValueError:
+            raise SystemExit(f"build error: {lid} has non-integer level")
+        if fm["level"] not in LEVELS:
+            raise SystemExit(f"build error: {lid} has level {fm['level']} (want 1-4)")
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(fm["test_date"])):
+            raise SystemExit(f"build error: {lid} has bad test_date {fm['test_date']!r}")
+        for r in fm.get("roles", []):
+            if r not in PATHMAP:
+                raise SystemExit(f"build error: {lid} has unknown role {r!r}")
+        for ref in fm.get("map_refs", []):
+            if not (re.fullmatch(r"CISSP \d+\.\d+", ref) or re.fullmatch(r"CAISP ch\d+", ref)):
+                raise SystemExit(f"build error: {lid} has bad map_ref {ref!r}")
+        reg[lid] = fm
+    # cross-file checks
+    for lid, fm in reg.items():
+        for p in fm.get("prerequisites", []):
+            if p not in reg:
+                raise SystemExit(f"build error: {lid} prerequisite {p!r} is not a lesson")
+    if set(reg) != set(ORDER):
+        raise SystemExit(
+            "build error: ORDER != registry: "
+            f"missing={sorted(set(reg) - set(ORDER))} extra={sorted(set(ORDER) - set(reg))}")
+    return reg
+
+
+# Canonical lesson order (editorial sequence for the index page).
+# Data lives in frontmatter; this list is sequence only, validated at load.
+ORDER = [
+    "a-http-depth", "b-idor", "e-risk-assessment", "ai-prompt-injection", "a-dns-depth", "a-tcpip-ports", "a-linux-cli", "a-git-github",
+    "b-sqli", "b-command-injection", "b-ssrf", "b-csrf", "b-xss", "b-business-logic", "b-session-auth", "b-security-headers",
+    "b-bug-bounty", "c-soc-triage", "c-log-sources", "c-sigma-detection", "c-incident-response", "c-cvd", "c-cve-program", "c-cvss",
+    "c-vuln-ecosystem", "e-iam", "e-crypto-applied", "e-sdlc", "e-bcp-drp", "e-ethics", "e-security-concepts", "e-governance",
+    "e-cyber-law", "e-investigations", "e-policy-docs", "e-personnel-security", "e-threat-modeling-concepts", "e-supply-chain-risk", "e-awareness-training", "e-asset-classification",
+    "e-handling-requirements", "e-asset-provisioning", "e-data-lifecycle", "e-retention-eol", "e-data-protection-controls", "e-secure-design", "e-security-models", "e-control-selection",
+    "e-platform-security", "e-arch-vuln-assessment", "e-cryptanalysis", "e-facility-design", "e-facility-controls", "e-system-lifecycle", "e-network-architecture", "e-network-components",
+    "e-secure-channels", "e-auth-systems", "e-assessment-strategy", "e-control-testing", "e-security-metrics", "e-test-analysis-reporting", "e-security-audits", "e-investigation-forensics",
+    "e-logging-monitoring", "e-config-management", "e-secops-concepts", "e-media-protection", "e-incident-management", "e-detective-preventive", "e-patch-management", "e-change-management",
+    "e-physical-security", "e-personnel-safety", "ai-llm-architecture", "ai-llm-top10", "ai-supply-chain", "ai-governance", "d-redteam-concepts", "d-malware-analysis",
+    "d-cloud-security", "d-appsec", "b-authorization-scope", "b-methodology", "b-toolbench", "b-practice-targets", "a-python-security", "a-reading-code",
+    "a-windows-concepts", "a-osint-research", "ai-pipeline", "ai-threat-modeling", "e-security-program", "e-board-communication", "d-dfir-deep", "d-exploit-concepts",
+    "c-public-track-record", "c-ai-tooling", "e-csf-20", "e-iso27001", "e-soc2",
+    "a-crypto", "b-api-abuse", "b-ssti", "b-xxe", "b-deserialization", "b-graphql",
+    "b-race-conditions", "b-jwt-oauth", "ai-sec-automation",
 ]
-
-# lesson id -> site-relative url, for cross-linking (map.md dependency graph)
-LINKMAP = {lid: f"/g/{slug}/" for lid, slug, *_ in LESSONS}
-
-TOTAL = len(LESSONS)
 
 # Stage pages (brief §4): the novice-to-expert backbone. Each row:
 # (stage_key, slug, stage_label, title, lede, milestone_html, claims_html,
@@ -374,15 +181,16 @@ STAGES = [
      "/g/stage-b/", "Stage B — Practitioner",
      ["a-dns-depth", "a-tcpip-ports", "a-linux-cli", "a-windows-concepts",
       "a-git-github", "a-http-depth", "a-python-security", "a-reading-code",
-      "a-osint-research"]),
+      "a-osint-research", "a-crypto"]),
     ("B", "stage-b", "Stage B · Practitioner", "Stage B — Practitioner",
      "Doing the work under authorization: the hard rules and scope discipline that make everything legal, engagement methodology, the toolbench in activation order, the web vulnerability classes found, reproduced and fixed one by one, defensive basics, and how authorized testing is actually offered to beginners through bug bounty programs.",
      "A <strong>first valid finding submitted to a program that authorizes testing</strong> — in scope, reproducible by a stranger following your steps, with the impact argued honestly.",
      "You can honestly claim: you have found, reproduced, and fixed real vulnerability classes on targets you were authorized to test, and you can write a triage-ready report. You cannot yet claim: professional experience, any certification, or readiness for unsupervised work. Stage B is the <em>first</em> evidence, not the last.",
      "/g/stage-c/", "Stage C — Professional",
      ["b-authorization-scope", "b-methodology", "b-toolbench", "b-practice-targets",
-      "b-idor", "b-sqli", "b-command-injection", "b-ssrf", "b-csrf", "b-xss",
-      "b-business-logic", "b-session-auth", "b-security-headers", "b-bug-bounty"]),
+      "b-idor", "b-api-abuse", "b-sqli", "b-command-injection", "b-ssrf", "b-csrf", "b-xss",
+      "b-ssti", "b-xxe", "b-deserialization", "b-graphql", "b-race-conditions",
+      "b-business-logic", "b-session-auth", "b-jwt-oauth", "b-security-headers", "b-bug-bounty"]),
     ("C", "stage-c", "Stage C · Professional", "Stage C — Professional",
      "Working like a professional: the defender's side — SOC triage, log sources, detection engineering, incident response — plus coordinated disclosure end to end, the CVE program and how credit works, severity scoring by hand, the vulnerability catalogs, and building the public track record the whole program's premise rests on.",
      "A <strong>coordinated disclosure completed</strong>, and a <strong>CVE record that credits you</strong> — a public, permanent entry with your name on it.",
@@ -523,25 +331,24 @@ def md_to_html(md: str) -> str:
     return "\n".join(out)
 
 def parse_lesson(lid: str):
-    """Split a lesson md into (title, meta_html_ledger_rows, body_html)."""
+    """Split a lesson md into (title, ledger_html, body_html, frontmatter).
+    All lesson metadata comes from the YAML frontmatter (brief §4)."""
+    fm = REGISTRY[lid]
     md = (GUIDEBOOK / "lessons" / f"{lid}.md").read_text()
-    title = re.match(r"# (.+)", md).group(1)
-    # meta line: **ID:** `x` · **Stage:** ... · **Level:** ... · **Prerequisites:** ...
-    meta_line = [l for l in md.split("\n") if l.startswith("**ID:**")][0]
-    meta = {}
-    for key in ("Stage", "Level", "Prerequisites"):
-        m = re.search(rf"\*\*{key}:\*\*\s*(.+?)(?=\s*·\s*\*\*|\s*$)", meta_line)
-        if m: meta[key] = m.group(1).strip().rstrip(".")
-    # map-ref line (optional)
+    # strip frontmatter block
+    end = md.index("\n---", 4)
+    rest = md[end + 4:]
+    title = re.match(r"\s*# (.+)", rest).group(1)
+    # map-ref prose line (optional body content — kept, rendered in the ledger)
     mapref = ""
-    for l in md.split("\n"):
-        if l.startswith("**Map ref") or l.startswith("**Map refs"):
+    for l in rest.split("\n"):
+        if l.startswith("**Map ref"):
             mapref = re.sub(r"^\*\*Map refs?:\*\*\s*", "", l).strip()
             break
-    # body: drop h1, meta line, mapref line, and the first --- rule
+    # body: drop h1, any legacy **ID:** line, mapref line, and the first --- rule
     body_lines = []
     skipped_rule = False
-    for l in md.split("\n"):
+    for l in rest.split("\n"):
         if l.startswith("# ") or l.startswith("**ID:**") or l.startswith("**Map ref"):
             continue
         if l.strip() == "---" and not skipped_rule:
@@ -551,11 +358,22 @@ def parse_lesson(lid: str):
     # lede = first paragraph of section 1 ("Where this shows up")
     lede_m = re.search(r"<h2>1\. Where this shows up</h2>\s*<p>(.*?)</p>", body_html, re.S)
     lede = lede_m.group(1) if lede_m else ""
-    rows = [("Stage", meta.get("Stage", "")), ("Level", meta.get("Level", "")),
-            ("Prerequisites", meta.get("Prerequisites", ""))]
-    if mapref: rows.append(("Map references", mapref))
+    lname, ldesc = LEVELS[fm["level"]]
+    prereq_links = ", ".join(
+        f'<a href="{LINKMAP[p]}"><code>{html.escape(p)}</code></a>'
+        for p in fm["prerequisites"])
+    if not prereq_links:
+        prereq_links = "None — see §2 for what to have ready."
+    rows = [
+        ("Stage", html.escape(STAGE_LABELS[fm["stage"]])),
+        ("Level", f"<strong>Level {fm['level']} · {html.escape(lname)}</strong> — "
+                  f"{html.escape(ldesc)}"),
+        ("Prerequisites", prereq_links + ' <span class="muted">(full list in §2)</span>'),
+    ]
+    if mapref:
+        rows.append(("Map references", inline(mapref)))
     ledger = "".join(
-        f'<tr><th scope="row">{html.escape(k)}</th><td>{inline(v)}</td></tr>'
+        f'<tr><th scope="row">{html.escape(k)}</th><td>{v}</td></tr>'
         for k, v in rows)
     return title, lede, ledger, body_html
 
@@ -594,20 +412,24 @@ def breadcrumb(items):
     return json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList",
                        "itemListElement": els}, separators=(",", ":"))
 
-def build_lesson(lid, slug, stage_label, dateline_note, description):
+def build_lesson(lid):
+    fm = REGISTRY[lid]
+    slug = fm["slug"]
+    stage_label = STAGE_LABELS[fm["stage"]]
     title, lede, ledger, body = parse_lesson(lid)
     nword = numword(TOTAL)
+    lname, ldesc = LEVELS[fm["level"]]
     canonical = f"https://learncomputerstuff.dev/g/{slug}/"
     crumbs = (f'<a href="/">Home</a> / <a href="/g/">Security guidebook</a> / '
               f'<span>{html.escape(title)}</span>')
-    # stage_label like "Stage A · Foundations" -> /g/stage-a/
-    _skey = stage_label.split("·")[0].strip().split()[-1] if "·" in stage_label else None
+    _skey = fm["stage"]
     _slink = (f' Part of <a href="{STAGEMAP[_skey]}">{html.escape(stage_label)}</a>.' if _skey in STAGEMAP else "")
     # section 10 heading gets the lesson's real name kept; body carries links
     main = f"""<section>
 <span class="eyebrow">Security guidebook · {html.escape(stage_label)}</span><h1>{html.escape(title)}</h1>
 <p class="lede prose">{lede}</p>
-<p class="dateline">Lesson published {TODAY} · {html.escape(dateline_note)}</p>
+<p><span class="eyebrow">Level {fm["level"]} · {html.escape(lname)}</span> — {html.escape(ldesc)}</p>
+<p class="dateline">{html.escape(fm["dateline"])}</p>
 <table class="ledger"><tbody>
 {ledger}
 </tbody></table>
@@ -620,7 +442,7 @@ def build_lesson(lid, slug, stage_label, dateline_note, description):
     out = REPO / "g" / slug / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page_shell(
-        title=title, description=description, canonical=canonical,
+        title=title, description=fm["description"], canonical=canonical,
         crumbs=crumbs,
         breadcrumb_json=breadcrumb([("Home", "https://learncomputerstuff.dev/"),
                                     ("Security guidebook", "https://learncomputerstuff.dev/g/"),
@@ -630,12 +452,13 @@ def build_lesson(lid, slug, stage_label, dateline_note, description):
 
 def build_index():
     doors = []
-    for lid, slug, stage_label, _note, _desc in LESSONS:
+    for lid in ORDER:
+        fm = REGISTRY[lid]
         title, lede, _ledger, _body = parse_lesson(lid)
         # one-sentence door text: reuse the title + stage
         doors.append(
-            f'<a class="door" href="/g/{slug}/"><h3>{html.escape(title)}</h3>'
-            f'<p><span class="eyebrow">{html.escape(stage_label)}</span></p>'
+            f'<a class="door" href="/g/{fm["slug"]}/"><h3>{html.escape(title)}</h3>'
+            f'<p><span class="eyebrow">{html.escape(STAGE_LABELS[fm["stage"]])}</span></p>'
             f'<p>{lede[:220].rsplit(" ", 1)[0]}…</p></a>')
     canonical = "https://learncomputerstuff.dev/g/"
     main = f"""<section>
@@ -670,6 +493,10 @@ def build_index():
 <div class="grid">
 <a class="door" href="/g/map-cissp/"><h3>CISSP knowledge map</h3><p><span class="eyebrow">Every objective, 1.1 to 8.5</span></p><p>Each objective points to the lesson that teaches it \u2014 or is logged as a gap\u2026</p></a>
 <a class="door" href="/g/map-caisp/"><h3>CAISP knowledge map</h3><p><span class="eyebrow">Seven chapters</span></p><p>Each chapter points to the lessons that teach it\u2026</p></a>
+<a class="door" href="/g/map-aigp/"><h3>AIGP knowledge map</h3><p><span class="eyebrow">Four domains</span></p><p>IAPP\u2019s AI governance domains, mapped to lessons\u2026</p></a>
+<a class="door" href="/g/map-gasae/"><h3>GASAE knowledge map</h3><p><span class="eyebrow">Ten objectives</span></p><p>GIAC\u2019s AI security automation objectives, mapped to lessons\u2026</p></a>
+<a class="door" href="/g/map-goaa/"><h3>GOAA knowledge map</h3><p><span class="eyebrow">Ten objectives</span></p><p>GIAC\u2019s offensive AI objectives \u2014 defensive side only\u2026</p></a>
+<a class="door" href="/g/map-aaism/"><h3>AAISM knowledge map</h3><p><span class="eyebrow">Three domains</span></p><p>ISACA\u2019s AI security management domains, mapped to lessons\u2026</p></a>
 </div>
 </section>
 <section><h2>How we verify</h2>
@@ -843,17 +670,82 @@ PATHS = [
 
 PATHMAP = {key: f"/g/path/{slug}/" for key, slug, *_ in PATHS}
 
+# ---- The registry is the single source of truth (brief §4). ----
+# Loaded here, after PATHS/PATHMAP exist for validation. Every count,
+# link map, path, stage listing and knowledge map below derives from it.
+REGISTRY = load_registry()
 
-def _lesson_door(lid, lesson_info, n):
-    title, slug, stage_label = lesson_info[lid]
-    return (f'<a class="door" href="/g/{slug}/"><h3>{n}. {html.escape(title)}</h3>'
-            f'<p><span class="eyebrow">{html.escape(stage_label)}</span></p></a>')
+# lesson id -> site-relative url, for cross-linking
+LINKMAP = {lid: f"/g/{fm['slug']}/" for lid, fm in REGISTRY.items()}
+
+TOTAL = len(REGISTRY)
+
+
+def validate_tables():
+    """Cross-check every hand table against the registry. Membership is owned
+    by frontmatter; ordering stays editorial. Any drift is a build error."""
+    # PATHS: every group id exists + carries the path's role; every lesson
+    # with the role appears in the path (completeness).
+    for key, _slug, _title, _job, groups, _cps, _ct, _ch in PATHS:
+        gids = []
+        for _glabel, items in groups:
+            for it in items:
+                if isinstance(it, tuple):
+                    continue
+                if it not in REGISTRY:
+                    raise SystemExit(f"build error: path {key} lists unknown lesson {it!r}")
+                if key not in REGISTRY[it]["roles"]:
+                    raise SystemExit(
+                        f"build error: path {key} lists {it}, but its frontmatter "
+                        f"roles are {REGISTRY[it]['roles']} (fix the frontmatter)")
+                gids.append(it)
+        missing = sorted(lid for lid, fm in REGISTRY.items()
+                         if key in fm["roles"] and lid not in gids)
+        if missing:
+            raise SystemExit(
+                f"build error: path {key} omits lessons whose frontmatter claims "
+                f"the role: {missing} (fix the frontmatter or the path)")
+    # STAGES: every listed id matches the stage; every A–E lesson is listed.
+    staged = {}
+    for skey, _slug, _label, _t, _l, _m, _c, _n, _nl, lids in STAGES:
+        for lid in lids:
+            if lid not in REGISTRY:
+                raise SystemExit(f"build error: stage {skey} lists unknown lesson {lid!r}")
+            if REGISTRY[lid]["stage"] != skey:
+                raise SystemExit(
+                    f"build error: stage {skey} lists {lid}, but its frontmatter "
+                    f"stage is {REGISTRY[lid]['stage']!r} (fix the frontmatter)")
+            staged[lid] = skey
+    for lid, fm in REGISTRY.items():
+        if fm["stage"] in ("A", "B", "C", "D", "E") and lid not in staged:
+            raise SystemExit(
+                f"build error: lesson {lid} has stage {fm['stage']} but is in no stage list")
+    # map_refs point at real objectives/chapters (the mapping itself derives
+    # from frontmatter in build_maps).
+    cissp_objs = {o for _d, _t, _w, objs in CISSP_DOMAINS for o, _p in objs}
+    caisp_ch = {n for n, _t in CAISP_CHAPTERS}
+    for lid, fm in REGISTRY.items():
+        for ref in fm["map_refs"]:
+            if ref.startswith("CISSP "):
+                if ref.split(" ", 1)[1] not in cissp_objs:
+                    raise SystemExit(f"build error: {lid} map_ref {ref!r} is not an objective")
+            elif ref.startswith("CAISP ch"):
+                if ref.split("ch", 1)[1] not in caisp_ch:
+                    raise SystemExit(f"build error: {lid} map_ref {ref!r} is not a chapter")
+
+
+def _lesson_door(lid, n):
+    fm = REGISTRY[lid]
+    title = parse_lesson(lid)[0]
+    return (f'<a class="door" href="/g/{fm["slug"]}/"><h3>{n}. {html.escape(title)}</h3>'
+            f'<p><span class="eyebrow">{html.escape(STAGE_LABELS[fm["stage"]])}</span></p></a>')
 
 
 def build_paths():
+    validate_tables()
     lesson_info = {}
-    for lid, slug, stage_label, _n, _d in LESSONS:
-        lesson_info[lid] = (parse_lesson(lid)[0], slug, stage_label)
+    for lid in REGISTRY:
+        lesson_info[lid] = parse_lesson(lid)[0]
     for key, slug, role_title, job, groups, checkpoints, cap_title, cap_html in PATHS:
         sections = []
         n = 0
@@ -864,7 +756,7 @@ def build_paths():
                     notes.append(f'<div class="note"><p class="prose">{it[1]}</p></div>')
                 else:
                     n += 1
-                    doors.append(_lesson_door(it, lesson_info, n))
+                    doors.append(_lesson_door(it, n))
             gh = f"<h2>{html.escape(group_label)}</h2>"
             if doors:
                 gh += f'\n<div class="grid">\n{"".join(doors)}\n</div>'
@@ -946,94 +838,159 @@ def build_path_index():
 # Paraphrases are the guidebook's own, never outline text.
 CISSP_DOMAINS = [
     ("1", "Security and Risk Management", "16", [
-        ("1.1", "Professional ethics in security work", ["e-ethics"]),
-        ("1.2", "Core security concepts: confidentiality, integrity, availability, and related properties", ["e-security-concepts"]),
-        ("1.3", "Security governance: aligning security with business strategy", ["e-governance"]),
-        ("1.4", "Legal, regulatory, and compliance landscape", ["e-cyber-law"]),
-        ("1.5", "Investigation types and their requirements", ["e-investigations"]),
-        ("1.6", "Security policy, standards, procedures, and guidelines", ["e-policy-docs"]),
-        ("1.7", "Business continuity requirements: business impact analysis and dependencies", ["e-bcp-drp"]),
-        ("1.8", "Personnel security across hiring, employment, and departure", ["e-personnel-security"]),
-        ("1.9", "Risk management concepts, end to end", ["e-risk-assessment"]),
-        ("1.10", "Threat modeling concepts and methodologies", ["e-threat-modeling-concepts"]),
-        ("1.11", "Supply chain risk management", ["e-supply-chain-risk"]),
-        ("1.12", "Security awareness, education, and training programs", ["e-awareness-training"]),
+        ("1.1", "Professional ethics in security work"),
+        ("1.2", "Core security concepts: confidentiality, integrity, availability, and related properties"),
+        ("1.3", "Security governance: aligning security with business strategy"),
+        ("1.4", "Legal, regulatory, and compliance landscape"),
+        ("1.5", "Investigation types and their requirements"),
+        ("1.6", "Security policy, standards, procedures, and guidelines"),
+        ("1.7", "Business continuity requirements: business impact analysis and dependencies"),
+        ("1.8", "Personnel security across hiring, employment, and departure"),
+        ("1.9", "Risk management concepts, end to end"),
+        ("1.10", "Threat modeling concepts and methodologies"),
+        ("1.11", "Supply chain risk management"),
+        ("1.12", "Security awareness, education, and training programs"),
     ]),
     ("2", "Asset Security", "10", [
-        ("2.1", "Identifying and classifying information and assets", ["e-asset-classification"]),
-        ("2.2", "Information and asset handling requirements", ["e-handling-requirements"]),
-        ("2.3", "Secure provisioning: ownership, inventory, asset management", ["e-asset-provisioning"]),
-        ("2.4", "The data lifecycle: roles, collection, location, retention, remanence, destruction", ["e-data-lifecycle"]),
-        ("2.5", "Asset retention and end-of-life/support", ["e-retention-eol"]),
-        ("2.6", "Data security controls and compliance", ["e-data-protection-controls"]),
+        ("2.1", "Identifying and classifying information and assets"),
+        ("2.2", "Information and asset handling requirements"),
+        ("2.3", "Secure provisioning: ownership, inventory, asset management"),
+        ("2.4", "The data lifecycle: roles, collection, location, retention, remanence, destruction"),
+        ("2.5", "Asset retention and end-of-life/support"),
+        ("2.6", "Data security controls and compliance"),
     ]),
     ("3", "Security Architecture and Engineering", "13", [
-        ("3.1", "Secure design principles for engineering", ["e-secure-design"]),
-        ("3.2", "Formal security models", ["e-security-models"]),
-        ("3.3", "Selecting controls from system security requirements", ["e-control-selection"]),
-        ("3.4", "Platform security capabilities", ["e-platform-security"]),
-        ("3.5", "Assessing vulnerabilities across architecture and system types", ["e-arch-vuln-assessment"]),
-        ("3.6", "Cryptographic solutions: lifecycle, methods, PKI, key management", ["e-crypto-applied"]),
-        ("3.7", "Cryptanalytic attack methods", ["e-cryptanalysis"]),
-        ("3.8", "Site and facility design principles", ["e-facility-design"]),
-        ("3.9", "Site and facility security controls", ["e-facility-controls"]),
-        ("3.10", "The information system lifecycle", ["e-system-lifecycle"]),
+        ("3.1", "Secure design principles for engineering"),
+        ("3.2", "Formal security models"),
+        ("3.3", "Selecting controls from system security requirements"),
+        ("3.4", "Platform security capabilities"),
+        ("3.5", "Assessing vulnerabilities across architecture and system types"),
+        ("3.6", "Cryptographic solutions: lifecycle, methods, PKI, key management"),
+        ("3.7", "Cryptanalytic attack methods"),
+        ("3.8", "Site and facility design principles"),
+        ("3.9", "Site and facility security controls"),
+        ("3.10", "The information system lifecycle"),
     ]),
     ("4", "Communication and Network Security", "13", [
-        ("4.1", "Secure network architecture design", ["e-network-architecture"]),
-        ("4.2", "Securing network components", ["e-network-components"]),
-        ("4.3", "Secure communication channels", ["e-secure-channels"]),
+        ("4.1", "Secure network architecture design"),
+        ("4.2", "Securing network components"),
+        ("4.3", "Secure communication channels"),
     ]),
     ("5", "Identity and Access Management", "13", [
-        ("5.1", "Controlling physical and logical access to assets", ["e-iam"]),
-        ("5.2", "Identification and authentication strategy", ["e-iam"]),
-        ("5.3", "Federated identity with third-party services", ["e-iam"]),
-        ("5.4", "Authorization mechanisms and models", ["e-iam"]),
-        ("5.5", "Identity and access provisioning lifecycle", ["e-iam"]),
-        ("5.6", "Implementing authentication systems", ["e-auth-systems"]),
+        ("5.1", "Controlling physical and logical access to assets"),
+        ("5.2", "Identification and authentication strategy"),
+        ("5.3", "Federated identity with third-party services"),
+        ("5.4", "Authorization mechanisms and models"),
+        ("5.5", "Identity and access provisioning lifecycle"),
+        ("5.6", "Implementing authentication systems"),
     ]),
     ("6", "Security Assessment and Testing", "12", [
-        ("6.1", "Designing assessment, test, and audit strategies", ["e-assessment-strategy"]),
-        ("6.2", "Security control testing methods", ["e-control-testing"]),
-        ("6.3", "Collecting security process data", ["e-security-metrics"]),
-        ("6.4", "Analyzing test output and reporting", ["e-test-analysis-reporting"]),
-        ("6.5", "Conducting and facilitating security audits", ["e-security-audits"]),
+        ("6.1", "Designing assessment, test, and audit strategies"),
+        ("6.2", "Security control testing methods"),
+        ("6.3", "Collecting security process data"),
+        ("6.4", "Analyzing test output and reporting"),
+        ("6.5", "Conducting and facilitating security audits"),
     ]),
     ("7", "Security Operations", "13", [
-        ("7.1", "Investigations: evidence, techniques, forensics", ["e-investigation-forensics"]),
-        ("7.2", "Logging and monitoring operations", ["e-logging-monitoring"]),
-        ("7.3", "Configuration management", ["e-config-management"]),
-        ("7.4", "Foundational security operations concepts", ["e-secops-concepts"]),
-        ("7.5", "Resource and media protection", ["e-media-protection"]),
-        ("7.6", "Incident management", ["e-incident-management"]),
-        ("7.7", "Operating detective and preventive measures", ["e-detective-preventive"]),
-        ("7.8", "Patch and vulnerability management operations", ["e-patch-management"]),
-        ("7.9", "Change management", ["e-change-management"]),
-        ("7.10", "Recovery strategies and resilience", ["e-bcp-drp"]),
-        ("7.11", "Disaster recovery processes", ["e-bcp-drp"]),
-        ("7.12", "Testing the disaster recovery plan", ["e-bcp-drp"]),
-        ("7.13", "Business continuity planning and exercises", ["e-bcp-drp"]),
-        ("7.14", "Physical security implementation", ["e-physical-security"]),
-        ("7.15", "Personnel safety and security concerns", ["e-personnel-safety"]),
+        ("7.1", "Investigations: evidence, techniques, forensics"),
+        ("7.2", "Logging and monitoring operations"),
+        ("7.3", "Configuration management"),
+        ("7.4", "Foundational security operations concepts"),
+        ("7.5", "Resource and media protection"),
+        ("7.6", "Incident management"),
+        ("7.7", "Operating detective and preventive measures"),
+        ("7.8", "Patch and vulnerability management operations"),
+        ("7.9", "Change management"),
+        ("7.10", "Recovery strategies and resilience"),
+        ("7.11", "Disaster recovery processes"),
+        ("7.12", "Testing the disaster recovery plan"),
+        ("7.13", "Business continuity planning and exercises"),
+        ("7.14", "Physical security implementation"),
+        ("7.15", "Personnel safety and security concerns"),
     ]),
     ("8", "Software Development Security", "10", [
-        ("8.1", "Security in the SDLC", ["e-sdlc", "d-appsec"]),
-        ("8.2", "Security controls in development ecosystems", ["e-sdlc", "d-appsec"]),
-        ("8.3", "Assessing software security effectiveness", ["e-sdlc", "d-appsec"]),
-        ("8.4", "Security impact of acquired software", ["e-sdlc", "d-appsec"]),
-        ("8.5", "Secure coding guidelines and standards", ["e-sdlc", "d-appsec"]),
+        ("8.1", "Security in the SDLC"),
+        ("8.2", "Security controls in development ecosystems"),
+        ("8.3", "Assessing software security effectiveness"),
+        ("8.4", "Security impact of acquired software"),
+        ("8.5", "Secure coding guidelines and standards"),
     ]),
 ]
 
+# CISSP AI notes: from ISC2's "Exam Guidance for Artificial Intelligence"
+# (September 1, 2026) — exam-relevant AI topics woven into each domain, not
+# commentary. Verified 2026-10-10. Each note links the domain to AI-track lessons.
+CISSP_AI_NOTES = {
+    "1": ("AI assets shift your risk posture \u2014 fold ML models and LLMs into the risk frameworks you already use, govern AI ethics and algorithmic bias, and assess AI vendors the way you assess any third party.", ["ai-governance", "ai-supply-chain"]),
+    "2": ("Training datasets, pre-trained models, and model weights are high-value assets to classify and handle; protect data integrity across the AI lifecycle and use differential privacy and masking where AI touches PII.", ["ai-supply-chain", "ai-llm-architecture"]),
+    "3": ("Host AI compute in secure enclaves, validate inputs against prompt injection and adversarial attacks, and engineer in explainability so an AI's decisions stay auditable.", ["ai-prompt-injection", "ai-llm-architecture"]),
+    "4": ("Isolate AI training environments with micro-segmentation and zero trust to stop lateral movement, and know how AI-driven NDR finds anomalies that signature-based tools miss.", ["ai-threat-modeling", "ai-sec-automation"]),
+    "5": ("Give AI agents and service accounts full identity-lifecycle treatment under least privilege, and use AI \u2014 behavioral biometrics, adaptive authentication \u2014 to defend your identity estate in turn.", ["ai-sec-automation", "ai-llm-architecture"]),
+    "6": ("Red-team AI systems against evasion and extraction attacks, audit model outputs for exploitable logic flaws, and automate vulnerability management with AI-powered scanning.", ["ai-threat-modeling", "ai-sec-automation"]),
+    "7": ("Put AI/ML into SOAR to cut alert fatigue, and monitor production models for drift and live adversarial attacks as part of normal operations.", ["ai-sec-automation"]),
+    "8": ("AI-assisted coding ships hallucinated vulnerabilities and insecure generated snippets \u2014 catch them with AI security testing in CI/CD, and secure the ML supply chain against model hijacking and inference attacks.", ["ai-pipeline", "ai-llm-top10"]),
+}
+
 # CAISP (Practical DevSecOps): seven chapters. All have lessons.
 CAISP_CHAPTERS = [
-    ("1", "Introduction to AI Security", ["ai-llm-architecture"]),
-    ("2", "Understanding and Attacking Large Language Models", ["ai-llm-architecture"]),
-    ("3", "LLM Top 10 Vulnerabilities", ["ai-prompt-injection", "ai-llm-top10"]),
-    ("4", "AI Attacks and Defenses Using DevOps", ["ai-pipeline"]),
-    ("5", "Threat Modeling AI Systems", ["ai-threat-modeling"]),
-    ("6", "Supply Chain Attacks in AI", ["ai-supply-chain"]),
-    ("7", "Emerging Threats, Governance, and Compliance in AI", ["ai-governance"]),
+    ("1", "Introduction to AI Security"),
+    ("2", "Understanding and Attacking Large Language Models"),
+    ("3", "LLM Top 10 Vulnerabilities"),
+    ("4", "AI Attacks and Defenses Using DevOps"),
+    ("5", "Threat Modeling AI Systems"),
+    ("6", "Supply Chain Attacks in AI"),
+    ("7", "Emerging Threats, Governance, and Compliance in AI"),
+]
+
+
+# Light knowledge maps (brief §4): domain-level maps for AI-adjacent credentials.
+# Each entry: (slug, page title, issuer, credential name, lede, [notes], [(domain, title, [lesson ids])]).
+# Lesson ids must exist in the registry; empty list renders "No lesson yet".
+LIGHT_MAPS = [
+    ("map-aigp", "AIGP knowledge map", "IAPP", "Artificial Intelligence Governance Professional",
+     "You don\u2019t need a law degree to govern AI systems, but you do need to know what the exam\u2019s four domains demand: the principles of responsible AI, the laws and frameworks that apply, how development gets governed, and how deployment and use are kept honest. This map points each domain to the guidebook lessons that teach the underlying material \u2014 from how LLM applications are built to the EU AI Act and the NIST AI Risk Management Framework. The exam itself is paid; everything this map teaches is free. Domain titles are IAPP\u2019s; everything else is the guidebook\u2019s own words.",
+     ["This map follows the AIGP Body of Knowledge version 2.1 (effective February 2, 2026), verified against IAPP\u2019s official PDF on 2026-10-10.",
+      "The AIGP exam is a paid exam. This map teaches the four domains from free guidebook lessons; it is not the exam."],
+     [("I", "Understanding the foundations of AI governance", ["ai-llm-architecture", "ai-governance", "e-policy-docs", "e-awareness-training"]),
+      ("II", "Understanding how laws, standards and frameworks apply to AI", ["ai-governance", "e-cyber-law"]),
+      ("III", "Understanding how to govern AI development", ["ai-pipeline", "ai-supply-chain", "ai-threat-modeling", "e-sdlc", "e-data-lifecycle"]),
+      ("IV", "Understanding how to govern AI deployment and use", ["ai-governance", "e-incident-management", "e-logging-monitoring", "e-security-metrics"])]),
+    ("map-gasae", "GASAE knowledge map", "GIAC", "GIAC AI Security Automation Engineer",
+     "GASAE tests whether you can apply automation and AI across offensive, defensive, and cloud security work \u2014 SOAR playbooks, adversary emulation, cloud security automation, detection engineering with AI. This map points each of GIAC\u2019s ten exam objectives to the guidebook lessons that teach the underlying skill \u2014 scripting, SOC workflows, cloud security, adversary emulation, incident response. The exam is hands-on in GIAC\u2019s CyberLive lab format and paid; the lessons this map points to are free. Objective titles are GIAC\u2019s; everything else is the guidebook\u2019s own words.",
+     ["SANS\u2019s SEC598: AI and Security Automation for Red, Blue, and Purple Teams is the course GIAC pairs with this exam \u2014 five course sections mapped to the ten objectives, confirmed at sans.org on 2026-10-10. The course is paid; this map teaches the same objectives from free lessons.",
+      "GASAE uses GIAC\u2019s CyberLive hands-on exam format \u2014 performance-based lab challenges rather than traditional multiple choice: 82 questions over 3 hours, 70% to pass."],
+     [("1", "Adversary Emulation Fundamentals", ["d-redteam-concepts", "ai-sec-automation"]),
+      ("2", "Artificial Intelligence Fundamentals", ["ai-llm-architecture"]),
+      ("3", "Automating Offensive Workflows", ["d-redteam-concepts", "ai-sec-automation"]),
+      ("4", "Automating Workflows", ["a-python-security", "ai-sec-automation"]),
+      ("5", "AWS Cloud Security and Incident Response Automation", ["d-cloud-security", "ai-sec-automation"]),
+      ("6", "Azure Cloud Security and Incident Response Automation", ["d-cloud-security", "ai-sec-automation"]),
+      ("7", "Defensive Security Automation", ["c-log-sources", "ai-sec-automation"]),
+      ("8", "Security Automation Fundamentals", ["ai-sec-automation"]),
+      ("9", "Security Orchestration Automation and Response", ["c-soc-triage", "c-incident-response", "ai-sec-automation"]),
+      ("10", "Using Automation and AI for Detection Engineering and Incident Response", ["c-sigma-detection", "c-incident-response", "ai-sec-automation"])]),
+    ("map-goaa", "GOAA knowledge map", "GIAC", "GIAC Offensive AI Analyst",
+     "GOAA tests AI-driven offensive technique \u2014 reconnaissance, web exploitation, AI-assisted phishing and deepfakes, AI-generated malware, control evasion. The guidebook teaches these topics the way it teaches all offensive material: the concepts, what a defender sees, and how to detect and stop it \u2014 no working malware, no phishing kits, no evasion tooling. Each objective points to the lessons that teach its defensive side; three objectives have no lesson yet, and they are marked honestly. Objective titles are GIAC\u2019s; everything else is the guidebook\u2019s own words.",
+     ["SANS\u2019s SEC535: Offensive AI \u2013 Attack Tools and Techniques is the course GIAC pairs with this exam, confirmed at sans.org on 2026-10-10. The course is paid; this map teaches the objectives\u2019 defensive side from free lessons.",
+      "How the guidebook handles offensive AI: the linked lessons teach each attack\u2019s concepts, the telemetry a defender sees, and the fix. Three objectives have no lesson \u2014 deepfakes, AI-written phishing email, social-engineering fundamentals \u2014 and they stay unmapped rather than taught badly; the guidebook does not write phishing kits or working malware, so those gaps do not get closed with how-to content."],
+     [("1", "Artificial Intelligence Fundamentals", ["ai-llm-architecture"]),
+      ("2", "Audio, Image, and Video Deepfakes", []),
+      ("3", "Bypassing Defensive Controls", ["d-exploit-concepts"]),
+      ("4", "Creating Malicious Software with AI", ["d-malware-analysis"]),
+      ("5", "Creating Phishing Emails with AI", []),
+      ("6", "Malware Fundamentals", ["d-malware-analysis"]),
+      ("7", "Network Scanning and Vulnerability Detection", ["b-toolbench", "b-methodology"]),
+      ("8", "Social Engineering Fundamentals", []),
+      ("9", "Using AI for OSINT", ["a-osint-research"]),
+      ("10", "Using AI for Web Exploitation", ["b-sqli", "b-command-injection"])]),
+    ("map-aaism", "AAISM knowledge map", "ISACA", "Advanced in AI Security Management",
+     "AAISM is ISACA\u2019s AI-security credential for people who already hold an active CISM or CISSP \u2014 it layers AI governance, AI risk management, and AI controls on top of that security-management foundation. This map points each of ISACA\u2019s three job practice domains to the guidebook lessons that teach the underlying material \u2014 AI governance and risk frameworks, threat modeling AI systems, controls for the AI lifecycle. The exam is paid; the lessons are free. This map covers AAISM only: ISACA\u2019s separate AI credentials for audit (AAIA) and risk (AAIR) are listed separately. Domain titles are ISACA\u2019s; everything else is the guidebook\u2019s own words.",
+     ["ISACA\u2019s rule, stated once: only security professionals who hold an active CISM or CISSP are eligible to pursue AAISM. The lessons teach the AI-specific material; they do not confer the credential and do not replace the prerequisite.",
+      "ISACA runs three separate Advanced AI credentials: AAIR (Advanced in AI Risk), AAISM (Advanced in AI Security Management), and AAIA (Advanced in AI Audit). This map covers AAISM only.",
+      "This map follows ISACA\u2019s AAISM exam content outline as published at isaca.org, verified 2026-10-10: a 90-question exam across three job practice domains."],
+     [("1", "AI Governance and Program Management", ["ai-governance", "e-security-program", "e-policy-docs"]),
+      ("2", "AI Risk Management", ["e-risk-assessment", "ai-threat-modeling", "e-threat-modeling-concepts", "e-supply-chain-risk"]),
+      ("3", "AI Technologies and Controls", ["ai-llm-architecture", "ai-pipeline", "ai-supply-chain", "e-data-protection-controls", "e-logging-monitoring"])]),
 ]
 
 
@@ -1043,15 +1000,30 @@ def _lesson_link(lid):
 
 
 def build_maps():
-    lesson_info = {lid: parse_lesson(lid)[0] for lid, *_ in LESSONS}
-    covered = sum(1 for _n, _t, _w, objs in CISSP_DOMAINS for _o, _p, lids in objs if lids)
+    # Objective/chapter -> lessons, inverted from lesson frontmatter map_refs.
+    cissp_index = {}
+    caisp_index = {}
+    for lid, fm in REGISTRY.items():
+        for ref in fm["map_refs"]:
+            if ref.startswith("CISSP "):
+                cissp_index.setdefault(ref.split(" ", 1)[1], []).append(lid)
+            elif ref.startswith("CAISP ch"):
+                caisp_index.setdefault(ref.split("ch", 1)[1], []).append(lid)
+    # deterministic order: registry ORDER
+    order_pos = {lid: n for n, lid in enumerate(ORDER)}
+    for idx in (cissp_index, caisp_index):
+        for k in idx:
+            idx[k].sort(key=lambda lid: order_pos[lid])
+    covered = sum(1 for _n, _t, _w, objs in CISSP_DOMAINS
+                  for _o, _p in objs if cissp_index.get(_o))
     total = sum(len(objs) for _n, _t, _w, objs in CISSP_DOMAINS)
 
     # ---- CISSP map ----
     dom_sections = []
     for dnum, dtitle, weight, objs in CISSP_DOMAINS:
         rows = []
-        for obj, paraphrase, lids in objs:
+        for obj, paraphrase in objs:
+            lids = cissp_index.get(obj, [])
             if lids:
                 cell = ", ".join(_lesson_link(l) for l in lids)
             else:
@@ -1059,8 +1031,14 @@ def build_maps():
             rows.append(
                 f'<tr><th scope="row">{html.escape(obj)}</th>'
                 f'<td>{html.escape(paraphrase)}</td><td>{cell}</td></tr>')
+        ai_note, ai_lids = CISSP_AI_NOTES.get(dnum, ("", []))
+        ai_html = ""
+        if ai_note:
+            ai_links = ", ".join(_lesson_link(l) for l in ai_lids)
+            ai_html = (f'\n<p class="prose"><span class="eyebrow">AI note</span> '
+                       f'{ai_note} See: {ai_links}.</p>')
         dom_sections.append(
-            f"<section><h2>Domain {html.escape(dnum)} \u2014 {html.escape(dtitle)} <span class=\"eyebrow\">{html.escape(weight)}% of the exam</span></h2>"
+            f"<section><h2>Domain {html.escape(dnum)} \u2014 {html.escape(dtitle)} <span class=\"eyebrow\">{html.escape(weight)}% of the exam</span></h2>{ai_html}"
             f'\n<table class="ledger"><thead><tr><th>Objective</th><th>Topic</th><th>Lesson</th></tr></thead>'
             f"<tbody>\n{''.join(rows)}\n</tbody></table></section>")
     canonical = "https://learncomputerstuff.dev/g/map-cissp/"
@@ -1070,8 +1048,8 @@ def build_maps():
 <p class="dateline">Published {TODAY} \u00b7 generated from the lesson data \u00b7 <strong>{covered} of {total} objectives have a lesson</strong></p>
 <div class="note"><span class="eyebrow">The issuer\u2019s rule, stated once</span>
 <p class="prose">Full CISSP certification needs five cumulative years of work experience in two or more of the eight domains \u2014 a degree or an approved credential can stand in for one year. Passing the exam without the experience makes someone an Associate of ISC2. The lessons teach the bodies of knowledge; they do not confer the certification.</p></div>
-<div class="note"><span class="eyebrow">AI in the outline</span>
-<p class="prose">ISC2 weaves AI-specific security tasks across all eight domains rather than numbering separate AI objectives, so the map treats AI as context inside each domain\u2019s lessons \u2014 cross-linked to the AI security track \u2014 not as standalone entries.</p></div>
+<div class="note"><span class="eyebrow">AI in the outline \u2014 exam content, not commentary</span>
+<p class="prose">ISC2\u2019s \u201cExam Guidance for Artificial Intelligence\u201d (September 1, 2026) maps AI-specific security tasks across all eight domains of the CISSP exam outline (still the April 15, 2024 edition) \u2014 examinable topics woven into each domain, not separate AI objectives and not third-party commentary. Each domain section below carries its AI note with links to the AI security track lessons.</p></div>
 </section>
 {"".join(dom_sections)}
 <section><div class="note"><span class="eyebrow">Keep going</span>
@@ -1091,12 +1069,13 @@ def build_maps():
 
     # ---- CAISP map ----
     ch_rows = []
-    for cnum, ctitle, lids in CAISP_CHAPTERS:
+    for cnum, ctitle in CAISP_CHAPTERS:
+        lids = caisp_index.get(cnum, [])
         cell = ", ".join(_lesson_link(l) for l in lids)
         ch_rows.append(
             f'<tr><th scope="row">Chapter {html.escape(cnum)}</th>'
             f'<td>{html.escape(ctitle)}</td><td>{cell}</td></tr>')
-    ch_covered = sum(1 for _n, _t, lids in CAISP_CHAPTERS if lids)
+    ch_covered = sum(1 for _n, _t in CAISP_CHAPTERS if caisp_index.get(_n))
     ch_total = len(CAISP_CHAPTERS)
     canonical = "https://learncomputerstuff.dev/g/map-caisp/"
     main = f"""<section>
@@ -1127,10 +1106,56 @@ def build_maps():
         main_html=main))
     print(f"wrote {out}")
 
+    # ---- Light maps: AIGP, GASAE, GOAA, AAISM (brief §4, domain level) ----
+    for slug, page_title, issuer, cred_name, lede, notes, domains in LIGHT_MAPS:
+        rows = []
+        for dnum, dtitle, lids in domains:
+            # validate lesson ids against the registry
+            for lid in lids:
+                if lid not in REGISTRY:
+                    raise ValueError(f"light map {slug}: unknown lesson id {lid}")
+            if lids:
+                cell = ", ".join(_lesson_link(l) for l in lids)
+            else:
+                cell = "<em>No lesson yet \u2014 logged as a gap.</em>"
+            rows.append(
+                f'<tr><th scope="row">{html.escape(dnum)}</th>'
+                f'<td>{html.escape(dtitle)}</td><td>{cell}</td></tr>')
+        covered_n = sum(1 for _n, _t, lids in domains if lids)
+        total_n = len(domains)
+        notes_html = "".join(
+            f'<div class="note"><p class="prose">{html.escape(n)}</p></div>' for n in notes)
+        canonical = f"https://learncomputerstuff.dev/g/{slug}/"
+        main = f"""<section>
+<span class="eyebrow">Security guidebook \u00b7 Knowledge map</span><h1>{html.escape(page_title)}</h1>
+<p class="lede prose">{html.escape(lede)}</p>
+<p class="dateline">Published {TODAY} \u00b7 generated from the lesson data \u00b7 <strong>{covered_n} of {total_n} domains have a lesson</strong></p>
+{notes_html}
+</section>
+<section><h2>The domains</h2>
+<table class="ledger"><thead><tr><th>Domain</th><th>Title</th><th>Lessons</th></tr></thead><tbody>
+{"".join(rows)}
+</tbody></table></section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose"><a href="/g/">The security guidebook \u2192</a></p></div></section>"""
+        out = REPO / "g" / slug / "index.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(page_shell(
+            title=page_title,
+            description=f"{cred_name} ({issuer}) mapped domain by domain to the guidebook lessons that teach it. {covered_n} of {total_n} domains have a lesson. A free page in the security guidebook.",
+            canonical=canonical,
+            crumbs=f'<a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>{html.escape(page_title)}</span>',
+            breadcrumb_json=breadcrumb([("Home", "https://learncomputerstuff.dev/"),
+                                        ("Security guidebook", "https://learncomputerstuff.dev/g/"),
+                                        (page_title, canonical)]),
+            main_html=main))
+        print(f"wrote {out}")
+
 
 if __name__ == "__main__":
-    for lid, slug, stage_label, note, desc in LESSONS:
-        build_lesson(lid, slug, stage_label, note, desc)
+    validate_tables()
+    for lid in ORDER:
+        build_lesson(lid)
     build_stage_pages()
     build_paths()
     build_path_index()

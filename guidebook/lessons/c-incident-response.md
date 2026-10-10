@@ -1,6 +1,17 @@
+---
+lesson_id: c-incident-response
+slug: incident-response
+stage: C
+level: 3
+prerequisites: [c-soc-triage, c-log-sources]
+roles: [soc-analyst, dfir]
+map_refs: []
+test_date: 2026-10-09
+description: "Incident response basics: the NIST SP 800-61 Rev. 3 lifecycle and the full IR report — timeline, scope, ordered containment, honest limitations. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Incident Response Basics
 
-**ID:** `c-incident-response` · **Stage:** C (Professional) · **Level:** 3 (IR lifecycle + worked report + containment reasoning) · **Prerequisites:** `c-soc-triage` (where escalated cases come from), `c-log-sources` (the timeline the report is built on).
 
 ---
 

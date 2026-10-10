@@ -1,6 +1,17 @@
+---
+lesson_id: ai-pipeline
+slug: ai-pipeline
+stage: AI
+level: 3
+prerequisites: [ai-supply-chain, ai-llm-architecture, a-git-github]
+roles: []
+map_refs: ["CAISP ch4"]
+test_date: 2026-10-09
+description: "AI attacks and defenses in the build pipeline: training-data poisoning, build provenance, registry hygiene, and the red-team CI gate — each attack taught with the defense that catches it. A free hands-on lesson in the security guidebook, serving CAISP chapter 4."
+dateline: "Walkthrough run 2026-10-09 · deterministic pipeline simulation, no model, no network"
+---
 # AI attacks and defenses in the build pipeline
 
-**ID:** `ai-pipeline` · **Stage:** AI track · **Level:** 3 (mechanism + pipeline hardening on your own build, each attack paired with its defense) · **Prerequisites:** `ai-supply-chain` (hashes, signing, admission policies); `ai-llm-architecture` (the stack you are protecting); `a-git-github` (the artifact pipeline); Python 3.
 
 **Map refs:** **CAISP chapter 4** (AI Attacks and Defenses Using DevOps); **OWASP LLM Top 10:2026, LLM05** (Data and Model Poisoning) and **LLM04** (Supply Chain); MITRE ATLAS — Training Data Poisoning, AI Supply Chain Compromise, Publish Poisoned AI Artifacts; SLSA; feeds `ai-threat-modeling`, `ai-governance`.
 

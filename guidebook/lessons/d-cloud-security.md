@@ -1,6 +1,17 @@
+---
+lesson_id: d-cloud-security
+slug: cloud-security
+stage: D
+level: 3
+prerequisites: [a-tcpip-ports, b-ssrf, e-risk-assessment]
+roles: [cloud-security, iam-engineer]
+map_refs: []
+test_date: 2026-10-09
+description: "Cloud security: the shared-responsibility line, IAM policies read as code, the classic misconfigurations, and posture auditing with Prowler and ScoutSuite — policies analyzed for real with Cloudsplaining. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local IAM policy analysis with Cloudsplaining; live-account scanning is reader-side in their own account"
+---
 # Cloud security: concepts
 
-**ID:** `d-cloud-security` · **Stage:** D (Specialist) · **Level:** 3 (classify responsibility, read and fix IAM policies with tooling, audit a fictional estate against a benchmark — live-account scanning is reader-side in your own account) · **Prerequisites:** `a-tcpip-ports` (what a security group actually filters), `b-ssrf` (the cloud-metadata angle), `e-risk-assessment` (how to write a finding so it gets fixed).
 
 **Map refs:** serves the Stage D cloud-security specialist track; cloud logging feeds `c-log-sources`; the posture assessment is the track's level-4 capstone input.
 

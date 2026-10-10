@@ -1,0 +1,27 @@
+=== b-jwt-oauth walkthrough ===
+date: 2026-10-10
+tool versions: stock Python 3.12.3 (hmac/hashlib/base64), OpenSSL 3.0.13 (RSA-2048 keygen)
+environment: loopback only (127.0.0.1:8342 vulnerable, :8343 fixed); tokens hand-built (base64url+HMAC), no JWT library
+
+=== b-jwt-oauth walkthrough ===
+date: 2026-10-10; tools: stock Python 3.12.3 (hmac/hashlib/base64), OpenSSL 3.0.13 (RSA keygen); loopback only
+1. login token: 200 eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9...
+   admin with own token: ('ERR', 'HTTP Error 401: Unauthorized')
+2. alg=none forged admin: (200, 'admin panel: flag{local-demo-only}')
+3. expired token (exp 2h ago): ('ERR', 'HTTP Error 401: Unauthorized')
+4. key confusion (pubkey as HMAC key): (200, 'admin panel: flag{local-demo-only}')
+5. redirect_uri bypass: (200, 'redirect allowed: True')
+--- 3 (corrected). expired token, signed the way THIS verifier expects ---
+expired token (exp 2h ago): (200, 'admin panel: flag{local-demo-only}')
+note: signature verified (confused key), exp ignored -> 200. The exp check is simply absent.
+--- 6. FIXED build ---
+legit login + admin check (role=user): ('ERR', 'HTTP Error 401: Unauthorized')
+alg=none: ('ERR', 'HTTP Error 401: Unauthorized')
+key confusion: ('ERR', 'HTTP Error 401: Unauthorized')
+redirect bypass: (200, 'redirect allowed: False')
+redirect legit: (200, 'redirect allowed: True')
+--- 6b. FIXED build: legit token, full length ---
+admin -> HTTP Error 403: Forbidden (expect 403: valid token, but role=user)
+
+--- cleanup ---
+demo servers killed by PID after the run; demo RSA keys deleted

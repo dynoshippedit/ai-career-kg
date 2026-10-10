@@ -1,6 +1,17 @@
+---
+lesson_id: e-network-architecture
+slug: network-architecture
+stage: E
+level: 3
+prerequisites: [a-tcpip-ports]
+roles: []
+map_refs: ["CISSP 4.1"]
+test_date: 2026-10-10
+description: "Design network zones, trust boundaries, and zero-trust enforcement for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.1."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Network architecture: drawing the lines attackers must cross
 
-**ID:** `e-network-architecture` · **Stage:** E (Expert) · **Level:** 3 (design a segmentation scheme and defend every trust boundary in it) · **Prerequisites:** `a-tcpip-ports` (packets, ports, and what a firewall rule actually matches); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 4.1** — secure network architecture design. (Objectives 4.2 and 4.3 are the companion lessons `e-network-components` and `e-secure-channels`.)
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-cyber-law
+slug: cyber-law
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, e-governance]
+roles: []
+map_refs: ["CISSP 1.4"]
+test_date: 2026-10-10
+description: "Build an obligation-to-evidence compliance matrix from GDPR and related regimes. A free lesson in the security guidebook, serving CISSP objective 1.4."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Legal, regulatory, and compliance: mapping obligations to evidence
 
-**ID:** `e-cyber-law` · **Stage:** E (Expert) · **Level:** 3 (build an obligation-to-evidence map for a real regulatory regime: which obligations apply, what evidence each needs, who owns it) · **Prerequisites:** `e-risk-assessment` (obligations are risks with legal teeth); `e-governance` (the charter that assigns ownership). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.4** — legal, regulatory, and compliance landscape.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-csf-20
+slug: csf-20
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, e-governance]
+roles: [grc-analyst]
+map_refs: []
+test_date: 2026-10-10
+description: "NIST Cybersecurity Framework 2.0: outcomes not actions — the 6 Functions, 22 Categories, Current-vs-Target profiles, and Tiers, with a worked gap assessment. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # NIST Cybersecurity Framework 2.0
 
-**ID:** `e-csf-20` · **Stage:** E (Expert) · **Level:** 3 (scope and run a CSF gap assessment unaided, and defend the resulting action plan) · **Prerequisites:** `e-risk-assessment` (the risk language the profiles are written in); `e-governance` (who decides what the Target Profile says). No command line in this lesson.
 
 **Map ref:** brief §5 "Governance frameworks"; GRC analyst path; feeds `e-iso27001`, `e-soc2`, `e-security-program`.
 

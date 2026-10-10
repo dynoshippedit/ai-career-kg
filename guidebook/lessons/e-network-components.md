@@ -1,6 +1,17 @@
+---
+lesson_id: e-network-components
+slug: network-components
+stage: E
+level: 3
+prerequisites: [e-network-architecture, a-tcpip-ports]
+roles: []
+map_refs: ["CISSP 4.2"]
+test_date: 2026-10-10
+description: "Harden firewalls, IDS/IPS, switches, wireless, and NAC with placement rationale for a fictional manufacturer. A free lesson in the security guidebook, serving CISSP objective 4.2."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Network components: hardening everything the architecture trusts
 
-**ID:** `e-network-components` · **Stage:** E (Expert) · **Level:** 3 (produce a component-hardening review with placement rationale for each control) · **Prerequisites:** `e-network-architecture` (the zone map this lesson hardens), `a-tcpip-ports` (what rules match); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 4.2** — securing network components.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: b-authorization-scope
+slug: authorization-scope
+stage: B
+level: 2
+prerequisites: []
+roles: [security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Authorization, scope, and the hard rules: the gating lesson — written authorization, rules-of-engagement contents, the law in plain terms, and the six hard rules quoted verbatim. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Authorization, scope, and the hard rules
 
-**ID:** `b-authorization-scope` · **Stage:** B (Practitioner) · **Level:** 2 (operate: run every engagement inside written scope) · **Prerequisites:** Stage A complete. No tools needed — this is a reading and writing lesson.
 
 **Map refs:** brief §7 (hard rules, authoritative); NIST SP 800-115 (planning / rules of engagement); feeds every hands-on lesson in the guidebook.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-board-communication
+slug: board-communication
+stage: E
+level: 3
+prerequisites: [e-security-program, e-risk-assessment]
+roles: [grc-analyst]
+map_refs: []
+test_date: 2026-10-09
+description: "Board-level communication: translating technical risk into business decisions — the one-page board memo as the worked artifact, what to report, what to leave out, and the director test. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Board-level communication
 
-**ID:** `e-board-communication` · **Stage:** E (Expert) · **Level:** 3 (produce a board-ready memo unaided that survives the director test) · **Prerequisites:** `e-security-program` (the charter and measurement plan this memo reports on); `e-risk-assessment` (the register the memo summarizes). No command line in this lesson.
 
 **Map ref:** brief §5 "Running a security program" (board-level communication); **CISSP Domain 1** (risk communication); NIST CSF 2.0 §5; feeds the Stage E capstone path.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-supply-chain-risk
+slug: supply-chain-risk
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, ai-supply-chain]
+roles: []
+map_refs: ["CISSP 1.11"]
+test_date: 2026-10-10
+description: "Complete a vendor risk assessment ending in a residual-risk decision with owner and date. A free lesson in the security guidebook, serving CISSP objective 1.11."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Supply chain risk management: trusting what you didn't build
 
-**ID:** `e-supply-chain-risk` · **Stage:** E (Expert) · **Level:** 3 (complete a vendor risk assessment for a real acquisition: risk factors, mitigations, and a residual-risk decision with owner and date) · **Prerequisites:** `e-risk-assessment` (the risk method this lesson applies to suppliers); `ai-supply-chain` (the AI variant: models, datasets, and weights as supply chain). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.11** — supply chain risk management.
 

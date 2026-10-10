@@ -1,6 +1,17 @@
+---
+lesson_id: e-assessment-strategy
+slug: assessment-strategy
+stage: E
+level: 3
+prerequisites: [b-methodology]
+roles: [grc-analyst]
+map_refs: ["CISSP 6.1"]
+test_date: 2026-10-10
+description: "Write an annual assessment strategy: coverage tiers, assessor classes, cadence, and scoping rules for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.1."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Assessment strategy: deciding what gets tested, by whom, and how often
 
-**ID:** `e-assessment-strategy` · **Stage:** E (Expert) · **Level:** 3 (write an annual assessment strategy that covers the estate without gaps or waste) · **Prerequisites:** `b-methodology` (what an engagement looks like from the inside — this lesson plans the year's worth of them); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 6.1** — designing assessment, test, and audit strategies.
 

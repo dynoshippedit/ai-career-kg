@@ -1,6 +1,17 @@
+---
+lesson_id: e-awareness-training
+slug: awareness-training
+stage: E
+level: 3
+prerequisites: [c-soc-triage]
+roles: []
+map_refs: ["CISSP 1.12"]
+test_date: 2026-10-10
+description: "Design a one-year security learning program measured by behavior change. A free lesson in the security guidebook, serving CISSP objective 1.12."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Security awareness, education, and training: building the learning program
 
-**ID:** `e-awareness-training` · **Stage:** E (Expert) · **Level:** 3 (write a one-year security learning program plan — audience segments, topic calendar, phishing-simulation rules of engagement, effectiveness metrics — that a real organization could run) · **Prerequisites:** none beyond Stage D; bring the human-factor material from `c-soc-triage` (alert fatigue is what happens when the humans are the unpatched layer). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.12** — security awareness, education, and training programs.
 

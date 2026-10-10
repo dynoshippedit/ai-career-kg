@@ -1,6 +1,17 @@
+---
+lesson_id: e-security-audits
+slug: security-audits
+stage: E
+level: 3
+prerequisites: [e-assessment-strategy]
+roles: [grc-analyst]
+map_refs: ["CISSP 6.5"]
+test_date: 2026-10-10
+description: "Write an audit plan for one control family and complete a five-part finding for a fictional insurer. A free lesson in the security guidebook, serving CISSP objective 6.5."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Security audits: independence, evidence, and the finding that holds up
 
-**ID:** `e-security-audits` · **Stage:** E (Expert) · **Level:** 3 (write an audit plan for a control family and execute it to a defensible finding) · **Prerequisites:** `e-assessment-strategy` (the strategy this audit serves — audits are the independent half of it); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 6.5** — conducting and facilitating security audits.
 

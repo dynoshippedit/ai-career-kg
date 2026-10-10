@@ -1,6 +1,17 @@
+---
+lesson_id: ai-prompt-injection
+slug: prompt-injection
+stage: AI
+level: 3
+prerequisites: []
+roles: []
+map_refs: ["CAISP ch3"]
+test_date: 2026-10-09
+description: "Prompt injection, the #1 LLM application risk (OWASP LLM Top 10 2026, LLM01:2026): mechanism, code-level defenses and detection. A free lesson in the security guidebook."
+dateline: "Walkthrough steps 1–4 run 2026-10-09 · step 5 (live model) not run by us"
+---
 # Prompt injection, the #1 LLM risk
 
-**ID:** `ai-prompt-injection` · **Stage:** AI track · **Level:** 3 (mechanism + demonstrated defense + detection) · **Prerequisites:** how LLM applications are built (tokens, system prompts, retrieval/RAG, tool calling — the `ai-01` lesson); Stage B injection mindset; Python 3.
 
 **Map refs:** **OWASP Top 10 for LLM Applications 2026, LLM01:2026** (edition released 2026-08-04 — always name the edition; codes were renumbered from 2025); **MITRE ATLAS AML.T0051**; **CAISP chapter 3**.
 

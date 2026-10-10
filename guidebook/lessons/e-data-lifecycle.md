@@ -1,6 +1,17 @@
+---
+lesson_id: e-data-lifecycle
+slug: data-lifecycle
+stage: E
+level: 3
+prerequisites: [e-asset-classification, a-linux-cli]
+roles: [grc-analyst]
+map_refs: ["CISSP 2.4"]
+test_date: 2026-10-10
+description: "Trace five data types across the lifecycle — roles, collection, location, retention, remanence, destruction per SP 800-88 Rev. 2 — with a live deletion-vs-overwrite demo. A free lesson in the security guidebook, serving CISSP objective 2.4."
+dateline: "Worked case authored and reviewed 2026-10-10 · local demo run 2026-10-10"
+---
 # The data lifecycle: from collection to destruction
 
-**ID:** `e-data-lifecycle` · **Stage:** E (Expert) · **Level:** 3 (map five data types across the lifecycle and select destruction methods per SP 800-88 Rev. 2) · **Prerequisites:** `e-asset-classification` (the tiers that set each type's protection); `a-linux-cli` (reading command output for the demo); local demo runs on your own machine.
 
 **Map ref:** serves **CISSP objective 2.4** — the data lifecycle: roles, collection limitation, location, maintenance, retention, remanence, and destruction.
 

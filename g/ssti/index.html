@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Server-side template injection: when your input becomes the program | Learn Computer Stuff</title>
+<meta name="description" content="Server-side template injection: when user input becomes the program — context-aware exploitation reproduced locally, then fixed. A free hands-on lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/ssti/">
+<meta property="og:title" content="Server-side template injection: when your input becomes the program | Learn Computer Stuff"><meta property="og:description" content="Server-side template injection: when user input becomes the program — context-aware exploitation reproduced locally, then fixed. A free hands-on lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/ssti/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"Server-side template injection: when your input becomes the program","item":"https://learncomputerstuff.dev/g/ssti/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>Server-side template injection: when your input becomes the program</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>Server-side template injection: when your input becomes the program</h1>
+<p class="lede prose">Web applications build pages from <strong>templates</strong>: files mixing fixed HTML with placeholders the server fills in (<code>Hello, {{ name }}</code>). Template injection happens when attacker input stops being <em>data placed into</em> the template and becomes <em>part of the template itself</em> — and the template engine then executes it. The impact ladder runs from reading server-side values, to reading files, to full remote code execution, depending on the engine. This lesson takes you to Level 3: you will reproduce the injection against a local toy engine, understand why real engines are worse, and verify the fix.</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-ssti.log</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/xss/"><code>b-xss</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-94 (Code Injection) · PortSwigger Web Security Academy (SSTI)</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Web applications build pages from <strong>templates</strong>: files mixing fixed HTML with placeholders the server fills in (<code>Hello, {{ name }}</code>). Template injection happens when attacker input stops being <em>data placed into</em> the template and becomes <em>part of the template itself</em> — and the template engine then executes it. The impact ladder runs from reading server-side values, to reading files, to full remote code execution, depending on the engine. This lesson takes you to Level 3: you will reproduce the injection against a local toy engine, understand why real engines are worse, and verify the fix.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
+<li>You understand the XSS lesson's data-vs-code distinction — SSTI is that distinction failing on the <em>server</em> instead of in the browser.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local toy engine, a PortSwigger Academy SSTI lab, or a bounty program whose scope explicitly includes the asset. Template engines are also <em>your own</em> code's risk — the fix section is written for builders too. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Tooling: curl. A cheat sheet of engine-specific payloads is for the labs, not this lesson.</li>
+</ul>
+<h2>3. How it works</h2>
+<p>A template engine takes two inputs: the <strong>template</strong> (written by the developer, contains code-like directives) and the <strong>data</strong> (values to fill in). The engine's job is to keep them separate — data is inert, only the template's own directives execute.</p>
+<p>The vulnerability is a confusion of the two. The classic shape:</p>
+<pre><code>page = render(&quot;Hello, &quot; + user_input + &quot;!&quot;)</code></pre>
+<p>When <code>user_input</code> is <code>alice</code>, the template is <code>Hello, alice!</code> — harmless. When <code>user_input</code> is <code>{{7*7}}</code>, the template is <code>Hello, {{7*7}}!</code> — and the engine evaluates <code>7*7</code> and renders <code>Hello, 49!</code>. Your arithmetic executed on the server. That evaluation is the entire vulnerability: <strong>the engine cannot tell your input apart from the developer's template</strong>, because they were concatenated before rendering.</p>
+<p><strong>Why it arises in real code.</strong> Developers build strings: greeting pages, email subjects, PDF filenames, error messages. Anywhere a template is assembled from parts that include user input — especially "preview" features ("see how your message looks") — the input can reach the template source. The developer tested with <code>alice</code>, never with <code>{{7*7}}</code>.</p>
+<p><strong>Why real engines are worse than the toy.</strong> The walkthrough's toy evaluates arithmetic. Production engines (Twig, Jinja2, Freemarker, Velocity, ERB, Smarty) expose an object model: <code>{{7*7}}</code> proves evaluation, and then engine-specific payloads walk from arithmetic to attribute access (<code>().__class__</code>, <code>config.items()</code>) to file reads to command execution. The <em>detection</em> payload is always the arithmetic one — safe, unmistakable. The <em>escalation</em> payloads are engine-specific and taught at concept level here: know that the ladder exists, know it ends at RCE, and practice the escalation only in PortSwigger's labs, where the targets are built for it.</p>
+<p><strong>The framework angle.</strong> Modern frameworks (Django, Rails, Jinja2 autoescape) keep user data out of template <em>source</em> by design — you pass variables, never concatenated strings. SSTI appears where developers bypass the framework: rendering user-supplied templates (CMS themes, "custom email templates"), using the low-level render-string API on concatenated input, or misconfiguring sandbox mode. Sandboxes are allow-lists around a dangerous engine; the history of SSTI is the history of sandbox escapes. The fix is architectural, not a better sandbox.</p>
+<p><strong>How defenders see it.</strong> Template syntax in input logs is the tripwire: <code>{{</code>, <code>{%</code>, <code>${</code>, <code>#{</code>, <code>&lt;%=</code> appearing in request parameters — especially in fields that get reflected into rendered pages. A WAF rule on these is a tripwire, not a fix (encoding and engine variations bypass naive patterns). In code review: string concatenation into any <code>render</code>/<code>render_template_string</code>/equivalent call, user-controlled template names, "preview" features. Server-side: unexpected child processes or file reads from the web worker are the escalation signal.</p>
+<h3>Worked example: the greeting demo</h3>
+<p>A toy template engine (stdlib Python, local only — the walkthrough runs it): <code>{{ expression }}</code> in the template source is evaluated. The vulnerable endpoint concatenates the <code>name</code> parameter into the template source; the fixed endpoint treats input as data.</p>
+<p>Baseline: <code>?name=alice</code> → <code>Hello, alice!</code>. Probe: <code>?name={{7*7}}</code> → <code>Hello, 49!</code>. The <code>49</code> in the response <em>is</em> the vulnerability: your input was compiled and executed by the server's template engine. The fixed endpoint (<code>/fixed</code>) renders the same input inert: <code>Hello, {{7*7}}!</code> — data, not code.</p>
+<p>The fix, stated generally: <strong>never build template source from user input.</strong> Pass input as variables to a fixed template; if users must customize appearance, give them a logic-less template language (Mustache-style: variables and sections only, no expressions) or a strict allow-list of fields. Then re-test: the arithmetic probe renders inert.</p>
+<h2>4. Walkthrough</h2>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/b-ssti.log</code>. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-10. The toy engine (<code>eval</code> on <code>{{ }}</code>) stands in for real engines — deliberately the worst practice, labeled as such, so the mechanism is unmistakable. Real engine payloads are PortSwigger-lab material (no Docker on this machine — see gaps).</p>
+<ol>
+<li><strong>Start the app.</strong> Save the <code>app.py</code> from this lesson's companion and run it on port 8333. Confirm the baseline: <code>curl -s &quot;localhost:8333/?name=alice&quot;</code> → <code>Hello, alice!</code>.</li>
+<li><strong>Prove evaluation.</strong> <code>curl -s &quot;localhost:8333/?name=%7B%7B7*7%7D%7D&quot;</code> → <code>Hello, 49!</code>. The arithmetic executed server-side. Write down the request/response pair — this is the finding. (The <code>%7B%7B</code> is URL-encoded <code>{{</code>; the lesson names the encoding so the reader isn't mystified.)</li>
+<li><strong>Understand what you just proved.</strong> You proved <em>evaluation</em>, not RCE. On a real engine, this is the detection payload — the safe, unmistakable signal. Say out loud what the next rung would be (attribute access toward the object model) without running it here; the escalation ladder is lab material.</li>
+<li><strong>Verify the fix.</strong> <code>curl -s &quot;localhost:8333/fixed?name=%7B%7B7*7%7D%7D&quot;</code> → <code>Hello, {{7*7}}!</code>. Same input, inert output: the fixed endpoint never lets input reach the template source.</li>
+<li><strong>Read the defender view.</strong> The companion logs each request's raw <code>name</code> value. Find your <code>{{7*7}}</code> probe in the log. Write the detection rule: alert on template delimiters (<code>{{</code>, <code>{%</code>, <code>${</code>, <code>#{</code>, <code>&lt;%=</code>) in input parameters — and write next to it, in the same note, why it is a tripwire and not a fix.</li>
+</ol>
+<p>No step above is marked "not run by us" — the evaluation proof and the fix verification ran locally. Engine-specific escalation payloads are PortSwigger-lab material by design (concepts taught here, hands-on there).</p>
+<h2>5. On your own</h2>
+<p><strong>Task:</strong> Pick one authorized target you have not touched in this lesson — a PortSwigger Academy SSTI lab (start with "Basic server-side template injection"). First <em>fingerprint the engine</em>: the Academy's methodology is to try the arithmetic probes for each engine family (<code>{{7*7}}</code>, <code>${7*7}</code>, <code>&lt;%= 7*7 %&gt;</code>, <code>#{7*7}</code>) and see which evaluates. Then follow that engine's documented path exactly one rung: from evaluation to reading a server-side value (e.g., an object attribute the lab exposes). Stop there — the lab's own questions tell you when you've proved the class.</p>
+<p><strong>Success test:</strong> A one-page report: the fingerprinting probes tried and which evaluated (engine identified), the exact request proving evaluation, the server-side value read, the fix stated architecturally (input never reaches template source), and the defender detection (which log, which delimiters). If no probe evaluates, document the negative result and what it tells you about the template handling.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>"We escape the input, so we're safe."</strong> Output-escaping protects the <em>browser</em> (XSS). SSTI happens <em>before</em> output, on the server, during template compilation. Different layer, different fix.</li>
+<li><strong>Blacklisting <code>{{</code>.</strong> Engines have multiple syntaxes (<code>${}</code>, <code>#{</code>, <code>&lt;%= %&gt;</code>, <code>*{}</code>), and string-concatenation tricks can smuggle delimiters past naive filters. The fix is architectural (no input in template source), not a filter.</li>
+<li><strong>Trusting the sandbox.</strong> Sandbox escapes are a genre, not an accident. If your security depends on the sandbox holding, you have already lost — treat sandboxed evaluation of untrusted input as vulnerable by design.</li>
+<li><strong>"Preview" features.</strong> "See how your template looks" is the most common real-world SSTI shape: the feature <em>requires</em> rendering user input as a template. Redesign the feature (fixed templates + variable pickers) instead of securing the unsecurable.</li>
+<li><strong>Confusing SSTI with XSS.</strong> <code>{{7*7}}</code> rendering as <code>49</code> in <em>your browser's</em> view-source is SSTI only if the <em>server</em> evaluated it. Check where the evaluation happened before naming the class.</li>
+<li><strong>Running escalation payloads outside labs.</strong> The RCE rungs are real. They belong in PortSwigger's labs and authorized scope — never in curiosity-driven testing.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first:</p>
+<ul>
+<li><strong>PortSwigger Web Security Academy — Server-side template injection</strong> (<a href="https://portswigger.net/web-security/server-side-template-injection">portswigger.net/web-security/server-side-template-injection</a> — verified 2026-10-10): the canonical treatment — detection methodology, engine fingerprinting, the escalation ladder. <em>Read</em> fully, then do the labs.</li>
+<li><strong>CWE-94</strong> (<a href="https://cwe.mitre.org/data/definitions/94.html">cwe.mitre.org/data/definitions/94.html</a> — verified 2026-10-10): Improper Control of Generation of Code ("Code Injection") — the weakness family SSTI belongs to. <em>Skim</em>; cite the ID.</li>
+</ul>
+<p>Then at most three free resources:</p>
+<ol>
+<li><strong>PortSwigger SSTI labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a> — free): engine-specific labs from detection through documented exploitation, hosted and authorized.</li>
+<li><strong>PortSwigger's SSTI decision tree</strong> (in the Academy topic above — free): which probe for which engine; print it and keep it next to you in labs.</li>
+<li><strong><a href="/g/xss/"><code>b-xss</code></a></strong> (this guidebook): the data-vs-code distinction on the client side — the same confusion, one layer down the stack.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>Explain the difference between <code>render(&quot;Hello, &quot; + name + &quot;!&quot;)</code> and <code>render(&quot;Hello, {{name}}!&quot;, name=name)</code> — which one is vulnerable and why, in terms of template <em>source</em> vs <em>data</em>.</li>
+<li>Your probe <code>{{7*7}}</code> returns <code>49</code>. Explain what you have proved and what you have <em>not</em> proved, and why the distinction matters for the report's impact section.</li>
+<li>A developer "fixes" SSTI by stripping the substring <code>{{</code> from input. Explain two bypasses (different engine syntax; smuggled delimiters) and state the architectural fix.</li>
+<li>Explain why a sandbox around template evaluation is not a sufficient fix, using the history of sandbox escapes as your evidence.</li>
+<li>You see <code>${7*7}</code> evaluate but <code>{{7*7}}</code> render inert. Name what you've learned (engine family hint) and your next probe.</li>
+</ol>
+<h2>9. Prove it</h2>
+<p><strong>Artifact:</strong> the one-page report from "On your own": fingerprinting probes, the evaluation proof, the server-side value read, the architectural fix, the defender detection.</p>
+<p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can detect SSTI with the arithmetic probe, fingerprint the engine family, prove server-side evaluation on an authorized target, and state the architectural fix. You cannot yet claim: exploit development against template engines — the escalation ladder past detection is lab-bounded practice, and real-engine RCE is out of scope for this lesson by design.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/xxe/"><code>b-xxe</code></a> — the same "server processes attacker-shaped input" shape through XML parsers.</li>
+<li><a href="/g/deserialization/"><code>b-deserialization</code></a> — untrusted input reaching a dangerous interpreter, one layer deeper (object construction).</li>
+<li><a href="/g/xss/"><code>b-xss</code></a> (re-read) — the data-vs-code confusion on the client side; compare which layer each class executes in.</li>
+<li>Map refs: <strong>CWE-94</strong> · <strong>PortSwigger SSTI</strong> (detection methodology + labs).</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-b/">Stage B · Practitioner</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>

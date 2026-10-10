@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Configuration management: baselines, hardening, and catching drift</h1>
 <p class="lede prose">Every system ships in a default state optimized for working everywhere, which means optimized for security nowhere: unnecessary services running, default credentials set, verbose error messages on. Configuration management is the discipline that replaces defaults with decisions — a documented <strong>baseline</strong> (the approved secure state for a system role), <strong>hardening</strong> (the act of moving a system to that baseline), and <strong>drift detection</strong> (noticing when reality diverges from the document). It shows up in the breach that started with a debug interface left enabled, in the audit finding of forty-three "temporary" firewall rules, and in the 3 a.m. realization that nobody knows what the production config is <em>supposed</em> to be. System administrators, SOC engineers, and GRC analysts live here — and it is the daily-operations companion to <a href="/g/change-management/"><code>e-change-management</code></a>: a change that skips the change process is exactly the drift this lesson's checker finds.</p>
-<p class="dateline">Lesson published 2026-10-09 · Worked case authored and drift-demo run 2026-10-10 · local demo on fictional files, transcript in runs/e-config-management.log</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Worked case authored and drift-demo run 2026-10-10 · local demo on fictional files, transcript in runs/e-config-management.log</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (write a hardening baseline for a server role and operate drift detection against it)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/linux-cli/"><code>a-linux-cli</code></a> (users, permissions, services — the settings the baseline governs); no special tooling — the walkthrough's drift checker is a small Python script run locally on fictional files</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.3</strong> — configuration management: baselines, hardening, and controlling change to the trusted state.</td></tr>
+<tr><th scope="row">Stage</th><td>Stage E · Expert</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/linux-cli/"><code>a-linux-cli</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 7.3</strong> — configuration management: baselines, hardening, and controlling change to the trusted state.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -255,7 +256,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><em>Baseline authored and drift demo run 2026-10-10; all scenario data fictional. Sources fetched in-session — see <code>runs/e-config-management.log</code>.</em></p>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

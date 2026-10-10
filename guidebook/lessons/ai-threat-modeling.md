@@ -1,6 +1,17 @@
+---
+lesson_id: ai-threat-modeling
+slug: threat-modeling-ai
+stage: AI
+level: 3
+prerequisites: [ai-llm-architecture, ai-llm-top10, ai-pipeline, e-risk-assessment]
+roles: []
+map_refs: ["CAISP ch5"]
+test_date: 2026-10-09
+description: "Threat modeling AI systems: data-flow mapping, trust boundaries at the prompt, retrieval and tool layers, STRIDE adapted to AI, and MITRE ATLAS as the attacker's library — a complete worked threat model. A free lesson in the security guidebook, serving CAISP chapter 5."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Threat modeling AI systems
 
-**ID:** `ai-threat-modeling` · **Stage:** AI track · **Level:** 3 (produce a complete, defensible threat model unaided) · **Prerequisites:** `ai-llm-architecture` (the stack); `ai-llm-top10` (the risks); `ai-pipeline` (the build side); `e-risk-assessment` helps but is not required. No command line in this lesson.
 
 **Map refs:** **CAISP chapter 5** (Threat Modeling AI Systems); MITRE ATLAS (the attacker's TTP library); NIST AI RMF (MAP function); feeds `ai-governance`, the Stage E capstone path.
 

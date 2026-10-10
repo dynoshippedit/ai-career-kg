@@ -1,6 +1,17 @@
+---
+lesson_id: b-security-headers
+slug: security-headers
+stage: B
+level: 3
+prerequisites: [a-http-depth, b-xss, b-csrf, b-session-auth]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-10
+description: "Security headers and browser defenses: CSP, HSTS, frame-ancestors, nosniff, cookie flags — what each buys, verified header by header with curl. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo; browser-enforcement sub-steps re-ran 2026-10-10 (headless Chromium)"
+---
 # Security headers and browser defenses: telling the browser what "safe" means
 
-**ID:** `b-security-headers` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + local verification of every header with curl + correct scoping of what each buys) · **Prerequisites:** `a-http-depth` (headers, cookies), `b-xss` (CSP as defense in depth), `b-csrf` (SameSite), `b-session-auth` (cookie flags)
 
 ---
 

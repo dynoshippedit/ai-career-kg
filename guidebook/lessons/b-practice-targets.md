@@ -1,6 +1,17 @@
+---
+lesson_id: b-practice-targets
+slug: practice-targets
+stage: B
+level: 2
+prerequisites: [a-linux-cli]
+roles: [pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "Setting up practice targets locally: DVWA, Juice Shop, WebGoat, crAPI and DVGA, one verified command each, bound to localhost — so you never need a live system. A free lesson in the security guidebook."
+dateline: "Procedures verified against the projects' own READMEs 2026-10-09 · container runs not run by us (no Docker on the build machine)"
+---
 # Setting up practice targets locally
 
-**ID:** `b-practice-targets` · **Stage:** B (Practitioner) · **Level:** 2 (operate: stand up and reset every target below) · **Prerequisites:** `a-linux-cli`; Docker basics. No Docker on the build machine — the run commands below were verified against each project's own README in-session (2026-10-09); the container runs themselves are marked **not run by us**.
 
 **Map refs:** feeds every hands-on `b-…` lesson; `b-toolbench` phase 13 (local environment).
 

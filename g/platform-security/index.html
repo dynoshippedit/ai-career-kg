@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Platform security: the ground your architecture stands on</h1>
 <p class="lede prose">Every security architecture rests on a platform — firmware, bootloader, hypervisor, CPU — and every platform makes promises the layers above inherit, silently. When the platform keeps its promises, the architecture above gets measured boot, sealed keys, and memory that resists corruption; when it doesn't, the architecture inherits a basement nobody inspected. Platform security shows up in the procurement question nobody asks ("does this server have a TPM, and is it enabled?"), in the cloud instance-type decision that determines whether your keys live in hardware or in a config file, in the secure-boot failure that bricks a fleet at 3 a.m., and in the confidential-computing pitch that promises your data is safe from the cloud provider itself. It is the least glamorous layer and the most load-bearing: compromise below the operating system is compromise of everything above it, usually without evidence.</p>
-<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (survey a platform's security capabilities and write a deployment recommendation with conditions)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/secure-design/"><code>e-secure-design</code></a> (platform capabilities as design inputs), <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> (what the encryption primitives guarantee); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.4</strong> — platform security capabilities: memory protection, hardware roots of trust, secure boot, virtualization isolation, and encryption.</td></tr>
+<tr><th scope="row">Stage</th><td>Stage E · Expert</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/secure-design/"><code>e-secure-design</code></a>, <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 3.4</strong> — platform security capabilities: memory protection, hardware roots of trust, secure boot, virtualization isolation, and encryption.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -255,7 +256,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

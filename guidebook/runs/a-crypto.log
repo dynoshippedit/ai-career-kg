@@ -1,0 +1,49 @@
+=== a-crypto walkthrough ===
+date: 2026-10-10
+tool versions: OpenSSL 3.0.13, Python 3.12.3
+environment: empty scratch dir /tmp/cryptowalk, loopback/local only, nothing external touched
+
+=== a-crypto walkthrough ===
+Sat Oct 10 04:04:05 UTC 2026
+OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+--- 1. avalanche ---
+SHA2-256(stdin)= 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+SHA2-256(stdin)= fdd7585e08c4e2afd71dcabdb4636c89d557a3f42db9e2040c8bbd1708aa4ce7
+--- 3. symmetric roundtrip ---
+encrypt OK
+secret message
+wrong password:
+bad decrypt
+4077AF405A740000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:../providers/implementations/ciphers/ciphercommon_block.c:124:
+--- 4. ECB vs CBC ---
+ECB blocks:
+0000000 53 61 6c 74 65 64 5f 5f 81 ef eb 9d 0c ef 39 69
+0000016 00 30 ab 84 cb c0 cc e8 46 43 11 47 97 15 de aa
+*
+0000080 ac 62 71 53 aa fe 12 d9 32 d4 fa 19 06 a0 74 f6
+0000096
+CBC blocks:
+0000000 53 61 6c 74 65 64 5f 5f b8 eb d4 0f af 52 47 65
+0000016 2c 7b ac 76 77 ff 9a 99 bd c7 1c 4f 68 e3 b3 03
+0000032 83 a8 8f 09 f8 33 91 1a 35 50 d5 42 7c 89 d1 fb
+0000048 63 83 91 c2 81 3a a9 be f5 2d fa 4e 0d 47 2f af
+0000064 99 ae cb 42 54 1e bb d3 f9 51 72 53 5a 44 fe 9d
+--- 5. sign/verify ---
+Verified OK
+4077BAEA157C0000:error:02000068:rsa routines:ossl_rsa_verify:bad signature:../crypto/rsa/rsa_sign.c:430:
+4077BAEA157C0000:error:1C880004:Provider routines:rsa_verify:RSA lib:../providers/implementations/signature/rsa_sig.c:774:
+Verification failure
+--- 6. cert inspect ---
+        Issuer: CN = harborlight-books.example
+            Not Before: Oct 10 04:04:06 2026 GMT
+            Not After : Oct 12 04:04:06 2026 GMT
+        Subject: CN = harborlight-books.example
+--- 7. md5 password ---
+MD5(stdin)= 482c811da5d5b4bc6d497ffa98491e38
+
+--- ECB interpretation note ---
+The od '*' between 0000016 and 0000080 means bytes 16-79 are FOUR IDENTICAL
+16-byte ciphertext blocks (four identical 'A'*16 plaintext blocks -> four
+identical ECB blocks). CBC shows four different blocks. This is the leak.
+--- cleanup ---
+scratch dir deleted after the run; lesson keys never reused.

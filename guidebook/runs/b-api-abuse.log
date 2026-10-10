@@ -1,0 +1,29 @@
+=== b-api-abuse walkthrough ===
+date: 2026-10-10
+tool versions: stock Python 3.12.3, curl 8.5.0
+environment: loopback only (127.0.0.1:8331 vulnerable, :8332 fixed); demo auth is a hardcoded user, labeled in companion
+
+=== b-api-abuse walkthrough ===
+Sat Oct 10 04:04:21 UTC 2026
+--- 1. BOLA ---
+authed as user 1, requesting user 2:
+{"id": 2, "name": "bob", "email": "bob@example.com", "password_hash": "e99a18c428cb38d5f260853678922e03", "ssn": "000-00-0002", "role": "user", "internal_notes": "none"}
+--- 2. excessive data exposure ---
+{"id": 1, "name": "alice", "email": "alice@example.com", "password_hash": "5f4dcc3b5aa765d61d8327deb882cf99", "ssn": "000-00-0001", "role": "user", "internal_notes": "VIP - handle gently"}
+--- 3. mass assignment ---
+{"id": 3, "name": "mallory", "role": "admin"}
+--- 4. rate limit absence: 10 rapid POSTs ---
+201 201 201 201 201 201 201 201 201 201 
+
+--- FIXED BUILD ---
+BOLA (user 2 as user 1):
+{"error": "not your object"}
+me (DTO):
+{"id": 1, "name": "alice"}
+mass assignment (role dropped):
+{"id": 3, "role": "user", "name": "mallory"}
+rate limit (7 rapid POSTs, limit 5/min):
+201 201 201 201 429 429 429 
+
+--- cleanup ---
+demo servers killed by PID after the run; ports 8331/8332 verified free

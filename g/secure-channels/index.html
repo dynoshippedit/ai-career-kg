@@ -165,9 +165,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>Secure channels: which encrypted path for which traffic, and why</h1>
 <p class="lede prose">Every architecture has traffic that must cross untrusted space: the remote engineer reaching the data center, the branch office reaching HQ, the web app reaching the payment processor, the administrator reaching the switch. Each crossing needs a channel — an encrypted, authenticated path — and the choice is an architecture decision with real consequences: the wrong channel leaks metadata, breaks under the wrong failure, or quietly downgrades to something weaker. It shows up in design reviews ("why is this over the internet at all?"), in VPN consolidation projects, and in incident reports where the attacker didn't break the encryption — they found the traffic that wasn't encrypted. This is the selection view: not the handshake's mathematics (<a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/crypto-applied/"><code>e-crypto-applied</code></a>), but the judgment of which channel, for which traffic, and why.</p>
-<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
+<p class="dateline">Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (select and justify the communication channel for every traffic class in an architecture)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (the TLS handshake step by step — this lesson decides <em>when</em> to use it, not how it works), <a href="/g/network-architecture/"><code>e-network-architecture</code></a> (the zones whose traffic needs channels); no command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 4.3</strong> — secure communication channels.</td></tr>
+<tr><th scope="row">Stage</th><td>Stage E · Expert</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/network-architecture/"><code>e-network-architecture</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>serves <strong>CISSP objective 4.3</strong> — secure communication channels.</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -265,7 +266,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><em>Sources fetched 2026-10-10: RFC 8446 (<a href="https://rfc-editor.org">rfc-editor.org</a>); NIST SP 800-77, SP 800-113 (<a href="https://csrc.nist.gov">csrc.nist.gov</a>); OWASP Transport Layer Protection Cheat Sheet; CISA segmentation infographic; NIST SP 800-52 Rev. 2. Full ledger in the batch manifest.</em></p>
 </section>
 <section><div class="note"><span class="eyebrow">Keep going</span>
-<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+<p class="prose">This lesson is one of one hundred ten in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred ten lessons →</a></p></div></section>
 </div></main>
 <footer class="site"><div class="wrap"><div class="cols">
 <div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>

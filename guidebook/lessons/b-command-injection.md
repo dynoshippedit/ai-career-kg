@@ -1,6 +1,17 @@
+---
+lesson_id: b-command-injection
+slug: command-injection
+stage: B
+level: 3
+prerequisites: [a-http-depth, a-linux-cli, b-sqli]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "OS command injection: shell metacharacters, blind time-delay proofs, and why allow-lists beat blocklists — reproduced locally and fixed. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)"
+---
 # OS command injection: when your input reaches a shell
 
-**ID:** `b-command-injection` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction + fix verification) · **Prerequisites:** `a-http-depth` (HTTP in depth), `a-linux-cli` (shells, processes, what `whoami` means), `b-sqli` (the input-becomes-code pattern), B-AUTH (authorization discipline: you test only what you are allowed to touch).
 
 **Map refs:** OWASP Top 10:2025 A05 Injection · WSTG-INPV-13 · CWE-78
 

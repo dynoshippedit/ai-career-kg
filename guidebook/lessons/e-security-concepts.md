@@ -1,6 +1,17 @@
+---
+lesson_id: e-security-concepts
+slug: security-concepts
+stage: E
+level: 2
+prerequisites: [a-http-depth, e-crypto-applied]
+roles: []
+map_refs: ["CISSP 1.2"]
+test_date: 2026-10-10
+description: "Map a system's assets onto confidentiality, integrity, availability and the AAA properties, and name the trade-offs. A free lesson in the security guidebook, serving CISSP objective 1.2."
+dateline: "Local demo run 2026-10-10 (transcript in runs/e-security-concepts.log) · worked case authored and reviewed 2026-10-10"
+---
 # Core security concepts: the CIA triad and the properties around it
 
-**ID:** `e-security-concepts` · **Stage:** E (Expert) · **Level:** 2 (map a real system's security onto confidentiality, integrity, availability and the surrounding properties, and name the trade-offs between them) · **Prerequisites:** `a-http-depth` (you have seen authentication and sessions break), `e-crypto-applied` (hashing and message authentication, used in the demo). One short local demo in §4 — Python 3 standard library only, transcript in `runs/e-security-concepts.log`.
 
 **Map ref:** serves **CISSP objective 1.2** — core security concepts: confidentiality, integrity, availability, and related properties.
 

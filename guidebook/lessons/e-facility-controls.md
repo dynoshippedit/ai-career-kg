@@ -1,6 +1,17 @@
+---
+lesson_id: e-facility-controls
+slug: facility-controls
+stage: E
+level: 3
+prerequisites: [e-facility-design]
+roles: []
+map_refs: ["CISSP 3.9"]
+test_date: 2026-10-10
+description: "Complete a five-family facility controls checklist — perimeter, access, environmental, power, fire — with findings, owners, and dates. A free lesson in the security guidebook, serving CISSP objective 3.9."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Site and facility controls: the checklist that holds
 
-**ID:** `e-facility-controls` · **Stage:** E (Expert) · **Level:** 3 (complete a facility controls checklist with findings, covering perimeter, access, environmental, power, and fire) · **Prerequisites:** `e-facility-design` (the design this lesson's controls implement); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.9** — site and facility security controls: perimeter, access, environmental, power, and fire.
 

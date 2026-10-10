@@ -1,6 +1,17 @@
+---
+lesson_id: e-control-selection
+slug: control-selection
+stage: E
+level: 3
+prerequisites: [e-risk-assessment, e-secure-design]
+roles: []
+map_refs: ["CISSP 3.3"]
+test_date: 2026-10-10
+description: "Derive testable security requirements, select and tailor NIST SP 800-53 controls with written rationale, and defend the omissions. A free lesson in the security guidebook, serving CISSP objective 3.3."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Selecting controls: from requirements to a defensible set
 
-**ID:** `e-control-selection` · **Stage:** E (Expert) · **Level:** 3 (derive requirements from a scenario, select and tailor controls with written rationale, and defend the omissions) · **Prerequisites:** `e-risk-assessment` (risk responses become requirements), `e-secure-design` (the traceability habit); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 3.3** — selecting security controls from system security requirements: derivation, catalog selection, tailoring, and traceability.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: c-cvss
+slug: cvss
+stage: C
+level: 3
+prerequisites: [c-cve-program]
+roles: [security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "CVSS v3.1 and v4.0 scored by hand: the metric groups, three official calibration cases, and where the versions disagree — including E:U collapsing 7.7 to 5.2. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · v3.1 equations and FIRST's v4.0 reference implementation reproduced all published scores"
+---
 # CVSS v3.1 and v4.0, scored by hand
 
-**ID:** `c-cvss` · **Stage:** C (Professional) · **Level:** 3 (score any CVE by hand in both versions and defend the vector) · **Prerequisites:** `c-cve-program` (you can read a CVE record — the metrics block is what you are about to fill).
 
 **Map ref:** Stage C — severity scoring, the language every downstream catalog speaks.
 

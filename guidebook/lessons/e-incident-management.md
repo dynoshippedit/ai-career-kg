@@ -1,6 +1,17 @@
+---
+lesson_id: e-incident-management
+slug: incident-management
+stage: E
+level: 3
+prerequisites: [c-incident-response]
+roles: []
+map_refs: ["CISSP 7.6"]
+test_date: 2026-10-10
+description: "How to build the incident-management structure around the response lifecycle — team roles, escalation criteria, communications planning, and improvement metrics. A free lesson in the security guidebook, serving CISSP objective 7.6."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Incident management: the team, the escalation, and the communications
 
-**ID:** `e-incident-management` · **Stage:** E (Expert) · **Level:** 3 (stand up the incident-management structure — team, escalation, comms, metrics — around the response lifecycle) · **Prerequisites:** `c-incident-response` (the lifecycle this lesson organizes people around); no command line in this lesson.
 
 **Map ref:** serves **CISSP objective 7.6** — managing incidents as an organizational discipline: team structure, escalation, communications, and improvement.
 

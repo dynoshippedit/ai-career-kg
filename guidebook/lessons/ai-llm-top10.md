@@ -1,6 +1,17 @@
+---
+lesson_id: ai-llm-top10
+slug: llm-top10
+stage: AI
+level: 3
+prerequisites: [ai-prompt-injection, ai-llm-architecture]
+roles: []
+map_refs: ["CAISP ch3"]
+test_date: 2026-10-09
+description: "The OWASP LLM Top 10:2026 beyond prompt injection — data, system and agency risks, each with mechanism and defense. A free lesson in the security guidebook, serving CAISP chapter 3."
+dateline: "Walkthrough run 2026-10-09 · deterministic classification drill, no model needed"
+---
 # The OWASP LLM Top 10 beyond prompt injection
 
-**ID:** `ai-llm-top10` · **Stage:** AI track · **Level:** 3 (mechanism + defense per risk + classification on unseen scenarios) · **Prerequisites:** `ai-prompt-injection` (LLM01:2026, taught in its own lesson); `ai-llm-architecture` (the stack each risk plugs into).
 
 **Map refs:** **OWASP Top 10 for LLM Applications, 2026 edition** (released 2026-08-04; codes renumbered from 2025 — always name the edition); **CAISP chapter 3**.
 

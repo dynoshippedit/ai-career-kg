@@ -1,6 +1,17 @@
+---
+lesson_id: e-cryptanalysis
+slug: cryptanalysis
+stage: E
+level: 3
+prerequisites: [e-crypto-applied]
+roles: []
+map_refs: ["CISSP 3.7"]
+test_date: 2026-10-10
+description: "Compute brute-force and birthday-bound estimates, demonstrate classical frequency analysis in Python, and pair every attack method with its defense. A free lesson in the security guidebook, serving CISSP objective 3.7."
+dateline: "Walkthrough run 2026-10-10 · local stdlib Python, nothing external touched"
+---
 # Cryptanalytic attacks: how ciphers fail, and what that teaches
 
-**ID:** `e-cryptanalysis` · **Stage:** E (Expert) · **Level:** 3 (compute key-space and birthday-bound estimates, demonstrate classical frequency analysis, and pair every attack method with its defense) · **Prerequisites:** `e-crypto-applied` (primitives, modes, key lifecycle); Python 3 on your machine (stdlib only).
 
 **Map ref:** serves **CISSP objective 3.7** — cryptanalytic attack methods: attacker models, brute force, birthday attacks, classical analysis, side channels, and the defenses each one demands. (This lesson fills the gap logged in `e-crypto-applied`'s Map ref.)
 

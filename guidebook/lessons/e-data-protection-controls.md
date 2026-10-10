@@ -1,6 +1,17 @@
+---
+lesson_id: e-data-protection-controls
+slug: data-protection-controls
+stage: E
+level: 3
+prerequisites: [e-crypto-applied, e-asset-classification]
+roles: [grc-analyst]
+map_refs: ["CISSP 2.6"]
+test_date: 2026-10-10
+description: "Select protective controls per data state — at rest, in transit, in use — with scoping, key management, DLP, and compliance mapping; the selection view above e-crypto-applied's primitives. A free lesson in the security guidebook, serving CISSP objective 2.6."
+dateline: "Worked case authored and reviewed 2026-10-10 · local demo run 2026-10-10"
+---
 # Data security controls: protecting data at rest, in transit, and in use
 
-**ID:** `e-data-protection-controls` · **Stage:** E (Expert) · **Level:** 3 (select protective controls per data state, scope them to a requirement, and map them to compliance) · **Prerequisites:** `e-crypto-applied` (what the primitives do — this lesson is the selection view, not the primitives view); `e-asset-classification` (the tiers that set the protection level); local demo runs on your own machine.
 
 **Map ref:** serves **CISSP objective 2.6** — data security controls and compliance: data states, scoping, standards selection, and protective methods.
 

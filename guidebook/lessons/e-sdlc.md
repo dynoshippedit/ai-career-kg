@@ -1,6 +1,17 @@
+---
+lesson_id: e-sdlc
+slug: sdlc
+stage: E
+level: 3
+prerequisites: [e-risk-assessment]
+roles: [appsec]
+map_refs: ["CISSP 8.1", "CISSP 8.2", "CISSP 8.3", "CISSP 8.4", "CISSP 8.5"]
+test_date: 2026-10-09
+description: "Secure SDLC: threat modeling with STRIDE, security gates per phase, the SSDF practice groups, and metrics that measure effectiveness — with a gate review worked case. A free lesson in the security guidebook, serving CISSP objectives 8.1–8.5."
+dateline: "Worked case authored and reviewed 2026-10-09 · no command line in this lesson"
+---
 # Secure SDLC: catching the vulnerability before it ships
 
-**ID:** `e-sdlc` · **Stage:** E (Expert) · **Level:** 3 (run a threat model and a gate review that change what ships) · **Prerequisites:** Stage B vulnerability classes (you know what the gates are catching); `e-risk-assessment` (risk language); no command line in this lesson.
 
 **Map ref:** serves **CISSP objectives 8.1–8.5** at the governance level — security in the SDLC, development-ecosystem controls, effectiveness assessment, acquired software, secure coding as policy. (The hands-on techniques for 8.1–8.5 — STRIDE, SAST/DAST/IAST/SCA, code review — are taught in the Stage D AppSec track; this lesson is the program that deploys them.)
 

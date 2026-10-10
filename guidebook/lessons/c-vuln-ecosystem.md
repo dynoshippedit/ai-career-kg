@@ -1,6 +1,17 @@
+---
+lesson_id: c-vuln-ecosystem
+slug: vuln-ecosystem
+stage: C
+level: 3
+prerequisites: [c-cvss, c-cve-program]
+roles: [security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "CWE, CAPEC, CISA KEV, EPSS — and where enrichment comes from now that NVD enriches only prioritized CVEs. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · live EPSS, CISA KEV CSV, three-method ranking comparison"
+---
 # The surrounding catalogs: CWE, CAPEC, KEV, EPSS — and where enrichment comes from now
 
-**ID:** `c-vuln-ecosystem` · **Stage:** C (Professional) · **Level:** 3 (prioritize a vulnerability queue using the catalogs together, and defend the ranking) · **Prerequisites:** `c-cvss` (severity), `c-cve-program` (records).
 
 **Map ref:** Stage C — the prioritization lesson; the other half of the stage's "professional" claim.
 

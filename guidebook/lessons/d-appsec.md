@@ -1,6 +1,17 @@
+---
+lesson_id: d-appsec
+slug: appsec
+stage: D
+level: 3
+prerequisites: [a-http-depth, e-sdlc]
+roles: [appsec]
+map_refs: ["CISSP 8.1", "CISSP 8.2", "CISSP 8.3", "CISSP 8.4", "CISSP 8.5"]
+test_date: 2026-10-10
+description: "Application security: STRIDE threat modeling, the SAST/DAST/IAST/SCA scanner families and their blind spots, secure-SDLC integration, and code-review technique — with a scanner-blind-spot demo run locally. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · STRIDE worked case + teaching-sketch SAST with triage; real Semgrep step re-ran 2026-10-10; ZAP step is reader-side"
+---
 # Application security: concepts
 
-**ID:** `d-appsec` · **Stage:** D (Specialist) · **Level:** 3 (threat-model a small app with STRIDE, run SAST and triage its output, review a diff for security — scanner operation at production scale is reader-side) · **Prerequisites:** Stage B web-vulnerability wave (you must recognize the flaws scanners hunt), `a-http-depth`, `e-sdlc` (the program this tooling serves).
 
 **Map refs:** serves the Stage D AppSec specialist track; the hands-on techniques for **CISSP objectives 8.1–8.5** (secure software: design, verification, acquired software — governance taught in `e-sdlc`, tooling taught here).
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-soc2
+slug: soc2
+stage: E
+level: 3
+prerequisites: [e-csf-20, e-iso27001]
+roles: [grc-analyst]
+map_refs: []
+test_date: 2026-10-10
+description: "SOC 2 and the Trust Services Criteria: the examination engagement, the five criteria, Type I vs Type II, and how to scope it — with a worked scoping memo. A free lesson in the security guidebook."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # SOC 2 and the Trust Services Criteria
 
-**ID:** `e-soc2` · **Stage:** E (Expert) · **Level:** 3 (scope a SOC 2 engagement and read the resulting report like a customer would) · **Prerequisites:** `e-csf-20` (frameworks state outcomes; this is the examination that tests them); `e-iso27001` (control selection — the auditor will test whether your selections operate). No command line in this lesson.
 
 **Map ref:** brief §5 "Governance frameworks"; GRC analyst path; feeds `e-security-audits`, `e-cyber-law`.
 

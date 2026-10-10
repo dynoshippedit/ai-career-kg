@@ -1,6 +1,17 @@
+---
+lesson_id: b-xss
+slug: xss
+stage: B
+level: 3
+prerequisites: [a-http-depth]
+roles: [security-analyst, pentester, appsec]
+map_refs: []
+test_date: 2026-10-10
+description: "Cross-site scripting: reflected, stored and DOM-based — the trust-boundary mechanism, context-aware output encoding, and CSP as defense in depth. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local demo app; browser-execution sub-steps re-ran 2026-10-10 (headless Chromium)"
+---
 # Cross-site scripting: when the browser can't tell your code from the attacker's
 
-**ID:** `b-xss` · **Stage:** B (Practitioner) · **Level:** 3 (mechanism + live reproduction of all three types + fix verification) · **Prerequisites:** `a-http-depth` (requests, responses, cookies), Stage A JavaScript reading (you must read a DOM sink cold), B-AUTH (authorization discipline)
 
 ---
 

@@ -1,6 +1,17 @@
+---
+lesson_id: e-config-management
+slug: config-management
+stage: E
+level: 3
+prerequisites: [a-linux-cli]
+roles: []
+map_refs: ["CISSP 7.3"]
+test_date: 2026-10-10
+description: "How to write a hardening baseline for a server role and operate drift detection against it — with a real local demo of the baseline-and-compare mechanism. A free lesson in the security guidebook, serving CISSP objective 7.3."
+dateline: "Worked case authored and drift-demo run 2026-10-10 · local demo on fictional files, transcript in runs/e-config-management.log"
+---
 # Configuration management: baselines, hardening, and catching drift
 
-**ID:** `e-config-management` · **Stage:** E (Expert) · **Level:** 3 (write a hardening baseline for a server role and operate drift detection against it) · **Prerequisites:** `a-linux-cli` (users, permissions, services — the settings the baseline governs); no special tooling — the walkthrough's drift checker is a small Python script run locally on fictional files.
 
 **Map ref:** serves **CISSP objective 7.3** — configuration management: baselines, hardening, and controlling change to the trusted state.
 

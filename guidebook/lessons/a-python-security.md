@@ -1,6 +1,17 @@
+---
+lesson_id: a-python-security
+slug: python-security
+stage: A
+level: 3
+prerequisites: [a-linux-cli, a-http-depth]
+roles: [security-analyst, pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "Python for security tooling: reading and changing small scripts — HTTP requests, response parsing, sockets, arguments and files — with every walkthrough step run locally. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · Python 3.12.3, loopback only, stdlib only, nothing external touched"
+---
 # Python for security tooling
 
-**ID:** `a-python-security` · **Stage:** A (Foundations) · **Level:** 3 (apply — you can read, adapt, and write small security tools unaided) · **Prerequisites:** `a-linux-cli` (the shell this runs in), `a-http-depth` (the protocol your scripts will speak).
 
 **Map refs:** Stage A foundation; feeds `a-reading-code`, `b-toolbench`, and every walkthrough that ships a script.
 

@@ -1,6 +1,17 @@
+---
+lesson_id: a-git-github
+slug: git-github
+stage: A
+level: 3
+prerequisites: [a-linux-cli]
+roles: [pentester, appsec]
+map_refs: []
+test_date: 2026-10-09
+description: "Git and GitHub: snapshots, staging, branching, remotes and pull requests — the evidence pipeline for the whole program. A free hands-on lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · local repos only; GitHub-side steps not run by us"
+---
 # Git and GitHub
 
-**ID:** `a-git-github` · **Stage:** A (Foundations) · **Level:** 3 (operate — you can version your work, collaborate, and read a repository's history unaided) · **Prerequisites:** `a-linux-cli` (everything here happens in the shell).
 
 **Map refs:** Pre-map foundations; the artifact pipeline for every stage (all "Prove it" work lives in git).
 

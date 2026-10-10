@@ -1,6 +1,17 @@
+---
+lesson_id: e-investigations
+slug: investigations
+stage: E
+level: 3
+prerequisites: [c-incident-response, d-dfir-deep]
+roles: []
+map_refs: ["CISSP 1.5"]
+test_date: 2026-10-10
+description: "Run the investigation-type decision tree: administrative, criminal, civil, regulatory. A free lesson in the security guidebook, serving CISSP objective 1.5."
+dateline: "Worked case authored and reviewed 2026-10-10 · no command line in this lesson"
+---
 # Investigation types: which investigation you're in, and what it demands
 
-**ID:** `e-investigations` · **Stage:** E (Expert) · **Level:** 3 (run the investigation-type decision tree on a real incident: name the type, the authority, the evidence standard, and the one mistake to avoid) · **Prerequisites:** `c-incident-response` (the first hours of the bad day); `d-dfir-deep` (evidence handling, chain of custody). No command line in this lesson.
 
 **Map ref:** serves **CISSP objective 1.5** — investigation types and their requirements.
 

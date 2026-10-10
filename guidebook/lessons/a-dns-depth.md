@@ -1,6 +1,17 @@
+---
+lesson_id: a-dns-depth
+slug: dns-depth
+stage: A
+level: 3
+prerequisites: [a-linux-cli]
+roles: [soc-analyst, security-analyst, pentester]
+map_refs: []
+test_date: 2026-10-09
+description: "DNS in depth: the resolution chain, message format, record types, caching and DNSSEC — every step run locally against a toy authoritative server. A free lesson in the security guidebook."
+dateline: "Walkthrough run 2026-10-09 · loopback only; TCP form of DNS used (sandbox blocks UDP)"
+---
 # DNS in depth
 
-**ID:** `a-dns-depth` · **Stage:** A (Foundations) · **Level:** 3 (mechanism — you can explain every section of a DNS message and trace a name from keystroke to answer) · **Prerequisites:** A terminal you can type in. The shell itself gets its deep treatment in `a-linux-cli` — read it alongside this lesson if commands feel unfamiliar.
 
 **Map refs:** Pre-map foundations; feeds Stage B (SSRF via DNS rebinding, subdomain enumeration) and Stage E.
 
