@@ -1,0 +1,26 @@
+e-ethics walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the two dilemma analyses authored and self-reviewed in-session
+against the ISC2 Code of Ethics page (isc2.org/ethics, fetched 2026-10-10 via
+browser_open after curl was bot-walled with a 403).
+
+Scope: fictional Northwind Freight (300-person logistics; independent-consultant
+engagement). Dilemmas: (A) out-of-scope critical VPN flaw the client is "aware"
+of — argued Canon I (infrastructure) + Canon II (honesty by omission) outrank
+the Canon-III-as-obedience reading; decision: formal written notice to the
+sponsor, documented. (B) client pressure to downgrade a critical portal finding
+before a prospect's due diligence — Canon II dispositive; Canon III's "service"
+does not cover deceiving a third party; decision: refuse in writing, offer
+expedited retest + documented risk acceptance. Both analyses name the decision
+and its cost.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,498)
+  [x] canons paraphrased, never quoted; no ISC2 outline text reproduced
+  [x] ACM Code used as comparative lens (fetched via browser_open, ~11.5k chars)
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 2 free resources, all fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (ai-governance, c-cvd, b-bug-bounty)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

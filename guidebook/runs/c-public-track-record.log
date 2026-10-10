@@ -1,0 +1,40 @@
+runs/c-public-track-record.log — walkthrough transcript
+Date: 2026-10-09 · No command line by design: the work is writing.
+Worked finding: the b-sqli lab result (runs/b-sqli.log) — quote probe -> 500,
+boolean pair, ORDER BY column count, UNION cross-table read, 4.0s time-blind, fix + 4 verifications.
+
+STEP 1 — fact extraction (observed vs inferred):
+OBSERVED: quote in q param -> HTTP 500 (error text reflected); ORDER BY 3 ok / ORDER BY 4 error;
+UNION SELECT returned users-table rows in the lab; sleeps() variant 4.0s vs instant baseline;
+parameterized build: all four attack variants neutralized, legit search intact.
+INFERRED (not claimed): nothing about production data, other endpoints, or exploitability beyond the lab.
+
+STEP 2 — root-cause paragraph (one paragraph, no exploitation detail):
+'The search endpoint built its SQL by concatenating the q parameter into the query string, so
+attacker-controlled text became query syntax. The code/data boundary was violated at the point
+of string construction (line 41 of the demo): the database could not distinguish the developer's
+query from the attacker's input because they arrived as one string.'
+
+STEP 3 — mechanism section: the chain a stranger could re-derive — 500 as the injectability signal,
+ORDER BY as the column-count oracle, UNION as the cross-table read, timing as the blind channel,
+each step's observation stated before its interpretation.
+
+STEP 4 — honest impact: 'In the lab, the users table (3 rows, synthetic) was readable via the search
+endpoint by an unauthenticated request. Not claimed: access to other tables beyond what the UNION
+demonstrated, any production system, or persistence of access.'
+
+STEP 5 — fix and verification: parameterized queries (placeholder binding, never string building);
+retest: all four variants return empty/legit results, no errors, no timing delta; escaping explicitly
+rejected as weaker (encoding edge cases). Fix verified, not asserted.
+
+STEP 6 — one-page bounty format: title 'SQL injection in /search via q parameter (UNION-based, unauthenticated)';
+severity with reasoning; three exact curl repro steps (verbatim from the b-sqli log); observed vs expected;
+suggested fix. One page, triager-readable.
+
+STEP 7 — self-review checklist:
+root cause first? YES (step 2 precedes all exploitation detail). mechanism re-derivable? YES.
+every claim checkable? YES (each maps to a b-sqli log line). impact honest? YES (lab-only, bounded).
+dead ends noted? YES (first UNION column-count mismatch, corrected in the b-sqli log).
+fix verified? YES (four retest cases). disclosure timeline respected? YES — lab finding, no vendor, no clock.
+
+RESULT: all 7 steps ran (authored). Publication of the reader's own write-up is reader-side.

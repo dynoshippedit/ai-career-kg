@@ -1,0 +1,13 @@
+# c-incident-response walkthrough log (no CLI by design — brief section 6)
+# date: 2026-10-09 (UTC) · method: worked case authoring + self-review
+# scenario: FICTIONAL WS-4417 intrusion (labeled in-lesson), built from the
+#   c-log-sources walkthrough evidence pack — no real systems involved
+# spine: NIST SP 800-61 Rev. 3 (final April 2025, CSF 2.0 Community Profile),
+#   fetched in-session 2026-10-09 from csrc.nist.gov
+# self-review checklist:
+#   [x] every timeline row sourced to an event
+#   [x] scope stated before containment actions
+#   [x] evidence preservation ordered before destructive steps
+#   [x] limitations section honest (no proxy, no EDR, post-1102 gap)
+#   [x] every recommendation traces to a specific timeline failure
+#   [x] no prices, no hype, no claim beyond the evidence

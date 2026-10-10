@@ -1,0 +1,39 @@
+e-threat-modeling-concepts walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the methodology-selection record authored and self-reviewed
+in-session against four fetched methodology sources.
+
+Sources fetched 2026-10-10 (all verified before writing):
+  - Microsoft Threat Modeling docs / STRIDE (learn.microsoft.com, 50,208
+    bytes): six categories confirmed (spoofing/tampering/repudiation text
+    read; I/D/E per the standard mnemonic), per-component questioning method.
+  - PASTA (versprite.com, 112,520 bytes): seven stages; Stage 1 Define
+    Objectives (business-impact framing first); stages 4-6 Threat Analysis /
+    Vulnerability & Weakness Analysis / Attack Modeling (threat-intel
+    correlation + attack-path simulation); Stage 7.
+  - OCTAVE: SEI library page 404'd (logged as unverified lead, not cited);
+    recovered via SEI "Introduction to the OCTAVE Approach" (Aug 2003,
+    sei.cmu.edu PDF, 448,179 bytes): three phases — asset-based threat
+    profiles; infrastructure vulnerabilities; security strategy and plans.
+  - Attack trees: Schneier "Attack Trees" (Dec 1999, schneier.com, 64,074
+    bytes): goal-oriented AND/OR decomposition.
+  - OWASP Threat Modeling Cheat Sheet (88,587 bytes): PASTA + OCTAVE
+    expansions confirmed ("Process for Attack Simulation and Threat
+    Analysis"; "Operationally Critical Threat, Asset, and Vulnerability
+    Evaluation").
+
+Scope: fictional Harbor Clinic; four situations -> STRIDE (portal in dev),
+OCTAVE (standing up the practice), attack trees (EHR crown jewel), PASTA risk
+framing (prioritizing combined output). Each row: rationale, staffing,
+consumer, cadence. Differentiated from e-sdlc (hands-on STRIDE) and
+ai-threat-modeling (AI variant) in §1/§2/§10.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,492)
+  [x] no methodology claims beyond what the fetched sources support
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 3 free resources, all fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-sdlc, ai-threat-modeling, e-risk-assessment)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

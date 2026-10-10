@@ -1,0 +1,98 @@
+b-toolbench walkthrough — ran on this machine
+Date: 2026-10-09 · Environment: loopback only, fictional Harborlight Books scope
+Tool versions: curl 8.5.0, jq 1.7, ripgrep 14.1.0, ss (iproute2 6.1.0),
+  git 2.43.0, python3 3.12.3
+
+Phase 1 (scope and records): engagement notes written (scope in/out, accounts
+  owned, log entries); committed to a local git repo as the records trail.
+  $ git log --oneline -> d1b8fee engagement notes: scope + accounts — RAN.
+
+Phase 2/14 (proxy + reproduction, via curl): header read against local demo
+  server on 127.0.0.1:8471:
+  HTTP/1.0 200 OK / Server: SimpleHTTP/0.6 Python/3.12.3 / Content-type:
+  application/json / Content-Length: 48 — RAN.
+
+Phase 8 (data handling, via jq): curl body piped to jq '{user, points}' ->
+  {"user": "tester01", "points": 1250} — RAN.
+
+Phase 8 (data handling, via ripgrep): rg -c " 200" over a labeled fake access
+  log -> 2; rg "account_id=1043" surfaced the cross-account line — RAN.
+
+Phase 5/7 sanity (via ss): ss -tlnp showed 127.0.0.1:8471 LISTEN (python3,
+  pid 8615) — confirms the target you think you're testing is the one
+  listening, bound to loopback — RAN.
+
+Phase 10 (tokens/data, via python urllib): percent-decoded
+  'account_id%3D1043%26tier%3Dgold' -> 'account_id=1043&tier=gold' — RAN.
+
+NOT RUN BY US on this machine (no binary / needs reader's own lab):
+  - nmap (phase 5 detail): not installed. Reader procedure: nmap -sV against
+    a local lab host they own; read service/version lines as candidates.
+  - ffuf (phase 7): not installed. Reader: ffuf -u http://127.0.0.1:4280/FUZZ
+    -w SecLists wordlist against local DVWA, at a rate the scope allows.
+  - subfinder/dnsx/httpx/amass (phase 5): not installed. Reader: run against
+    in-scope domains only; every discovered name is a candidate (hard rule 1).
+  - katana/gau/waybackurls (phase 6): not installed. Reader: crawl the local
+    lab; recheck each path against scope before touching.
+  - Burp Community/Caido/mitmproxy (phase 2): reader installs the proxy and
+    points the browser at it for the local labs.
+  - Autorize/AuthMatrix (phase 4): Burp extensions; reader runs the two-account
+    comparison by hand first (b-idor walkthrough), then automates.
+  - JWT Editor/jwt_tool/CyberChef (phase 10): reader decodes lab tokens only;
+    a bearer token is not a JWT until the format is identified (hard rule 3).
+  - Semgrep/CodeQL (phase 11): reader runs against lab source they own.
+  - Trivy/Gitleaks (phase 12): reader runs with verification disabled
+    (hard rule 5); never uses a found secret (hard rule 4).
+  - Docker (phase 13): not installed here. Reader follows b-practice-targets.
+  - Playwright (phase 14): reader replays findings per the project's tests.
+  - Flameshot/Dradis (phase 15): reader captures request/response evidence.
+
+Cleanup: the demo http.server (port 8471) was killed; pgrep confirms no
+  match and the port is closed. Correction logged, not smoothed: the first
+  kill used `pkill -f "http.server 8471"`, whose pattern matched the killing
+  shell's own command line and SIGTERM'd the exec session itself; the server
+  was verified gone afterward with a non-self-matching pgrep pattern.
+
+--- RE-RUN 2026-10-10: nmap, Semgrep, Playwright now installed on this machine ---
+Install notes (2026-10-10, Ubuntu noble container, root):
+- apt-get update hangs on this machine's mirrors (fetches stall; zero-CPU hang),
+  so packages were fetched as .debs via curl from archive.ubuntu.com and
+  installed with dpkg. nmap needed: nmap-common, liblinear4, liblua5.4-0,
+  libpcap0.8t64, libssh2-1t64, libibverbs1, libnl-route-3-200, libnl-3-200.
+- Playwright: pip install playwright (PEP 668: --break-system-packages);
+  `playwright install chromium` reused the cached chromium-1243 build.
+- Semgrep: system pip refused (typing_extensions RECORD conflict with the
+  Debian-shipped copy); installed cleanly in a venv
+  (.gap-sprint/semvenv). The earlier "dead shim" report is superseded —
+  the engine runs.
+
+nmap — RAN 2026-10-10 (loopback only):
+$ nmap --version | head -1
+Nmap version 7.94SVN ( https://nmap.org )
+$ nmap -sT -p 18499 127.0.0.1   # local demo http.server on 127.0.0.1:18499
+PORT      STATE SERVICE
+18499/tcp open  unknown
+Nmap done: 1 IP address (1 host up) scanned in 0.03 seconds
+(A full -F sweep of 127.0.0.1 with nothing listening: 100 closed tcp ports,
+conn-refused — the honest baseline before the listener went up.)
+
+Semgrep — RAN 2026-10-10:
+$ .gap-sprint/semvenv/bin/semgrep --version
+1.180.0
+$ .gap-sprint/semvenv/bin/semgrep --config semtest/rule.yaml semtest/vuln.py
+1 Code Finding: semtest/vuln.py — semtest.dangerous-shell-true (Blocking):
+  2: subprocess.call("ls " + user_input, shell=True)
+(local rule: subprocess.call(..., shell=True, ...); engine parsed and matched
+for real — the earlier "engine never runs" finding is closed.)
+
+Playwright — RAN 2026-10-10:
+$ python3 -c "from playwright.sync_api import sync_playwright; ..."
+headless Chromium launches, loads pages, executes JS (1+1 -> 2).
+Browser-execution sub-steps re-ran for real; see runs/b-xss.log,
+runs/b-csrf.log, runs/b-security-headers.log.
+
+Still not installed / not run by us: ffuf, subfinder/dnsx/httpx/amass,
+katana/gau/waybackurls, Burp Community/Caido/mitmproxy, Autorize/AuthMatrix,
+JWT Editor/jwt_tool, Trivy/Gitleaks, Docker (confirmed absent 2026-10-10:
+`command -v docker` empty; daemon install not attempted per scope),
+Flameshot/Dradis. CodeQL: not attempted (needs GitHub-side setup).

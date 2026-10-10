@@ -1,0 +1,42 @@
+e-network-architecture walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the segmentation design review authored and self-reviewed in-session.
+
+Scope: fictional Harborlight Manufacturing (450 employees, 2 plants, corporate HQ;
+  flat network, OT reachable from workstations, vendors on employee VPN).
+Artifacts authored:
+  - Current-state inventory: actors (employees, operators, vendors, remote engineers,
+    R&D/GPU cluster), assets (ERP/payroll, PLCs, file shares, training data + model
+    weights, order data); headline finding: no trust boundary between corporate IT
+    and plant floor.
+  - Zone map: 8 zones (corporate users, data-center services, DMZ, plant OT,
+    R&D/AI training, management, guest Wi-Fi, vendor access) each with a one-line
+    trust statement.
+  - Boundary table (excerpt): corporate->DC, DMZ->interior, corporate->OT
+    (deny-by-default; historian read-only feed out; 2 named engineering
+    workstations in via jump host), AI zone (deny all but ingest/export paths),
+    management zone (admin workstations only, MFA, encrypted).
+  - Zero-trust decisions mapped to SP 800-207 tenets: per-session vendor grants
+    (tenet 3), NAC posture checks (tenet 5), encrypted inter-zone traffic (tenet 2),
+    named trust-algorithm inputs per zone (tenet 4).
+  - NAC placement: 802.1X on wired + corporate Wi-Fi; quarantine for unknowns;
+    MAC-bypass exceptions inventoried and named.
+  - Vendor/remote access: isolated vendor segment, MFA, time-bounded, session
+    recording; VPN concentrator at edge landing in remote-access zone.
+  - Monitoring points: IDS on SPAN at edge, DMZ boundaries, OT boundary,
+    AI-zone boundary — detection goal stated per sensor.
+  - Decision log: every boundary decision with owner/date; phase-2
+    micro-segmentation deferred with owner + revisit date.
+
+Self-review checklist (2026-10-10):
+  [x] every boundary has an enforcement mechanism (no decorative zones)
+  [x] DMZ->interior boundary as strict as internet-facing (no trust inward)
+  [x] management plane isolated in its own zone
+  [x] third-party access never lands in employee zones (per-session, recorded)
+  [x] OT zone has no internet path; AI training zone treated as high-value
+      micro-segmentation target with exfiltration as primary threat
+  [x] tenets cited against verified SP 800-207 text (tenets 1-7, PE/PA/PEP,
+      trust algorithm, deployment models, migration steps 7.3.1-7.3.5)
+  [x] no invented statistics; company labeled fictional throughout
+  [x] differentiated from a-tcpip-ports (decisions, not packet mechanics)
+Nothing unrun: worked-case lessons have no CLI steps to mark.

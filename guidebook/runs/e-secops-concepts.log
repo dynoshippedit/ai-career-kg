@@ -1,0 +1,44 @@
+e-secops-concepts walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the SoD matrix + privilege review + zero-trust gap assessment authored
+and self-reviewed in-session against NIST SP 800-207 (tenets: no implicit trust by
+network location/ownership; per-session access; dynamic policy; monitor everything)
+and the CISA Zero Trust Maturity Model v2.0 pillar structure.
+
+Scope: fictional Halcyon Health (240 staff, regional clinic network). Two scopes:
+billing-system SoD and IT-estate privilege/zero-trust.
+Artifacts authored (all fictional, labeled):
+  - SoD matrix (billing): 6 duties × roles; toxic combinations marked (office
+    manager creates vendors + approves payments; clerks submit + approve under
+    undocumented threshold); separations restored or compensating controls
+    recorded (DBA backup duties → witnessed restores + session recording).
+  - Privilege review: 15 standing domain admins → 4 standing (justified,
+    session-recorded) + 11 just-in-time (per-task request, second-person
+    approval, auto-expiry); help-desk reset path checked against weaker-path rule.
+  - Zero-trust gap assessment: 4 implicit-trust findings mapped to ZTMM pillars
+    (identity: 2 legacy apps off SSO; devices: no posture check pre-VPN;
+    networks: flat clinical net; data: no per-session policy on patient DB);
+    roadmap ordered identity-first, each item with owner + quarter.
+
+Self-review checklist (2026-10-10):
+  [x] principles-as-operations (not vocabulary): each principle tied to a
+      concrete artifact/decision
+  [x] differentiation from e-iam stated in §1 (lifecycle built there;
+      principles underneath here)
+  [x] SP 800-207 Aug 2020 verified from CSRC page; tenets paraphrased from
+      abstract (no implicit trust by location/ownership)
+  [x] ZTMM v2.0: page mentions Version 1.0 and 2.0; cited as "current edition
+      v2.0" per page content
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-207, 800-53 AC-5/AC-6 via pub page) + 2 free
+      resources (CISA ZTMM, NISTIR 7316 — fetched in-session, 44834 chars;
+      described per its actual abstract: assessment of access-control systems)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,447 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/207/final — 49272
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945
+  https://www.cisa.gov/zero-trust-maturity-model — 50030
+  https://csrc.nist.gov/pubs/ir/7316/final — 44834

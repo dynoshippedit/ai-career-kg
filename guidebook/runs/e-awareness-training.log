@@ -1,0 +1,39 @@
+e-awareness-training walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the one-year program plan authored and self-reviewed in-session
+against NIST SP 800-50 Rev. 1 (PDF fetched 2026-10-10, 2,178,096 bytes,
+87 pages; csrc landing confirms: published September 2024, supersedes SP
+800-50 (2003) and SP 800-16 (1998)).
+
+Key verified fact driving the lesson: Rev. 1 deliberately retired the
+awareness/training/education three-tier split — research with federal training
+managers showed the terms meant different things to different people and caused
+confusion; the replacement is CPLP (Cybersecurity and Privacy Learning
+Program), applied generically, goal = learning opportunities at every career
+stage. Verified in the PDF text in-session.
+
+Scope: fictional Copperline Freight (240 staff, 3 sites). Plan: needs
+assessment (3 observed failures: dispatcher credential phishing, finance wire
+fraud pattern, driver personal-device messaging); 5 audience segments with
+behavioral objectives; quarterly topic calendar; monthly phishing simulations
+with ramping difficulty; simulation rules of engagement written before first
+run (learning not punishment, no shaming, no HR pipeline, report-rate as
+headline metric, executives included); metrics split effectiveness (report
+rate, time-to-report, behavior recurrence) vs activity (completion);
+ownership (awareness lead to CISO, CEO sponsor) + quarterly risk-committee
+reporting.
+
+Unverified lead (logged, not cited): SANS Security Awareness Planning Kit page
+(sans.org) fetched 2026-10-10 but JS-rendered with no extractable text
+(109,134 bytes raw, ~0 chars readable) — excluded from §7 per the
+no-verification-URL-no-row rule; CISA awareness materials used instead.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,325)
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 1 free resource, both fetched in-session (CISA
+      Cybersecurity Awareness Month 61,549 bytes)
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-governance, e-policy-docs, c-soc-triage)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

@@ -1,0 +1,95 @@
+=== runs/a-tcpip-ports.log ===
+Walkthrough transcript: a-tcpip-ports (TCP/IP and ports)
+Date: 2026-10-09 (UTC) · Environment: Ubuntu container, loopback only
+Tool versions: Python 3.12.3; ss (iproute2 6.1.0); nc present; no tcpdump on this machine
+Note: this shell runs as root; the privileged-port step is demonstrated by dropping to the 'nobody' user.
+Note: this sandbox blocks UDP loopback, so the UDP datagram step is marked not-run (the TCP form of DNS
+in the a-dns-depth walkthrough is the same idea over a different transport).
+
+--- step 1: a port is a rendezvous point — open a listener ---
+$ ss -tln | grep 18443
+LISTEN 0      0          127.0.0.1:18443      0.0.0.0:*          
+(LISTEN: the kernel holds this port. A SYN arriving here gets a SYN-ACK back —
+ the first two steps of the handshake happen before any application code runs.)
+
+--- step 2: connect — the handshake, observed through socket states ---
+$ python3 -c "import socket,time; s=socket.create_connection(('127.0.0.1',18443)); s.recv(20); time.sleep(6)" &
+$ ss -tn | grep 18443
+ESTAB 0      0          127.0.0.1:37494    127.0.0.1:18443       
+ESTAB 0      0          127.0.0.1:18443    127.0.0.1:37494       
+(two ESTABLISHED rows: the client got an ephemeral port (see step 4), the server side sits on 18443.
+ The SYN / SYN-ACK / ACK exchange completed before create_connection() returned.)
+
+--- step 3: one port, one owner — bind it twice ---
+$ python3 -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',18443))"
+OSError: [Errno 98] Address already in use
+(the kernel refuses a second listener on the same address+port: one owner per port.)
+
+--- step 4: privileged ports — below 1024 needs privilege ---
+$ setpriv --reuid=nobody --regid=nogroup --clear-groups python3 -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',80))"
+PermissionError: [Errno 13] Permission denied
+(PermissionError for an unprivileged user: historically why web servers started as root to bind 80/443;
+ modern practice is capabilities, authbind, or a reverse proxy. Ephemeral port range here:)
+$ cat /proc/sys/net/ipv4/ip_local_port_range
+32768	60999
+(client-side ports in step 2 came from this range — the kernel picks them.)
+
+--- step 5: UDP datagrams — not run by us ---
+NOT RUN BY US on this machine: the sandbox blocks UDP loopback (PermissionError on sendto).
+The concept, to run on your own machine:
+  server: python3 -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.bind(('127.0.0.1',19443)); print(s.recvfrom(1024))"
+  client: python3 -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.sendto(b'ping',('127.0.0.1',19443))"
+No handshake, no connection state — ss shows no ESTABLISHED for UDP. DNS uses this (UDP first, TCP fallback).
+
+--- step 6: closing — FIN, half-close states, then TIME_WAIT ---
+$ python3 -c "import socket; s=socket.create_connection(('127.0.0.1',18443)); s.recv(20); s.close()" & sleep 2; ss -tn | grep 18443
+FIN-WAIT-2 0      0          127.0.0.1:34736    127.0.0.1:18443
+FIN-WAIT-2 0      0          127.0.0.1:37494    127.0.0.1:18443
+CLOSE-WAIT 1      0          127.0.0.1:18443    127.0.0.1:37494
+CLOSE-WAIT 1      0          127.0.0.1:18443    127.0.0.1:34736
+(The client sent FIN ("I'm done sending"); our toy server holds its side open, so the close
+ stalls half-done: FIN-WAIT-2 on the client, CLOSE-WAIT on the server. A close is a
+ negotiation — both sides must FIN before the connection is truly gone.)
+$ (server that closes immediately + client that closes at once) ; ss -tna | grep 18445
+TIME-WAIT 0      0          127.0.0.1:57402    127.0.0.1:18445
+(When both sides FIN, the side that closed first parks in TIME_WAIT — here the client's
+ ephemeral port 57402 — so late duplicate packets cannot corrupt the *next* connection
+ that reuses the port. tcp_fin_timeout on this machine: 60s. This lingering state is one
+ reason a restarted server briefly reports "address already in use" without SO_REUSEADDR.)
+
+--- step 7: the port registry — what the numbers mean ---
+$ grep -E '^(http|https|domain|ssh)[[:space:]]' /etc/services
+ssh		22/tcp				# SSH Remote Login Protocol
+domain		53/tcp				# Domain Name Server
+domain		53/udp
+http		80/tcp		www		# WorldWideWeb HTTP
+https		443/tcp				# http protocol over TLS/SSL
+https		443/udp				# HTTP/3
+(well-known assignments are convention, not enforcement — anything may listen on any unprivileged port.)
+
+--- step 8: packet capture — not run by us ---
+NOT RUN BY US: no tcpdump/Wireshark on this machine.
+On your own machine: sudo tcpdump -i lo -n 'tcp port 18443' while repeating step 2 —
+read the SYN (flags S), SYN-ACK (flags SA), ACK, data, then FIN exchanges, and match each to the states above.
+
+--- RE-RUN 2026-10-10: step 8 packet capture — RAN ---
+tool: tcpdump version 4.99.4 (installed 2026-10-10 via .deb + dpkg; apt-get
+update hangs on this machine's mirrors). Note: this container has no
+'tcpdump' user, so capture needs `-Z root` (tcpdump drops privileges to a
+'tcpdump' user by default and errors out otherwise).
+$ tcpdump -Z root -i lo -n 'tcp port 18445'   # during a loopback connect+send
+01:53:32.734298 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [S], seq 961942974, win 65495, options [mss 65495,sackOK,TS val 1552000899 ecr 0,nop,wscale 10], length 0
+01:53:32.734315 IP 127.0.0.1.18445 > 127.0.0.1.39866: Flags [S.], seq 2592427003, ack 961942975, win 65483, options [mss 65495,sackOK,TS val 3642652466 ecr 1552000899,nop,wscale 10], length 0
+01:53:32.734332 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [.], ack 1, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.734392 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [P.], seq 1:3, ack 1, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.734398 IP 127.0.0.1.18445 > 127.0.0.1.39866: Flags [.], ack 3, win 64, options [nop,nop,TS val 3642652466 ecr 1552000899], length 0
+01:53:32.734522 IP 127.0.0.1.18445 > 127.0.0.1.39866: Flags [P.], seq 1:3, ack 3, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.734529 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [.], ack 3, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.734584 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [F.], seq 3, ack 3, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.735134 IP 127.0.0.1.18445 > 127.0.0.1.39866: Flags [F.], seq 3, ack 4, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+01:53:32.735158 IP 127.0.0.1.39866 > 127.0.0.1.18445: Flags [.], ack 4, win 64, options [nop,nop,TS val 1552000899 ecr 3642652466], length 0
+10 packets captured
+Read: [S] SYN, [S.] SYN-ACK, [.] ACK (handshake complete), [P.] data each way,
+[F.] FIN each way with final ACKs. The three-way handshake and teardown from
+the lesson's state diagram, observed on the wire for real.
+Step 5 (UDP) remains not run by us — this sandbox still blocks UDP loopback.

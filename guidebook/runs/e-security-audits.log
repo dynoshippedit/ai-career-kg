@@ -1,0 +1,42 @@
+e-security-audits walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the audit plan + completed finding authored and self-reviewed
+in-session.
+
+Scope: fictional Alderpoint Mutual (continued): change-management control
+  family, customer portal + policy admin system, 2026-Q3, criteria = change
+  policy v2.1.
+Artifacts authored:
+  - Objectives written as verdicts to render (not topics to explore).
+  - Procedures: 100% inspection of 14 emergency changes; random sample of 25
+    routine changes from 312 (reperformance on 5); inquiry + observation (CAB
+    meeting, release-manager interview); completeness check (deployment log vs
+    ticket system).
+  - Evidence requests issued in advance (tickets, CAB minutes, emergency log,
+    deployment logs, policy v2.1, approver roster).
+  - Sampling: judgmental 100% for emergency (risk-based) + random for routine;
+    failure rule stated.
+  - One completed five-part finding: criteria (§4.2 — PIR within 5 business
+    days) / condition (6 of 14 missing, 3 late 15+d — evidenced 2026-10-08) /
+    cause (no review-scheduling step; ticket closes at implementation) /
+    effect (highest-risk change class, weakest oversight) / recommendation
+    (system-enforced review task, owner + 2026-11-30; retroactive review of 6,
+    owner + 2026-10-31). Management response: accepted.
+  - Facilitation notes: evidence 2 days early; control owner present; dispute
+    ("reviews happened verbally") resolved by criteria (policy requires records).
+
+Self-review checklist (2026-10-10):
+  [x] independence defined structurally (not "try harder to be objective")
+  [x] criteria named and versioned before findings
+  [x] all four evidence types used (inquiry, observation, inspection,
+      reperformance), expensive ones aimed at risk
+  [x] sampling states population, method, size rationale, failure rule
+  [x] finding's five parts separate and each evidenced; cause names the control
+      gap, not a person
+  [x] auditor does not implement (independence preserved in recommendation)
+  [x] facilitation half covered: advance requests, right people, no coaching,
+      disputes resolved by criteria and documented
+  [x] ITAF 5th edition structure verified via isaca.org (engagement structure,
+      AI guidance integration noted)
+  [x] no invented statistics beyond the labeled fictional case data
+Nothing unrun: worked-case lessons have no CLI steps to mark.

@@ -1,0 +1,41 @@
+e-test-analysis-reporting walkthrough log — 2026-10-10
+Local demo RUN in-session (Python 3.12.3, no network, deterministic).
+Script: /tmp/triage_demo.py (fictional findings list, authored for the lesson).
+
+--- transcript 2026-10-10T03:08:07Z ---
+Python 3.12.3
+Findings triage — fictional data, deterministic scorer
+============================================================
+
+Prioritized remediation order:
+  1. [F-001] score= 45 TLS certificate expired on customer portal
+      asset: customer portal (internet-facing, PII) | Confirmed by manual check: cert expired 6 days ago.
+  2. [F-008] score= 30 Telnet enabled on core switch SW-CORE-01
+      asset: core switch (management zone) | Cleartext admin protocol on the highest-value network device.
+  3. [F-002] score= 18 SMBv1 enabled on file server FS-02
+      asset: file server (internal) | Service confirmed listening; no business need identified.
+  4. [F-005] score= 15 Missing security header: Content-Security-Policy
+      asset: customer portal (internet-facing, PII) | Defense-in-depth gap; XSS impact amplifier.
+  5. [F-006] score=  8 Open RDP (3389) on jump host JH-01
+      asset: jump host (vendor segment) | Intended for vendor use but reachable from the segment broadly; should be allow-listed.
+  6. [F-004] score=  4 Default credentials on printer PR-07 web interface
+      asset: printer (internal, user VLAN) | Low asset value, easy pivot point.
+
+Held out of scoring (triage dispositions):
+  [F-003] FALSE-POSITIVE CANDIDATE — verify by hand before scoring (banner vs backport)
+      Vendor backported the fix; banner unchanged. FP candidate pending verification.
+  [F-007] DUPLICATE of F-001 — merge, count once
+      Same expired cert, second scanner. Deduplicate, do not double-count.
+
+Total findings: 8 | scored: 6 | held: 2
+
+Self-review checklist (2026-10-10):
+  [x] all findings fictional and labeled (Alderpoint Mutual case)
+  [x] duplicate held out (F-007) rather than double-counted
+  [x] FP candidate held out of scoring pending manual verification (F-003) — never auto-closed
+  [x] ranking reflects asset criticality x exposure x severity, not scanner severity alone
+        (F-008 telnet on core switch outranks F-002 SMBv1 despite equal scanner severity)
+  [x] every scored finding has asset context and a verification note
+  [x] deterministic: re-running produces identical output (no randomness, no network)
+  [x] the lesson's §4 step 1 reproduces this run exactly (script + fictional list)
+Nothing unrun: the demo above is the executable step; the report excerpt in §4 is a written artifact.

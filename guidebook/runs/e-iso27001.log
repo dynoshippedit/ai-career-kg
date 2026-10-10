@@ -1,0 +1,19 @@
+# Run log: e-iso27001 walkthrough (worked case)
+
+- **Date:** 2026-10-10
+- **Environment:** none required — worked-case lesson, no command line. The "run" is the theme-level readiness checklist + Statement of Applicability sketch for the fictional Meridian Analytics, authored and reviewed in-session against the lesson's self-review checklist (§4 step 5). The standard's text was NOT consulted (paid document, per the brief); all structure comes from ISO's free pages fetched in-session: the ISO/IEC 27001:2022 standard page (Edition 3, published 2022-10, confirmed current) and the ISO Help Centre ISMS overview (93 Annex A controls, four themes, voluntary certification — all confirmed 2026-10-10).
+- **Result:** worked case complete as written in the lesson (§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-10)
+
+1. One-line paid-document notice is present and exactly one line; no prices, fees, or cost figures appear anywhere in the lesson (verified by scan: zero currency symbols).
+2. Annex A described only at theme level (organizational / people / physical / technological) with generic control-area names taken from ISO's own free page ("organizational policies, physical security, technological safeguards, incident management, access control, cryptography"). No control text reproduced.
+3. Every SoA row has a risk behind it or a written exclusion: the remote-working exclusion names the missing risk condition + CTO acceptance with date; the physical "partial" is argued from where the information actually lives (cloud-hosted), not asserted.
+4. The physical theme's lightness is proportional and defended — the lesson's check-yourself Q2 tests exactly this reasoning.
+5. Certification described honestly: voluntary, via certification bodies commonly accredited by national accreditation bodies; attests to the management system, not a breach guarantee. Full reference "ISO/IEC 27001:2022" used throughout, per ISO's own naming guidance.
+6. 27001-vs-27002 distinction stated once, correctly (requirements vs guidance).
+7. Fictional organization ("Meridian Analytics") — no real company assessed. Reader extends the SoA to five more rows in "On your own."
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader frames scope, assesses the four themes, drafts SoA rows with risk-tied justifications, and maps rows to CSF outcomes for "On your own" (§5). The artifacts are their checklist + SoA sketch, not a terminal transcript.

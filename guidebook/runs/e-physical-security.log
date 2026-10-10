@@ -1,0 +1,44 @@
+e-physical-security walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the physical-security operations review + operations calendar
+authored and self-reviewed in-session against the SP 800-53 Rev. 5 Physical and
+Environmental Protection (PE) family control areas.
+
+Scope: fictional Kestrel Components HQ (continued from e-media-protection):
+engineering, prototype lab, server room with design files.
+Artifacts authored (all fictional, labeled):
+  - 5 review areas with findings → decisions: guards (post orders, randomized
+    patrols, quarterly tailgating test); badges (same-day leaver deactivation
+    tied to HR checklist, quarterly zone review, visitor escort rules);
+    mantrap/doors (duress + power-failure + piggybacking procedure; prop alarm
+    to guard's radio); CCTV (rationalized placement with overlap, 90-day
+    retention on access-controlled storage, weekly sample review);
+    environmental (generator load test quarterly, water sensor → monitored SOC
+    channel, temperature alerts re-routed, clean-agent verified, drill dated).
+  - Operations calendar: daily/weekly/monthly/quarterly/annual items, every
+    item with an owner.
+
+Self-review checklist (2026-10-10):
+  [x] operations view — differentiation from Domain 3 design stated in §1
+      (design the facility vs operate it day to day)
+  [x] badge lifecycle explicitly tied to e-iam joiner-mover-leaver
+  [x] mantrap fail-open/fail-closed decided per door in advance (life safety +
+      fire marshal in the decision)
+  [x] ASIS noted as paid in one line (brief §7 rule); function taught from
+      free sources
+  [x] FEMA site-security page UNREACHABLE: HTTP 403 via curl and via
+      browser_open (two routes tried) — logged as unverified lead, NOT cited
+      in the lesson; CISA physical-security topic page used instead
+  [x] every scenario element labeled fictional
+  [x] §7: 1 primary (800-53 PE family via pub page) + 1 free resource (CISA
+      physical security topic page, 73189 chars)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,372 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945
+  https://www.cisa.gov/topics/physical-security — 73189
+
+Unverified lead (not cited): https://www.fema.gov/emergency-managers/risk-management/site-and-urban-design-security
+— 403 via curl, 403 via browser_open, 2026-10-10.

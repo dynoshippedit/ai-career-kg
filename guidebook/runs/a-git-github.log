@@ -1,0 +1,96 @@
+=== runs/a-git-github.log ===
+Walkthrough transcript: a-git-github (Git and GitHub)
+Date: 2026-10-09 (UTC) · Environment: Ubuntu container, all repos in /tmp/gitwalk
+Tool versions: git version 2.43.0
+Note: no GitHub authentication on this machine — the 'remote' is a local bare repo.
+GitHub-side steps (fork, pull request) are marked not-run; the reader does them on their own account.
+
+--- step 1: a repository is a directory with a memory ---
+$ mkdir notes && cd notes && git init -b main && git config user.name 'Lab Reader' && git config user.email 'reader@lab.example'
+(initialized empty repo, branch 'main', identity set *locally* — never use --global on a shared machine)
+$ echo '# port scan notes' > README.md && git add README.md && git status --short
+A  README.md
+$ git commit -m 'Add README with scan notes' && git log --oneline
+5ca7088 Add README with scan notes
+
+--- step 2: the staging area — the draft before the snapshot ---
+$ echo 'open: 22, 80, 443' >> README.md && echo 'closed: 21, 23' > closed.txt
+$ git status --short && git diff --stat
+ M README.md
+?? closed.txt
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+$ git add README.md && git status --short   # closed.txt stays unstaged — staging is selective
+M  README.md
+?? closed.txt
+$ git commit -m 'Record open ports' -q && git log --oneline
+dc3b6e5 Record open ports
+5ca7088 Add README with scan notes
+
+--- step 3: branches — parallel timelines, then merge ---
+$ git switch -c add-service-names -q && echo 'open: 22/ssh, 80/http, 443/https' >> README.md && git commit -qam 'Label services' && git log --oneline | head -2
+5e79f5b Label services
+dc3b6e5 Record open ports
+$ git switch -q main && git merge --no-ff add-service-names -m 'Merge service labels' -q && git log --oneline --graph | head -6
+*   4b4281e Merge service labels
+|\  
+| * 5e79f5b Label services
+|/  
+* dc3b6e5 Record open ports
+* 5ca7088 Add README with scan notes
+
+--- step 4: a 'remote' without the internet — bare repo as the server ---
+$ git init --bare -q lab-remote.git && cd notes && git remote add origin /tmp/gitwalk/lab-remote.git
+(origin: a path, not a URL — git does not care)
+$ git push -u origin main 2>&1 | tail -2 && git branch -a
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+  add-service-names
+* main
+  remotes/origin/main
+$ git --git-dir=lab-remote.git symbolic-ref HEAD refs/heads/main   # bare repos default HEAD to master; we pushed main
+$ cd /tmp/gitwalk && git clone -q lab-remote.git notes-clone && cd notes-clone && git log --oneline | head -3 && git status -sb | head -1
+4b4281e Merge service labels
+dc3b6e5 Record open ports
+5e79f5b Label services
+## main...origin/main
+(a fresh clone: full history arrived, and main already tracks origin/main)
+
+--- step 5: look inside — commits are objects, branches are pointers ---
+$ cat .git/HEAD && git rev-parse HEAD
+ref: refs/heads/main
+4b4281e9fe1c99e283d19ff7f24ea4f1be9b6e88
+$ git cat-file -p HEAD | head -6   # the commit object: tree, parent, author, message
+tree 1e473caed8848ef59236590fdb5ffe9b140b2a9f
+parent dc3b6e595c5fc6263b808df2a7b025ab2d09eb2b
+parent 5e79f5bb98ab8ceb8fd930424da1c458db93d567
+author Lab Reader <reader@lab.example> 1791579288 +0000
+committer Lab Reader <reader@lab.example> 1791579288 +0000
+
+$ ls .git/refs/heads/ && cat .git/refs/heads/main   # a branch IS a file holding a hash
+add-service-names
+main
+4b4281e9fe1c99e283d19ff7f24ea4f1be9b6e88
+(merge moved the 'main' pointer forward — that is all a merge is, plus the merge commit object)
+
+--- step 6: undo without panic — the three levels ---
+$ echo 'oops' >> README.md && git diff --stat && git restore README.md && git status --short && echo '(working tree restored)'
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+?? closed.txt
+(working tree restored)
+$ echo 'oops' >> README.md && git add README.md && git status --short && git restore --staged README.md && git status --short && echo '(unstaged, file kept)'
+M  README.md
+?? closed.txt
+ M README.md
+?? closed.txt
+(unstaged, file kept)
+
+--- step 7: GitHub — not run by us ---
+NOT RUN BY US: no GitHub authentication on this machine (gh not logged in, no browser session).
+On your own account, the exact clicks:
+  1. Fork a repo (e.g. OWASP Juice Shop) -> your copy appears under your username.
+  2. Clone YOUR fork, branch, commit, push — same commands as steps 1-4, with origin = your fork's URL.
+  3. 'Compare & pull request' on github.com: write what changed and why — that text is the
+     smallest public artifact of professional communication you will produce.
+  4. Never commit secrets: add them to .gitignore BEFORE the first commit (steps 1-2 are where leaks are born).

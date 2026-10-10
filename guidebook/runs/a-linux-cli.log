@@ -1,0 +1,111 @@
+=== runs/a-linux-cli.log ===
+Walkthrough transcript: a-linux-cli (Linux command line for security work)
+Date: 2026-10-09 (UTC) · Environment: Ubuntu container, scratch dir /tmp/cliwalk
+Tool versions: bash 5.2.21(1)-release; coreutils ls (GNU coreutils) 9.4; OpenSSH OpenSSH_9.6p1
+
+--- step 1: files — everything is a file, and the listing tells you the rules ---
+$ echo 'secret plans' > plans.txt && ls -la
+total 4
+drwxrwx--- 2 root root  60 Oct  9 20:54 .
+drwxrwxrwt 8 root root 180 Oct  9 20:54 ..
+-rw-rw---- 1 root root  13 Oct  9 20:54 plans.txt
+
+$ stat -c '%a %U:%G %n' plans.txt   # octal perms, owner:group
+660 root:root plans.txt
+
+--- step 2: permissions are a bitmask — change them and feel the effect ---
+$ chmod 600 plans.txt && ls -l plans.txt && cat plans.txt
+-rw------- 1 root root 13 Oct  9 20:54 plans.txt
+secret plans
+$ chmod 000 plans.txt; cat plans.txt   # as root this still succeeds — note why
+secret plans
+(running as root: permission checks are bypassed for root — one reason you do security
+ work as a normal user. On your own machine as a normal user, the second cat fails with
+ 'Permission denied'. Restore and verify:)
+$ chmod 644 plans.txt && ls -l plans.txt
+-rw-r--r-- 1 root root 13 Oct  9 20:54 plans.txt
+$ umask
+0007
+(umask 0007 here: new files get 666&~007=660 — group-only, no world access.
+ The typical desktop default 022 gives 644. Either way the umask *subtracts* permission bits:
+ default-deny arithmetic behind every file you create)
+
+--- step 3: users, groups, and the setuid exception ---
+$ id && groups
+uid=0(root) gid=0(root) groups=0(root)
+root
+$ head -3 /etc/passwd   # user database: name, x (shadow), uid, gid, gecos, home, shell
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+$ find /usr/bin -perm -4000 2>/dev/null | head -5   # setuid binaries: run as their OWNER
+/usr/bin/chfn
+/usr/bin/chsh
+/usr/bin/gpasswd
+/usr/bin/mount
+/usr/bin/newgidmap
+(setuid: the permission bit that lets a program run with its owner's privileges —
+ the mechanism behind sudo, and a classic privilege-escalation target when misconfigured)
+
+--- step 4: processes — find them, read them, stop the ones you started ---
+$ sleep 300 & echo started pid 
+started pid 3077
+$ ps -o pid,ppid,user,etime,cmd -p 3077 ; pgrep -a 'sleep 300'
+    PID    PPID USER         ELAPSED CMD
+   3077    3054 root           00:00 sleep 300
+$ kill 3077 ; sleep 0.3; pgrep 'sleep 300' || echo '(gone — SIGTERM, the polite signal; SIGKILL (-9) is the unblockable one)'
+(gone — SIGTERM, the polite signal; SIGKILL (-9) is the unblockable one)
+
+--- step 5: logs — the machine's memory of what happened ---
+$ ls /var/log/ 2>/dev/null | head -8
+README
+btmp
+dpkg.log
+journal
+lastlog
+private
+wtmp
+$ journalctl --no-pager -n 3 2>&1 | head -5
+Oct 09 20:39:40 htch-runtime systemd[1]: hatch-ca-trust.service: Deactivated successfully.
+Oct 09 20:39:40 htch-runtime systemd[1]: Finished hatch-ca-trust.service - Refresh guest CA trust from the Sentinel egress anchor.
+Oct 09 20:39:41 htch-runtime systemd[1]: hatch-ca-trust.service: Consumed 1.182s CPU time.
+$ dmesg 2>&1 | tail -2
+dmesg: read kernel buffer failed: Operation not permitted
+
+--- step 6: pipes — the shell as a data-processing pipeline ---
+$ printf 'web 200\nweb 404\ndb 200\nweb 200\ndb 500\nweb 200\n' > hits.log && cat hits.log
+web 200
+web 404
+db 200
+web 200
+db 500
+web 200
+$ grep '^web' hits.log | cut -d' ' -f2 | sort | uniq -c | sort -rn
+      3 200
+      1 404
+(the incident-response one-liner shape: filter, extract field, count, rank —
+ this exact pipeline, on real logs, is half of SOC triage)
+$ awk -F: '{print $7}' /etc/passwd | sort | uniq -c | sort -rn | head -4   # shells in use
+     19 /usr/sbin/nologin
+      1 /bin/sync
+      1 /bin/false
+      1 /bin/bash
+
+--- step 7: SSH — keys, not passwords ---
+$ ssh-keygen -t ed25519 -f /tmp/cliwalk/labkey -N '' -C 'guidebook-lab' && ls -l labkey*
+-rw------- 1 root root 399 Oct  9 20:54 labkey
+-rw-r----- 1 root root  95 Oct  9 20:54 labkey.pub
+$ cat labkey.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAosyPAELHg1K9pAtr6e1RtYoqPMU1bf7xISgobe9cnT guidebook-lab
+(public key: algorithm, base64 blob, comment — this ONE LINE is what gets appended to
+ ~/.ssh/authorized_keys on the server. The private key never leaves your machine.)
+$ ssh -G localhost 2>/dev/null | grep -iE '^(user|port|identityfile|passwordauth)' | head -5  # effective config
+user root
+port 22
+passwordauthentication yes
+identityfile ~/.ssh/id_rsa
+identityfile ~/.ssh/id_ecdsa
+$ grep -vE '^#|^$' /etc/ssh/sshd_config 2>/dev/null | head -6 || echo '(no sshd_config here — container has no sshd)'
+(no /etc/ssh/sshd_config on this machine — no sshd installed here.
+ On your own server: grep -vE '^#|^$' /etc/ssh/sshd_config — read every uncommented line;
+ the hardening lesson is 'PasswordAuthentication no' + key-only auth, which is why step 7 matters.)

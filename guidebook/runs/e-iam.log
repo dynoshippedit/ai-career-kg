@@ -1,0 +1,28 @@
+e-iam walkthrough log — 2026-10-09
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the lifecycle design + access review authored and self-reviewed in-session.
+
+Scope: fictional Meridian Analytics (180 people, SSO IdP, cloud account, prod DB, CI/CD, VPN).
+Artifacts authored:
+  - Lifecycle design: HR system as authoritative source; joiner (auto SSO/VPN, ticketed rest, 24h SLA);
+    mover checklist (revoke prior-team access); leaver 24h deprovision; 12 role definitions;
+    service-account owner + 90-day rotation rule; break-glass accounts with alert-on-use.
+  - Access review: 180 humans + 34 service accounts reviewed against role definitions.
+    6 findings, each with decision/owner/date:
+    1. orphaned contractor SSO (47d post-departure) -> disable; fix HR feed for contractor end dates
+    2. mover accumulation (support->sales kept prod DB read 8mo) -> revoke; mover checklist fix
+    3. role explosion (3 indistinguishable analyst roles) -> merge; document 1 exception
+    4. 6 ownerless service accounts (2 with >1yr creds) -> disable 4, assign+rotate 2
+    5. 11 standing prod admins (need 4) -> 7 to just-in-time; 4 standing w/ session recording
+    6. 2 SaaS apps on shared passwords not SSO -> migrate or documented risk acceptance
+  - Privileged access dispositioned separately (standing vs just-in-time per identity).
+  - Close-out: quarterly privileged review, semi-annual standard review, dated.
+
+Self-review checklist (2026-10-09):
+  [x] every finding has decision + owner + date (no orphan findings)
+  [x] non-human identities included (34 service accounts, 6 findings touch them)
+  [x] weaker-path principle applied (finding 6: shared-password SaaS)
+  [x] acceptance rule honored (finding 6 alternative is documented acceptance w/ owner+date)
+  [x] no invented statistics; all findings labeled fictional
+  [x] review-theater guard: sampling check recommended in §6
+Nothing unrun: worked-case lessons have no CLI steps to mark.

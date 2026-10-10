@@ -1,0 +1,32 @@
+# c-log-sources walkthrough transcript
+# date: 2026-10-09 (UTC) · tools: Python 3.12.3 (sample generation), awk/grep/sort (coreutils)
+# logs: FICTIONAL samples generated locally — 62 security events, 42 DNS queries, 37 firewall flows
+# generator: inline Python (seed 7); every value invented for teaching
+
+--- STEP 1: event ID census ---
+     41 4624
+     18 4625
+      1 4688
+      1 4104
+      1 1102
+
+--- STEP 2: failed logons by source IP ---
+     18 203.0.113.99
+
+--- STEP 3: spray payoff check ---
+sprayed users: a.smith d.kim j.chen m.okafor r.patel t.nguyen 
+later success from attacker IP: t.nguyen
+
+--- STEP 4: DNS rare-domain burst ---
+     30 WS-4401 intranet.corp.example
+      1 WS-4417 xq1011zv9q.example
+      1 WS-4417 xq1010zv9q.example
+      1 WS-4417 xq1009zv9q.example
+
+--- STEP 5: firewall beacon shape ---
+     12 10.0.4.77 -> 203.0.113.200 bytes=210
+      1 10.0.4.12 -> 93.184.216.34 bytes=2088
+      1 10.0.4.12 -> 93.184.216.34 bytes=2051
+
+--- STEP 6: anti-forensics tell ---
+2026-10-09T03:25:00Z,WS-4417,1102,t.nguyen,-,AuditLogCleared

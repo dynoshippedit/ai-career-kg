@@ -1,0 +1,63 @@
+=== TOOL VERSIONS ===
+OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+2026-10-09
+
+=== STEP 1: hash + avalanche ===
+SHA2-256(stdin)= 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+SHA2-256(stdin)= 04a6f55face2f46be8c23f627d539827615851e10751b63ec59db6d2c706b770
+
+=== STEP 2: symmetric encrypt/decrypt roundtrip ===
+the launch codes are 0000
+--- wrong password:
+bad decrypt
+403743AA6E790000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:../providers/implementations/ciphers/ciphercommon_block.c:124:
+
+=== STEP 3: ECB vs CBC pattern leak ===
+ECB ciphertext blocks:
+/bin/bash: line 15: xxd: command not found
+CBC ciphertext blocks:
+/bin/bash: line 16: xxd: command not found
+
+=== STEP 4: RSA sign/verify ===
+signed
+Verified OK
+40777C621F790000:error:02000068:rsa routines:ossl_rsa_verify:bad signature:../crypto/rsa/rsa_sign.c:430:
+40777C621F790000:error:1C880004:Provider routines:rsa_verify:RSA lib:../providers/implementations/signature/rsa_sig.c:774:
+Verification failure
+
+=== STEP 5: self-signed cert inspection ===
+subject=CN = lab.local
+issuer=CN = lab.local
+notBefore=Oct  9 21:29:33 2026 GMT
+notAfter=Oct 10 21:29:33 2026 GMT
+
+=== STEP 6: TLS handshake against local s_server ===
+subject=CN = lab.local
+issuer=CN = lab.local
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+    Protocol  : TLSv1.3
+    Cipher    : TLS_AES_256_GCM_SHA384
+    Protocol  : TLSv1.3
+
+=== cleanup ===
+6168
+6170
+=== STEP 3 (corrected): ECB vs CBC block comparison (od; xxd absent on this machine) ===
+plaintext: 4 identical 16-byte blocks ('YELLOW SUBMARINE' x4) + PKCS#7 pad block
+ECB ciphertext:
+0000000 b5 1d 4d 3f 89 3b a1 84 c9 04 b9 2c 18 dc ad d3
+*
+0000064 00 65 7e a1 40 65 5a 44 78 27 47 70 5d 42 2f ad
+0000080
+CBC ciphertext:
+0000000 b5 1d 4d 3f 89 3b a1 84 c9 04 b9 2c 18 dc ad d3
+0000016 c7 06 a6 3d 34 0f bf 25 bb 65 d6 32 85 31 23 75
+0000032 65 09 89 5c d3 37 62 7f 60 95 e7 b3 d2 32 f1 2e
+0000048 63 42 bd f1 83 e8 56 6b 92 11 a3 91 31 25 d9 6d
+0000064 a5 b7 fc 7b 23 aa 66 d5 fc d4 50 89 90 76 c3 e1
+0000080
+reading: ECB repeats the same 16-byte block 4x ('*' = repeated line); CBC differs every block.
+
+=== CORRECTIONS LOGGED, NOT SMOOTHED ===
+- xxd missing: used od -A d -t x1 instead; same information.
+- pgrep -f 'openssl s_server' self-match false positive (PIDs 6168/6170 were the pgrep itself); ps confirmed no s_server remains.

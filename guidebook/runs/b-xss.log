@@ -1,0 +1,76 @@
+=== runs/b-xss.log ===
+Walkthrough transcript: b-xss (Cross-site scripting)
+Date: 2026-10-09 · Environment: stock Python 3.12, curl 8.5.0, loopback only
+Python 3.12.3
+curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+
+--- Step 1: start vulnerable demo on 127.0.0.1:18091 ---
+server pid: 4815
+
+--- Step 2: reflected echo ---
+<html><body><h2>Results for: UNIQUE-STRING-42</h2><p id='v'>marker target</p></body></html>
+
+--- Step 3: markup probe (unencoded reflection) ---
+<html><body><h2>Results for: <b>BOLD-PROBE</b></h2><p id='v'>marker target</p></body></html>
+
+--- Step 4: benign execution marker (NOT run by us: browser execution) ---
+onerror='document.getElementById("v").textContent="EXEC-REFLECTED"'
+
+
+--- Step 5: stored note plant + cross-session read ---
+<html><body>saved. <a href=/guestbook>back</a></body></html>
+second fetch, fresh client:
+STORED-PROBE-<b>
+
+--- Step 6: DOM sink in served source ---
+el.innerHTML=decodeURIComponent(location.hash.slice(1))
+
+--- Step 7: fixed build ---
+fixed server pid: 4828
+encoded probe:
+Results for: &lt;b&gt;BOLD-PROBE&lt;/b&gt;</h2><p id='v'>marker target</p></body></html>
+CSP header:
+stored note now inert:
+Welcome to the guestbook.
+DOM sink now safe:
+el.textContent=
+
+--- Step 8: access log (probe noise) ---
+LOG 127.0.0.1 - "GET /search?q=UNIQUE-STRING-42 HTTP/1.1" 200 -
+LOG 127.0.0.1 - "GET /search?q=<b>BOLD-PROBE</b> HTTP/1.1" 200 -
+LOG 127.0.0.1 - "GET /search?q=<img%20src=x%20onerror=%27document.getElementById(%22v%22).textContent=%22EXEC-REFLECTED%22%27> HTTP/1.1" 200 -
+LOG 127.0.0.1 - "POST /guestbook HTTP/1.1" 200 -
+LOG 127.0.0.1 - "GET /guestbook HTTP/1.1" 200 -
+LOG 127.0.0.1 - "GET /dom HTTP/1.1" 200 -
+
+--- Step 9: CSP report endpoint ---
+204
+LOG CSP-REPORT received
+
+--- Step 10: stop ---
+4808
+4809
+
+--- Addendum (transcript accuracy) ---
+* The step-7 CSP grep printed nothing because `curl -I` sends HEAD, which the
+  stdlib demo does not implement (501, no headers). Re-verified with GET:
+  `Content-Security-Policy: default-src 'self'` present on the fixed build.
+* Step-10's pgrep hits (4808/4809, later 4851) were the transcript shell's own
+  command line matching `pgrep -f xss-demo.py`, not demo servers. Definitive
+  check: no python process named xss-demo.py remains; nothing listening on
+  18091/18092.
+
+--- RE-RUN 2026-10-10: browser execution sub-steps — RAN ---
+browser: Playwright headless Chromium (pip install playwright; chromium-1243
+headless shell; JS execution verified: 1+1 -> 2). Demo: fresh xss-demo.py
+(same routes/behavior as the 2026-10-09 transcript), loopback only.
+Step 4 (reflected, vulnerable build): loaded
+  /search?q=<img src=x onerror="document.getElementById('v').textContent='EXEC-REFLECTED'">
+in the real browser; #v text became 'EXEC-REFLECTED'. The handler executed.
+Step 6 (DOM sink, vulnerable build): opened /dom#<img src=x onerror=...EXEC-DOM...>;
+#out text became 'EXEC-DOM'. The innerHTML sink executed the fragment payload.
+Step 7 (fixed build, FIXED=1): same payloads in the browser —
+  reflected #v stayed 'marker target' (output HTML-encoded),
+  DOM #out stayed 'empty' (textContent sink), stored note rendered inert.
+  No execution anywhere on the fixed build.
+The "not run by us: no headless browser" markers for steps 4 and 6 are closed.

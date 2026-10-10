@@ -1,0 +1,35 @@
+# runs/a-windows-concepts.log — walkthrough record
+# Date: 2026-10-09 · Build bench: Linux container, NO Windows machine present.
+#
+# This lesson's hands-on steps were NOT RUN BY US — there is no Windows here,
+# and this log will not invent PowerShell output. What WAS verified in-session:
+#
+# 1. Microsoft "Registry Hives" reference fetched 2026-10-09:
+#    https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives
+#    Confirmed: hive definition (logical group of keys/subkeys/values with supporting
+#    files loaded at boot/logon); per-user profile hives under HKEY_USERS;
+#    supporting files in %SystemRoot%\System32\Config; the hive->file table
+#    (HKLM\SAM -> Sam/Sam.log/Sam.sav; HKLM\Security -> Security/...;
+#    HKLM\Software -> Software/...; HKLM\System -> System/System.alt/...;
+#    HKCU -> Ntuser.dat/Ntuser.dat.log; HKU\.DEFAULT -> Default/...).
+#
+# 2. Microsoft "Get-WinEvent" cmdlet reference fetched 2026-10-09:
+#    https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent
+#    Confirmed: syntax sets (GetLogSet default, ListLog, ListProvider, ProviderName,
+#    Path, FilterHashtable, FilterXml); reads classic logs (System, Application)
+#    plus ETW; default order newest-to-oldest; -FilterHashtable/@{LogName;ID}
+#    server-side filtering; -ListLog * inventory pattern; the doc's own
+#    4624/4625 examples corroborate the logon event IDs used in the lesson
+#    (4624 success / 4625 failure appear in the community example, consistent
+#    with c-log-sources' primary-source ID table).
+#
+# Reader procedures (exact, for the reader's own Windows VM — marked
+# "not run by us" in the lesson at every step):
+#   - Get-WinEvent -ListLog * | Select-Object LogName, RecordCount, IsEnabled
+#   - regedit: HKLM\SYSTEM\CurrentControlSet\Services ; HKLM/HKCU ...\Run
+#   - Get-Service | Where-Object {$_.Status -eq 'Running'}
+#   - Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4625} -MaxEvents 5
+#   - Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
+#
+# Status: documentation-verified only. Hands-on execution is the reader's
+# exercise on their own Windows VM (lesson §4 and §5).

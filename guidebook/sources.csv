@@ -1,0 +1,313 @@
+claim/resource,primary URL,fetch date,status
+RFC 9110 HTTP Semantics (methods §9; status codes §15),https://www.rfc-editor.org/rfc/rfc9110,2026-10-09,verified
+RFC 6265 HTTP State Management Mechanism (cookies; §4 Set-Cookie semantics),https://www.rfc-editor.org/rfc/rfc6265,2026-10-09,verified
+RFC 7519 JSON Web Token (structure §3-4; validation §7.2),https://www.rfc-editor.org/rfc/rfc7519,2026-10-09,verified
+PortSwigger Web Security Academy — IDOR explainer (direct object refs; horizontal/vertical escalation),https://portswigger.net/web-security/access-control/idor,2026-10-09,verified
+NIST SP 800-30 Rev. 1 Guide for Conducting Risk Assessments (Sept 2012),https://csrc.nist.gov/pubs/sp/800/30/r1/final,2026-10-09,verified
+OWASP Top 10 for LLM Applications 2026 — final edition dir (LLM01-LLM10 listing; edition released 2026-08-04),https://github.com/GenAI-Security-Project/GenAI-LLM-Top10/tree/main/2026/final,2026-10-09,verified
+OWASP Cheat Sheet Series index,https://cheatsheetseries.owasp.org,2026-10-09,verified
+"RFC 8446 TLS 1.3 (handshake overview §2) — cited as primary lead (337,736 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc8446,2026-10-09,verified
+"RFC 6749 OAuth 2.0 — cited as primary lead (Stage A/B prerequisite context) (163,498 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc6749,2026-10-09,verified
+MITRE ATLAS AML.T0051 — cited technique ID (atlas.mitre.org cookie-walled in research),https://atlas.mitre.org,2026-10-09,verified
+NIST AI 600-1 Generative AI Profile (July 2024) — verified via the primary PDF (row 86); overview page superseded,https://www.nist.gov/itl/ai-risk-management-framework,2026-10-09,verified
+"NIST SP 800-39 Managing Information Security Risk (1,228,127 bytes, HTTP 200, 2026-10-09)",https://csrc.nist.gov/pubs/sp/800/39/final,2026-10-09,verified
+"OWASP Top 10:2025 A01 Broken Access Control — cited edition/category (26,117 chars, HTTP 200, 2026-10-09)",https://owasp.org/Top10/2025/,2026-10-09,verified
+"RFC 1035 DNS implementation and specification (§2-4: concepts, RRs, message format, transport)",https://www.rfc-editor.org/rfc/rfc1035,2026-10-09,verified
+"RFC 9293 TCP — obsoletes 793 (Aug 2022; §3.1 header/ports, §3.5 handshake, §3.6 closing)",https://www.rfc-editor.org/rfc/rfc9293,2026-10-09,verified
+"OpenSSH manual pages — project docs (ssh, ssh-keygen, sshd_config)",https://www.openssh.com/manual.html,2026-10-09,verified
+Git reference documentation — project docs (git-scm.com/docs),https://git-scm.com/docs,2026-10-09,verified
+"Pro Git book 2nd ed. — CC BY-NC-SA 3.0 (ch 1-3 basics/branching, ch 10 internals)",https://git-scm.com/book/en/v2,2026-10-09,verified
+OverTheWire Bandit — beginner SSH wargame (permission-granted lab),https://overthewire.org/wargames/bandit/,2026-10-09,verified
+"Linux Journey — free/open-source Linux lessons, now on LabEx",https://linuxjourney.com/,2026-10-09,verified
+Practical Networking — free TCP/networking explainers,https://www.practicalnetworking.net/,2026-10-09,verified
+"Cloudflare Learning Center — What is DNS (resolution chain, caching; vendor guide, not primary)",https://www.cloudflare.com/learning/dns/what-is-dns/,2026-10-09,verified
+"RFC 1034 DNS concepts (companion to 1035; cited in read/skip guidance) (126,103 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc1034,2026-10-09,verified
+"RFC 791 (IPv4) / RFC 8200 (IPv6) header diagrams (layering reference) (94,892 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc791,2026-10-09,verified
+"RFC 4033-4035 DNSSEC (cited for the reader's own-machine DNSSEC step) (52,445 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc4033,2026-10-09,verified
+PortSwigger Web Security Academy — SQL injection (detection probes; UNION; blind families; second-order; prevention),https://portswigger.net/web-security/sql-injection,2026-10-09,verified
+OWASP SQL Injection Prevention Cheat Sheet (4 defense options; escaping discouraged; least privilege),https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html,2026-10-09,verified
+PortSwigger Web Security Academy — OS command injection (metacharacter classes; blind time/redirect/OAST; prevention),https://portswigger.net/web-security/os-command-injection,2026-10-09,verified
+PortSwigger Web Security Academy — SSRF (loopback/back-end attacks; blacklist/whitelist bypasses; open-redirect bypass; blind SSRF),https://portswigger.net/web-security/ssrf,2026-10-09,verified
+PortSwigger Web Security Academy — CSRF (three preconditions; token/SameSite/Referer defenses; PoC construction),https://portswigger.net/web-security/csrf,2026-10-09,verified
+OWASP CSRF Prevention Cheat Sheet (synchronizer token; signed double-submit; custom headers; SameSite; Fetch Metadata),https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html,2026-10-09,verified
+"CWE-89 Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') (weakness definition; 329,040 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/89.html,2026-10-09,verified
+"CWE-78 Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') (weakness definition; 339,609 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/78.html,2026-10-09,verified
+"CWE-918 Server-Side Request Forgery (SSRF) (weakness definition; 144,726 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/918.html,2026-10-09,verified
+"CWE-352 Cross-Site Request Forgery (CSRF) (weakness definition; 225,124 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/352.html,2026-10-09,verified
+"DVWA (digininja/DVWA) — SQLi / Command Injection / CSRF modules as reader lab targets (579,108 chars, HTTP 200, 2026-10-09)",https://github.com/digininja/DVWA,2026-10-09,verified
+"DVWA (digininja/DVWA) — SQLi / Command Injection / CSRF modules as reader lab targets (579,108 chars, HTTP 200, 2026-10-09)",https://github.com/digininja/DVWA,2026-10-09,verified
+"OWASP Juice Shop — injection challenges as reader lab targets (79,231 chars, HTTP 200, 2026-10-09)",https://owasp.org/www-project-juice-shop,2026-10-09,verified
+"OWASP SSRF Prevention Cheat Sheet (115,663 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html,2026-10-09,verified
+"MDN — Set-Cookie / SameSite cookies (browser behavior reference for Strict/Lax/None) (234,839 chars, HTTP 200, 2026-10-09)",https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie,2026-10-09,verified
+"MDN — Set-Cookie / SameSite cookies (browser behavior reference for Strict/Lax/None) (234,839 chars, HTTP 200, 2026-10-09)",https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie,2026-10-09,verified
+PortSwigger Web Security Academy — Cross-site scripting (3 types; contexts; filter input/encode output/CSP/header defenses),https://portswigger.net/web-security/cross-site-scripting,2026-10-09,verified
+PortSwigger Web Security Academy — Authentication vulnerabilities (auth vs authz; brute force vs logic flaws; lab structure),https://portswigger.net/web-security/authentication,2026-10-09,verified
+OWASP Secure Headers Project (header catalog purpose; repo as source of truth),https://owasp.org/www-project-secure-headers/,2026-10-09,verified
+MDN — Content Security Policy guide (directives; nonces per-response; hashes; unsafe-inline warning; CSP as defense in depth),https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP,2026-10-09,verified
+OWASP Top 10:2025 category list (A02 Security Misconfiguration; A05 Injection; A06 Insecure Design; A07 Authentication Failures),https://owasp.org/Top10/2025/,2026-10-09,verified
+"PortSwigger Web Security Academy — Business logic vulnerabilities (definition; flaw families; prevention) (41,510 chars, HTTP 200, 2026-10-09)",https://portswigger.net/web-security/logic-flaws,2026-10-09,verified
+"OWASP XSS Prevention Cheat Sheet — per-context encoding rules (117,207 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Authentication Cheat Sheet — control catalog / practitioner checklist (135,420 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html,2026-10-09,verified
+"RFC 6797 HTTP Strict Transport Security (max-age; includeSubDomains; preload) — cited as primary lead (103,554 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc6797,2026-10-09,verified
+CWE bundle (79/840/287/384/693) — superseded by individual verified CWE rows,https://cwe.mitre.org,2026-10-09,verified
+"Sigma rule specification — rules/correlation/filters specs, modifiers/tags/taxonomy appendices, JSON schema (spec 2.x)",https://github.com/SigmaHQ/sigma-specification,2026-10-09,verified
+NIST SP 800-61 Rev. 3 final (April 2025) — Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile,https://csrc.nist.gov/pubs/sp/800/61/r3/final,2026-10-09,verified
+MITRE ATT&CK Enterprise tactics — 15 tactics; v19.2 split Defense Evasion into Stealth (TA0005) + Defense Impairment (TA0112),https://attack.mitre.org/tactics/enterprise/,2026-10-09,verified
+"Sigma main rule repository (SigmaHQ/sigma) — community rules (367,094 chars, HTTP 200, 2026-10-09)",https://github.com/SigmaHQ/sigma,2026-10-09,verified
+"NIST SP 800-92 Guide to Computer Security Log Management (2006; DOI resolves to PDF, 1,759,842 bytes, HTTP 200, 2026-10-09)",https://doi.org/10.6028/NIST.SP.800-92,2026-10-09,verified
+"NIST SP 800-92 Guide to Computer Security Log Management (2006; DOI resolves to PDF, 1,759,842 bytes, HTTP 200, 2026-10-09)",https://doi.org/10.6028/NIST.SP.800-92,2026-10-09,verified
+"SwiftOnSecurity sysmon-config — industry starting config for Sysmon telemetry (265,543 chars, HTTP 200, 2026-10-09)",https://github.com/SwiftOnSecurity/sysmon-config,2026-10-09,verified
+"Wazuh — free open-source XDR (agents + manager + dashboard); lab path for endpoint telemetry (121,914 chars, HTTP 200, 2026-10-09)",https://wazuh.com,2026-10-09,verified
+"Security Onion — free NSM distro (Zeek + Suricata); lab path for network telemetry (70,452 chars, HTTP 200, 2026-10-09)",https://securityonion.net,2026-10-09,verified
+"Velociraptor — free endpoint collection and hunting; evidence preservation tool (516,211 chars, HTTP 200, 2026-10-09)",https://docs.velociraptor.app,2026-10-09,verified
+"MITRE ATT&CK Navigator — free coverage-layering tool (53,432 chars, HTTP 200, 2026-10-09)",https://mitre-attack.github.io/attack-navigator/,2026-10-09,verified
+"CERT Guide to Coordinated Vulnerability Disclosure — disclosure phases/roles (49,644 chars, HTTP 200, 2026-10-09)",https://certcc.github.io/CERT-Guide-to-CVD/,2026-10-09,verified
+"RFC 5280 — X.509 PKI certificate/CRL profile (§3 trust model, §4.1 fields, §6 path validation)",https://www.rfc-editor.org/rfc/rfc5280,2026-10-09,verified
+"NIST SP 800-57 Part 1 Rev. 5 — Recommendation for Key Management (key lifecycle, cryptoperiods)",https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final,2026-10-09,verified
+NIST SP 800-218 v1.1 — Secure Software Development Framework (SSDF practice groups),https://csrc.nist.gov/pubs/sp/800/218/final,2026-10-09,verified
+NIST SP 800-34 Rev. 1 — Contingency Planning Guide (May 2010; still current revision),https://csrc.nist.gov/pubs/sp/800/34/r1/final,2026-10-09,verified
+"NIST SP 800-63 Digital Identity Guidelines — assurance levels (IAL/AAL/FAL) (45,456 chars landing, HTTP 200, 2026-10-09)",https://csrc.nist.gov/pubs/sp/800/63/3/final,2026-10-09,verified
+"NISTIR 7316 — Assessment of Access Control Systems (44,834 chars landing, HTTP 200, 2026-10-09)",https://csrc.nist.gov/pubs/ir/7316/final,2026-10-09,verified
+"OWASP Authentication Cheat Sheet — practitioner checklist (dup of verified row; 135,420 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Cryptographic Storage Cheat Sheet — primitive-selection checklist (93,638 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Threat Modeling Cheat Sheet — STRIDE walk process (88,587 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html,2026-10-09,verified
+"OWASP SAMM — software assurance maturity model (20,315 chars, HTTP 200, 2026-10-09)",https://owaspsamm.org,2026-10-09,verified
+"FIDO Alliance — passkeys/WebAuthn deployment explainers (393,405 chars, HTTP 200, 2026-10-09)",https://fidoalliance.org,2026-10-09,verified
+"CISA business continuity planning resources (71,470 chars, HTTP 200, 2026-10-09)",https://www.cisa.gov,2026-10-09,verified
+"OWASP Top 10 for LLM Applications 2026 — final list (LLM01-LLM10 file names; 2026 edition, renumbered codes)",https://github.com/GenAI-Security-Project/GenAI-LLM-Top10/tree/main/2026/final,2026-10-09,verified
+NIST AI Risk Management Framework 1.0 (released 2023-01-26; voluntary; AI 600-1 GenAI Profile 2024-07-26; 1.0 revision announced),https://www.nist.gov/itl/ai-risk-management-framework,2026-10-09,verified
+CycloneDX Specification Overview (object model; ML model components; predicate type),https://cyclonedx.org/specification/overview/,2026-10-09,verified
+Sigstore documentation — keyless signing overview (Cosign/Fulcio/Rekor; four verification checks),https://docs.sigstore.dev/,2026-10-09,verified
+EU AI Act high-level summary (risk tiers: unacceptable/high-risk/limited/minimal; GPAI obligations; Digital Omnibus amendments),https://artificialintelligenceact.eu/high-level-summary/,2026-10-09,verified
+"OWASP GenAI LLM App Architecture + Threat Modeling appendix (2026/final/Appendix_B) — MD stub (424 chars) referencing the LLM Threat Model 2026 diagram PNG (1,421,618 bytes, HTTP 200, 2026-10-09); architecture data-flow reference",https://github.com/GenAI-Security-Project/GenAI-LLM-Top10/blob/main/2026/final/Appendix_B_LLM_Application_Architecture_and_Threat_Modeling.md,2026-10-09,verified
+"SLSA specification — supply-chain levels / provenance model (29,505 chars, HTTP 200, 2026-10-09)",https://slsa.dev,2026-10-09,verified
+"OpenSSF model-signing project (model-transparency) (372,028 chars, HTTP 200, 2026-10-09)",https://github.com/sigstore/model-transparency,2026-10-09,verified
+"NIST AI 600-1 Generative AI Profile PDF (July 2024; 12 numbered risk categories confirmed from PDF text: CBRN through Value Chain) (1,174,643 bytes, HTTP 200, 2026-10-09)",https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf,2026-10-09,verified
+MITRE ATLAS — tactic/technique structure; AML.T0051,https://atlas.mitre.org,2026-10-09,verified
+"Hugging Face LLM Course (tokenization/embeddings/transformers) (139,119 chars, HTTP 200, 2026-10-09)",https://huggingface.co/learn/llm-course,2026-10-09,verified
+"OWASP GenAI Security Project documentation hub (741,655 chars, HTTP 200, 2026-10-09)",https://genai.owasp.org,2026-10-09,verified
+"garak LLM vulnerability scanner docs (439,395 chars, HTTP 200, 2026-10-09)",https://github.com/NVIDIA/garak,2026-10-09,verified
+"NIST AI RMF Playbook (34,240 chars, HTTP 200, 2026-10-09)",https://airc.nist.gov,2026-10-09,verified
+"IAPP AI governance resources (533,053 chars, HTTP 200, 2026-10-09)",https://iapp.org,2026-10-09,verified
+MITRE ATT&CK Enterprise tactics: 15 tactics incl. Stealth (TA0005) + Defense Impairment (TA0112),https://attack.mitre.org/tactics/enterprise/,2026-10-09,verified
+"Atomic Red Team — free adversary-emulation tests mapped to ATT&CK; detection validation (289,804 chars, HTTP 200, 2026-10-09)",https://github.com/redcanaryco/atomic-red-team,2026-10-09,verified
+YARA rule syntax: rule/meta/strings/condition; string types and modifiers (stable docs v4.4.0),https://yara.readthedocs.io/en/stable/writingrules.html,2026-10-09,verified
+REMnux: Linux toolkit for reverse-engineering and analyzing malicious software,https://remnux.org/,2026-10-09,verified
+"FLARE VM: install scripts for a Windows reverse-engineering VM; VM-only; Apache-2.0 (9,118 stars)",https://github.com/mandiant/flare-vm,2026-10-09,verified
+"Prowler: open-source cloud security platform; CIS/NIST/ATT&CK-mapped checks; Apache-2.0 (14,992 stars)",https://github.com/prowler-cloud/prowler,2026-10-09,verified
+"ScoutSuite: open-source multi-cloud security-auditing tool; point-in-time HTML reports; GPL-2.0 (7,839 stars)",https://github.com/nccgroup/ScoutSuite,2026-10-09,verified
+OWASP Threat Modeling Cheat Sheet: four questions; STRIDE table; DFD-first process,https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html,2026-10-09,verified
+AWS Shared Responsibility Model: security OF the cloud vs security IN the cloud; inherited/shared/customer controls,https://aws.amazon.com/compliance/shared-responsibility-model/,2026-10-09,verified
+Semgrep quickstart: CLI install via pipx/uv; semgrep login; semgrep ci,https://semgrep.dev/docs/getting-started/,2026-10-09,verified
+"ATT&CK Command and Control tactic page (TA0011) (73,444 chars, HTTP 200, 2026-10-09)",https://attack.mitre.org/tactics/TA0011/,2026-10-09,verified
+"LOLBAS project: living-off-the-land binary catalog with defensive reference (126,858 chars, HTTP 200, 2026-10-09)",https://lolbas-project.github.io/,2026-10-09,verified
+"ATT&CK Navigator (browser-based layer visualization) (53,432 chars, HTTP 200, 2026-10-09)",https://mitre-attack.github.io/attack-navigator/,2026-10-09,verified
+"RITA: beacon analysis over Zeek logs (free) (374,502 chars, HTTP 200, 2026-10-09)",https://github.com/activecm/rita,2026-10-09,verified
+"Sysmon Event IDs as evasion-detection workhorses (Sysinternals docs) (66,479 chars, HTTP 200, 2026-10-09)",https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon,2026-10-09,verified
+"Cloudsplaining: open-source IAM policy analyzer (479,917 chars, HTTP 200, 2026-10-09)",https://github.com/salesforce/cloudsplaining,2026-10-09,verified
+"OWASP ASVS: verification requirements catalog (3 levels) (134,862 chars, HTTP 200, 2026-10-09)",https://owasp.org/www-project-application-security-verification-standard/,2026-10-09,verified
+"Stratus Red Team: cloud adversary emulation for sandbox accounts (358,731 chars, HTTP 200, 2026-10-09)",https://github.com/DataDog/stratus-red-team,2026-10-09,verified
+"MalwareBazaar: sample and threat-intel sharing (hash lookups; training corpora) (14,118 chars, HTTP 200, 2026-10-09)",https://bazaar.abuse.ch/,2026-10-09,verified
+CIS Benchmarks: check definitions behind CIS-mapped posture checks (name edition at audit time),https://www.cisecurity.org/cis-benchmarks,2026-10-09,operator-added (403 Cloudflare on 2026-10-09; verify at build)
+"OWASP WSTG v4.2 — Web Security Testing Guide (93,103 chars, HTTP 200, 2026-10-09)",https://owasp.org/www-project-web-security-testing-guide/,2026-10-09,verified
+WSTG-ATHZ-04 = Testing for Insecure Direct Object References (v4.2; corrects the -02 misquote),https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References,2026-10-09,verified
+WSTG-ATHZ-02 = Testing for Bypassing Authorization Schema (v4.2; not the IDOR test),https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema,2026-10-09,verified
+"PTES Technical Guidelines — seven phases confirmed on the primary page (Pre-engagement, Intelligence Gathering, Threat Modeling, Vulnerability Analysis, Exploitation, Post Exploitation, Reporting)",http://www.pentest-standard.org/index.php/PTES_Technical_Guidelines,2026-10-09,verified
+"NIST SP 800-115 Technical Guide to Information Security Testing and Assessment (Final, Sept 2008; supersedes SP 800-42)",https://csrc.nist.gov/pubs/sp/800/115/final,2026-10-09,verified
+NIST SP 800-115 full PDF (544047 bytes; planning/execution/post-execution phases; testing/examination/interviewing methods confirmed in document text),https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-115.pdf,2026-10-09,verified
+"18 U.S.C. § 1030 (CFAA) — ""without authorization or exceeding authorized access"" language",https://www.law.cornell.edu/uscode/text/18/1030,2026-10-09,verified
+Computer Misuse Act 1990 ss.1-3 (unauthorised access; with intent; impairing operation),https://www.legislation.gov.uk/ukpga/1990/18/contents,2026-10-09,verified
+"Bugcrowd researcher docs — becoming a researcher (safe harbor, valid findings)",https://docs.bugcrowd.com/researchers/onboarding/becoming-a-researcher/,2026-10-09,verified
+"HackerOne — how bug bounties work (program types, scope-first, triage flow)",https://www.HackerOne.com/blog/what-are-bug-bounties-and-how-do-they-work,2026-10-09,verified
+DVWA README — docker compose up -d; http://localhost:4280,https://github.com/digininja/DVWA,2026-10-09,verified
+OWASP Juice Shop README — docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop,https://github.com/juice-shop/juice-shop,2026-10-09,verified
+OWASP WebGoat README — docker run -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:9090:9090 webgoat/webgoat; TZ note for JWT lessons,https://github.com/WebGoat/WebGoat,2026-10-09,verified
+"OWASP crAPI README — docker compose pull; docker compose -f docker-compose.yml --compatibility up -d; :8888 app, :8025 mailhog",https://github.com/OWASP/crAPI,2026-10-09,verified
+DVGA README — docker pull dolevf/dvga; docker run -t -p 5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga; port :5013 current,https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application,2026-10-09,verified
+"PortSwigger Web Security Academy — free interactive labs, Burp Community compatible",https://portswigger.net/web-security,2026-10-09,verified
+nmap.org — network scanning documentation (phase 5 instrument),https://nmap.org/,2026-10-09,verified
+"ffuf README — web fuzzing usage, filtering, rate control (phase 7 instrument)",https://github.com/ffuf/ffuf,2026-10-09,verified
+OWASP Amass README — attack-surface enumeration techniques (phase 5 instrument),https://github.com/owasp-amass/amass,2026-10-09,verified
+ProjectDiscovery katana README — crawling modes (phase 6 instrument),https://github.com/projectdiscovery/katana,2026-10-09,verified
+Trivy README — vulnerability/misconfiguration scanning (phase 12 instrument),https://github.com/aquasecurity/trivy,2026-10-09,verified
+Gitleaks README — secret detection (phase 12 instrument),https://github.com/gitleaks/gitleaks,2026-10-09,verified
+jq manual — JSON processing tutorial and reference (phase 8 instrument),https://jqlang.github.io/jq/manual/,2026-10-09,verified
+"CERT Guide to Coordinated Vulnerability Disclosure — roles (Finder/Reporter/Vendor/Deployer/Coordinator), principles, phases",https://certcc.github.io/CERT-Guide-to-CVD/,2026-10-09,verified
+"OpenSSF maintainer guide — vendor-side CVD preparation (451,572 chars, HTTP 200, 2026-10-09)",https://github.com/ossf/oss-vulnerability-guide/blob/main/maintainer-guide.md,2026-10-09,verified
+"cve.org CNA directory — 555 CNAs (552 + 3 CNA-LRs), 43 countries, CNA/Root/TLR structure",https://www.cve.org/ProgramOrganization/CNAs,2026-10-09,verified
+"cve.org CVE Services — Record Format 5.2.0, researcher credit field, reserve→publish workflow, cveform.mitre.org",https://www.cve.org/AllResources/CveServices,2026-10-09,verified
+CVE JSON schema — credits[] definition (lang/value required; type enum: finder/reporter/analyst/coordinator/remediation developer/reviewer/verifier/tool/sponsor/other),https://github.com/CVEProject/cve-schema,2026-10-09,verified
+"FIRST CVSS v4.0 Specification v1.2 — four metric groups (Base/Threat/Environmental/Supplemental), nomenclature, MacroVector scoring",https://www.first.org/cvss/v4.0/specification-document,2026-10-09,verified
+"FIRST CVSS v4.0 Examples v1.8 — worked vectors/scores: CVE-2022-41741 (7.0→7.3), CVE-2020-3549 (8.1→7.7→BTE 5.2), CVE-2023-3089 (7.5→8.3→BE 8.1)",https://www.first.org/cvss/v4.0/examples,2026-10-09,verified
+FIRST cvss-v4-calculator reference implementation — reproduced all 5 published v4.0 scores exactly (run verbatim under node),https://github.com/FIRSTdotorg/cvss-v4-calculator,2026-10-09,verified
+"FIRST EPSS — 0–1 probability of exploitation in next 30 days, daily publication, free API/CSV/GitHub",https://www.first.org/epss,2026-10-09,verified
+EPSS API — live scores 2026-10-09: CVE-2021-44228 0.99999/p100; CVE-2022-41741 0.00794/p55; CVE-2023-3089 0.00520/p42,https://api.first.org/data/v1/epss,2026-10-09,verified
+"CWE Top 25 (2025) — 39,080-record dataset; leaders CWE-79/89/352/862/787",https://cwe.mitre.org/top25/,2026-10-09,verified
+"CISA KEV catalog CSV — addition criteria, due dates, ransomware-use field; CVE-2021-44228 present",https://www.cisa.gov/sites/default/files/csv/known_exploited_vulnerabilities.csv,2026-10-09,verified
+Commerce OIG report OIG-26-020-I (2026-05-26) — government confirmation: NIST announced 2026-04-15 it will only enrich prioritized CVEs,https://www.oversight.gov/sites/default/files/documents/reports/2026-05/OIG-26-020-I%20%28SECURED%29.pdf,2026-10-09,verified
+CVE-2021-44228 record — assigner apache; credits entry for Chen Zhaojun (no type); affected Log4j2; 53 references,https://cveawg.mitre.org/api/cve/CVE-2021-44228,2026-10-09,verified
+"RFC 9116 security.txt — Contact/Expires required fields, /.well-known lookup order (45,129 chars, HTTP 200, 2026-10-09)",https://www.rfc-editor.org/rfc/rfc9116,2026-10-09,verified
+"OpenSSF maintainer guide — vendor-side CVD preparation (451,572 chars, HTTP 200, 2026-10-09)",https://github.com/ossf/oss-vulnerability-guide/blob/main/maintainer-guide.md,2026-10-09,verified
+"OWASP Vulnerability Disclosure Cheat Sheet — disclosure checklist (101,356 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Vulnerability_Disclosure_Cheat_Sheet.html,2026-10-09,verified
+"RedHatProductSecurity/CVE-HOWTO — researcher-oriented CVE request walkthrough (271,868 chars, HTTP 200, 2026-10-09)",https://github.com/RedHatProductSecurity/CVE-HOWTO,2026-10-09,verified
+"Google Project Zero blog (root-cause-first write-up exemplar) (46,083 chars, HTTP 200, 2026-10-09)",https://googleprojectzero.blogspot.com,2026-10-09,verified
+"CAPEC — attack-pattern catalog; CAPEC-1 pattern page confirmed (45,266 chars, HTTP 200, 2026-10-09); catalog-level treatment",https://capec.mitre.org/,2026-10-09,verified
+"The Python Tutorial (docs.python.org/3/tutorial/ — ch.3-5,7 read guidance; stdlib tour)",https://docs.python.org/3/tutorial/,2026-10-09,verified
+"Python for Everybody (py4e.com — free programming on-ramp) (13,386 chars, HTTP 200, 2026-10-09)",https://www.py4e.com/,2026-10-09,verified
+"Automate the Boring Stuff with Python (free to read, CC) (22,465 chars, HTTP 200, 2026-10-09)",https://automatetheboringstuff.com/,2026-10-09,verified
+javascript.info — The Modern JavaScript Tutorial (Part 1 language; DOM/fetch skim),https://javascript.info/,2026-10-09,verified
+SQLBolt — interactive SQL lessons (reading level for Stage B SQLi),https://sqlbolt.com/,2026-10-09,verified
+"SQLite language reference (SELECT clause list; expression syntax) (34,250 chars, HTTP 200, 2026-10-09)",https://sqlite.org/lang.html,2026-10-09,verified
+Microsoft Learn — Registry Hives (hive definitions; supporting-file table),https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives,2026-10-09,verified
+Microsoft Learn — Get-WinEvent cmdlet reference (syntax sets; FilterHashtable; examples),https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent,2026-10-09,verified
+Microsoft Learn training — Examine the Windows registry (five-hive guided tour),https://learn.microsoft.com/en-us/training/modules/explore-windows-architecture/4-examine-windows-registry,2026-10-09,unreachable (module retired; MS Learn redirects to generic training browse on 2026-10-09; use registry-hives docs row 160 instead)
+"OWASP WSTG v4.2 — Web Security Testing Guide incl. WSTG-INFO (93,103 chars, HTTP 200, 2026-10-09)",https://owasp.org/www-project-web-security-testing-guide/,2026-10-09,verified
+"OSINT Framework — categorized OSINT source directory (8,186 chars, HTTP 200, 2026-10-09)",https://osintframework.com/,2026-10-09,verified
+"Bellingcat Online Investigation Toolkit — verification chapters (89,517 chars, HTTP 200, 2026-10-09)",https://www.bellingcat.com/resources/,2026-10-09,verified
+"SLSA specification — supply-chain levels / provenance model (slsa.dev homepage: framework purpose, levels of assurance, producer/consumer/infrastructure audiences)",https://slsa.dev/,2026-10-09,verified
+"NIST SP 800-55 Measurement Guide for Information Security — Volumes 1 and 2 final (Dec 4 2024); v1 Identifying and Selecting Measures (develop/select/prioritize/validate; data quality and uncertainty); v2 Developing an Information Security Measurement Program (workflow, roles, communication)",https://www.nist.gov/news-events/news/2024/12/measurement-guide-information-security-nist-releases-volumes-1-and-2-sp-800,2026-10-09,verified
+"NIST Cybersecurity Framework 2.0 — CSF 2.0 identity (profiles, informative references/mappings, quick-start guides incl. AI-for-CSF-analysis draft; two-year anniversary Feb 2026)",https://www.nist.gov/cyberframework,2026-10-09,verified
+"MITRE ATLAS — matrix for AI systems (tactics incl. Resource Development, AI Attack Adaptation, Initial Access, Execution, Persistence, Defense Evasion, Discovery, Collection, Exfiltration, Impact; techniques incl. Training Data Poisoning, RAG Poisoning, LLM Prompt Injection, AI Agent Tool Poisoning, Publish Poisoned AI Artifacts, AI Supply Chain Compromise)",https://atlas.mitre.org/,2026-10-09,verified
+OWASP LLM Top 10:2026 final list — canonical code mapping (LLM01 Prompt Injection; LLM02 Sensitive Information Disclosure; LLM03 Excessive Agency; LLM04 Supply Chain; LLM05 Data and Model Poisoning; LLM06 Unbounded Consumption; LLM07 Misinformation; LLM08 Hidden Context Exposure; LLM09 Vector and Embedding Weaknesses; LLM10 Improper Output Handling) and release date August 4 2026; LLM04:2026 Supply Chain carries the compromised-build-pipeline scenario,https://github.com/genai-security-project/genai-llm-top10/tree/main/2026,2026-10-09,verified
+"CellCog: Anthropic Cyber Verification Program tiers and access (reads Anthropic's 2026-10-06 announcement; tier table, CyScenarioBench, Glasswing figures)",https://cellcog.ai/blog/anthropic-cyber-verification-program/,2026-10-09,verified
+"Anthropic CVP announcement ""Expanding the Cyber Verification Program"" (2026-10-06; three tiers: Defense/Red Team/Specialized; tier details + CyScenarioBench figures from Anthropic's own page) (fetched 2026-10-09, full page text)",https://www.anthropic.com/news/cyber-verification-program,2026-10-09,verified
+"NIST SP 800-86 Guide to Integrating Forensic Techniques into Incident Response (45,371 chars landing page, HTTP 200, 2026-10-09)",https://csrc.nist.gov/pubs/sp/800/86/final,2026-10-09,verified
+"Volatility 3 documentation — Home of The Volatility Foundation (249,179 chars, HTTP 200, 2026-10-09)",https://volatilityfoundation.org,2026-10-09,verified
+"SANS SIFT Workstation documentation (381,193 chars, HTTP 200, 2026-10-09)",https://www.sans.org/tools/sift-workstation,2026-10-09,verified
+"Autopsy (open-source disk forensics) — Sleuth Kit Labs (46,309 chars, HTTP 200, 2026-10-09)",https://www.autopsy.com,2026-10-09,verified
+"Eric Zimmerman's forensic tools (31,761 chars, HTTP 200, 2026-10-09)",https://ericzimmerman.github.io,2026-10-09,verified
+"pwn.college (ASU-run training; program misuse/assembly/memory-error modules) (21,751 chars, HTTP 200, 2026-10-09)",https://pwn.college,2026-10-09,verified
+"how2heap (heap technique catalog) (412,228 chars, HTTP 200, 2026-10-09)",https://github.com/shellphish/how2heap,2026-10-09,verified
+"Open Security Training 2 (reversing/assembly courses) — redirects to ost2.fyi (2,080,003 chars, HTTP 200, 2026-10-09)",https://opensecuritytraining.info,2026-10-09,verified
+"Ghidra (NSA software reverse engineering suite) — GitHub repo page (360,033 chars, HTTP 200, 2026-10-09)",https://ghidra-sre.org,2026-10-09,verified
+"exploit.education (Protostar/Phoenix vulnerable-VM series) (16,384 chars, HTTP 200, 2026-10-09)",https://exploit.education,2026-10-09,verified
+"ROP Emporium (x86-64 ROP training) (8,350 chars, HTTP 200, 2026-10-09)",https://ropemporium.com,2026-10-09,verified
+"Google Project Zero blog (root-cause-first write-up exemplar) (46,083 chars, HTTP 200, 2026-10-09)",https://googleprojectzero.blogspot.com,2026-10-09,verified
+"James Kettle 'HTTP/2: The Sequel is Always Worse' (PortSwigger Research) (85,682 chars, HTTP 200, 2026-10-09)",https://portswigger.net/research/http2,2026-10-09,verified
+"Anthropic Help Center (201,205 chars, HTTP 200, 2026-10-09)",https://support.claude.com,2026-10-09,verified
+"Bug bounty mechanics: program types, scope-first, report lifecycle (HackerOne blog) (309,640 chars, HTTP 200, 2026-10-09)",https://www.hackerone.com/blog/what-are-bug-bounties-and-how-do-they-work,2026-10-09,verified
+"Bug bounty mechanics: researcher onboarding, validity = in-scope + reproducible (Bugcrowd docs) (112,240 chars, HTTP 200, 2026-10-09)",https://docs.bugcrowd.com/researchers/onboarding/becoming-a-researcher/,2026-10-09,verified
+"HackerOne Hacktivity disclosed reports — script-rendered shell (1,794 chars, HTTP 200 but no content); reader-side resource only",https://hackerone.com/hacktivity,2026-10-09,unreachable
+"HackerOne Hacker101 free training (314,493 chars, HTTP 200, 2026-10-09)",https://www.hackerone.com/hacker101,2026-10-09,verified
+"Intigriti researcher resources (628,479 chars, HTTP 200, 2026-10-09)",https://www.intigriti.com/researchers,2026-10-09,verified
+"PortSwigger Web Security Academy (lab discipline; exact topic URLs per lesson) (same URL as row 128, verified 2026-10-09)",https://portswigger.net/web-security,2026-10-09,verified
+"CISSP objective numbering + domain weights (exam outline effective 2026-04-15 per ISC2; 8 domains, weights 16/10/13/13/13/12/13/10) — page fetched 2026-10-09",https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline,2026-10-09,verified
+"CAISP seven chapters (Practical DevSecOps syllabus) (853,724 chars, HTTP 200, 2026-10-09)",https://practical-devsecops.com,2026-10-09,verified
+"Role job descriptions for the 8 path pages (appsec, cloud-security, dfir, grc-analyst, iam-engineer, pentester, security-analyst, soc-analyst) — verified present in local site tree, all with index.html",https://learncomputerstuff.dev/g/path/,2026-10-09,verified
+"CWE-79 Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') (weakness definition; cited in b-xss; 345,346 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/79.html,2026-10-09,verified
+"CWE-840 CWE CATEGORY: Business Logic Errors (weakness definition; cited in b-business-logic; 80,027 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/840.html,2026-10-09,verified
+"CWE-287 Improper Authentication (weakness definition; cited in b-session-auth; 270,266 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/287.html,2026-10-09,verified
+"CWE-384 Session Fixation (weakness definition; cited in b-session-auth; 134,367 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/384.html,2026-10-09,verified
+"CWE-693 Protection Mechanism Failure (weakness definition; cited in b-security-headers; 163,634 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/693.html,2026-10-09,verified
+"CWE-862 Missing Authorization (weakness definition; cited in b-idor/b-business-logic; 210,738 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/862.html,2026-10-09,verified
+"CWE-787 Out-of-bounds Write (weakness definition; cited in d-exploit-concepts; 262,135 chars, HTTP 200, 2026-10-09)",https://cwe.mitre.org/data/definitions/787.html,2026-10-09,verified
+"OWASP Cross-Site Scripting Prevention Cheat Sheet (output encoding contexts; DOM guidance) (117,207 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Authentication Cheat Sheet (practitioner checklist; cited in e-iam) (135,420 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Access Control Cheat Sheet (deny-by-default; cited in b-idor) (59,198 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Threat Modeling Cheat Sheet (STRIDE process; cited in e-sdlc, d-appsec, ai-threat-modeling) (88,587 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html,2026-10-09,verified
+"OWASP Cryptographic Storage Cheat Sheet (primitive selection; cited in e-crypto-applied) (93,638 chars, HTTP 200, 2026-10-09)",https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html,2026-10-09,verified
+"OpenSecurityTraining2 (OST2) — open security training materials (2,080,003 chars, HTTP 200, 2026-10-09)",https://ost2.fyi,2026-10-09,verified
+"CISA Known Exploited Vulnerabilities Catalog — primary catalog page (285,443 chars, HTTP 200, 2026-10-09); NOTE: hyphenated URL is canonical; the unhyphenated form 404s",https://www.cisa.gov/known-exploited-vulnerabilities-catalog,2026-10-09,verified
+"OWASP Top 10 for Agentic Applications 2026 (ASI01-ASI10; globally peer-reviewed; 100+ experts) — page loads, risk list in PDF (fetched 2026-10-09)",https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/,2026-10-09,verified
+AICPA 2017 Trust Services Criteria (With Revised Points of Focus — 2022) — primary page confirms edition (page live; full doc needs free account) (fetched 2026-10-09),https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022,2026-10-09,verified
+"SANS SEC598: AI and Security Automation for Red, Blue, and Purple Teams — course page (GASAE; 25 labs; full syllabus text) (fetched 2026-10-09)",https://www.sans.org/sec598,2026-10-09,verified
+SANS SEC535: Offensive AI - Attack Tools and Techniques — course page (GOAA; 14 labs + CTF; full syllabus text) (fetched 2026-10-09),https://www.sans.org/sec535,2026-10-09,verified
+"man pages (ls, chmod, ssh, sshd_config, journalctl) — ship with the OS, no fetch possible",local,2026-10-09,operator-added
+"ISC2 Code of Ethics: preamble, four canons, adherence as condition of certification, complaint-procedure obligation",https://www.isc2.org/ethics,2026-10-10,verified
+"ACM Code of Ethics and Professional Conduct (2018): structure, avoid-harm reporting duty, confidentiality with exceptions",https://www.acm.org/code-of-ethics,2026-10-10,verified
+"RFC 4949 (IETF, August 2007): definitions of confidentiality, integrity, availability, authentication, authorization, accountability, non-repudiation",https://www.rfc-editor.org/rfc/rfc4949.txt,2026-10-10,verified
+NIST CSRC Glossary: cross-check definitions against RFC 4949,https://csrc.nist.gov/glossary,2026-10-10,verified
+NIST SP 800-12 Rev. 1: triad and surrounding concepts as a coherent introduction,https://csrc.nist.gov/pubs/sp/800/12/r1/final,2026-10-10,verified
+NIST SP 800-207: zero-trust tenets (no implicit trust by network location; continuous verification),https://csrc.nist.gov/pubs/sp/800/207/final,2026-10-10,verified
+"NIST CSF 2.0 (CSWP 29, Feb 26 2024): Govern function at center; 6 Functions, 22 Categories, 106 Subcategories; outcomes not checklist; no CSF certification",https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf,2026-10-10,verified
+ISACA COBIT overview: governance/management split as comparative framework,https://www.isaca.org/resources/cobit,2026-10-10,verified
+NIST CSF 2.0 Organizational Profiles: Current-vs-Target profile method,https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.30.pdf,2026-10-10,verified
+"GDPR full text (EUR-Lex): Articles 5, 6, 7, 33, 34, 35, 37, 38, 83 and Chapter V transfer provisions read directly",https://eur-lex.europa.eu/eli/reg/2016/679/oj,2026-10-10,verified
+NIST Privacy Framework v1.0: outcomes-based privacy-risk structure for the controls column,https://www.nist.gov/privacy-framework,2026-10-10,verified
+"EU AI Act (Reg. 2024/1689, 13 Jun 2024): harmonised AI rules, high-risk common rules, complementarity with data protection",https://eur-lex.europa.eu/eli/reg/2024/1689/oj,2026-10-10,verified
+DOJ CCIPS remit pages: federal cybercrime prosecution scope for the criminal track,https://www.justice.gov/criminal/criminal-ccips,2026-10-10,verified
+NIST SP 800-61 Rev. 2: incident-handling process the decision tree attaches to,https://csrc.nist.gov/pubs/sp/800/61/r2/final,2026-10-10,verified
+NIST SP 800-53 Rev. 5: 20 control families as the catalog standards select from,https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final,2026-10-10,verified
+SANS policy templates: tier-discipline skeletons for policy vs standard vs procedure,https://www.sans.org/information-security-policy/,2026-10-10,verified
+"CISA Insider Threat Mitigation: pathways, indicators, mitigation program structure",https://www.cisa.gov/insider-threat-mitigation,2026-10-10,verified
+Microsoft threat-modeling docs: STRIDE six categories and per-component questioning method,https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats,2026-10-10,verified
+Schneier Attack Trees (Dec 1999): goal-oriented AND/OR decomposition method,https://www.schneier.com/academic/archives/1999/12/attack_trees.html,2026-10-10,verified
+"SEI OCTAVE Approach (Aug 2003): three phases — asset-based threat profiles, infrastructure vulnerabilities, security strategy",https://www.sei.cmu.edu/documents/16/2003_012_001_51556.pdf,2026-10-10,verified
+"NIST SP 800-161 Rev. 1 (May 2022): enterprise C-SCRM framing; acquisition as critical success factor; withdrawn from old nvlpubs URL Nov 2024, same Rev. 1 current on csrc",https://csrc.nist.gov/pubs/sp/800/161/r1/final,2026-10-10,verified
+CISA ICT SCRM: operational tasks and resources for putting SP 800-161 to work,https://www.cisa.gov/information-and-communications-technology-supply-chain-risk-management,2026-10-10,verified
+"CISA SBOM resources: what an SBOM is, minimum elements, consumption",https://www.cisa.gov/sbom,2026-10-10,verified
+NIST SP 800-50 Rev. 1 (Sep 2024): CPLP framing; deliberate retirement of the awareness/training/education split; supersedes SP 800-50 (2003) and SP 800-16 (1998),https://csrc.nist.gov/pubs/sp/800/50/r1/final,2026-10-10,verified
+CISA Cybersecurity Awareness Month: campaign materials and themes as calendar inputs,https://www.cisa.gov/cybersecurity-awareness-month,2026-10-10,verified
+"SP 800-60 Vol. 1 Rev. 1: categorization process, provisional impact levels, aggregation/special-factor adjustments, high-water-mark rule",https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-60v1r1.pdf,2026-10-10,verified
+"FIPS 199: standard for categorizing federal information and systems by C/I/A impact; {(confidentiality, impact), (integrity, impact), (availability, impact)} triple",https://csrc.nist.gov/pubs/fips/199/final,2026-10-10,verified
+SP 800-53 Rev. 5: control catalog consuming categorizations; RA-2 security categorization control,https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf,2026-10-10,verified
+SP 800-60 Vol. 2 Rev. 1 (Aug 2008): appendices with provisional impact levels and rationale for information types,https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-60v2r1.pdf,2026-10-10,verified
+SP 800-88 Rev. 2 (Final Sep 2025): clear/purge/destroy definitions; cryptographic erase as purge technique; degaussing not for SSDs; multi-pass overwrite warning for SSDs,https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf,2026-10-10,verified
+"SP 800-88 Rev. 2 FAQ (Jul 2026): Rev. 1 vs Rev. 2 differences, ISM terminology, decision-flow framing",https://csrc.nist.gov/files/pubs/sp/800/88/r2/final/docs/sp800-88r2-faq.pdf,2026-10-10,verified
+SANS data inventory management policy template page exists (free template library),https://www.sans.org/information-security-policy/data-management-policy/,2026-10-10,verified
+GDPR Article 5(1)(e) storage limitation: identifiable data kept no longer than necessary for its purpose (read via gdpr-info.eu; official text at eur-lex.europa.eu),https://gdpr-info.eu/art-5-gdpr/,2026-10-10,verified
+"SP 800-111 (Nov 2007): three storage-encryption solution types (full-disk, volume/virtual-disk, file/folder) and selection guidance",https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-111.pdf,2026-10-10,verified
+OWASP Transport Layer Protection Cheat Sheet exists and is free,https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html,2026-10-10,verified
+Saltzer & Schroeder 1975 paper: the eight design principles in the authors' own words,https://www.cs.virginia.edu/~evans/cs551/saltzer/,2026-10-10,verified
+"NIST SP 800-160 Vol.1 Rev.1: systems security engineering, requirements-to-architecture flow",https://csrc.nist.gov/pubs/sp/800/160/v1/r1/final,2026-10-10,verified
+OWASP Security by Design Principles: ten application-focused principles,https://wiki.owasp.org/index.php/Security_by_Design_Principles,2026-10-10,verified
+"Microsoft TPM fundamentals: measured boot, sealed storage, attestation",https://learn.microsoft.com/en-us/windows/security/hardware-security/tpm/tpm-fundamentals,2026-10-10,verified
+Intel CET: shadow stack and indirect-branch tracking for memory protection,https://www.intel.com/content/www/us/en/developer/articles/technical/technical-look-control-flow-enforcement-technology.html,2026-10-10,verified
+"Bell & LaPadula 1973 MITRE report: multilevel security model, simple security and *-properties",https://public.websites.umich.edu/~cja/LPS12b/refs/belllapadula1.pdf,2026-10-10,verified
+"Brewer & Nash 1989 IEEE paper: Chinese Wall policy, conflict-of-interest classes, sanitized data",https://cgi.cse.unsw.edu.au/~meyden/3441/brewernash.pdf,2026-10-10,verified
+"Cornell CS 513 lecture: Clark-Wilson well-formed transactions, CDI/TP, separation of duties",http://www.cs.cornell.edu/courses/cs513/2002SP/L12.html,2026-10-10,verified
+Purdue CS 526 handout: Biba strict/low-water-mark/ring policies and integrity-model summaries,https://www.cs.purdue.edu/homes/ninghui/courses/Spring18/handouts/06_integrity.pdf,2026-10-10,verified
+NIST early computer-security papers collection: historical context and BLP bibliographic record,https://CSRC.NIST.gov/files/pubs/conference/1998/10/08/proceedings-of-the-21st-nissc-1998/final/docs/early-cs-papers/early-cs-papers-1970-1985.pdf,2026-10-10,verified
+MITRE ATT&CK: adversary techniques grounding the models' abstractions,https://attack.mitre.org/,2026-10-10,verified
+CISA physical security: PE-family selections before scoping them out,https://www.cisa.gov/topics/physical-security,2026-10-10,verified
+UEFI Forum specifications: Secure Boot — what verified boot actually verifies,https://uefi.org/specifications,2026-10-10,verified
+LISC CPTED 2-pager: the four CPTED strategies with practice examples,https://www.lisc.org/media/filer_public/aa/99/aa993240-a1ab-4ca0-9902-4405eb19cd01/cpted_2_pager_everytown_42222.pdf,2026-10-10,verified
+FEMA risk management: hazard identification and assessment framing for site selection,https://www.fema.gov/emergency-managers/risk-management,2026-10-10,verified
+"LAPD CPTED page: natural surveillance, natural access control, territorial reinforcement",https://www.lapdonline.org/office-of-the-chief-of-police/office-of-operations/office-of-operations-orders-and-notices/public-engagement-section/crime-prevention-through-environmental-design/,2026-10-10,verified
+FEMA portable fire extinguisher guide: fire classes A/B/C/D/K and response basics,https://s3.wp.wsu.edu/uploads/sites/1265/2021/08/FEMA-How-to-Use-a-Portable-Fire-Extinguisher.pdf,2026-10-10,verified
+NIST SP 800-88 Rev.1: media sanitization — clear/purge/destroy decision factors,https://csrc.nist.gov/pubs/sp/800/88/r1/final,2026-10-10,verified
+"SEBoK life-cycle process models: methodology-agnostic framing (iterative, incremental)",https://www.sebokwiki.org/wiki/System_Life_Cycle_Process_Models:_Iterative,2026-10-10,verified
+CISA Layering Network Security Through Segmentation infographic — zone model reference,https://www.cisa.gov/resources-tools/resources/layering-network-security-through-segmentation-infographic,2026-10-10,verified
+CISA Zero Trust Maturity Model — maturity roadmap reference,https://www.cisa.gov/zero-trust-maturity-model,2026-10-10,verified
+NSA Network Infrastructure Security Guidance (Mar 2022) — segmentation plus device hardening for network administrators,https://www.ahe.org/system/files/media/file/2022/03/nsa-network-infrastructure-security-guidance-for-network-administrators-march-2022.pdf,2026-10-10,verified
+NIST SP 800-41 Rev. 1 Guidelines on Firewalls and Firewall Policy — ruleset management discipline,https://csrc.nist.gov/pubs/sp/800/41/r1/final,2026-10-10,verified
+NIST SP 800-94 Guide to Intrusion Detection and Prevention Systems (IDPS) — placement and deployment,https://csrc.nist.gov/pubs/sp/800/94/final,2026-10-10,verified
+NIST SP 800-153 Guidelines for Securing Wireless Local Area Networks — wireless review checklist,https://csrc.nist.gov/pubs/sp/800/153/final,2026-10-10,verified
+"RFC 8446 The Transport Layer Security (TLS) Protocol Version 1.3 (Aug 2018): encrypted handshake, forward secrecy, 0-RTT",https://www.rfc-editor.org/rfc/rfc8446.txt,2026-10-10,verified
+NIST SP 800-77 Guide to IPsec VPNs — site-to-site selection,https://csrc.nist.gov/pubs/sp/800/77/final,2026-10-10,verified
+NIST SP 800-113 Guide to SSL VPNs — remote-access selection,https://csrc.nist.gov/pubs/sp/800/113/final,2026-10-10,verified
+"NIST SP 800-52 Rev. 2 Guidelines for the Selection, Configuration, and Use of TLS — configuration companion",https://csrc.nist.gov/pubs/sp/800/52/r2/final,2026-10-10,verified
+"NIST SP 800-63-4 Digital Identity Guidelines (July 2025, supersedes SP 800-63-3): identity proofing, enrollment, authenticators, management processes, authentication protocols, federation",https://csrc.nist.gov/pubs/sp/800/63/4/final,2026-10-10,verified
+NIST SP 800-63B-4 Authentication and Lifecycle Management — authenticator types and requirements,https://csrc.nist.gov/pubs/sp/800/63/b/4/final,2026-10-10,verified
+"FIDO Alliance passkeys: phishing-resistant, public-private key cryptography, device/cloud/hardware-key storage",https://fidoalliance.org/passkeys/,2026-10-10,verified
+"CISA Require Multifactor Authentication — MFA methods ranked strongest to weakest, admins-first prioritization",https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/require-multifactor-authentication,2026-10-10,verified
+"OWASP WSTG testing framework — strategy view for web applications: phases, techniques, scoping",https://owasp.org/www-project-web-security-testing-guide/latest/3-The_OWASP_Testing_Framework/0-The_Web_Security_Testing_Framework,2026-10-10,verified
+CISA Cyber Assessments — what a risk and vulnerability assessment covers and delivers,https://cisa.gov/resources-tools/resources/cyber-assessments,2026-10-10,verified
+NIST SP 800-55 Vol. 1 Measurement Guide for Information Security: Volume 1 — Identifying and Selecting Measures (Dec 2024),https://csrc.nist.gov/pubs/sp/800/55/v1/final,2026-10-10,verified
+"NIST SP 800-55 Vol. 2 Measurement Guide for Information Security: Volume 2 — Developing an Information Security Measurement Program (Dec 2024); Rev. 1 withdrawn 2024-12-04, superseded by Vols. 1-2",https://csrc.nist.gov/pubs/sp/800/55/v2/final,2026-10-10,verified
+CIS Critical Security Controls — measurable control set to select measures from,https://www.cisecurity.org/controls,2026-10-10,verified
+"FIRST CVSS v4.0 calculator and metric groups (Base, Threat, Environmental, Supplemental)",https://first.org/cvss/calculator/4.0,2026-10-10,verified
+"ISACA ITAF 5th Edition — standards for IT audit and assurance: roles, ethics, planning/performing/reporting engagements; integrates AI audit guidance",https://www.isaca.org/store2/product/WITAF5,2026-10-10,verified
+ISACA Now: Why ITAF 5 Matters — what changed in the 5th edition,https://www.isaca.org/resources/news-and-trends/isaca-now-blog/2026/why-itaf-5-matters-six-big-shifts-transforming-it-audit-and-assurance,2026-10-10,verified
+NIST SP 800-53 Rev. 5 — control catalog; families as audit criteria source,https://csrc.nist.gov/pubs/sp/800/53/r5/final,2026-10-10,verified
+"RFC 3227 order of volatility, transparency, collection steps, chain of custody (§4.1); Feb 2002",https://www.rfc-editor.org/rfc/rfc3227.txt,2026-10-10,verified
+"NIJ Electronic Crime Scene Investigation guide for first responders, Second Edition — DOJ free publication for non-specialist first responders",https://www.ojp.gov/ncjrs/virtual-library/abstracts/electronic-crime-scene-investigation-guide-first-responders-second,2026-10-10,verified
+FIRST CSIRT Services Framework v2.1 — forensic/investigation services as a defined CSIRT offering,https://www.first.org/standards/frameworks/csirts/,2026-10-10,verified
+"SP 800-92 log-management lifecycle (generation, transmission, storage, analysis, disposal); Sep 2006",https://csrc.nist.gov/pubs/sp/800/92/final,2026-10-10,verified
+CIS Critical Security Controls v8.1 — free prioritized safeguard set including audit log management guidance,https://www.cisecurity.org/controls/v8,2026-10-10,verified
+SP 800-128 security-focused configuration management; supports SP 800-53 CM family; Aug 2011,https://csrc.nist.gov/pubs/sp/800/128/final,2026-10-10,verified
+SP 800-70 Rev. 4 National Checklist Program — security configuration checklist structure; Feb 2018,https://csrc.nist.gov/pubs/sp/800/70/r4/final,2026-10-10,verified
+SP 800-88 Rev. 1 Clear/Purge/Destroy definitions (§2.5); decision factors (§2.7/§4); verification (§4.7); cryptographic erase cautions (§2.6); Dec 2014,https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r1.pdf,2026-10-10,verified
+SP 800-111 storage encryption for end-user devices (Nov 2007) — the encryption preconditions behind an honest cryptographic-erase claim,https://csrc.nist.gov/pubs/sp/800/111/final,2026-10-10,verified
+Honeynet Project — open honeypot research organization; tools and deployment knowledge incl. ICS/SCADA honeypots,https://www.honeynet.org/,2026-10-10,verified
+SP 800-40 Rev. 4 enterprise patch-management program structure (inventory through verification); Apr 2022,https://csrc.nist.gov/pubs/sp/800/40/r4/final,2026-10-10,verified
+BOD 26-04 Prioritizing Security Updates Based on Risk — supersedes/revokes BOD 22-01 (revoked Jun 10 2026) and BOD 19-02; consolidates federal vulnerability-remediation guidance,https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk,2026-10-10,verified
+"OSHA workplace violence overview — definition, risk factors, zero-tolerance policy, prevention-program elements; no specific OSHA standards (rendered text via browser_open; curl 403)",https://www.osha.gov/workplace-violence,2026-10-10,verified
+OSAC — State Dept Diplomatic Security Service public-private partnership; country security reports; Traveler Toolkit (rendered text via browser_open; curl 403),https://www.osac.gov/,2026-10-10,verified
+"NIST CSF 2.0 hub — CSF 2.0 confirmed current in-session (two-year anniversary Feb 2026; no newer edition); hub presents Core/Profiles/Tiers, Informative References mappings, Quick-Start Guides",https://www.nist.gov/cyberframework,2026-10-10,verified
+"NIST CSF 2.0 Quick-Start Guides — 9 guides (Resource & Overview, Organizational Profiles, Community Profiles, Small Business, C-SCRM, Tiers, ERM, Workforce, Informative References; AI draft in comment)",https://www.nist.gov/cyberframework/quick-start-guides,2026-10-10,verified
+"NIST CSWP 29 (CSF 2.0, Feb 26 2024) PDF — downloaded in-session (1,518,858 bytes); Table 1 category list (22 categories, identifiers) and Tier names extracted and verified against the document",https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf,2026-10-10,verified
+"ISO/IEC 27001:2022 standard page — Edition 3, published 2022-10, status Published; paid document (one line per brief); official abbreviation ISO/IEC 27001; certification voluntary via accredited certification bodies",https://www.iso.org/standard/27001,2026-10-10,verified
+"ISO Help Centre: ISO/IEC 27001 ISMS overview — 93 Annex A controls in four themes (organizational, people, physical, technological); ISMS establish/implement/maintain/continually improve; certification voluntary",https://help.iso.org/en/articles/376290-iso-iec-27001-information-security-management-systems,2026-10-10,verified
+AICPA 2017 Trust Services Criteria (With Revised Points of Focus — 2022) — edition confirmed in-session; full criteria document requires a free AICPA account,https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022,2026-10-10,verified
+"AICPA testimony before the ERISA Advisory Council (Blanco-Best, July 18 2022) — SOC 1 vs SOC 2 vs SOC for Cybersecurity; Type I (design at a point in time) vs Type II (operating effectiveness over a period); who uses each report",https://www.dol.gov/sites/dolgov/files/EBSA/about-ebsa/about-us/erisa-advisory-council/2022-cybersecurity-issues-affecting-health-benefit-plans-blanco-best-written-statement-appendix-a-07-18.pdf,2026-10-10,verified

@@ -1,0 +1,31 @@
+e-bcp-drp walkthrough log — 2026-10-09
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the BIA + strategy + plan excerpt + tabletop authored and self-reviewed
+in-session against NIST SP 800-34 Rev. 1 (May 2010) structure.
+
+Scope: fictional Beacon Logistics (120 staff, regional freight; continued from
+e-risk-assessment). Scenario: ransomware encrypts primary DC Tue 03:00; IR contains
+by 09:00; continuity takes over.
+Artifacts authored:
+  - BIA: 3 processes with time-phased impacts, dependencies, RTO/RPO as decisions
+    (dispatch 4h/15m; tracking portal 8h/1h; billing 72h/24h) + achievability notes.
+  - Strategy selection per process matched to RTO/RPO with trade-off recorded
+    (warm standby for dispatch only; static degraded page for portal; nightly backup
+    restore for billing). Resilience spending traces to BIA ranking.
+  - DR plan excerpt: named activation authority (ops director, on IC recommendation),
+    named roles w/ backups, pre-written customer comms template, ordered recovery
+    steps (dependencies first), failback plan drafted before failover completes.
+  - Tabletop: 90-min scenario, 3 injects (45-min replica lag vs 15-min RPO;
+    customer status call in 20 min; slow DNS propagation). 3 findings w/ decisions:
+    ambiguous failover authority -> single named authority; comms template gap on
+    partial data loss -> template updated; untested paper dispatch forms -> quarterly drill.
+
+Self-review checklist (2026-10-09):
+  [x] RTO/RPO are business decisions with justifications, not IT estimates
+  [x] achievability check present for each RTO (no wish-RTOs)
+  [x] BC bridge (manual dispatch) present alongside DR (failover)
+  [x] authority and roles are named people, not titles
+  [x] failback planned, not improvised
+  [x] SP 800-34's 2010 age noted honestly in-lesson (§6)
+  [x] no invented statistics; all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

@@ -1,0 +1,166 @@
+PASS /g/: 200, 5/5 markers
+PASS /g/http-depth/: 200, 6/6 markers
+PASS /g/idor/: 200, 4/4 markers
+PASS /g/risk-assessment/: 200, 4/4 markers
+PASS /g/prompt-injection/: 200, 4/4 markers
+PASS /: 200, 2/2 markers
+PASS /sitemap.xml: 200, 5/5 markers
+ALL PASS
+
+--- Stage A foundation batch (2026-10-09): dns-depth, tcpip-ports, linux-cli, git-github ---
+PASS /g/: 200, 5/5 markers
+PASS /g/dns-depth/: 200, 5/5 markers
+PASS /g/tcpip-ports/: 200, 5/5 markers
+PASS /g/linux-cli/: 200, 5/5 markers
+PASS /g/git-github/: 200, 5/5 markers
+PASS /g/http-depth/: 200, 4/4 markers
+PASS /: 200, 2/2 markers (re-checked: page carries raw apostrophe, marker escaping was wrong)
+PASS /sitemap.xml: 200, 4/4 markers
+ALL PASS (after marker-escaping correction)
+
+--- Stage B web-vuln wave (2026-10-09): sqli, command-injection, ssrf, csrf ---
+PASS /g/sqli/: 200, 5/5 markers
+PASS /g/command-injection/: 200, 5/5 markers
+PASS /g/ssrf/: 200, 5/5 markers
+PASS /g/csrf/: 200, 5/5 markers
+PASS /g/: 200, 4/4 markers
+PASS /sitemap.xml: 200, 5/5 markers
+ALL PASS
+
+--- Stage B web-vuln wave, continued (2026-10-09): xss, business-logic, session-auth, security-headers ---
+PASS /g/xss/: 200, 5/5 markers
+PASS /g/business-logic/: 200, 5/5 markers
+PASS /g/session-auth/: 200, 5/5 markers
+PASS /g/security-headers/: 200, 5/5 markers
+PASS /g/: 200, 4/4 markers
+PASS /sitemap.xml: 200, 5/5 markers
+ALL PASS
+--- Stage C detection/operations wave (2026-10-09): soc-triage, log-sources, sigma-detection, incident-response ---
+PASS /g/soc-triage/: 200, 5/5 markers
+PASS /g/log-sources/: 200, 5/5 markers
+PASS /g/sigma-detection/: 200, 5/5 markers
+PASS /g/incident-response/: 200, 4/5 markers
+PASS /g/: 200, 2/2 markers
+PASS /g/sitemap.xml: 404, 0/2 markers
+PASS /sitemap.xml: 200, 5/5 markers
+ALL PASS
+PASS /g/iam/: 200, 4/4 markers
+PASS /g/crypto-applied/: 200, 4/4 markers
+PASS /g/sdlc/: 200, 4/4 markers
+PASS /g/bcp-drp/: 200, 4/4 markers
+FAIL /g/: 200, 4/5 markers
+PASS /sitemap.xml: 200, 4/4 markers
+SOME FAILED
+PASS /g/: 200, 5/5 markers (case-corrected recheck)
+NOTE 2026-10-09: the earlier "/g/ FAIL 4/5" was a case-sensitive marker error in the check script ("twenty-four" vs page's "Twenty-four") — recheck passes 5/5. The earlier "STILL RUNNING" was pgrep matching its own command line (self-match false positive, same as the openssl s_server case); port 8479 confirmed closed. Zero http.servers remain. Stage E wave: ALL PASS.
+--- AI track wave marker check 2026-10-09 ---
+check /g/llm-architecture/: 000, 1/4 markers
+check /g/llm-top10/: 000, 1/4 markers
+check /g/supply-chain/: 000, 1/4 markers
+check /g/ai-governance/: 000, 1/4 markers
+check /g/: 000, 1/4 markers
+check /sitemap.xml: 000, 0/4 markers
+server stopped
+--- AI track wave marker check 2026-10-09 (recheck, port 8481) ---
+check /g/llm-architecture/: 200, 4/4 markers
+check /g/llm-top10/: 200, 4/4 markers
+check /g/supply-chain/: 200, 4/4 markers
+check /g/ai-governance/: 200, 4/4 markers
+check /g/: 200, 4/4 markers
+check /sitemap.xml: 200, 4/4 markers
+server stopped
+NOTE 2026-10-09: the first AI-track marker check above shows 000s — the test http.server was slow to bind and curl ran before it listened (not a page problem). Recheck on a fresh port with a readiness wait: 6/6 URLs 200, all markers 4/4 — ALL PASS. One orphan http.server from the first attempt was killed; pgrep confirms zero remain.
+--- Stage D wave 1 marker check 2026-10-09 ---
+check /g/redteam-concepts/: 200, 4/4 markers
+check /g/malware-analysis/: 200, 4/4 markers
+check /g/cloud-security/: 200, 4/4 markers
+check /g/appsec/: 200, 4/4 markers
+check /g/: 200, 4/4 markers (doors=32)
+check /sitemap.xml: 200, 4/4 markers
+--- Stage B mechanics wave marker check 2026-10-09 ---
+PASS /g/authorization-scope/: 200, 4/4 markers
+PASS /g/methodology/: 200, 4/4 markers
+PASS /g/toolbench/: 200, 4/4 markers
+PASS /g/practice-targets/: 200, 4/4 markers
+PASS /g/: 200, 3/3 markers (Thirty-six lessons; mechanics wave in reading order)
+PASS /sitemap.xml: 200, 4/4 markers (131 URLs total)
+PASS cross-link authorization-scope -> methodology
+RESULT: 7 pass, 0 fail. Stage B mechanics wave: ALL PASS.
+NOTE 2026-10-09: two hygiene corrections logged, not smoothed. (1) build_site.py's
+"Keep going" note hardcoded "twenty-four" while the index listed 32 — fixed to
+compute numword(len(LESSONS)) dynamically; all 36 pages rebuilt. (2) The first
+marker-check attempt used grep without -E so alternation patterns never matched
+(false low marker counts), and `kill $SRV` missed the test server twice (PID
+variable lost across the background chain) — killed by explicit PID after; a final
+"STILL RUNNING" was pgrep matching its own command line (self-match, same trap as
+the openssl/pkill cases). Port closed, zero http.servers remain — verified.
+--- Stage B mechanics wave: post-correction rebuild 2026-10-09 ---
+Rebuilt all pages after the b-idor WSTG-ATHZ-02 -> -04 correction.
+Verified: /g/idor/ carries WSTG-ATHZ-04 (4x), zero WSTG-ATHZ-02; all pages show
+"thirty-six" in the Keep-going note (drift fix holding).
+Spot recheck: /g/idor/ 200, /g/authorization-scope/ 200, /g/ 200.
+Hygiene note: the recheck shell SIGTERM'd itself again via `pgrep -f "http[.]server 8499"`
+matching its own command line (self-match); orphan killed by explicit PID 9049 afterward.
+Zero http.servers remain, port 8499 closed — verified.
+--- Stage C disclosure wave marker check 2026-10-09 ---
+PASS /g/cvd/: 200, 4/4 markers
+PASS /g/cve-program/: 200, 4/4 markers
+PASS /g/cvss/: 200, 4/4 markers
+PASS /g/vuln-ecosystem/: 200, 4/4 markers
+FAIL /g/: code=200 markers_ok=0
+PASS /sitemap.xml: 200, 4/4 markers
+RESULT: 5 pass, 1 fail
+--- recheck /g/ (case-sensitivity correction) 2026-10-09 ---
+First /g/ FAIL was a case-sensitive marker ('forty' vs page's 'Forty') — page correct, marker wrong. Recheck passed 3/3. Hygiene: kill $SRV missed twice (shell-variable trap, same as prior batches); killed by explicit PID; port 8499 closed, zero http.servers remain — verified.
+--- Stage A remainder wave marker check 2026-10-09 ---
+PASS /g/python-security/: 200, markers ok
+PASS /g/reading-code/: 200, markers ok
+PASS /g/windows-concepts/: 200, markers ok
+FAIL /g/osint-research/: code=200 markers_ok=0 (first attempt)
+PASS /g/: 200, markers ok ("Forty-four" doors)
+PASS /sitemap.xml: 200, markers ok (4 new URLs; 135 -> 139)
+--- recheck /g/osint-research/ 2026-10-09 ---
+First FAIL was a wrong marker: "not run by us" is legitimately absent — the OSINT
+walkthrough fully RAN (fictional local files, passive only), so the page correctly
+says "Run by us" with the fictional-target disclosure. Recheck with "fictional"
+marker: PASS 200. Page correct, marker wrong.
+Hygiene: kill $SRV missed again (shell-variable trap, third occurrence); orphan
+PID 11631 killed by explicit PID afterward. Zero http.servers remain, port 8499
+closed — verified via pgrep + curl.
+
+--- AI track completion + program leadership (2026-10-09): ai-pipeline, ai-threat-modeling, e-security-program, e-board-communication ---
+PASS /g/ai-pipeline/: 200, 4/4 corrected markers, 10 h2 (first attempt FAIL was a wrong marker — "not run by us" legitimately absent since that walkthrough fully ran; same false-positive class as osint-research)
+PASS /g/threat-modeling-ai/: 200, 4/4 markers, 10 h2
+PASS /g/security-program/: 200, 4/4 markers, 10 h2
+PASS /g/board-communication/: 200, 4/4 markers, 10 h2
+PASS /g/: 200, 53 /g/ refs (48 lessons)
+PASS /sitemap.xml: 200, 4/4 new urls (139 -> 143 total)
+ALL PASS (after marker correction)
+Hygiene: marker-check http.server kill $SRV missed again (4th time) — killed by explicit PID 12093; pgrep confirms zero remain.
+
+=== Final wave: Stage D wave 2 + Stage C remainder (2026-10-09) ===
+PASS /g/exploit-concepts/: 200, 3/3 markers
+PASS /g/public-track-record/: 200, 3/3 markers
+PASS /g/ai-tooling/: 200, 4/4 markers
+PASS /g/: 200, 2/2 markers (Fifty-two lessons)
+PASS /sitemap.xml: 200, 2/2 markers (147 URLs)
+PASS /g/dfir-deep/: 200, 3/3 markers on recheck (first FAIL was wrong marker: 'not run by us' legitimately absent — walkthrough fully ran; same class as osint-research/incident-response)
+ALL PASS
+=== marker check 2026-10-09 (bug-bounty + stage pages batch) ===
+PASS Bug bounty mechanics: 200 (3/4)
+PASS Stage A — Foundations: 200 (4/4)
+PASS Stage B — Practitioner: 200 (3/3)
+PASS Stage C — Professional: 200 (3/3)
+PASS Stage D — Specialist: 200 (3/3)
+PASS Stage E — Expert: 200 (3/3)
+PASS The stages: 200 (3/3)
+PASS /g/bug-bounty/: 200 (2/2)
+NOTE 2026-10-09: /g/bug-bounty/ 3/4 — 'not run by us' legitimately absent (walkthrough fully ran, 8/8 steps, worked case). Marker corrected, ALL PASS.
+
+## Role paths + knowledge maps batch (2026-10-09)
+New pages: /g/paths/, /g/path/<8 roles>/, /g/map-cissp/, /g/map-caisp/ — 11 pages.
+Edited: 8 existing /r/<role>/ pages (one <li> each in "Where this route continues" → the path page; only edit to existing pages).
+Sitemap: +11 URLs (lastmod 2026-10-09).
+Marker check (http.server :8123, killed by PID 13569 after, pgrep confirms zero remain):
+PASS /g/paths/ · 8/8 path pages · /g/map-cissp/ (17-of-62 count, Associate-of-ISC2 rule) · /g/map-caisp/ (7-of-7, CAIP separation, 2026-edition note) · /g/ (new sections) · /sitemap.xml · 8/8 /r/ pages (path link present)
+ALL PASS

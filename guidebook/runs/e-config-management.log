@@ -1,0 +1,51 @@
+e-config-management walkthrough log — 2026-10-10
+LOCAL DEMO — ACTUALLY RUN. The walkthrough implements the lesson's core mechanism
+(baseline = recorded hashes; check = compare; drift = decided response) against
+fictional demo files in /tmp/baseline-demo/ — never real system files.
+
+Demo script: /tmp/drift_demo.py (authored 2026-10-10; fictional config files with
+"FICTIONAL demo file" headers: sshd_config, sysctl.conf, sudoers.demo).
+
+TRANSCRIPT (run 2026-10-10, reproduced verbatim):
+$ rm -rf /tmp/baseline-demo
+$ python3 drift_demo.py init
+baseline written: /tmp/baseline-demo/baseline.json
+  sshd_config: 646b8d3116901521...
+  sysctl.conf: 8db00b9b301fdaca...
+  sudoers.demo: 678cd1ed431d3947...
+$ python3 drift_demo.py check   # clean run, expected: no drift
+OK: no drift — all files match the recorded baseline
+exit=0
+$ echo "PermitRootLogin yes  # simulating an unauthorized out-of-band change" >> /tmp/baseline-demo/sshd_config
+$ python3 drift_demo.py check   # drift run, expected: drift detected
+DRIFT DETECTED: sshd_config differs from baseline
+exit=1
+
+Worked case (fictional Beacon Logistics, continued from e-bcp-drp): hardening
+baseline excerpt for the "Linux application server, dispatch role" (6 settings
+with values + source/rationale), one documented exception (EX-2026-014, owner +
+review date + compensating control), and the drift scenario (night-shift
+"temporary" password-SSH change caught by the weekly check; no change record →
+unapproved → revert + route need through change management).
+
+Self-review checklist (2026-10-10):
+  [x] demo genuinely run; transcript above is real output, not invented
+  [x] honest limits stated in-lesson (§4: hash-checking not semantic parsing;
+      no central reporting/scheduling/versioning)
+  [x] no Docker, no network targets, no real system files touched
+  [x] SP 800-128's Aug 2011 age noted honestly (§3, §7); server-centric caveat
+      with cloud/container/network translation
+  [x] CIS Benchmarks cited as free PDF downloads (verified on cisecurity.org
+      page in-session); apply/adapt/exception decision framed as the baseline
+  [x] pair-lesson link to e-change-management present in §§1,3,4,6,10
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-128, 800-70 Rev.4) + 2 free resources (CIS Benchmarks,
+      800-53 CM family via pub page)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,273 words (1,800–2,500); ten ## sections in order
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/128/final — 47677
+  https://csrc.nist.gov/pubs/sp/800/70/r4/final — 47467
+  https://www.cisecurity.org/cis-benchmarks — 1836060
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945

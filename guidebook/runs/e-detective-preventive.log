@@ -1,0 +1,39 @@
+e-detective-preventive walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the control-selection rationale + placement map + tuning procedure
+authored and self-reviewed in-session against NIST SP 800-94 (IDS/IPS types and
+management considerations) and the Honeynet Project's deployment knowledge.
+
+Scope: fictional Meridian Analytics (180 staff, continued from e-iam). SOC model:
+2 analysts + contracted MDR nights/weekends. Crown jewels: customer DB, CI/CD.
+Artifacts authored (all fictional, labeled):
+  - Control selection: 5 risks → type/placement/tuning-owner (IDS passive at
+    ingress + IPS inline at egress; low-interaction honeypot inside each trust
+    zone; DLP detect-then-block at email/web/endpoint; allow-listing on prod
+    servers; IdP anomaly detection).
+  - Placement decisions with reasons: inline-only-at-egress policy set by the
+    recorded incident of the customer-portal false block; honeypot at never-
+    assigned addresses (any touch = suspicious); DLP monitor-only 30 days
+    before blocking.
+  - Tuning procedure: per-control owner + cadence + measured FP rate;
+    quarterly review (fired/real/environmental changes/retirements).
+
+Self-review checklist (2026-10-10):
+  [x] control types taught operationally (prevent/detect/deter/correct/
+      compensating) with the cost-of-being-wrong decision per control
+  [x] SP 800-94's Feb 2007 age noted honestly (§3, §7); pre-XDR/NDR caveat;
+      placement-and-tuning as the enduring lesson
+  [x] honeypot fidelity/containment/monitoring decisions covered; Honeynet
+      Project cited with its ICS/SCADA note
+  [x] DLP staged monitor→block; allow-listing paired with change management
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-94, 800-53 SI-4 via pub page) + 1 free resource
+      (Honeynet Project)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,404 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/94/final — 46662
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945
+  https://www.honeynet.org/ — 17455

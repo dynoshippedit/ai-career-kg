@@ -1,0 +1,81 @@
+# Run transcript: b-idor walkthrough
+
+- **Date:** 2026-10-09
+- **Environment:** clean — stock Python 3.12.3, curl 8.5.0, loopback only (127.0.0.1). No Docker on this machine, so the PortSwigger/DVWA/crAPI targets the reader uses were stood in for by `app.py`, a ~70-line Python stdlib demo shop written for this lesson (two users, four invoices, bearer-token auth, `GET /invoice?id=` with no ownership check in the vulnerable version). Served on 127.0.0.1:8322. The substitution is named in the lesson; the mechanism exercised is identical.
+- **Result:** all 8 walkthrough steps ran — vulnerable behavior reproduced, fix applied, three verification cases passed. Nothing marked "not run by us."
+
+---
+
+## Steps 1–2 — baseline as alice
+
+```
+$ curl -s -X POST http://127.0.0.1:8322/login -H 'Content-Type: application/json' \
+    -d '{"user":"alice","pass":"pw"}'   # → token captured
+$ curl -s http://127.0.0.1:8322/invoices -H "Authorization: Bearer $A"
+{
+    "invoices": {
+        "1041": {"owner": "alice", "item": "USB-C cable", "total": "12.99"},
+        "1042": {"owner": "alice", "item": "Keyboard", "total": "79.00"}
+    }
+}
+```
+Control established: alice legitimately owns invoices 1041–1042.
+
+## Step 3 — substitute the identifier (THE FINDING)
+
+```
+$ curl -s -w "\nhttp_code=%{http_code}\n" "http://127.0.0.1:8322/invoice?id=1043" \
+    -H "Authorization: Bearer $A"
+{"invoice": {"owner": "bob", "item": "Monitor", "total": "249.99"}}
+http_code=200
+```
+Alice's authenticated session retrieved bob's invoice by changing one digit. No error, no failed check — there was no check.
+
+## Step 4 — confirm ownership independently
+
+```
+$ curl -s http://127.0.0.1:8322/invoices -H "Authorization: Bearer $B"   # bob's token
+{
+    "invoices": {
+        "1043": {"owner": "bob", "item": "Monitor", "total": "249.99"},
+        "1044": {"owner": "bob", "item": "Webcam", "total": "89.50"}
+    }
+}
+```
+1043 is bob's. The finding is a fact, not an inference. Both accounts are the lab's own — no third-party data touched.
+
+## Step 5 — unauthenticated case
+
+```
+$ curl -s -o /dev/null -w "no token: %{http_code}\n" "http://127.0.0.1:8322/invoice?id=1043"
+no token: 401
+```
+Authentication works. This was never an authentication bug: the app knew exactly who was asking and answered anyway.
+
+## Step 6 — apply the fix
+
+One-line patch to the `/invoice` handler (deny by default unless `invoice["owner"] == authenticated_user`), server restarted:
+
+```python
+# FIXED: deny by default; only the owner may read the object
+if inv["owner"] != user:
+    self._send(403, {"error": "not your invoice"}); return
+self._send(200, {"invoice": inv}); return
+```
+
+## Step 7 — verify the fix, three cases
+
+```
+alice → id=1043 (bob's):   {"error": "not your invoice"}   http_code=403
+alice → id=1042 (her own): {"invoice": {"owner": "alice", "item": "Keyboard", "total": "79.00"}}  http_code=200
+alice → id=9999 (missing): http_code=404
+```
+Cross-tenant read blocked; legitimate access unbroken; missing-object handling did not regress (still 404, not 403).
+
+## Step 8 — mini-report
+
+Written from the above: title (IDOR in `GET /invoice?id=`), severity reasoning (any authenticated user reads any invoice — horizontal privilege escalation, OWASP Top 10:2025 A01 / WSTG-ATHZ-02), exact reproduction requests (steps 2–3), impact, remediation (server-side ownership check, deny by default), evidence (the step-3 request/response pair).
+
+## Cleanup
+
+Server process stopped; port 8322 verified free. No external connections made.

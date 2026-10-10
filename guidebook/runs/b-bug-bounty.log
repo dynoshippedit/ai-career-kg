@@ -1,0 +1,73 @@
+runs/b-bug-bounty.log — Bug bounty mechanics walkthrough (worked case)
+Date: 2026-10-09 · Environment: local files only, no network, no platform accounts
+Method: report drafted against the fictional Harborlight Books IDOR finding,
+then self-reviewed against the five-part anatomy. No real submission (by design).
+
+=== STEP 1 — Title (draft) ===
+"IDOR in /invoice endpoint exposes other customers' invoices including billing details"
+Check: mechanism (IDOR) + location (/invoice) + impact (other customers' billing details). Kept.
+
+=== STEP 2 — Summary (draft) ===
+"The invoice endpoint at GET /invoice?id=N performs no ownership check: any
+authenticated user can read any customer's invoice by changing one digit in the
+id parameter. Invoices contain the customer's full name, billing address, and
+the last four digits of their payment card. The flaw was confirmed with two
+test accounts owned by the reporter (alice, free tier; bob, free tier)."
+Check: names the endpoint, the missing check, the worst honest consequence. OK.
+
+=== STEP 3 — Reproduction steps (draft) ===
+1. Create two free-tier accounts on harborlight-books.example (alice, bob).
+   Both accounts are owned by the reporter; no other customer's data is used.
+2. Log in as alice. GET /invoices — observe invoice IDs 1041 and 1042.
+3. As alice, GET /invoice?id=1043.
+4. Observe HTTP 200 with {"owner":"bob", ...} including bob's billing address
+   and card last-four. This invoice is not in alice's list from step 2.
+5. Log in as bob. GET /invoices — observe 1043 present: confirms the invoice
+   belongs to another customer, not a rendering artifact.
+Stranger test: every step names the exact request and the exact expected
+observation; the account-ownership statement is explicit. PASS.
+
+=== STEP 4 — Impact (draft) ===
+"Every customer of the shop is affected. An attacker needs only a free account
+and one changed digit to read any other customer's full name, billing address,
+and card last-four. No privilege beyond the free tier is required. The flaw is
+read-only: invoice creation, modification, and admin functions were tested and
+are not reachable through this endpoint (401/403 as appropriate)."
+Check: affected population, exact fields, prerequisites, and stated limits.
+The restraint sentence stays — it is credibility. PASS.
+
+=== STEP 5 — Remediation suggestion (draft) ===
+"On every request to /invoice, compare the invoice's owner_id against the
+authenticated user's id before serving; return 403 on mismatch (deny by
+default). Apply the same check to every object endpoint that takes a
+client-supplied identifier — the missing-check shape is the whole class."
+One paragraph, fix class named. PASS.
+
+=== STEP 6 — Self-review scores (0 missing / 1 weak / 2 triage-ready) ===
+Title: 2 — mechanism, location, impact in one line.
+Summary: 2 — flaw, location, worst honest consequence in three sentences.
+Reproduction: 2 — numbered, stranger-testable, account ownership explicit.
+Impact: 2 — population, fields, prerequisites, limits; no inflation.
+Remediation: 2 — fix class in one paragraph.
+Total: 10/10. One rewrite pass was considered for the title (first draft said
+"invoice IDOR exposes customer data" — too vague; the kept version names the
+endpoint and the exposed data). No further rewrites needed.
+
+=== STEP 7 — Duplicate check (what would be checked before a real submission) ===
+1. Same endpoint disclosed: search the program's Hacktivity for "/invoice" —
+   an earlier identical disclosure means instant duplicate.
+2. Same class across the app: check /order?id= and /receipt?id= endpoints —
+   if the program already paid for the class, a second instance may still be
+   valid (new endpoint) but must be framed as such.
+3. Fixed in a recent release: re-test on the current build — a report against
+   a patched endpoint is noise, not a finding.
+
+=== STEP 8 — Scope re-read (fictional program policy) ===
+Scope: harborlight-books.example web application only.
+Out of scope: the payment processor (third party), the marketing blog,
+any real customer's account (test accounts used are reporter-owned).
+Confirmation: every step above touched only the in-scope web app, using
+reporter-owned test accounts. No scanner was run; no third-party service
+touched; no other person's data accessed. IN SCOPE — signed off in this log.
+
+Walkthrough complete: 8/8 steps. Nothing submitted anywhere; nothing external touched.

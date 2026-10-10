@@ -1,0 +1,42 @@
+b-authorization-scope walkthrough — worked case (no CLI by design)
+Date: 2026-10-09 · Tool versions: n/a (writing exercise) · Environment: local authoring
+Fictional engagement: Harborlight Books (invented; no real system involved)
+
+Step 1 — Rules-of-engagement document drafted.
+  Checked against the 10-element checklist (parties, objective, in-scope,
+  out-of-scope, window, permitted/forbidden techniques, accounts, escalation,
+  data handling, termination): 10/10 present and specific.
+  In-scope named: portal.harborlight-books.example,
+  api.harborlight-books.example/v2, iOS app build 4.2.1.
+  Out-of-scope named: payments.harborlight-books.example (third party),
+  warehouse inventory system, corporate email.
+  Window: 2026-11-03 to 2026-11-14, 18:00-06:00 ET.
+  Forbidden: DoS, social engineering, phishing customers, destructive payloads;
+  scanning capped at <=10 req/s.
+  Accidental-touch procedure: stop, screenshot the request, email named contact
+  within one hour. Data destruction within 30 days of engagement end.
+
+Step 2 — Scope-violation triage (5 scenarios), all classified with deciding element:
+  1. admin.harborlight-books.example (unnamed) -> OUT. Hard rule 1: a name found
+     is a candidate, never permission. Action: do not touch; request written
+     amendment if the client wants it covered.
+  2. Scanner flags known CVE on in-scope host -> IN SCOPE to observe; NOT a
+     finding yet. Hard rules 2 + 6: scanner match is not a new CVE; confirm by
+     hand and check reachability before writing up.
+  3. Other test user's session token in welcome email -> IN SCOPE event; hard
+     rule 4: do NOT use the token. Action: report the token leak as the finding,
+     demonstrated with own accounts tester01/tester02.
+  4. staging.harborlight-books.example found in JS on in-scope portal -> OUT.
+     Hard rule 1. Action: do not probe; note as scope-amendment candidate.
+  5. Testing six days after window closed -> OUT. The window is part of the
+     authorization. Action: no testing; request a written extension.
+
+Step 3 — Six hard rules written from memory, then verified verbatim against
+  brief §7: 6/6 exact on first check.
+
+Step 4 — Self-review: RoE 10/10 elements specific (no "the portal" vagueness);
+  triage answers each name deciding element + action. Documents filed as the
+  first engagement-record artifacts.
+
+No step marked "not run by us": the work product is writing, and the writing
+was done and reviewed in this session.

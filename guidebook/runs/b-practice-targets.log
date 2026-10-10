@@ -1,0 +1,48 @@
+b-practice-targets walkthrough — procedure verification (no Docker on this machine)
+Date: 2026-10-09 · Tool versions: curl 8.5.0, python3 3.12.3
+Environment: loopback only. `command -v docker` -> MISSING (verified).
+
+Step 1 — Fetched all five canonical project READMEs in-session (HTTP 200):
+  - https://github.com/digininja/DVWA (579,235 chars)
+  - https://github.com/juice-shop/juice-shop (494,099 chars)
+  - https://github.com/WebGoat/WebGoat (365,034 chars)
+  - https://github.com/OWASP/crAPI (310,140 chars)
+  - https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application (350,705 chars)
+
+Step 2 — Extracted the exact run commands from each README:
+  DVWA:      git clone https://github.com/digininja/DVWA && cd DVWA &&
+             docker compose up -d            -> http://localhost:4280
+             (README shows 127.0.0.1:4280:80 port mapping; reset: docker compose down)
+  Juice Shop: docker pull bkimminich/juice-shop &&
+             docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop
+                                                 -> http://localhost:3000
+             (loopback-bound in the README itself; --rm removes on stop)
+  WebGoat:   docker run -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:9090:9090
+             webgoat/webgoat                 -> :8080 app, :9090 WebWolf
+             (README documents -e TZ=<zone> for JWT lessons; loopback-bound)
+  crAPI:     from deploy/docker/: docker compose pull &&
+             docker compose -f docker-compose.yml --compatibility up -d
+                                                 -> :8888 app, :8025 mailhog
+             (reset: docker compose -f docker-compose.yml --compatibility down)
+  DVGA:      docker pull dolevf/dvga &&
+             docker run -t -p 5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga
+                                                 -> http://localhost:5013
+             (README binds -p 5013:5013 = all host interfaces; lesson teaches
+              the safer -p 127.0.0.1:5013:5013 override. Port :5013 confirmed
+              current — resolves the old :5000-vs-:5013 gap.)
+
+Step 3 — Container runs: NOT RUN BY US. No Docker binary on this machine
+  (checked). Each command above is quoted from the project's own README as
+  fetched today, not from memory or mirrors.
+
+Step 4 — Port-conflict check: the five targets use distinct ports
+  (4280, 3000, 8080/9090, 8888/8025, 5013) — all five can run simultaneously.
+
+Step 5 — PortSwigger Academy: account signup and lab launch are reader-side
+  (needs the reader's browser + account). Academy front page fetched
+  in-session (HTTP 200, 80,753 chars): free, interactive labs, Burp Community
+  compatible — confirmed on the primary page.
+
+Safety notes verified in READMEs: DVWA and WebGoat both warn the container
+makes the host vulnerable while running — lesson teaches run-only-while-
+practicing + compose down afterward.

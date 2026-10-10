@@ -1,0 +1,22 @@
+# Run log: e-csf-20 walkthrough (worked case)
+
+- **Date:** 2026-10-10
+- **Environment:** none required — worked-case lesson, no command line. The "run" is the Current-vs-Target profile sketch + prioritized action plan for the fictional Meridian Analytics, authored and reviewed in-session against the lesson's self-review checklist (§4 step 5). Primary source verified in-session: CSWP 29 PDF downloaded 2026-10-10 (1,518,858 bytes); the 22-category table (§4) was transcribed from the document's own Table 1, and the Tier names from Appendix B — not from memory.
+- **Result:** worked case complete as written in the lesson (§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-10)
+
+1. Category table verified against CSWP 29 Table 1 in-session: 22 categories, identifiers GV.OC/GV.RM/GV.RR/GV.PO/GV.OV/GV.SC, ID.AM/ID.RA/ID.IM, PR.AA/PR.AT/PR.DS/PR.PS/PR.IR, DE.CM/DE.AE, RS.MA/RS.AN/RS.CO/RS.MI, RC.RP/RC.CO. Six functions named per the document (Govern at center). Tier names verified from the document's Appendix B: Partial (1), Risk Informed (2), Repeatable (3), Adaptive (4).
+2. Every Current-state claim in the six worked rows cites named (fictional, labeled) evidence: wiki page, CMDB export, IdP policy export, SIEM config review, IR plan doc, backup job logs. No "we think" claims.
+3. Tier characterization is honest: Tier 2 overall with two Tier-3 categories named; no averaging upward. The lesson's "Where it goes wrong" explicitly warns against tier inflation.
+4. Action plan ordered by argued risk reduction (A4 authentication-path detection first), each with owner + quarter. A3 is a decision, labeled as such.
+5. "CSF certified" appears only in the "what it is not" / failure-modes sections, never as something attainable. No invented numbers: maturity claims are Tier labels tied to evidence, not fabricated scores.
+6. Fictional organization ("Meridian Analytics") — no real company assessed. The remaining 16 categories are explicitly the reader's "On your own" work, not silently skipped.
+
+## Correction logged
+
+First draft of the category table from memory produced only 20 categories (missed GV.RR Roles/Responsibilities/Authorities and GV.PO Policy, and mislabeled PR.AA as PR.AC). Caught by extracting Table 1 from the downloaded PDF in-session; the lesson's table is the verified 22. This is the "verify the ID on the page, not from memory" discipline from b-methodology applied to frameworks.
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader completes the remaining sixteen Categories for Meridian (or their own fictional org) and writes the Tier rationale for "On your own" (§5). The artifact is their profile sketch + action plan, not a terminal transcript.

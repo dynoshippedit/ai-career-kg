@@ -1,0 +1,83 @@
+=== runs/a-dns-depth.log ===
+Walkthrough transcript: a-dns-depth (DNS in depth)
+Date: 2026-10-09 (UTC) · Environment: Ubuntu container, loopback only
+Tool versions: Python 3.12.3; no dig/tcpdump on this machine.
+Note: this sandbox blocks UDP loopback, so the toy authoritative server and the lesson's
+stdlib DNS client (dnsq.py) use the TCP form of DNS (RFC 1035 section 4.2) on 127.0.0.1:53535.
+The message format on the wire is identical; only the transport differs.
+
+--- step 1: what your machine already knows (hosts file vs DNS) ---
+$ getent hosts localhost htch-runtime
+::1             localhost ip6-localhost ip6-loopback
+::1             htch-runtime
+(names in /etc/hosts resolve without any DNS query — files beat the network)
+
+--- step 2: the toy authoritative server is running (see server.out) ---
+toy authoritative server for lab.example on 127.0.0.1:53535 (TCP)
+
+--- step 3: an A query — read the message sections ---
+$ python3 dnsq.py web.lab.example. 1 --tcp
+;; HEADER: id=0x1234 rcode=NOERROR qd=1 an=1
+;; QUESTION: web.lab.example. A
+;; ANSWER: web.lab.example. ttl=300 A 127.0.0.1
+
+--- step 4: CNAME — one query, answer points at another name ---
+$ python3 dnsq.py alias.lab.example. 1 --tcp
+;; HEADER: id=0x1234 rcode=NOERROR qd=1 an=1
+;; QUESTION: alias.lab.example. A
+;; ANSWER: alias.lab.example. ttl=300 CNAME web.lab.example.
+(a real resolver would now chase the CNAME target with a second query — do that next:)
+$ python3 dnsq.py web.lab.example. 1 --tcp  # the chase target
+;; ANSWER: web.lab.example. ttl=300 A 127.0.0.1
+
+--- step 5: TXT and NS on the zone apex ---
+$ python3 dnsq.py lab.example. 16 --tcp
+;; HEADER: id=0x1234 rcode=NOERROR qd=1 an=1
+;; QUESTION: lab.example. TXT
+;; ANSWER: lab.example. ttl=300 TXT "v=spf1 -all"
+$ python3 dnsq.py lab.example. 2 --tcp
+;; HEADER: id=0x1234 rcode=NOERROR qd=1 an=1
+;; QUESTION: lab.example. NS
+;; ANSWER: lab.example. ttl=300 NS ns.lab.example.
+
+--- step 6: NXDOMAIN — the name does not exist ---
+$ python3 dnsq.py nosuchhost.lab.example. 1 --tcp
+;; HEADER: id=0x1234 rcode=NXDOMAIN qd=1 an=0
+;; QUESTION: nosuchhost.lab.example. A
+(rcode NXDOMAIN: the server is authoritative and certain. Compare SERVFAIL: 'I tried and failed.')
+
+--- step 7: reverse lookup — PTR ---
+$ python3 -c "import socket; print(socket.gethostbyaddr('127.0.0.1'))"
+('localhost', [], ['127.0.0.1'])
+
+--- step 8: caching — same answer twice; note the TTL ---
+$ python3 dnsq.py web.lab.example. 1 --tcp  (x2)
+;; ANSWER: web.lab.example. ttl=300 A 127.0.0.1
+;; ANSWER: web.lab.example. ttl=300 A 127.0.0.1
+(ttl=300 on both: a real resolver serves the second from cache until the TTL dies —
+ this is why DNS changes take time to propagate, and why a poisoned cache entry persists)
+
+--- step 9: DNSSEC concept — not run by us ---
+NOT RUN BY US: verifying a real DNSSEC chain needs a validating resolver and a signed zone.
+On your own machine: dig +dnssec example.com — look for RRSIG records and the 'ad' (authenticated data) flag.
+
+--- RE-RUN 2026-10-10: dig steps — RAN ---
+tool: DiG 9.18.39-0ubuntu0.24.04.7-Ubuntu (dig was already on this machine;
+dnsutils was never needed). Server: fresh toy authoritative for lab.example on
+127.0.0.1:53535 (TCP, RFC 1035 4.2 — this sandbox blocks UDP loopback, so the
+TCP form is used; the message format on the wire is identical).
+$ dig +tcp +noall +answer +comments -p 53535 @127.0.0.1 web.lab.example. A
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 39845
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+web.lab.example.	300	IN	A	127.0.0.1
+$ dig +tcp +noall +answer -p 53535 @127.0.0.1 alias.lab.example. A
+alias.lab.example.	300	IN	CNAME	web.lab.example.
+$ dig +tcp +noall +answer -p 53535 @127.0.0.1 lab.example. TXT
+lab.example.		300	IN	TXT	"v=spf1 -all"
+$ dig +tcp +noall +answer -p 53535 @127.0.0.1 lab.example. NS
+lab.example.		300	IN	NS	ns.lab.example.
+$ dig +tcp +noall +comments -p 53535 @127.0.0.1 nosuchhost.lab.example. A
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 33988
+Real dig, real answers, real NXDOMAIN — the lesson's stdlib dnsq.py client is
+now corroborated by the standard tool. Step 9 (DNSSEC chain) remains not run
+by us: needs a validating resolver and a signed zone.

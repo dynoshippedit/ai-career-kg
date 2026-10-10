@@ -1,0 +1,18 @@
+# Run log: e-risk-assessment walkthrough (worked case)
+
+- **Date:** 2026-10-09
+- **Environment:** none required — this is a worked-case lesson with no command line. The "run" is the risk assessment itself: scope, scales, four threat × vulnerability pairs with justified ratings, responses with owners, control selections by type, monitoring plan, and one-page executive report, authored and reviewed in-session against NIST SP 800-30 Rev. 1's process (prepare → conduct → communicate/maintain).
+- **Result:** worked case complete as written in the lesson (§3–§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-09)
+
+1. Scope paragraph written before any risk identified — scales and tolerance fixed first (High/Critical require a response plan with owner within one quarter).
+2. Four risks cover four distinct pairs: external attacker × injection flaw; botnet × missing rate limiting/MFA; ransomware affiliate × unpatched edge VPN; insider × broad access without export alerting.
+3. Every likelihood/impact rating carries a one-sentence evidence-based justification (exposure, KEV membership, control state). No invented statistics — qualitative words throughout, no percentages, no currency figures.
+4. Every risk above tolerance has mitigate/transfer/avoid with preventive + detective + corrective controls, a named owner, and residual risk stated. The Medium acceptance (credential stuffing residual) is documented with owner and review trigger, not left open-ended.
+5. One-page report addresses a named executive, states residual risk, and requests explicit decisions (approve maintenance window; accept residual until a dated trigger).
+6. Fictional company ("Beacon Logistics") — no real organization assessed, no real system probed.
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader runs the same six-step process against their own system for "On your own" (§5). The artifact is their register + report, not a terminal transcript.

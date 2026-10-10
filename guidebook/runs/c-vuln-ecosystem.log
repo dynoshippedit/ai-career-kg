@@ -1,0 +1,21 @@
+=== c-vuln-ecosystem walkthrough run ===
+date: 2026-10-09T22:43:04Z
+tools: curl 8.5.0, python3 3.12.3
+
+--- STEP 1: EPSS live lookup (api.first.org, FIRST EPSS SIG) ---
+CVE-2021-44228: epss=0.999990000 percentile=1.000000000 date=2026-10-09
+CVE-2022-41741: epss=0.007940000 percentile=0.551070000 date=2026-10-09
+CVE-2023-3089: epss=0.005200000 percentile=0.424300000 date=2026-10-09
+
+--- STEP 2: KEV membership (CISA catalog CSV, fetched 2026-10-09, 1051684 bytes) ---
+CVE-2021-44228: KEV member = YES
+CVE-2022-41741: KEV member = NO
+CVE-2023-3089: KEV member = NO
+
+--- STEP 3: prioritization comparison ---
+CVSS-v3.1-only ranking: CVE-2021-44228 (10.0) > CVE-2023-3089 (7.5) > CVE-2022-41741 (7.0)
+EPSS ranking:           CVE-2021-44228 (0.99999, p100) >> CVE-2022-41741 (0.00794, p55) > CVE-2023-3089 (0.00520, p42)
+KEV-first ranking:      CVE-2021-44228 (KEV) first; the other two unscheduled for remediation by KEV logic
+Agreement: all three agree CVE-2021-44228 is first. CVSS says 3089 > 41741; EPSS reverses them
+(41741 p55 > 3089 p42). A CVSS-only queue would patch 3089 first; an EPSS-informed queue
+patches 41741 first — and both are dwarfed by the KEV/EPSS signal on 44228.

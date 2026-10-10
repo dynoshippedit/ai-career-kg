@@ -1,0 +1,32 @@
+=== ai-llm-architecture walkthrough transcript ===
+date: 2026-10-09 · Python 3.12.3 · no model, no network
+[1] system prompt: 93 chars -> 17 tokens (ratio 1.21 tok/word)
+    rare-variant tokenizes to 3 tokens vs 2 for plain text
+
+[2] retrieval ranking for 'where is my order':
+    doc1: cosine 0.261
+    doc2: cosine 0.064
+    note: doc2 (poisoned) ranks on similarity, not authorization; doc3 is another tenant's chunk
+
+[3] assembled prompt spans: [system], [retrieved], [history], [user]
+    provenance markers in assembled text: spans are labels, not boundaries
+    injected instruction present in context window: True
+
+[4] tool registry: lookup_order(read-only), issue_refund(destructive), send_email(destructive)
+    policy enforced in harness code, unreachable from the scripted model
+
+[5] agent loop, poisoned corpus, no approval:
+    model calls issue_refund -> BLOCKED by policy
+    model calls lookup_order -> executed
+    loop amplification: each iteration would re-read tool output as new 'observations'
+
+[6] attack surface report:
+    system prompt      | entry: config/code            | prompt extraction (LLM08:2026 Hidden Context Exposure)
+    retrieved chunks   | entry: vector store write path | indirect injection; cross-tenant leak (LLM02:2026, LLM09:2026)
+    conversation history | entry: session store          | history poisoning across turns
+    user input         | entry: chat box               | direct injection (LLM01:2026)
+    tool output        | entry: DB/API/file reads      | second-door indirect injection
+    agent loop         | entry: plan-act-observe iterations | compounding: each iteration re-ingests untrusted text
+    model output       | entry: HTML/SQL/shell/next tool | XSS / injection via output (LLM10:2026)
+    model weights      | entry: hub download           | supply-chain compromise (LLM04:2026)
+

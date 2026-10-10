@@ -1,0 +1,43 @@
+e-asset-provisioning walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the Aster Diagnostics provisioning workflow + inventory audit,
+authored and self-reviewed in-session.
+
+Scope: fictional Aster Diagnostics (continued); gates: purchase, cloud creation,
+onboarding, software install, data acquisition. All company facts fictional.
+Artifacts authored:
+  - Provisioning workflow, 7 steps: request -> approval (tier recorded) -> secure
+    build -> CMDB record before deploy -> deploy+verify -> change-driven updates ->
+    deprovision (sanitize, mark retired w/ history, revoke, release)
+  - CMDB record definition tested against CM-8 (accurate, complete, no duplicates,
+    right granularity, accountability info)
+  - Inventory audit: discovery (network + cloud enumeration) reconciled vs CMDB;
+    purchases vs deployments; owners vs HR roster. 5 findings, each with decision /
+    owner / date:
+    1. 23 shadow cloud instances -> 17 retro-provisioned, 6 shut down
+    2. 31 assets owned by departed staff -> transfer in 2 weeks; HR-feed trigger
+    3. ghost lab server w/ Confidential data, never ticketed -> sanitized per
+       800-88r2, retired properly; retirement-ticket requirement added
+    4. 14 duplicate laptop records (CMDB + spreadsheet) -> spreadsheet retired as
+       system of record; CMDB authoritative; duplicates merged
+    5. 9 unverified builds -> verified retroactively (2 remediated); verification
+       made a merge-gate
+  - Audit close-out: next audit scheduled (quarterly discovery, annual full)
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - CSF 2.0 (CSWP 29, Feb 26 2024): ID.AM-01..05, ID.AM-07, ID.AM-08 wording
+        (note: no ID.AM-06 exists — numbering jumps 05->07, verified in PDF text)
+      - SP 800-53 Rev. 5 CM-8 control text (accuracy/completeness/no-duplicates/
+        granularity/accountability/review) — verified in PDF text
+      - 800-88r2 as sanitization authority for deprovisioning — verified
+  [x] no ISC2 outline text quoted; no currency symbols
+  [x] all fictional data labeled fictional
+  [x] §7: primaries first (CSF 2.0, 800-53 Rev.5, 800-88r2 skim), then 2 free
+      resources (SANS data-inventory policy template page, SANS library)
+  [x] §8: 5 questions; §9: Artifact/Honest claim/Can't claim yet; §10: real ids only
+  [x] word count checked (see batch report)
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+Decision: CMDB declared the single authoritative system of record in the worked
+  case — the structural fix for shadow-IT and duplicate-accounting findings.

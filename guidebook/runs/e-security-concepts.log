@@ -1,0 +1,28 @@
+e-security-concepts walkthrough log — 2026-10-10
+Demo lesson: one local run (Python 3 stdlib only) + worked case.
+The hashing demo was EXECUTED in-session; transcript below is real output.
+
+Scope: CIA triad + AAA/non-repudiation/privacy, defense in depth, zero trust,
+security-vs-usability; worked case = fictional Harbor Clinic patient portal
+property map (assets, ranked properties, named tensions with resolutions).
+
+Demo transcript (python3 /tmp/demo-hash.py, Python 3.12.3, stdlib hashlib only):
+  message: transfer 1000 credits to account 4821
+  sha256 : af330fc48c17a8dd7a1fc86adf50bf2b322354d3640fcc6c15a924f8c9f2bf63
+  tampered: transfer 9000 credits to account 4821
+  sha256 : 34527aba747836546eac698342b7433db7cd7fecd33a1c9c3c38c2e73acbf493
+  digests equal: False
+Honest limitation recorded in-lesson: bare hash detects alteration but proves
+nothing about origin (attacker can recompute); detection is not prevention.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,499)
+  [x] definitions sourced to RFC 4949 (IETF, Aug 2007, 867,626 chars fetched)
+      and NIST CSRC Glossary (98,637 chars) — cross-checked, drift noted
+  [x] demo genuinely run; transcript verbatim; no faked output
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 2 primaries + 2 free resources, all fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-risk-assessment, e-crypto-applied, e-governance)
+  [x] all scenario elements labeled fictional
+Nothing unrun: the one CLI step was executed; transcript above.

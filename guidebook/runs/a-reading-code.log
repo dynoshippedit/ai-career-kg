@@ -1,0 +1,36 @@
+# runs/a-reading-code.log — walkthrough transcript
+# Date: 2026-10-09 · Python 3.12.3 · scratch: /tmp/codewalk
+# Snippets: login.html (fictional JS login form, 891 bytes) + querybuilder.py (fictional query builder, 566 bytes).
+# No network, no database — the "query" is string construction only, printed, never executed.
+
+$ ls -la
+-rw-rw---- 1 root root 891 Oct  9 22:49 login.html
+-rw-rw---- 1 root root 566 Oct  9 22:49 querybuilder.py
+
+$ # step 2: locate every input source and the network crossing in the JS
+$ grep -n "getElementById\|fetch\|JSON.stringify" login.html
+8:document.getElementById("login").addEventListener("submit", async (e) => {
+10:  const user = document.getElementById("user").value;   // (A) input enters here
+11:  const pw = document.getElementById("pw").value;       // (B) input enters here
+12:  const res = await fetch("/api/login", {               // (C) leaves the browser
+15:    body: JSON.stringify({user, pw})                    // (D) no validation client-side
+
+$ # step 3: benign input — template characters vs input characters
+$ python3 querybuilder.py alice s3cret
+VULNERABLE: SELECT * FROM users WHERE name = 'alice' AND pw = 's3cret'
+SAFE      : ('SELECT * FROM users WHERE name = ? AND pw = ?', ('alice', 's3cret'))
+
+$ # step 4: hostile input — the exact character where data becomes structure
+$ python3 querybuilder.py "' OR '1'='1" x
+VULNERABLE: SELECT * FROM users WHERE name = '' OR '1'='1' AND pw = 'x'
+SAFE      : ('SELECT * FROM users WHERE name = ? AND pw = ?', ("' OR '1'='1", 'x'))
+# The first ' of the input closes the string literal: input stops being data
+# at that character and becomes SQL syntax. The safe builder keeps the whole
+# hostile string as one inert tuple value — placeholders never re-parse input.
+
+$ # step 5: trust-boundary count
+A/B (DOM read) -> C (network) -> F (string concat into SQL) = 3 hops, 0 checks
+
+# Walkthrough complete: all 6 steps ran.
+# Safety note: the hostile input was passed as a command-line argument to a local
+# string-builder and its constructed query printed — never executed against a database.

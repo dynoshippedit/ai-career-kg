@@ -1,0 +1,41 @@
+e-handling-requirements walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the Aster Diagnostics handling matrix authored and self-reviewed in-session.
+
+Scope: fictional Aster Diagnostics (continued from e-asset-classification); four tiers
+Public / Internal / Confidential / Restricted. All company facts fictional.
+Artifacts authored:
+  - Handling matrix: 4 tiers x 5 dimensions (labeling, storage, transmission, disposal,
+    retention hook); one rule per cell
+  - Disposal column cites SP 800-88 Rev. 2 clear/purge/destroy per tier + media type,
+    with verifier and record named
+  - Testability check: every cell assigned a sampling method + frequency
+      (labeling: quarterly doc sampling; storage: DLP scans; transmission: egress log
+      review + DLP blocks; disposal: sanitization records before asset sign-off)
+  - Exception process: written request, time-bounded, owner-approved, compensating
+    controls named (one paragraph)
+Design decisions recorded in lesson §3:
+  1. Email attachments banned for Restricted (secure file transfer w/ access logging)
+  2. "No local copies, period" for Restricted + documented exception path
+  3. Disposal methods cite 800-88 Rev. 2 by name; verification is part of the rule
+  4. Every cell got a check — three cells honesty-passed for testability
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - SP 800-53 Rev. 5 MP family (MP-2 access, MP-3 marking, MP-4 storage, MP-5
+        transport, MP-6 sanitization, MP-7 media use) — verified in PDF text
+      - MP-6 discussion quoting 800-88 technique list incl. cryptographic erase —
+        verified in PDF text
+      - SP 800-88 Rev. 2 clear/purge/destroy definitions — verified in PDF text
+      - "Degaussing should not be used for non-magnetic ISM (e.g., flash storage,
+        such as SSDs)" — verified in SP 800-88r2 PDF text (sanitization-theater row)
+  [x] no ISC2 outline text quoted; no currency symbols
+  [x] all fictional data labeled fictional
+  [x] §7: primaries first (800-53 Rev.5, 800-88r2), then 2 free resources
+      (800-88r2 FAQ, SANS library), all fetched in-session
+  [x] §8: 5 questions; §9: Artifact/Honest claim/Can't claim yet; §10: real ids only
+  [x] word count checked (see batch report)
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+Note: lesson teaches SP 800-88 Rev. 2 (current; Rev. 1 withdrawn 2026-09-26),
+  correcting the research spec's unversioned "NIST SP 800-88" citation.

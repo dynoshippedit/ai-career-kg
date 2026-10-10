@@ -1,0 +1,49 @@
+# runs/a-python-security.log — walkthrough transcript
+# Date: 2026-10-09 · Python 3.12.3 · loopback only (127.0.0.1) · scratch: /tmp/pywalk
+# Target: local stdlib HTTP server on 127.0.0.1:8471 (written for this walkthrough). Nothing external touched.
+
+$ python3 --version
+Python 3.12.3
+
+$ # step 2: server.py — 20-line stdlib HTTP server, endpoints / (text) and /json
+$ (python3 server.py & echo $! > srv.pid) && sleep 1
+
+$ # step 3: fetch the text endpoint
+$ python3 fetch.py http://127.0.0.1:8471/
+status: 200
+content-type: text/plain
+bytes: 11
+
+$ # step 4: fetch the JSON endpoint, extract one key
+$ python3 fetch.py http://127.0.0.1:8471/json --json-key service
+status: 200
+content-type: application/json
+service = pywalk
+
+$ # step 5: nothing listening — the URLError branch
+$ python3 fetch.py http://127.0.0.1:9999/ ; echo "exit=$?"
+URL error: [Errno 111] Connection refused
+exit=1
+
+$ # step 6: raw TCP — listener on 127.0.0.1:8472, connect, send, receive
+$ python3 sockdemo.py
+received: b'ACK:hello-socket'
+
+$ # step 7: the reader's first edit — save the fetched body to a file
+$ python3 - << 'EOF'
+import urllib.request
+with urllib.request.urlopen("http://127.0.0.1:8471/json", timeout=5) as r:
+    body = r.read()
+with open("/tmp/pywalk/saved.json", "wb") as f:
+    f.write(body)
+print("saved", len(body), "bytes")
+EOF
+saved 47 bytes
+$ cat /tmp/pywalk/saved.json
+{"service": "pywalk", "version": 3, "ok": true}
+
+$ kill $(cat srv.pid) && echo "server stopped"
+server stopped
+
+# Walkthrough complete: all 7 steps ran. No stray processes (server killed by PID).
+# Note: fetch.py uses only the standard library (urllib) — no pip packages installed.

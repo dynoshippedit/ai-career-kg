@@ -1,0 +1,42 @@
+e-logging-monitoring walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the event taxonomy + retention schedule + SOC workflow design authored
+and self-reviewed in-session against NIST SP 800-92 (log-management lifecycle:
+generation, transmission, storage, analysis, disposal).
+
+Scope: fictional Beacon Logistics (120 staff, regional freight; continued from
+e-bcp-drp). Scenario: program design for the BIA-critical dispatch system —
+current state is local-only logs, "until disk fills" retention, untuned SIEM.
+Artifacts authored (all fictional, labeled):
+  - Event taxonomy: 6 categories (authentication, authorization, system/service,
+    network security, application, physical/environmental) each mapped to a
+    detection; 3 claimed detections with no source recorded as gaps.
+  - Retention schedule: per-category hot/warm/cold tiers with written
+    justifications (auth 90d/1y/7y; dispatch transactions 90d/1y/3y;
+    firewall/IDS 30d/1y/—; DNS 30d/6m/—; debug 14d/—/—); disposal procedure +
+    litigation-hold suspension rule.
+  - Integrity & time: internal NTP pair, >60s skew alert, TLS forwarding to
+    append-only collector, read/admin separation of duties.
+  - SOC workflow: 2 analysts business hours + contracted MDR nights/weekends
+    (15-min SLA), 5 Tier-1 playbooks, quarterly tuning review per alert with
+    FP-rate measurement and retire-or-retune decisions, monthly coverage metric.
+
+Self-review checklist (2026-10-10):
+  [x] operations/program view — differentiation from c-log-sources stated in §1
+      (parse-a-log vs decide-what-gets-logged)
+  [x] SP 800-92's Sep 2006 age noted honestly (§3, §7); pre-SIEM/cloud caveat
+  [x] no CIS safeguard numbers cited — CIS Controls page is JS-rendered;
+      cited only as the prioritized free safeguard set (v8.1 confirmed on page)
+  [x] retention periods presented as the fictional company's decisions with
+      justifications, not as standards mandates
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-92, 800-53 AU family via pub page) + 2 free resources
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,444 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/92/final — 43119
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945
+  https://www.cisecurity.org/controls/v8 — 265550
+  https://csrc.nist.gov/pubs/sp/800/94/final — 46662

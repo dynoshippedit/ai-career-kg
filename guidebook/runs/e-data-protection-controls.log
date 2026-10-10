@@ -1,0 +1,65 @@
+e-data-protection-controls walkthrough log — 2026-10-10
+Worked-case lesson with LOCAL DEMO RUN. Demo executed on this machine (no Docker,
+no network targets; synthetic fixtures only, authored in-session).
+
+Demo: data-state inventory script (inventory_states.py, Python 3.12.3)
+Fixtures (all invented): demo_tree/patient_export.csv (SSN-like), demo_tree/vault/
+backup_key.pem (fake key), demo_tree/shared/quarterly_notes.txt (password-like),
+demo_tree/public_readme.md.
+
+Real transcript:
+  root: /tmp/demo-d2/demo_tree
+  note: all findings are heuristics on SYNTHETIC fixture files
+
+  file: patient_export.csv
+    content signals: looks-like-SSN
+    state: at rest (on disk) -> control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+    state: in use (recently created/modified by a process) -> control: access enforcement (AC-3); minimize in memory
+
+  file: public_readme.md
+    content signals: none
+    state: at rest (on disk) -> control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+    state: in use (recently created/modified by a process) -> control: access enforcement (AC-3); minimize in memory
+
+  file: vault/backup_key.pem
+    content signals: looks-like-private-key
+    state: at rest (on disk) -> control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+    state: in use (recently created/modified by a process) -> control: access enforcement (AC-3); minimize in memory
+
+  file: shared/quarterly_notes.txt
+    content signals: looks-like-password
+    state: at rest (on disk) -> control: encrypt (SC-28) + restrict access (MP-2/AC-3)
+    state: in transit (shared/copied across the network) -> control: TLS in transit (SC-8); DLP egress note
+    state: in use (recently created/modified by a process) -> control: access enforcement (AC-3); minimize in memory
+
+Honest reading recorded: the "in use" heuristic (recently modified) is a teaching
+stand-in, not a detection; suggestions are starting points, not selections (the demo
+doesn't know the classification tier); the structural finding is that every file is
+in multiple states at once — single-state controls always leave gaps.
+
+Worked case authored in-session: Aster Diagnostics control-selection matrix
+(tier x at-rest/in-transit/in-use + scoping note + compliance mapping), DLP policy
+sketch (tuned to tiers, staffed queue, 24h triage SLA), key-management decisions
+(AES-256, FIPS-validated modules, KMS-held keys, annual rotation, separation of
+duties). Differentiation from e-crypto-applied recorded: primitives there,
+selection here. All company facts fictional.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - SP 800-111 (Nov 2007): three solution types (full-disk, volume/virtual-disk,
+        file/folder encryption) + selection guidance — verified in PDF text
+      - SP 800-53 Rev. 5 SC-28 (at rest), SC-8 (transmission, internal+external),
+        SC-12 (key establishment/management) — verified in PDF text
+      - CSF 2.0 PR.DS-01 (at rest), PR.DS-02 (in transit), PR.DS-10 (in use),
+        PR.DS-11 (backups) — verified in CSWP 29 PDF text
+      - OWASP Cryptographic Storage + Transport Layer Protection cheat sheets
+        exist and are free — verified via fetch
+  [x] demo genuinely run; transcript above is real output
+  [x] no ISC2 outline text quoted; no currency symbols; fictional data labeled
+  [x] §7: primaries first (800-111, 800-53 Rev.5, CSF 2.0), then 2 free resources
+      (both OWASP cheat sheets)
+  [x] §8: 5 questions; §9: Artifact/Honest claim/Can't claim yet; §10: real ids only
+  [x] word count checked (see batch report)
+Nothing faked. DLP taught as detection-and-response discipline (tuned policies +
+staffed queue), not as a purchase — stated in lesson §3.

@@ -1,0 +1,21 @@
+# Run log: e-board-communication walkthrough (worked case)
+
+- **Date:** 2026-10-09
+- **Environment:** none required — this is a worked-case lesson with no command line. The "run" is the one-page board memo itself: five sections plus appendix, built from the `e-security-program` charter and the `e-risk-assessment` register, authored and reviewed in-session against the lesson's self-review checklist (§4 steps 7–8).
+- **Result:** worked case complete as written in the lesson (§3–§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-09)
+
+1. Section 1 names what breaks and what it costs (breach-notification obligations, contractual penalties) — no technology described.
+2. Section 2 is one sentence: current ~Tier 2, target Tier 3, the gap that matters most (untested recovery). No maturity-model lecture.
+3. Section 3: three risks selected from the `e-risk-assessment` register (R-02, R-01, R-03), each rewritten impact-first with half a line of cause and the register ID cited. Thumb test applied: with the technical detail covered, each bullet still reads as a business decision.
+4. Section 4: two trend lines from the `e-security-program` measurement plan, each with its source. The backup-restore line honestly reports "not yet run — first test scheduled [date]" instead of inventing a result.
+5. Section 5: three numbered asks, each typed (approve / approve / accept-or-direct), each naming exactly one decision and the risk it addresses.
+6. Appendix: every number's definition and source labeled. Placeholders ([n], [date]) labeled, never filled with invented values.
+7. Director test: sections 3+5 alone were read back — top risk (untested recovery → extended outage) and the three decisions are statable. Passed; logged here.
+8. Acronym sweep: "RACI" defined on first use in the charter reference; "KRI" expanded once; "SLA" cut (replaced with "patch window"). No undefined acronyms remain.
+9. Fictional organization ("Beacon Logistics") — no real board briefed, no real incident.
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader runs the same eight-step authoring process for their own memo, plus the ninety-second incident briefing for "On your own" (§5). The artifacts are their memo and briefing, not a terminal transcript.

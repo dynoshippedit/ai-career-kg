@@ -1,0 +1,114 @@
+=== d-cloud-security walkthrough ===
+date: 2026-10-09
+
+--- step 1: three policies ---
+broken.json
+correct.json
+overbroad.json
+
+--- step 2: cloudsplaining analysis ---
+cloudsplaining, version 0.9.1
+### policy: correct
+Try 'cloudsplaining scan --help' for help.
+
+Error: Invalid value for '-o' / '--output': Path 'results-correct' does not exist.
+--- findings summary for correct:
+### policy: overbroad
+Try 'cloudsplaining scan --help' for help.
+
+Error: Invalid value for '-o' / '--output': Path 'results-overbroad' does not exist.
+--- findings summary for overbroad:
+### policy: broken
+Try 'cloudsplaining scan --help' for help.
+
+Error: Invalid value for '-o' / '--output': Path 'results-broken' does not exist.
+--- findings summary for broken:
+
+--- step 3: responsibility classification (worked) ---
+1. hypervisor flaw in provider fleet -> PROVIDER (security OF the cloud)
+2. EC2 unpatched 6 months -> CUSTOMER (guest OS is security IN the cloud)
+3. S3 wildcard principal -> CUSTOMER (data + permissions are customer's)
+4. provider employee accesses customer data -> PROVIDER (inherited physical/personnel controls)
+5. customer disabled CloudTrail, logs wiped -> CUSTOMER (capability is provider's, decision is customer's)
+
+--- step 4: misconfiguration log (worked case, authored) ---
+BEFORE: bucket northwind-invoices policy grants s3:GetObject to Principal '*'
+AFTER:  wildcard removed; scoped to app role arn:aws:iam::123456789012:role/invoice-app
+VERIFY: anonymous GetObject -> 403; app role GetObject -> 200; access logging enabled
+
+--- step 5: posture scan (reader-side, NOT RUN BY US) ---
+prowler + ScoutSuite run only against the reader's OWN account with a read-only audit role.
+No cloud account on this machine; not run here.
+
+--- step 6: hand-verification checklist (recorded) ---
+[ ] open the flagged resource in the provider console
+[ ] confirm the finding against live config (not cached)
+[ ] check for compensating controls before writing it up
+--- step 2 (corrected): create output dirs, re-run ---
+### policy: correct
+Wrote HTML results to: results-correct/iam-report-correct.html
+Opening the HTML report
+iam-findings-correct.json
+iam-report-correct.html
+iam-results-correct.json
+### policy: overbroad
+Wrote HTML results to: results-overbroad/iam-report-overbroad.html
+Opening the HTML report
+iam-findings-overbroad.json
+iam-report-overbroad.html
+iam-results-overbroad.json
+### policy: broken
+Wrote HTML results to: results-broken/iam-report-broken.html
+Opening the HTML report
+iam-findings-broken.json
+iam-report-broken.html
+iam-results-broken.json
+
+--- findings: privilege-escalation + findings per policy ---
+### correct: ['results-correct/iam-results-correct.json', 'results-correct/iam-findings-correct.json']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+### overbroad: ['results-overbroad/iam-results-overbroad.json', 'results-overbroad/iam-findings-overbroad.json']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+### broken: ['results-broken/iam-results-broken.json', 'results-broken/iam-findings-broken.json']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+   keys: ['aws_managed_policies', 'customer_managed_policies', 'exclusions', 'groups', 'inline_policies', 'links', 'roles', 'users']
+### correct
+  results-file top keys: ['groups', 'users', 'roles', 'aws_managed_policies', 'customer_managed_policies', 'inline_policies', 'exclusions', 'links']
+### overbroad
+  results-file top keys: ['groups', 'users', 'roles', 'aws_managed_policies', 'customer_managed_policies', 'inline_policies', 'exclusions', 'links']
+### broken
+  results-file top keys: ['groups', 'users', 'roles', 'aws_managed_policies', 'customer_managed_policies', 'inline_policies', 'exclusions', 'links']
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'results-acct/iam-report-account-details.html'
+--- cloudsplaining verdicts per policy (account-details fixture) ---
+### demo-correct
+   (no entry)
+### demo-overbroad
+   (no entry)
+### demo-broken
+   (no entry)
+--- cloudsplaining verdicts per policy ---
+### demo-correct
+   findings: 0
+   PrivilegeEscalation: 4
+Traceback (most recent call last):
+  File "<stdin>", line 14, in <module>
+KeyError: slice(None, 5, None)
+--- cloudsplaining verdicts per policy ---
+### demo-correct
+   findings: 0
+   PrivilegeEscalation type=dict: {"severity": "high", "description": "<p>These policies allow a combination of IAM actions that allow a principal with these permissions to escalate their privileges - for example, by creating an access key for another IAM user, or modifying their own permissions. This research was pioneered by Spencer Gietzen at Rhino Security Labs.  Remediation guidance can be found <a href=\"https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/\">here</a>.</p>", "findings": [], "links": {}}
+### demo-overbroad
+   findings: 0
+   PrivilegeEscalation type=dict: {"severity": "high", "description": "<p>These policies allow a combination of IAM actions that allow a principal with these permissions to escalate their privileges - for example, by creating an access key for another IAM user, or modifying their own permissions. This research was pioneered by Spencer Gietzen at Rhino Security Labs.  Remediation guidance can be found <a href=\"https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/\">here</a>.</p>", "findings": [{"type": "CreateEC2WithExistingIP", "actions": ["iam:passrole", "ec2:runinstances"]}], "links": {"CreateEC2Wit
+### demo-broken
+   findings: 0
+   PrivilegeEscalation type=dict: {"severity": "high", "description": "<p>These policies allow a combination of IAM actions that allow a principal with these permissions to escalate their privileges - for example, by creating an access key for another IAM user, or modifying their own permissions. This research was pioneered by Spencer Gietzen at Rhino Security Labs.  Remediation guidance can be found <a href=\"https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/\">here</a>.</p>", "findings": [{"type": "CreateAccessKey", "actions": ["iam:createaccesskey"]}, {"type": "CreateLoginProfile", "actions": ["i
+--- step 2 final verdicts (recorded 2026-10-09) ---
+demo-correct: 0 escalation findings (clean)
+demo-overbroad: CreateEC2WithExistingIP via iam:passrole + ec2:runinstances
+demo-broken: CreateAccessKey, CreateLoginProfile, and further escalation methods
+Corrections logged honestly: (1) output dirs must exist; (2) scan input must be account-authorization-details shape.

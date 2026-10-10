@@ -1,0 +1,40 @@
+e-auth-systems walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the authentication implementation plan authored and self-reviewed
+in-session.
+
+Scope: fictional Meridian Analytics (continued from e-iam): 180 workforce,
+  14 admins, customer portal, 40 SaaS apps, service accounts, break-glass.
+Artifacts authored:
+  - Population segmentation by impersonation impact: admins (hw security keys +
+    PIN, no SMS, no weaker fallback), workforce (passkeys primary, TOTP backup,
+    SMS excluded with SIM-swap rationale), customers (password + optional
+    passkey, risk-based step-up), service accounts (certs/managed identities,
+    90-day rotation).
+  - Phase plan: Phase 0 IdP hardening (2 wks) -> Phase 1 admins to keys (wks 3-6,
+    help-desk drilled, exception process published) -> Phase 2 workforce passkeys
+    (wks 7-12, dept by dept) -> Phase 3 SSO migration (34 direct, 4 via gateway,
+    2 documented exceptions w/ owners+dates) -> Phase 4 customer passkeys +
+    legacy basic-auth disabled with dated migration.
+  - Recovery design: lost-key re-enrollment (in-person/video-verified, 24h delay
+    for privileged), help-desk resets require 2 independent verifications +
+    SIEM alerting on privileged resets, no security questions.
+  - Authenticator lifecycle: issuance (proofing bounds strength), rotation,
+    revocation SLAs (minutes privileged / hours standard), deprovisioning steps.
+  - Biometrics: explicitly DEFERRED for workforce auth — template-storage and
+    fallback questions unanswered to standard; documented with revisit date.
+
+Self-review checklist (2026-10-10):
+  [x] weaker-path principle applied: help-desk reset attacked on paper in §5
+  [x] SMS excluded by written rationale, not assumed away
+  [x] recovery designed BEFORE enrollment in the phase order
+  [x] SSO long tail dispositioned (gateway vs documented exception, no silent gaps)
+  [x] biometrics decision explicit with FAR/FRR + template-protection framing
+  [x] SP 800-63-4 cited as current (July 2025, supersedes 800-63-3 — verified);
+      800-63B-4 cited as component volume (verified)
+  [x] FIDO passkey claims verified against fidoalliance.org page
+      (phishing-resistant, public-private key, device/cloud/hw-key storage)
+  [x] differentiated from b-session-auth (build view, not failure mechanics)
+      and e-iam (rollout view, not lifecycle governance)
+  [x] no invented statistics; company labeled fictional throughout
+Nothing unrun: worked-case lessons have no CLI steps to mark.

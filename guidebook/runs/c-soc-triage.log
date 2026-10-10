@@ -1,0 +1,29 @@
+# c-soc-triage walkthrough transcript
+# date: 2026-10-09 (UTC) · tool: Python 3.12.3 · env: loopback only, nothing external touched
+# event set: FICTIONAL, labeled in triage_events.jsonl — every value invented for teaching
+# script: /tmp/guidebook/c-stage/triage.py (impossible-travel + beaconing decision trees)
+
+[signin] j.chen: Chicago -> Lagos
+    - 9607 km in 7 min -> 82342 km/h required
+    - impossible pair + unknown device + no VPN exit -> cannot rule out compromise
+    => ESCALATE (account compromise suspected)
+
+[signin] m.okafor: Austin -> Frankfurt
+    - 8528 km in 38 min -> 13465 km/h required
+    - second sign-in from known VPN exit range
+    => CLOSE (benign true positive)
+
+[signin] svc-backup: Ashburn -> Singapore
+    - non-interactive sign-in: cloud/token refresh, travel logic does not apply
+    => CLOSE (benign true positive)
+
+[flow] WS-4417 -> cdn-metrics-ops.example
+    - 6 connections, mean interval 60s, CV=0.03
+    - tight interval clustering over multi-hour span
+    => ESCALATE (beaconing suspected)
+
+[flow] WS-4420 -> update.vendor.example
+    - 5 connections, mean interval 1800s, CV=0.84
+    - irregular intervals: human/bursty, not beaconing
+    => CLOSE (benign true positive)
+

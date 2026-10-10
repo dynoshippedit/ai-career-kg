@@ -1,0 +1,40 @@
+runs/c-ai-tooling.log — walkthrough transcript
+Date: 2026-10-09 · No command line by design: the work is evidence mapping.
+Program dates: announced 2026-10-06; this lesson's verification 2026-10-09.
+
+STEP 1 — three tiers restated from memory, checked against section 3:
+Defense: SOC/IR, malware RE, vuln analysis+validation; teams + infra operators + small firms +
+OSS maintainers + INDIVIDUAL RESEARCHERS with record of reported vulns; days to review.
+Red Team: + authorized pentesting/red teaming; ORGANIZATIONS ONLY; weeks; ransomware still blocked.
+Specialized: fewest blocks, safety-critical systems; verified orgs, reviewed WITH the US government;
+Glasswing members moved here. CHECKED: matches.
+
+STEP 2 — worked inventory (guidebook's fictional track record):
+- b-sqli lab finding + write-up (c-public-track-record walkthrough): PRACTICE (lab, unpublished)
+- c-cvd security.txt lab exercise: PRACTICE
+- c-cve-program fictional request worksheet: PRACTICE (no real submission, by design)
+- CVE-2021-44228 record fetched via API: studied, not ours
+RESULT: zero items in 'reported', zero in 'published'. Honest, and typical at this stage.
+
+STEP 3 — mapping against Defense Access: no item counts as 'a record of reported vulnerabilities'.
+Lab findings are not reports; worksheets are not submissions. The description does not fit yet.
+
+STEP 4 — gap analysis: what is missing is VENDOR-CONFIRMED disclosure — a finding taken through
+the c-cvd timeline to a real vendor, resulting in a fix or a CVE record. That is the next mountain,
+and the guidebook's disclosure lessons are the path.
+
+STEP 5 — three-item plan: (1) take one practice-target finding through a real CVD timeline (c-cvd);
+(2) write it to the Project Zero bar and publish (c-public-track-record);
+(3) request CVE credit via a CNA where the flaw qualifies (c-cve-program).
+
+STEP 6 — the correction in my own words: 'The CVP lets verified security workers use less-restricted
+models for legitimate work. It does not test skill, certify competence, or belong on a CV — describing
+it as a credential confuses the lock on the toolbox with the craft of the worker.'
+
+VERIFICATION NOTES: tier details consistent across 6+ outlets 2026-10-06–08 + CellCog page read
+in-session (cellcog.ai/blog/anthropic-cyber-verification-program, fetched 2026-10-09). Anthropic's own
+announcement URL not fetched (guessed path 404'd) — logged as gap, lesson states it plainly.
+CyScenarioBench 0/4/34-of-50 and Glasswing 129,000 / 33,000+ critical-high / 5,500 figures are
+Anthropic's own, dated 2026-10-06; independent validation flagged absent, as the lesson states.
+
+RESULT: all 6 steps ran (authored). Application is reader-side.

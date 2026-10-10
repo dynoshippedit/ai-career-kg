@@ -1,0 +1,38 @@
+e-assessment-strategy walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the annual assessment strategy document authored and self-reviewed
+in-session.
+
+Scope: fictional Alderpoint Mutual (regional insurer, 600 employees, customer
+  portal + APIs, policy admin system, cloud data warehouse, 2 offices).
+Artifacts authored:
+  - Assessment policy (one page): purpose, authority, written-authorization
+    requirement, findings-handling rules.
+  - Coverage inventory with tiers + written reasons: Tier 1 portal/APIs
+    (internet-facing, PII); Tier 2 internal network + identity infra; Tier 3
+    cloud data warehouse config; Tier 4 physical/social engineering.
+    Policy admin system tiered by data with the internal-test reasoning written.
+  - Assessor-class assignments: internal (monthly scans, quarterly config
+    reviews, 30-day retests), external firm A (annual portal pentest, overt),
+    external firm B (biennial covert red team, call-center blackout), third-party
+    attestations accepted for hypervisor layer only (shared-responsibility line).
+  - Cadence: monthly scans; quarterly config + cloud posture; per-release portal
+    review; annual pentests + wireless + IR tabletop; biennial covert;
+    event-driven (launches, acquisitions, incidents).
+  - Scoping rules template: written authorization, technique approvals,
+    production-window constraints, findings timelines (criticals 24h),
+    halt authority for any system owner.
+  - Retest commitments scheduled in the strategy, not negotiated later.
+
+Self-review checklist (2026-10-10):
+  [x] policy written before the program (SP 800-115 §6.1 order honored)
+  [x] all four testing viewpoints present somewhere in the year
+      (external/internal x overt/covert — SP 800-115 §2.4, verified)
+  [x] fragile-system exclusion handled as careful-test, not no-test
+      (identity infra)
+  [x] third-party evidence bounded (hypervisor only; own config = own test)
+  [x] technique approvals per-engagement; covert exercise has legal cover
+  [x] retest scheduled with method + window
+  [x] differentiated from b-methodology (portfolio strategy, not one engagement)
+  [x] no invented statistics; company labeled fictional throughout
+Nothing unrun: worked-case lessons have no CLI steps to mark.

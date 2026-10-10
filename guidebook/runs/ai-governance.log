@@ -1,0 +1,16 @@
+=== ai-governance walkthrough transcript ===
+date: 2026-10-09 · no command line by design (governance lesson)
+scope: Meridian Analytics support assistant (fictional) — RAG over order data,
+  tools lookup_order (read-only) + issue_refund (human approval), EU customers
+work products authored:
+  - AI risk register: 6 risks (R-1..R-6), each with RMF function, GenAI Profile
+    category, EU Act relevance, treatment from track lessons, named owner
+  - classification memo: limited-risk tier (transparency obligation), basis stated,
+    RMF coverage claim, 42001 paid-standard note, residual risks R-1/R-2
+self-review checklist (all pass):
+  [x] every risk names a concrete mechanism from track lessons (no generic rows)
+  [x] every treatment is a control taught in an earlier lesson
+  [x] every owner is a named role
+  [x] Act tier cites current text with date (Digital Omnibus amendments noted)
+  [x] 42001 described as paid in one line
+  [x] no prices/fees/salaries anywhere in lesson or work products

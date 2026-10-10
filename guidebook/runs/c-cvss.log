@@ -1,0 +1,25 @@
+=== c-cvss walkthrough run ===
+date: 2026-10-09T22:42:45Z
+tools: python3 3.12.3, node v24.20.0
+
+--- STEP 1: v3.1 scorer (local implementation of FIRST CVSS v3.1 equations) ---
+CVE-2022-41741: computed 7.0, published 7.0 -> MATCH
+CVE-2020-3549: computed 8.1, published 8.1 -> MATCH
+CVE-2023-3089: computed 7.5, published 7.5 -> MATCH
+ALL MATCH
+
+--- STEP 2: v4.0 reference implementation (FIRST cvss-v4-calculator, BSD-2-Clause, run verbatim) ---
+CVE-2022-41741 B: macro 110200 computed 7.3, published 7.3 -> MATCH
+CVE-2020-3549 B: macro 110200 computed 7.7, published 7.7 -> MATCH
+CVE-2020-3549 BTE: macro 110220 computed 5.2, published 5.2 -> MATCH
+CVE-2023-3089 B: macro 011200 computed 8.3, published 8.3 -> MATCH
+CVE-2023-3089 BE: macro 011200 computed 8.1, published 8.1 -> MATCH
+ALL MATCH
+
+=== CORRECTIONS (logged, not smoothed) ===
+1. First v3.1 implementation rounded to 5 decimal places; the spec says Roundup returns
+   the smallest number to ONE decimal place >= input. Fixed; all 3 then matched.
+2. A from-scratch Python port of the v4.0 MacroVector/interpolation scoring was attempted
+   and produced scores 0.2-0.5 off published values. Abandoned in favor of running FIRST's
+   own reference implementation (cvss-v4-calculator, BSD-2-Clause) verbatim under node.
+   The reference implementation reproduced all 5 published scores exactly.

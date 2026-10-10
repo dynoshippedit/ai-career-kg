@@ -1,0 +1,36 @@
+e-network-components walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the component-hardening review authored and self-reviewed in-session.
+
+Scope: fictional Harborlight Manufacturing (continued from e-network-architecture):
+  2 edge firewalls (HA), 3 inter-zone firewalls, VPN concentrator, 4 IDS sensors,
+  60 switches, wireless controllers, NAC policy servers.
+Artifacts authored:
+  - 6 findings, each with decision/owner/date:
+    1. Edge firewall ruleset drift: 214 rules, 31 ownerless, 6 any-any "temporary"
+       (2022-2024) -> owners in 30d; any-any justified-with-expiry or removed;
+       temporary rules require expiry dates going forward.
+    2. IDS sensor misplacement: "DMZ sensor" on post-firewall SPAN, blind to its
+       stated goal -> re-mirror to pre-firewall tap; rewrite detection goal to
+       match the actual feed.
+    3. Switch management in-band: 40 switches on user VLAN, default SNMP strings
+       -> migrate to management zone; rotate creds; disable SNMP v1/v2.
+    4. Wireless bridge-mode APs (2023 install) bridging guest to corporate LAN
+       -> reconfigure; quarterly AP-mode audit added.
+    5. NAC exception rot: 47 MAC-bypass exceptions, 19 for decommissioned devices
+       -> purge; exceptions expire after 180d unless re-justified.
+    6. IPS block mode on plant boundary without bypass plan -> alert-only with
+       24h analyst SLA; block mode only at internet edge for known-malicious.
+  - Review close-out: quarterly ruleset review; semi-annual wireless + NAC.
+
+Self-review checklist (2026-10-10):
+  [x] every finding has decision + owner + date
+  [x] sensor placement verified against stated detection goals (not assumed)
+  [x] block-vs-alert decided per boundary by false-positive cost (OT vs edge)
+  [x] NAC failure mode (closed/open) decided in writing with redundancy noted
+  [x] wireless treated as a trust boundary (parking-lot question asked)
+  [x] management-plane separation checked on sampled devices
+  [x] primaries cited: SP 800-41 Rev.1 (ruleset discipline), SP 800-94 (IDPS
+      placement), SP 800-153 (wireless) — all fetched in-session
+  [x] no invented statistics; company labeled fictional throughout
+Nothing unrun: worked-case lessons have no CLI steps to mark.

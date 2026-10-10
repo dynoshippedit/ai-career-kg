@@ -1,0 +1,19 @@
+# Run log: e-security-program walkthrough (worked case)
+
+- **Date:** 2026-10-09
+- **Environment:** none required — this is a worked-case lesson with no command line. The "run" is the program charter itself: mission, scope, RACI, risk appetite statement, measurement plan (3 KPIs + 3 KRIs, each sourced/defined/targeted), and review cadence, authored and reviewed in-session against the lesson's self-review checklist (§4 step 7).
+- **Result:** worked case complete as written in the lesson (§3–§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-09)
+
+1. Mission written in business language first — customer data + shipment operations, breach/outage consequences named. No jargon survives the founder test.
+2. Scope explicit both ways: portal, customer database, admin panel, hosting cloud accounts, data-access third parties in scope; vehicle telematics and corporate email out of scope with an annual review trigger.
+3. RACI covers six activities; every row has exactly one A, and no A is a department. Incident declaration: program lead declares, IT lead responds, founders accountable. Risk acceptance: program lead recommends, founders decide.
+4. Risk appetite statement has thresholds and timeframes ("no High/Critical without a funded response plan within one quarter") — no posters.
+5. Measurement plan: 3 KPIs (patch latency, backup restore-test success, access-review completion) + 3 KRIs (risks above tolerance, unpatched internet-facing criticals, mean time to detect). Each has source, definition, target. Decision test applied: one candidate metric ("security awareness quiz scores") was cut — it measured training activity, not a decision — and the cut is logged here.
+6. No invented numbers anywhere: targets are thresholds (≤14 days), not fabricated measurements; where real data doesn't exist yet, placeholders are labeled.
+7. Fictional organization ("Beacon Logistics") — no real company assessed.
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader runs the same seven-step authoring process for their own (or Harborlight's) program for "On your own" (§5). The artifact is their charter, not a terminal transcript.

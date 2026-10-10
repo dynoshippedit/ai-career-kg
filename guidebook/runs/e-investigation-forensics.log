@@ -1,0 +1,43 @@
+e-investigation-forensics walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the forensic-readiness assessment + investigation plan + chain-of-custody
+procedure authored and self-reviewed in-session against NIST SP 800-86 (four phases:
+collection, examination, analysis, reporting), RFC 3227 (order of volatility,
+transparency, chain of custody §4.1), and the NIJ Electronic Crime Scene
+Investigation guide for first responders (2nd ed.).
+
+Scope: fictional Meridian Analytics (180 staff, continued from e-iam). Scenario:
+departing sales engineer exfiltrates customer data to personal cloud storage over
+two weeks; DLP alert fires on last-week Friday.
+Artifacts authored (all fictional, labeled):
+  - Readiness assessment: 4 components scored (90-day file-access log retention,
+    forensic retainer 4h SLA, first-responder card, counsel-reviewed playbook);
+    gap recorded honestly (personal cloud drive outside corporate visibility).
+  - First-responder card content: order of volatility, "do not" list, call tree.
+  - Chain-of-custody form design + excerpt (item MA-2026-041, SHA-256 at
+    acquisition, sealed original, analysis on copies).
+  - Investigation plan: counsel direction, litigation hold, collection in
+    volatility order, premature-interview deferred in writing, analysis
+    leap-check, three-track decision log (employment / criminal-referral /
+    regulatory), two reports (technical + executive).
+
+Self-review checklist (2026-10-10):
+  [x] management/legal view, not analyst bench work — differentiation from
+      d-dfir-deep stated in §1
+  [x] SP 800-86's Aug 2006 age noted honestly (§3, §7); IT-view-not-law-
+      enforcement-view caveat included
+  [x] order of volatility sourced to RFC 3227 (fetched in-session, §2.1/§4.1
+      verified in TOC)
+  [x] no legal advice given — counsel-involvement framed as issue-spotting
+  [x] every scenario element labeled fictional; no real persons/companies
+  [x] §7: 3 primaries + 2 free resources (≤3); all URLs fetched in-session
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,488 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/86/final — 45371
+  https://www.rfc-editor.org/rfc/rfc3227.txt — 18468
+  https://www.ojp.gov/ncjrs/virtual-library/abstracts/electronic-crime-scene-investigation-guide-first-responders-second — 56429
+  https://csrc.nist.gov/pubs/sp/800/61/r3/final — 44461
+  https://www.first.org/standards/frameworks/csirts/ — 209940

@@ -1,0 +1,43 @@
+e-asset-classification walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the Aster Diagnostics classification scheme authored and self-reviewed in-session.
+
+Scope: fictional Aster Diagnostics (240 people, clinical lab + SaaS patient portal;
+LIMS, portal, data warehouse, email, file shares, laptops). All company facts fictional.
+Artifacts authored:
+  - Information-type inventory: 10+ types incl. containers (backups, logs, credentials)
+  - Per-objective impact ratings (confidentiality/integrity/availability, low/mod/high
+    per FIPS 199) with one-sentence reasons per rating
+  - Four tiers with impact-anchored definitions + Aster-specific examples:
+      Public / Internal / Confidential / Restricted
+  - One named owner (role) per information type; dual-ownership dispute resolved
+      (patient portal data split: CMO owns clinical content, CTO owns platform)
+  - Handling hooks per tier (full matrix deferred to e-handling-requirements)
+Design decisions recorded in lesson §3:
+  1. Patient data = Confidential (not Restricted) to keep the top tier enforceable
+  2. De-identified research data = Restricted (re-identification via aggregation)
+  3. Integrity rated per type as notes, not a second tier system (FIPS-199 thinking,
+     compressed for usability)
+  4. One owner per type; auditor's "who decided?" must have one answer
+  5. Scheme not approved until handling matrix existed (unhooked scheme = decoration)
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order (§1 Where this shows up ... §10 Leads to)
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - FIPS 199 triple {(confidentiality,impact),(integrity,impact),(availability,impact)}
+        + low/moderate/high + high-water mark — verified in SP 800-60r1 PDF text
+      - SP 800-60 Vol.1 Rev.1 purpose/process/aggregation adjustment — verified in PDF
+      - FIPS 199 abstract (purpose of the standard) — verified on CSRC page
+  [x] no ISC2 outline text quoted; objectives paraphrased by number only
+  [x] no currency symbols anywhere in lesson
+  [x] all fictional data labeled fictional
+  [x] §7: primaries first, then 2 free resources (SANS library, SP 800-60 Vol.2 Rev.1),
+      all free, all fetched in-session with char counts recorded
+  [x] §8: 5 explain/predict questions, written in-session
+  [x] §9: Artifact + Honest claim + Can't claim yet
+  [x] §10: only real lesson ids + CISSP cross-refs
+  [x] word count checked (see batch report)
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+Correction vs research spec night-research/05-stage-e.md: spec cited "NIST SP 800-60"
+  without revision — the lesson cites SP 800-60 Vol. 1 Rev. 1 (Aug 2008), because the
+  original Vol. 1 (2004) was withdrawn 2008-08-01 and superseded (verified on CSRC).

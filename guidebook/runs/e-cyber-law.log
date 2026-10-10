@@ -1,0 +1,33 @@
+e-cyber-law walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the compliance-mapping matrix authored and self-reviewed
+in-session against GDPR articles read directly from the EUR-Lex full text
+(fetched 2026-10-10 via browser_open; curl was bot-walled).
+
+Scope: fictional Bluefin Retail (US e-commerce, 180 staff, EU customers; names,
+addresses, payment tokens, purchase history, loyalty analytics). Matrix rows
+(7): Art 6/7 marketing consent -> affirmative opt-in w/ consent records;
+Art 30 records of processing -> build versioned register; Art 33/34 breach
+runbook rewrite (72h authority clock, processor clause, high-risk templates);
+Art 35 DPIA for loyalty profiling before next retrain; Art 37/38 DPO
+designation w/ CEO reporting line; Chapter V transfer basis per US-processing
+flow; Art 83 two-tier fine exposure board brief. Every row: numbered
+obligation, owner, control, evidence artifact, test cadence.
+GDPR articles verified in-session: 5 (principles + accountability), 6 (lawful
+bases), 7 (consent conditions), 33 (72h notification), 34 (data-subject
+communication), 35 (DPIA), 37/38 (DPO designation + independence), 83 (fine
+tiers 10M/2% and 20M/4%). EU AI Act (Reg. 2024/1689, 13 Jun 2024) verified via
+browser_open (recitals 1-12: harmonised AI rules, high-risk common rules,
+complementarity with data protection) — cited only for what was read.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,490)
+  [x] differentiated from b-authorization-scope (crime view vs compliance view)
+      in §1 and in the "Beyond GDPR" cybercrime bullet
+  [x] no legal advice given; counsel-disclaimer in §2 and §9
+  [x] no currency symbols anywhere (EUR amounts written without symbols)
+  [x] §7: 1 primary + 2 free resources, all fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-investigations, e-policy-docs, ai-governance)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

@@ -1,0 +1,16 @@
+e-security-models walkthrough transcript
+date: 2026-10-10
+command: python3 e-security-models.py
+environment: local stdlib Python, no network
+---- output ----
+== Bell-LaPadula demonstration ==
+Levels: 0=Unclassified 1=Confidential 2=Secret 3=TopSecret
+read  analyst_smith   (L2) -> incident_report.txt    (L2): ALLOW
+read  analyst_smith   (L2) -> source_identities.txt  (L3): DENY (no read up)
+read  operator_jones  (L1) -> shift_schedule.txt     (L1): ALLOW
+read  director_cho    (L3) -> press_release.txt      (L0): ALLOW
+write analyst_smith   (L2) -> incident_report.txt    (L2): ALLOW
+write analyst_smith   (L2) -> press_release.txt      (L0): DENY (no write down)
+write director_cho    (L3) -> source_identities.txt  (L3): ALLOW
+write operator_jones  (L1) -> source_identities.txt  (L3): ALLOW
+== 6 allowed, 2 denied ==

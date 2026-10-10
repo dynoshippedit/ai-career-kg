@@ -1,0 +1,26 @@
+Secure design principles — worked-case authoring log
+date: 2026-10-10 · lesson id: e-secure-design · serves CISSP objective 3.1, 3.3, 3.4
+mode: worked case authored and self-reviewed in-session; no command line in this lesson.
+ALL data below is fictional and labeled as such.
+
+SCOPE
+Architecture review of fictional Harborline Logistics fleet platform: 8 Saltzer & Schroeder principles pass/fail with rationale, requirements R1-R6, SP 800-53 trace, platform capability survey for cloud-vs-colo database tier decision.
+
+AUTHORING DECISIONS
+- Fictional organization and system invented for the worked case; every name, number, and finding is invented.
+- Walkthrough steps written as reader procedure; no step claims a command was run.
+- Section 7 sources: all fetched in-session 2026-10-10 (see manifest batch-d3.json sources rows for URL + chars).
+
+SELF-REVIEW CHECKLIST (2026-10-10)
+[✓] ten ## sections in exact order 1..10
+[✓] header block: ID / Stage E (Expert) / Level / Prerequisites / Map ref with paraphrase (no ISC2 outline text)
+[✓] §7: primary docs first, then at most three free resources, all free, no login/paywall
+[✓] every §7-cited URL fetched in-session 2026-10-10 with character count recorded
+[✓] walkthrough honest: labeled worked case, "no command line", no faked output
+[✓] no currency symbols anywhere in lesson or log
+[✓] no exam dumps, no ISC2 proprietary material, no outline text reproduced
+[✓] word count 2497 within 1,800–2,500
+[✓] §8 has exactly 5 questions; §9 has Artifact + Honest claim + Can't claim yet
+[✓] §10 references only real lesson ids + CISSP cross-refs
+[✓] no restatement of the CISSP experience rule
+[✓] safety: no exploit code, no evasion tooling; defenses paired with attacks where applicable

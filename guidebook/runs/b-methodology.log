@@ -1,0 +1,54 @@
+b-methodology walkthrough — worked case (no CLI by design)
+Date: 2026-10-09 · Tool versions: n/a (planning exercise) · Environment: local authoring
+Fictional engagement: Harborlight Books loyalty portal (invented; no real system involved).
+RoE referenced from b-authorization-scope (not rewritten).
+
+Step 1 — Threat model (1 page): assets ranked — loyalty-point balances (fraud
+  impact) > customer PII (breach-notification impact) > admin functions
+  (integrity impact); attacker per asset named (fraudster / data thief /
+  disgruntled insider). Decides testing-time allocation. DONE.
+
+Step 2 — Recon plan + passive notes: passive items listed (portal pages/JS,
+  certificate transparency, archived pages) each with scope status; candidate
+  list separated (staging hostname, third-party analytics -> "not in scope,
+  amendment required"); active-recon boundary written (DNS vs in-scope names,
+  connecting to in-scope ports only). Passive/active split explicit. DONE.
+
+Step 3 — Enumeration inventory: table asset -> endpoints -> parameters ->
+  technologies (to confirm) -> WSTG categories. Example row:
+  api.harborlight-books.example/v2 -> /points/balance, /points/transfer ->
+  account_id, amount -> WSTG-ATHZ, WSTG-BUSL. Every row traces to an in-scope
+  asset; candidates kept separate. DONE.
+
+Step 4 — Exploitation proof template: title, WSTG test ID, exact reproduction
+  requests, observed vs expected, business impact, remediation direction.
+  Filled once with hypothetical WSTG-ATHZ-04 balance-read. Template requires a
+  test ID and business impact before any proof is accepted. DONE.
+
+Step 5 — Post-exploitation impact paragraph: business terms (fraudulent
+  redemption, notification obligations, trust loss); explicitly states what was
+  NOT found (no payment-card exposure in the hypothetical). No tooling, no
+  further access. DONE.
+
+Step 6 — Report outline: executive summary, scope+methodology (RoE ref, PTES
+  phases, WSTG coverage note), findings ordered by business impact, remediation
+  roadmap, appendix with scope-compliance log (tested / excluded / window).
+  DONE.
+
+Step 7 — Self-review: all six artifacts trace to the RoE; recon split shown;
+  inventory rows carry WSTG categories; proof template requires test ID +
+  impact; outline includes scope-compliance log. Filed as one engagement plan.
+
+Primary-source verification performed in-session for this lesson's citations:
+  - PTES Technical Guidelines page fetched 2026-10-09 (HTTP 200): all seven
+    phase names confirmed on the primary page (resolves the earlier 403 gap).
+  - WSTG v4.2 stable page fetched 2026-10-09 (HTTP 200); IDOR test page
+    fetched: ID is WSTG-ATHZ-04 (lesson text uses the verified ID; the -02
+    misquote flagged in §6 was checked against the -02 page: it covers
+    bypassing authorization schema, not IDOR).
+  - NIST SP 800-115: CSRC landing page fetched 2026-10-09 (Final, Sept 2008);
+    full PDF fetched (544,047 bytes) and phase/method structure confirmed in
+    the document text.
+
+No step marked "not run by us": the work product is planning, and the planning
+was done and reviewed in this session.

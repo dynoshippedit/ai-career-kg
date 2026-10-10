@@ -1,0 +1,18 @@
+# Run log: ai-threat-modeling walkthrough (worked case)
+
+- **Date:** 2026-10-09
+- **Environment:** none required — this is a worked-case lesson with no command line. The "run" is the threat model itself: data-flow diagram, five trust boundaries with both-sides statements, STRIDE table, ATLAS mappings, and the risk register with owned treatments, authored and reviewed in-session against the lesson's self-review checklist (§4 step 6).
+- **Result:** worked case complete as written in the lesson (§3–§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-09)
+
+1. Data-flow diagram drawn before any threat named — elements: customer browser, prompt assembler, system prompt (config), vector store, session memory, user message, model, tool registry (`lookup_order`, `issue_refund`), order database, HTML renderer, training pipeline, model registry. Every arrow labeled with what crosses it.
+2. Five trust boundaries marked (B1 prompt assembly, B2 vector-store writes, B3 tool execution, B4 memory, B5 pipeline), each with a one-sentence both-sides trust statement.
+3. STRIDE table: all six prompts asked at every element × boundary. Six threats survived the asset+path test (T1–T6); three worries discarded and logged here: "model hallucinates an order number" (no asset/path — a quality issue, not a threat), "attacker DDoSes the vector store" (generic infra DoS, no AI-specific path — noted as out of scope, not deleted), "insider reads the training corpus" (folded into T5's tampering treatment).
+4. ATLAS mappings: T1→RAG Poisoning, T2→LLM Data Leakage, T3→AI Agent Tool Poisoning, T4→AI Agent Context Poisoning, T5→Training Data Poisoning, T6→Extract LLM System Prompt. All six mapped; none required the "gap in the library" branch.
+5. Risk register: every threat has likelihood/impact in defined words, a treatment naming the specific control, and an owner. T6 is an explicit Accept (prompt contains no secrets — verified by review, owner named, dated) — the register's honesty check.
+6. Fictional application ("Harborlight Books assistant") — no real system modeled, no real data.
+
+## What the reader reproduces
+
+The walkthrough steps in the lesson (§4) are the reproduction: the reader runs the same six-step process against their own (or the Meridian) system for "On your own" (§5). The artifact is their threat-model document, not a terminal transcript.

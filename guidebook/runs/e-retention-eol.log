@@ -1,0 +1,44 @@
+e-retention-eol walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the Aster Diagnostics retention + destruction schedule, legal-hold
+procedure, and decommissioning checklist, authored and self-reviewed in-session.
+
+Scope: fictional Aster Diagnostics (continued); five data types from the lifecycle
+lesson. All company facts and all legal bases labeled as EXAMPLE bases (a fictional
+company cannot cite real statutes honestly).
+Artifacts authored:
+  - Retention + destruction schedule: period, basis (example), computable trigger,
+    disposition w/ 800-88r2 method + verification, EOL/EOSL note per row
+  - Legal-hold procedure: declared by general counsel (CEO fallback); written notice
+    to custodians within 48h; written acknowledgment; automated destruction suspended;
+    quarterly hold review; written release w/ resumption basis
+  - Decommissioning checklist, 7 steps: migrate/destroy (method+verification) ->
+    backups scheduled -> credentials revoked -> CMDB retired w/ history -> licenses
+    reclaimed -> physical disposition per 800-88r2 -> verifier sign-off
+  - Schedule-governs-itself row: destruction records 7y; hold docs hold+6y
+Design decisions recorded in lesson §3:
+  1. Triggers must be computable events ("7y from last encounter", not "7 years")
+  2. Example bases labeled honestly; real deployment cites actual authorities
+  3. EOSL tracked in CMDB; migration planning starts 12 months out; EOSL-in-production
+     = risk acceptance w/ owner+date or migration date, nothing between
+  4. Governance artifacts get schedule rows too
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order
+  [x] every factual claim traced to a source fetched in-session 2026-10-10:
+      - SP 800-53 Rev. 5 SI-12 control + discussion ("full life cycle ... extending
+        beyond system disposal"; NARA reference) — verified in PDF text
+      - SP 800-53 Rev. 5 MP-6 control text — verified in PDF text
+      - 800-88r2 clear/purge/destroy for disposition column — verified in PDF text
+      - GDPR Art. 5(1)(e) storage limitation ("kept ... for no longer than is
+        necessary") — verified via gdpr-info.eu mirror (eur-lex.europa.eu returned
+        a JS shell to curl; official text noted as the canonical source)
+  [x] no ISC2 outline text quoted; no currency symbols
+  [x] all fictional data labeled fictional; example bases labeled as examples
+  [x] §7: primaries first (800-53 Rev.5 SI-12/MP-6, 800-88r2), then 2 free resources
+      (GDPR Art.5(1)(e), SANS library)
+  [x] §8: 5 questions; §9: Artifact/Honest claim/Can't claim yet; §10: real ids only
+  [x] word count checked (see batch report)
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+Note: EOL vs EOSL vs end-of-use distinguished per lesson §3 (standard industry
+  usage); EOSL-in-production handled as risk acceptance per e-risk-assessment rule.

@@ -1,0 +1,53 @@
+# runs/a-osint-research.log — walkthrough transcript
+# Date: 2026-10-09 · Local files only: /tmp/osintwalk/harborlight/
+# Target: FICTIONAL company harborlight-books.example (teaching artifacts written
+# for this walkthrough). No network request left this machine; no real target touched.
+
+$ ls /tmp/osintwalk/harborlight/
+index.html  robots.txt  sitemap.xml  zone.txt
+
+$ # step 2: robots.txt — passive read
+$ cat robots.txt
+User-agent: *
+Disallow: /admin/
+Disallow: /staging/
+Disallow: /backup-2024/
+Sitemap: https://harborlight-books.example/sitemap.xml
+# -> 3 candidate findings (paths exist/existed); /backup-2024/ highest interest;
+#    "do not touch without scope" caveat recorded.
+
+$ # step 3: sitemap paths
+$ grep -o "<loc>[^<]*" sitemap.xml | cut -d/ -f4-
+about
+staff
+staging/preview
+# (cut dropped the empty first fields; full paths: /, /about, /staff, /staging/preview)
+# -> 1 anomaly finding: staging content in the PUBLIC sitemap.
+
+$ # step 4: HTML comments + meta (the confession booth)
+$ grep -o "<!--.*-->" index.html
+<!-- TODO: remove staging link before launch - M. -->
+<!-- internal admin panel at /admin/ uses default creds, fix before launch -->
+$ grep -o '<meta name="[^"]*" content="[^"]*"' index.html
+<meta name="generator" content="HarborPress 2.4.1"
+<meta name="author" content="M. Okafor"
+# -> 4 findings: 2 comments (stated facts, quoted), generator version (vuln-DB
+#    lookup possible — inference, labeled), author name (people-mapping — read only).
+
+$ # step 5: zone file subdomains
+$ grep -oE "^[a-z.-]+\.harborlight" zone.txt | sort -u
+mail.harborlight
+staging.harborlight
+vpn.harborlight
+www.harborlight
+# (truncated at the fictional TLD in this grep; full names in zone.txt)
+# -> 2 infrastructure findings beyond www/mail: staging + vpn subdomains,
+#    each with a one-sentence hypothesis (pre-prod exposure; remote-access surface).
+
+$ # step 6: report compression
+robots:3 disallowed | sitemap:1 staging path | comments:2 sensitive | meta: generator version + author name | dns: 2 non-www subdomains
+# 9 findings total, each re-derivable from a cited file+line. Status on all:
+# passive/public — acting on any of them requires written authorization
+# (b-authorization-scope). The table in lesson §3 is this walkthrough's output.
+
+# Walkthrough complete: all 6 steps ran. Passive only, fictional target only.

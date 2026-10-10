@@ -1,0 +1,49 @@
+e-cryptanalysis walkthrough transcript
+date: 2026-10-10
+commands: python3 e-cryptanalysis-brute.py ; python3 e-cryptanalysis-caesar.py
+environment: local stdlib Python, no network, no real ciphers attacked
+---- brute-force + birthday output ----
+== Brute-force key-space estimates (average case = half the key space) ==
+
+40-bit key: 2^40 = 1,099,511,627,776 keys
+   single CPU (~1e9 keys/s): ~9.2 minutes
+   GPU cluster (~1e12 keys/s): ~0.5 seconds
+   hypothetical exascale (~1e18 keys/s): ~0.0 seconds
+
+56-bit key: 2^56 = 72,057,594,037,927,936 keys
+   single CPU (~1e9 keys/s): ~1.1 years
+   GPU cluster (~1e12 keys/s): ~10.0 hours
+   hypothetical exascale (~1e18 keys/s): ~0.0 seconds
+
+64-bit key: 2^64 = 18,446,744,073,709,551,616 keys
+   single CPU (~1e9 keys/s): ~292.3 years
+   GPU cluster (~1e12 keys/s): ~106.8 days
+   hypothetical exascale (~1e18 keys/s): ~9.2 seconds
+
+80-bit key: 2^80 = 1,208,925,819,614,629,174,706,176 keys
+   single CPU (~1e9 keys/s): ~1.92e+07 years
+   GPU cluster (~1e12 keys/s): ~19,154.3 years
+   hypothetical exascale (~1e18 keys/s): ~7.0 days
+
+112-bit key: 2^112 = 5,192,296,858,534,827,628,530,496,329,220,096 keys
+   single CPU (~1e9 keys/s): ~8.23e+16 years
+   GPU cluster (~1e12 keys/s): ~8.23e+13 years
+   hypothetical exascale (~1e18 keys/s): ~8.23e+07 years
+
+128-bit key: 2^128 = 340,282,366,920,938,463,463,374,607,431,768,211,456 keys
+   single CPU (~1e9 keys/s): ~5.39e+21 years
+   GPU cluster (~1e12 keys/s): ~5.39e+18 years
+   hypothetical exascale (~1e18 keys/s): ~5.39e+12 years
+
+256-bit key: 2^256 = 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,936 keys
+   single CPU (~1e9 keys/s): ~1.83e+60 years
+   GPU cluster (~1e12 keys/s): ~1.83e+57 years
+   hypothetical exascale (~1e18 keys/s): ~1.83e+51 years
+
+---- caesar frequency-analysis output ----
+== Frequency analysis of a Caesar cipher (shift unknown) ==
+top 3 ciphertext letters: [('v', 1068), ('k', 600), ('y', 408)]
+most common ciphertext letter: 'v' -> guessed shift 17 (true shift 17)
+ciphertext: ze kyv svxzeezex kyviv nrj fecp uribevjj reu kyve r czxyk rggvrivu ze kyv vrjkvi...
+recovered:  in the beginning there was only darkness and then a light appeared in the easter...
+recovery successful: True

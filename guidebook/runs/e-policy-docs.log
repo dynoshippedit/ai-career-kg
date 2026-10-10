@@ -1,0 +1,30 @@
+e-policy-docs walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the four-tier document set authored and self-reviewed in-session
+against the policy/standard/procedure/guideline model and the NIST SP 800-53
+Rev. 5 family structure (csrc landing page fetched 2026-10-10, 56,945 bytes;
+19 of 20 family names confirmed on-page, incl. Personnel Security and the
+Assessment/Authorization/Monitoring family).
+
+Scope: fictional Harbor Clinic; control area = encryption of patient data.
+Artifacts: (1) one-page Information Protection Policy (what+why, no technical
+detail, risk-committee approved, annual review); (2) Encryption Standard
+(implements Policy §3; references the e-crypto-applied baseline instead of
+embedding algorithm names; exception path named); (3) key request/rotation
+procedure (steps in order, role per step, rotation on compromise or privileged
+departure); (4) advisory guideline for choosing among approved options.
+Traceability check run both directions: procedure §5 (rotation on departure)
+-> standard §3 -> policy §3; policy §3 -> standard -> procedure.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,306)
+  [x] tier discipline held: policy has no technical detail; standard has no
+      steps; procedure is executable; guideline marked advisory
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 2 free resources, all fetched in-session (SANS policy
+      templates 241,551 bytes; CSF 2.0 GV.OC via the fetched CSF PDF)
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-governance, e-awareness-training,
+      e-crypto-applied)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

@@ -1,0 +1,30 @@
+e-investigations walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the five-step decision tree + three scenario analyses, authored
+and self-reviewed in-session against NIST SP 800-86 (forensic techniques in
+IR; csrc landing fetched 2026-10-10, 45,371 bytes) and the DOJ CCIPS remit
+pages (justice.gov, fetched 2026-10-10, 108,033 bytes).
+
+Scope: fictional Copperline Freight. Tree: (1) crime suspected? -> preserve to
+criminal standards, counsel, no premature interview; (2) litigation anticipated?
+-> litigation hold now, in writing, broad; (3) regulator notification? -> clock
+runs on awareness; (4) administrative track in parallel after counsel clears;
+(5) reassess at every new fact. Scenarios: A (suspected insider sysadmin) ->
+admin + criminal; sequence counsel-first, image-before-touch, no interview yet;
+B (ransomware w/ EU customer data exfil) -> regulatory (72h dominates) + civil
++ criminal + admin; hold day one; C (expense fraud) -> admin only, still
+preserved properly. Each: type(s), authority, evidence standard, sequencing,
+the one mistake to avoid.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,486)
+  [x] four-type framework presented as the industry's standard process framing;
+      no statute text quoted; counsel-engagement guidance flagged as process
+      literacy, not legal advice
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 2 primaries + 1 free resource, all fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (d-dfir-deep, c-incident-response,
+      e-cyber-law, e-personnel-security)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

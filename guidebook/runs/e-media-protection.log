@@ -1,0 +1,46 @@
+e-media-protection walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the media inventory scheme + custody procedures + sanitization
+decision table + transport log authored and self-reviewed in-session against
+NIST SP 800-88 Rev. 1's decision framework (Ch. 4: categorization → reuse →
+sanitization decision → verification → documentation; §2.5 Clear/Purge/Destroy
+definitions verified against the fetched PDF).
+
+Scope: fictional Kestrel Components (90 staff, precision manufacturing).
+Scenario: design files on workstations/file server/backup tapes + an unowned
+pile of 12 retired drives (3 still holding design data).
+Artifacts authored (all fictional, labeled):
+  - Inventory scheme: asset tag + type/owner/classification/location columns;
+    the retired pile inventoried first and assigned an owner.
+  - Labeling: 3 tiers (INTERNAL green / CONFIDENTIAL yellow / RESTRICTED red)
+    with the handling rule printed on the label.
+  - Custody: backup tapes in locked safe + sign-out log; bonded-courier
+    transport with tamper-evident bags and two-ended handoff log; USB banned
+    for RESTRICTED (one line + DLP enforcement).
+  - Sanitization decision table: 5 rows (HDD redeploy → Purge; HDD leaving org
+    → Destroy; expired tapes → Destroy; SSD → Purge, CE only with verified
+    preconditions; RESTRICTED paper → cross-cut shred) — every row with a
+    verification column.
+  - Transport log excerpt (tape set KT-2026-10-03, seal numbers, both-end
+    signatures).
+
+Self-review checklist (2026-10-10):
+  [x] physical/operational handling view — differentiation from the data
+      lifecycle stated in §1 (retention governs life; this governs the object)
+  [x] Clear/Purge/Destroy definitions verified against the SP 800-88 PDF
+      (§2.5: Clear = logical techniques vs simple non-invasive recovery;
+      Purge = infeasible even with lab techniques; Destroy = physical)
+  [x] 800-88's "disposal without sanitization only if no impact of any kind"
+      bar represented honestly
+  [x] CE treated carefully per §2.6 (preconditions verified or not claimed)
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-88 Rev.1, 800-53 MP family via pub page) + 1 free
+      resource (800-111)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,359 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r1.pdf — 714563
+  https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final — 56945
+  https://csrc.nist.gov/pubs/sp/800/111/final — 45373

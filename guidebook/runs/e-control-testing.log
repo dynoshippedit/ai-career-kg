@@ -1,0 +1,36 @@
+e-control-testing walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the method-selection matrix authored and self-reviewed in-session.
+
+Scope: fictional Alderpoint Mutual (continued): 5 control claims tested.
+Artifacts authored:
+  - 5-row matrix: control claim as sentence -> primary method -> supporting
+    method -> what a pass proves AND what it can't prove:
+    1. Portal blocks OWASP Top 10: annual pentest + monthly scans + per-release
+       code review (pass proves that-way-that-week, not absence).
+    2. Servers match baseline: quarterly config review vs CIS Benchmarks +
+       continuous misconfiguration checks (pass proves conformance on sample
+       date, not baseline sufficiency).
+    3. Firewall rules implement boundary table: quarterly ruleset review +
+       annual pentest crossing attempts (configured intent vs running reality).
+    4. Phishing reported not clicked: annual scoped social-engineering exercise
+       + mailbox log review + training completion (snapshot, not culture).
+    5. PII access logged + reviewed: monthly sampled log review + annual
+       synthetic transaction proving the detection path end-to-end.
+  - Sequencing: cheap before expensive; scan/ruleset outputs handed to pentesters
+    as starting intelligence; retest of highs via internal synthetic suite
+    within 30 days of claimed remediation.
+
+Self-review checklist (2026-10-10):
+  [x] every control has primary + supporting method observing differently
+      (configuration vs behavior)
+  [x] negative-result discipline: each row states what a pass does NOT prove
+  [x] scan treated as weakest assurance, not strongest (the §6 anti-pattern)
+  [x] social engineering carries the legal/authorization wrapper
+  [x] synthetic transactions test denials, not just the happy path
+  [x] methods mapped to verified SP 800-115 catalog (§3 review, §4
+      identification/analysis, §5 validation) — PDF fetched in-session
+  [x] differentiated from b-methodology (program-level selection, not engagement
+      walkthrough)
+  [x] no invented statistics; company labeled fictional throughout
+Nothing unrun: worked-case lessons have no CLI steps to mark.

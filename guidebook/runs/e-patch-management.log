@@ -1,0 +1,49 @@
+e-patch-management walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the patching SLA policy + exception register + emergency runbook
+authored and self-reviewed in-session against NIST SP 800-40 Rev. 4's program
+structure and the CISA KEV catalog's prioritization model.
+
+FACTUAL CORRECTION vs research spec (verified in-session 2026-10-10):
+  The spec's frame predates a real change: CISA's BOD 22-01 page now states
+  "This Directive has been revoked. It is superseded by BOD 26-04" (revoked
+  June 10, 2026). BOD 26-04 "Prioritizing Security Updates Based on Risk"
+  (fetched: https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk,
+  84350 chars) "supersedes and hereby revokes BOD 19-02 ... and BOD 22-01 ...
+  consolidates and clarifies vulnerability remediation guidelines for federal
+  agencies." The lesson teaches KEV + BOD 26-04 and notes the revocation.
+
+Scope: fictional Northgate Retail (300 staff, 40 stores, e-commerce, POS).
+Artifacts authored (all fictional, labeled):
+  - SLA policy: 4 tiers (Emergency 24h / Critical 7d / High 30d / Routine 90d)
+    with triggers and scope notes; timelines explicitly the company's own
+    decisions, not CISA's.
+  - Testing/windows: POS overnight vendor window; e-commerce canary→10%→full
+    with auto-rollback; warehouse monthly window.
+  - Exception register: 2 rows (2008 warehouse server — isolated VLAN, no
+    internet, host IDS, quarterly review, named owner; POS firmware awaiting
+    vendor — 90-day with ticket ref).
+  - Emergency runbook: declaration authority, non-waivable minimum testing
+    (canary + smoke), communications, rollback thresholds; annual tabletop
+    (last exercise found the stale store-notification list — fixed).
+
+Self-review checklist (2026-10-10):
+  [x] prioritization order taught: KEV membership → exploitability/exposure →
+      severity → asset criticality (severity explicitly not urgency)
+  [x] KEV catalog page fetched in-session (285443 chars; catalog loads with
+      CVE rows, e.g. CVE-2023-22894 visible)
+  [x] BOD 22-01 → 26-04 correction verified from primary (BOD 22-01 page
+      itself states revocation/supersession); lesson notes it
+  [x] SP 800-40 Rev. 4 April 2022 verified from CSRC page ("April 2022
+      Supersedes: SP 800-40 Rev. 3")
+  [x] timelines framed as organizational decisions with triggers defined
+  [x] every scenario element labeled fictional
+  [x] §7: 2 primaries (800-40 Rev.4, KEV catalog) + 1 free resource (BOD 26-04)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,324 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size):
+  https://csrc.nist.gov/pubs/sp/800/40/r4/final — 45323
+  https://www.cisa.gov/known-exploited-vulnerabilities-catalog — 285443
+  https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk — 84350

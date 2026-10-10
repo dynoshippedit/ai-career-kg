@@ -1,0 +1,35 @@
+=== ai-supply-chain walkthrough transcript ===
+date: 2026-10-09 · Python 3.12.3 · no network
+built /tmp/guidebook/model_dir with 5 files
+
+hashed 5 files -> SHA256SUMS
+
+VERIFICATION PASSED: 5 files match reference hashes
+
+appended 1 byte to shard1.bin
+
+VERIFICATION FAILED: shard1.bin (hash mismatch or missing)
+
+exit=1 (expected nonzero: tamper caught)
+built /tmp/guidebook/model_dir with 5 files
+
+hashed 5 files -> SHA256SUMS
+
+VERIFICATION PASSED: 5 files match reference hashes
+
+wrote bom.json: 1 model component + 5 file components
+
+crafted evil.pkl (labeled hazard demo, scratch dir only)
+after pickle.load: marker present = True  <- code ran at LOAD time
+safe-format load: no code execution possible (data only)
+hazard files deleted
+
+admission policy (plug cosign verification where marked):
+  1. bom.json present and parses as CycloneDX
+  2. every file hash matches bom.json  -> refuse on mismatch
+  3. [STUB] cosign verify-blob --certificate-identity <expected-publisher> bom.json.sig
+     (not run here: needs network + OIDC identity; reader step 6)
+  4. framework version not on the known-vulnerable list
+  any check fails -> deploy stops (fail closed)
+
+--- step 6 (live keyless signing): NOT RUN BY US - needs network + OIDC identity; reader procedure in lesson

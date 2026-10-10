@@ -1,0 +1,33 @@
+e-supply-chain-risk walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the vendor risk assessment authored and self-reviewed in-session
+against NIST SP 800-161 Rev. 1 (PDF fetched 2026-10-10, 4,845,469 bytes;
+327 pages; TOC verified: ch.2 enterprise-wide risk management incl. 2.3
+multilevel risk management and 2.3.5 C-SCRM PMO; ch.3 Critical Success Factors
+incl. 3.1 C-SCRM in Acquisition, 3.2 information sharing, 3.3 training and
+awareness, 3.4 key practices).
+
+Status note recorded honestly in-lesson: Rev. 1 (May 2022) was withdrawn from
+its old nvlpubs URL on 2024-11-01; the same Rev. 1 is the current edition on
+csrc.nist.gov (verified on the csrc publication page 2026-10-10).
+
+Scope: fictional Harbor Clinic buying a cloud billing platform (patient contact
+data + payment tokens, EHR API integration, 40-person vendor, SOC 2 Type II).
+Six factors assessed w/ ratings+reasons: access (high), criticality (high),
+posture evidence (medium — auditor exceptions read), fourth parties (medium),
+exit (high risk — CSV-only export, 90-day auto-renew, no deletion attestation),
+provenance (low/noted). Mitigations: minimum-requirements clause, 48h vendor
+breach notification, 30-day subprocessor-change notice w/ right to object,
+data return + deletion attestation, least-privilege API scoping, annual +
+trigger-based reassessment. Decision: conditional accept — owner: operations
+director; review: 12 months or on trigger; accepted residual risks named.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,495)
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 2 free resources, all fetched in-session (CISA ICT SCRM
+      58,064 bytes; CISA SBOM 59,760 bytes)
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (ai-supply-chain, e-cyber-law, e-governance)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

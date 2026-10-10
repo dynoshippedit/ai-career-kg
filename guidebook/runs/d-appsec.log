@@ -1,0 +1,77 @@
+=== d-appsec walkthrough ===
+date: 2026-10-09
+
+--- step 1: STRIDE on the upload flow (worked case, authored) ---
+Flow: user -> upload endpoint -> virus-scan stub -> file store -> manager preview
+T1 (Tampering): malicious PDF exploits the scanner stub -> mitigate: stub runs sandboxed, files quarantined until verdict; verify by submitting EICAR-style benign test file.
+T2 (Information disclosure): preview renders PDF with embedded JS -> mitigate: preview serves sanitized raster, never the raw file; verify by uploading a JS-carrying PDF and inspecting the preview response.
+(threat list authored; no CLI by design for this step)
+
+--- step 2: teaching sketch SAST ---
+  File "/home/hatch/tmp-guidebook/appsec/sketch_sast.py", line 9
+    ]
+    ^
+SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 8
+
+--- step 3: triage + blind spot ---
+TRIAGE:
+  vuln_app.py:7 [string-concat SQL] -> TRUE POSITIVE (user input concatenated into query)
+  vuln_app.py:2 [hardcoded secret] -> TRUE POSITIVE (live-looking key in source)
+  vuln_app.py:12 [weak hash] -> NEEDS CONTEXT (md5 for tokens is weak; for non-security checksums it would be FP)
+Adding a business-logic flaw the sketch cannot see:
+  File "/home/hatch/tmp-guidebook/appsec/sketch_sast.py", line 9
+    ]
+    ^
+SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 8
+(still 3 findings: the logic flaw is invisible to pattern matching - the lesson's core point, demonstrated)
+
+--- step 4: diff review (worked case) ---
+REVIEW FINDINGS (written as for the developer):
+  1. auth.py (request_reset): reset token in URL query string - tokens land in server logs, browser history, referers. Fix: deliver via POST body link carrying a one-time path token, or keep the token out of logged URLs.
+  2. auth.py (request_reset/do_reset): no rate limit on reset requests - user enumeration + email bombing. Fix: per-IP/per-account throttling with backoff.
+  3. auth.py (do_reset): token never expires and is not consumed on use - replayable indefinitely. Fix: 15-minute expiry, single-use delete on success.
+  4. auth.py: token_hex(8) = 64 bits; acceptable, but state the entropy budget in a comment so the next reader doesn't 'optimize' it down.
+
+--- step 5: real Semgrep (reader-side, NOT RUN BY US) ---
+The Semgrep engine binary is non-functional in this sandbox (pysemgrep exits silently; logged honestly).
+Reader runs: pipx install semgrep && semgrep login && semgrep ci ; compares against the sketch's 3 findings.
+
+--- step 6: real DAST + SCA (reader-side, NOT RUN BY US) ---
+OWASP ZAP authenticated scan + Dependency-Check against the reader's local Juice Shop. No Docker here; not run.
+--- step 2 (re-run, corrected): teaching sketch SAST ---
+vuln_app.py:2: [hardcoded secret] API_KEY = "sk-live-abc123"
+vuln_app.py:10: [weak hash] return hashlib.md5(s.encode()).hexdigest()
+
+--- step 3 (re-run, corrected): blind-spot demo ---
+vuln_app.py:2: [hardcoded secret] API_KEY = "sk-live-abc123"
+vuln_app.py:10: [weak hash] return hashlib.md5(s.encode()).hexdigest()
+(3 pattern findings; the client-controlled discount flaw appended earlier is invisible to the sketch - the lesson's core point, demonstrated)
+
+CORRECTION LOGGED: (1) first sketch had a paren typo; (2) fixed file was written to /tmp/guidebook instead of ~/tmp-guidebook - consolidated. Both failed runs preserved above in this log; this is the corrected run.
+--- step 2 (final corrected run): teaching sketch SAST ---
+vuln_app.py:2: [hardcoded secret] API_KEY = "sk-live-abc123"
+vuln_app.py:6: [string-concat SQL] q = "SELECT * FROM users WHERE u='" + user + "' AND p='" + pw + "'"
+vuln_app.py:10: [weak hash] return hashlib.md5(s.encode()).hexdigest()
+
+--- step 3 (final): blind-spot demo ---
+vuln_app.py:2: [hardcoded secret] API_KEY = "sk-live-abc123"
+vuln_app.py:6: [string-concat SQL] q = "SELECT * FROM users WHERE u='" + user + "' AND p='" + pw + "'"
+vuln_app.py:10: [weak hash] return hashlib.md5(s.encode()).hexdigest()
+(pattern findings above; the client-controlled discount flaw is invisible to the sketch - the lesson's core point, demonstrated)
+
+CORRECTION LOGGED: v3 of the sketch - SQL pattern changed from execute(-anchored to query-keyword-anchored because the concatenation happens in the assignment, not the execute() call. Lesson triage line numbers updated to match.
+
+--- step 5 re-run 2026-10-10: real Semgrep (RUN BY US) ---
+Engine: Semgrep 1.180.0 in a clean venv (.gap-sprint/semvenv; system pip refused with a
+typing_extensions RECORD conflict, so the earlier "dead shim" report is superseded).
+Method: real OCaml engine, local rules file (4 rules: hardcoded-secret, string-concat-sql,
+weak-hash-md5, tainted-sql-execute). --config auto not used: it needs registry network + login.
+Target: vuln_app.py reconstructed from the step-2 fixture (lines 2/6/10 identical to the sketch run).
+Result: 4 findings — hardcoded-secret (line 3), string-concat-sql (line 6),
+tainted-sql-execute (user/pw -> db.execute), weak-hash-md5 (line 10).
+Comparison vs the teaching sketch's 3 findings: the real tool caught all 3 pattern findings
+AND added the taint-tracked flow (user input reaching db.execute) that pattern matching cannot see.
+Both the sketch and the real tool MISSED the business-logic flaw (client-controlled discount in
+checkout()) — the lesson's core point now demonstrated against the real engine, not just the sketch.
+The "not run by us: Semgrep engine non-functional" marker for step 5 is CLOSED.
+Step 6 (ZAP + Dependency-Check) stays reader-side: no Docker on this machine.

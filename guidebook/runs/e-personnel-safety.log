@@ -1,0 +1,47 @@
+e-personnel-safety walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the travel-security briefing + workplace-violence prevention
+procedure + lone-worker check-in design authored and self-reviewed in-session
+against OSHA's workplace-violence guidance and OSAC's briefing resources.
+
+Scope: fictional Kestrel Components (continued from e-media-protection /
+e-physical-security): field engineer travel to elevated-risk region; two
+aggressive confrontations at HQ reception by a terminated contractor.
+Artifacts authored (all fictional, labeled):
+  - Travel briefing: OSAC-sourced threat picture, twice-daily check-in with
+    +2h/+4h escalation, pre-arranged transport, no-go areas, approved hotel
+    criteria, emergency plan (consulate, medevac number, rally point), duress
+    phrase with listener response; written acknowledgment; emergency contact
+    briefed.
+  - Workplace-violence procedure: zero-tolerance policy (posted, signed),
+    per-site assessment (reception highest risk; late-shift warehouse second),
+    engineering + administrative controls (duress alarm to guard's radio,
+    paired staffing), training content, reporting channel with 48-hour
+    investigation commitment and trust loop; the two confrontations logged
+    as first cases.
+  - Lone-worker check-in: arrival/midday/departure schedule, +1h/+2h
+    escalation with named responders, schedule in shared calendar, the
+    22:00 honesty test.
+
+Self-review checklist (2026-10-10):
+  [x] safety view — differentiation from Domain 1 personnel-security stated
+      in §1 (employment-lifecycle policy vs keeping people safe)
+  [x] OSHA page fetched via browser_open (curl 403'd; alternate route used):
+      definition, risk factors, zero-tolerance policy, prevention-program
+      elements, "no specific OSHA standards" — all represented honestly
+  [x] OSAC fetched via browser_open (curl 403'd; alternate route used):
+      described per page — State Dept DSS public-private partnership,
+      country security reports, Traveler Toolkit
+  [x] duress/check-in taught as rehearsed procedures, not documents
+  [x] every scenario element labeled fictional; no real persons
+  [x] §7: 2 primaries (OSHA workplace violence, CISA insider threat) + 1 free
+      resource (OSAC)
+  [x] no currency symbols; no ISC2 outline text; objectives paraphrased
+  [x] 2,276 words (1,800–2,500); ten ## sections in order
+Nothing unrun: worked-case lessons have no CLI steps to mark.
+
+Sources fetched 2026-10-10 (chars = response body size; browser pages =
+rendered text saved to /tmp/d7src/):
+  https://www.osha.gov/workplace-violence — 4145 (browser_open; curl 403)
+  https://www.cisa.gov/insider-threat-mitigation — 62166
+  https://www.osac.gov/ — 1700 (browser_open; curl 403)

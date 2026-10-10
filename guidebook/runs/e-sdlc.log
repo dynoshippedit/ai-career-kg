@@ -1,0 +1,31 @@
+e-sdlc walkthrough log — 2026-10-09
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the threat model + gate review authored and self-reviewed in-session
+against NIST SP 800-218 (SSDF v1.1, Feb 2022) practice groups.
+
+Scope: fictional Northwind Traders ordering API (public REST API, web frontend,
+PostgreSQL, fulfillment worker, third-party payment processor).
+Trust boundaries drawn: internet<->API, API<->database, API<->payment processor.
+Artifacts authored:
+  - STRIDE walk: 4 recorded threats w/ design-phase mitigations + owners
+    1. Tampering/order total (price tamper) -> server-side recompute; backend lead
+    2. Information disclosure/order history (IDOR) -> ownership check pattern; checklist item
+    3. Elevation/admin endpoints -> separate authz middleware + negative test
+    4. Repudiation/payment disputes -> append-only order event log (requirements-level)
+  - Gate criteria per SDLC phase (requirements/design/implementation/verification/
+    release/maintenance) with release-blocking severities defined in advance.
+  - Gate review: SAST flags concatenated SQL in admin search -> release-blocking,
+    fix + re-scan + negative test, root-cause note (checklist skipped for admin code)
+    -> process fix (enforcement), not just the query.
+  - SSDF mapping: every activity labeled Prepare/Protect/Produce/Respond.
+  - Effectiveness sketch: 3 metrics (detection-phase shift, MTTR by severity,
+    recurrence rate) with definitions + data sources; "scans run" rejected as activity.
+
+Self-review checklist (2026-10-09):
+  [x] threat model precedes implementation in the narrative (design-phase mitigations)
+  [x] blocking severities defined before the release scenario, not during
+  [x] root-cause note addresses the process, not just the finding
+  [x] SSDF mapping complete; no unmapped activity left undecided
+  [x] metrics are effectiveness metrics, not activity counts
+  [x] no invented statistics; all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

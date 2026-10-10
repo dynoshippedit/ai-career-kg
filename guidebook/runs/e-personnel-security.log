@@ -1,0 +1,31 @@
+e-personnel-security walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the termination checklist + access-revocation runbook + travel
+briefing, authored and self-reviewed in-session against the NIST SP 800-53
+Rev. 5 Personnel Security (PS) family (csrc landing fetched 2026-10-10) and
+CISA Insider Threat Mitigation (cisa.gov, fetched 2026-10-10, 62,166 bytes).
+
+Scope: fictional Copperline Freight; voluntary resignation of a sysadmin with
+domain-admin rights, two weeks' notice. Checklist (what/owner/when): day-0 HR
+system date + risk-rating + access inventory; days 1-10 knowledge transfer;
+day 10 shared-credential rotation (admin passwords, service accounts, PSKs,
+safe combos); last-day exit interview + asset return + NDA reminder; COB
+revocation (disable, not delete — preservation per e-investigations); day+1
+verification (login attempt fails, rotation confirmed); day+30 privileged
+post-departure review. Involuntary variant: revocation before the meeting,
+escort, asset collection at the meeting. Travel briefing: CFO high-risk trip —
+loaner device, minimal data, no customer DB over hotel net, border-inspection
+assumptions, documented acknowledgment, scheduled debrief with device
+inspection + credential rotation.
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,406)
+  [x] differentiated from e-iam (technical joiner-mover-leaver) in §1/§2/§10:
+      this lesson is the HR-security/policy view — owners, timing, agreements
+  [x] no employment-law advice; jurisdiction variance flagged in §9
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 1 free resource, both fetched in-session
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-iam, e-awareness-training, e-investigations)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

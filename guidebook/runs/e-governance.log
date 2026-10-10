@@ -1,0 +1,35 @@
+e-governance walkthrough log — 2026-10-10
+Worked-case lesson: no command line by design (brief §6).
+The "run" is the governance charter authored and self-reviewed in-session
+against NIST CSF 2.0's Govern function (CSWP 29, Feb 26 2024; PDF fetched
+2026-10-10, 1,518,858 bytes).
+
+Scope: fictional Copperline Freight (240 staff, 3 sites, regional logistics;
+newly hired CISO, no charter, security budget as IT overhead, no risk
+committee). Charter elements authored: mission alignment statement (protect
+dispatch availability / shipment-data confidentiality / customer trust);
+CISO reports to CEO with quarterly board slot (old CISO-under-CIO failure
+corrected in writing); quarterly risk committee (CEO, CFO, CIO, CISO, GC);
+board-approved risk appetite (absolute at center: no unmitigated risk to
+dispatch or customer data); framework rationale (CSF 2.0 as program language —
+outcomes-based, free, board-readable; ISO 27001 deferred with review date;
+SOC 2 Type II scoped to the tracking portal only); policy authority + exception
+path (requester, risk statement, approver, expiry); AI governance assigned to
+CISO with risk-committee review for customer-affecting AI; oversight cadence
+(quarterly metrics, annual charter review).
+
+Self-review checklist (2026-10-10):
+  [x] ten ## sections in order; 1,800-2,500 words (2,498)
+  [x] CSF 2.0 facts (6 Functions incl. Govern at center, 22 Categories,
+      106 Subcategories, Feb 26 2024, outcomes-not-checklist, no such thing as
+      "CSF certified") from the fetched primary
+  [x] ISO 27001 handled per brief rule: paid document, one line, free equivalents
+  [x] no currency symbols anywhere in the lesson
+  [x] §7: 1 primary + 2 free resources, all fetched in-session (CSF 2.0 PDF;
+      ISACA COBIT overview 178,099 chars; CSF Organizational Profiles PDF
+      775,990 chars)
+  [x] §8: 5 questions; §9: artifact + honest claim + can't-claim-yet
+  [x] §10: only real lesson ids (e-board-communication, e-policy-docs,
+      ai-governance)
+  [x] all scenario elements labeled fictional
+Nothing unrun: worked-case lessons have no CLI steps to mark.

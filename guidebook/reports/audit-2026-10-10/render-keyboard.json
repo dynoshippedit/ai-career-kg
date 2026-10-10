@@ -1,0 +1,72 @@
+{
+ "overflow": [
+  {
+   "page": "/g/xss/",
+   "width": 390,
+   "detail": {
+    "scrollWidth": 829,
+    "clientWidth": 390,
+    "offenders": [
+     "CODE. w=809",
+     "CODE. w=440"
+    ]
+   }
+  }
+ ],
+ "screenshots": [
+  "g-390px.png",
+  "g-xss-390px.png",
+  "g-stage-b-390px.png",
+  "g-path-pentester-390px.png",
+  "g-map-cissp-390px.png",
+  "g-map-caisp-390px.png",
+  "g-1280px.png",
+  "g-xss-1280px.png",
+  "g-stage-b-1280px.png",
+  "g-path-pentester-1280px.png",
+  "g-map-cissp-1280px.png",
+  "g-map-caisp-1280px.png"
+ ],
+ "keyboard": {
+  "/g/": {
+   "tab_stops": 60,
+   "links_on_page": 82,
+   "all_visible": true,
+   "repeated_stops": 0,
+   "first": {
+    "tag": "A",
+    "text": "Skip to content",
+    "href": "#main",
+    "visible": true,
+    "outline": "solid/3px"
+   },
+   "focus_outline_sample": [
+    "solid/3px",
+    "solid/3px",
+    "solid/3px",
+    "solid/3px",
+    "solid/3px"
+   ]
+  },
+  "/g/xss/": {
+   "tab_stops": 25,
+   "links_on_page": 25,
+   "all_visible": true,
+   "repeated_stops": 3,
+   "first": {
+    "tag": "A",
+    "text": "Skip to content",
+    "href": "#main",
+    "visible": true,
+    "outline": "solid/3px"
+   },
+   "focus_outline_sample": [
+    "solid/3px",
+    "solid/3px",
+    "solid/3px",
+    "solid/3px",
+    "solid/3px"
+   ]
+  }
+ }
+}

@@ -1,0 +1,20 @@
+# c-sigma-detection walkthrough transcript
+# date: 2026-10-09 (UTC) · tools: Python 3.12.3, PyYAML · rule: FICTIONAL encoded_ps_rule.yml
+# corpora: FICTIONAL positive_corpus.jsonl (2 events), benign_corpus.jsonl (3 events)
+# note: evaluator is a teaching harness applying the rule's selection logic;
+# no SIEM backend conversion run here (lesson says so). First filter attempt missed
+# (filter string absent from corpus); corpus corrected, re-run — logged honestly.
+
+required fields: OK
+logsource: {'category': 'process_creation', 'product': 'windows'}
+modifiers used: ['Image|endswith', 'CommandLine|contains'] | condition: selection
+
+--- v1: rule as written ---
+positive: TP=2 FP=0 TN=0 FN=0
+benign  : TP=0 FP=1 TN=2 FN=0
+
+--- v2: tuned — filter the known-benign updater (ImagePath + User) ---
+positive: TP=2 FP=0 TN=0 FN=0
+benign  : TP=0 FP=0 TN=3 FN=0
+
+false positives before tuning: 1, after: 0

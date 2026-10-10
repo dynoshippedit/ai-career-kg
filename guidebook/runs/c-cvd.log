@@ -1,0 +1,20 @@
+=== c-cvd walkthrough run (worked case + local security.txt lab) ===
+date: 2026-10-09T22:43:17Z
+tools: python3 3.12.3
+
+--- STEP 1: write a security.txt for the fictional target (Harborlight Books) ---
+Contact: mailto:security@harborlight-books.example
+Contact: https://harborlight-books.example/security
+Expires: 2027-10-09T00:00:00.000Z
+Encryption: https://harborlight-books.example/pgp-key.txt
+Preferred-Languages: en
+Policy: https://harborlight-books.example/security/policy
+
+--- STEP 2: validate it (required fields per RFC 9116: Contact, Expires) ---
+fields found: ['Contact', 'Encryption', 'Expires', 'Policy', 'Preferred-Languages']
+Expires parses: 2027-10-09T00:00:00.000Z | in future: True
+VALID: required fields present, Expires parses and is future-dated
+
+--- STEP 3: lookup order (RFC 9116: /.well-known/security.txt first, then /security.txt) ---
+request 1: /.well-known/security.txt -> FOUND
+request 2: /security.txt -> MISS (fallback only)

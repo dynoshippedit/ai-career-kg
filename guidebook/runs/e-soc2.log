@@ -1,0 +1,18 @@
+# Run log: e-soc2 walkthrough (worked case)
+
+- **Date:** 2026-10-10
+- **Environment:** none required — worked-case lesson, no command line. The "run" is the SOC 2 scoping memo for the fictional Meridian Analytics, authored and reviewed in-session against the lesson's self-review checklist (§4 step 6). Primary sources verified in-session: the AICPA's 2017 Trust Services Criteria resource page (edition confirmed: 2017 TSC with revised points of focus 2022; full document requires a free AICPA account) and the AICPA's July 18, 2022 testimony before the ERISA Advisory Council (SOC suite definitions, Type I vs Type II, who uses each report).
+- **Result:** worked case complete as written in the lesson (§4). No commands exist to transcribe; nothing is marked "not run by us" because there was nothing to execute.
+
+## Review notes (author's self-check, 2026-10-10)
+
+1. Five criteria named per the AICPA's own resource page: Security (mandatory — common criteria), Availability, Processing Integrity, Confidentiality, Privacy. Edition currency verified in-session (2017 + 2022 points of focus; no newer edition on the AICPA page).
+2. Every in-scope criterion traces to a written (fictional, labeled) commitment: 99.9% SLA → Availability; security exhibit → Security + Confidentiality; validated outputs → Processing Integrity; privacy notice → Privacy + Confidentiality. The criteria-follow-commitments rule is demonstrated, not just stated.
+3. Type I vs Type II defined per the testimony: design suitability at a point in time vs operating effectiveness over a period with test descriptions. The Type I→Type II sequencing is argued (design gaps found cheaply first), not assumed.
+4. System boundary explicit both ways, including the sub-processor carve-out with complementary-controls language. Boundary owner named.
+5. "Certified" and "pass" appear only in the failure-modes section, never as attainable states. SOC 1 vs SOC 2 vs SOC for Cybersecurity distinguished per the testimony (financial-reporting controls vs trust-services criteria vs entity cyber-risk program).
+6. Fictional organization ("Meridian Analytics") — no real engagement described. Reader writes the system-description outline in "On your own."
+
+## Gap noted
+
+The AICPA's own SOC 2 overview page (aicpa-cima.com topic page) was slated as the third free resource per the night-research spec, but the in-session fetch failed (upstream timeout; not retried per fetch discipline). The lesson ships with two verified resources; the AICPA overview page should be re-checked at build time. Logged in gaps.md.
