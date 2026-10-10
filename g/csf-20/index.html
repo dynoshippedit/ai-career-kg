@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NIST Cybersecurity Framework 2.0 | Learn Computer Stuff</title>
+<meta name="description" content="NIST Cybersecurity Framework 2.0: outcomes not actions — the 6 Functions, 22 Categories, Current-vs-Target profiles, and Tiers, with a worked gap assessment. A free lesson in the security guidebook.">
+<link rel="canonical" href="https://learncomputerstuff.dev/g/csf-20/">
+<meta property="og:title" content="NIST Cybersecurity Framework 2.0 | Learn Computer Stuff"><meta property="og:description" content="NIST Cybersecurity Framework 2.0: outcomes not actions — the 6 Functions, 22 Categories, Current-vs-Target profiles, and Tiers, with a worked gap assessment. A free lesson in the security guidebook.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://learncomputerstuff.dev/g/csf-20/">
+<style>
+:root{
+  --paper:#F3EFE5; --paper-2:#ECE5D6; --ink:#232019; --ink-soft:#6C6659;
+  --hair:#D8D0BF; --claret:#8A2D3B; --claret-2:#6E2430; --forest:#2C5233;
+  --serif:Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:65ch; --gap:1.5rem;
+}
+/* The paper IS the brand, and it stays the default. But this is a site people read at
+   night while they are learning, and forcing a bright page on them is a real cost for a
+   design principle. Dark mode is a DARKENED PAPER, not an inversion: the same claret
+   signature, the same warm neutral, dropped to a low-luminance ground so the ledger tables
+   and the route spine keep their relationships. Only the tokens move; no rule below this
+   block knows which mode it is in. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#191714; --paper-2:#211E1A; --ink:#EDE7DA; --ink-soft:#A79E8D;
+    --hair:#3A342C; --claret:#D98494; --claret-2:#E9A4B1; --forest:#8FBE99;
+  }
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
+
+/* wayfinding SYSTEM voice */
+.eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft)}
+/* honest LEDGER voice */
+.mono,.ledger td,.ledger th,.cpay,.dateline,.figure{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+a{color:var(--claret);text-decoration-thickness:1px;text-underline-offset:2px}
+a:hover{color:var(--claret-2)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--claret);outline-offset:2px;border-radius:2px}
+
+.wrap{max-width:72rem;margin:0 auto;padding:0 1.25rem}
+.prose{max-width:var(--measure)}
+header.site{border-bottom:1px solid var(--hair);background:var(--paper)}
+header.site .wrap{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-top:1rem;padding-bottom:1rem}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.55rem}
+.brand .seal-dot{width:.85rem;height:.85rem;border-radius:50%;background:var(--claret);flex:none}
+nav.top{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav.top a{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-decoration:none;color:var(--ink-soft)}
+nav.top a:hover,nav.top a[aria-current]{color:var(--claret)}
+.btn{display:inline-block;background:var(--claret);color:var(--paper);padding:.5rem .9rem;border-radius:2px;
+  font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;text-decoration:none}
+.btn:hover{background:var(--claret-2);color:var(--paper)}
+
+.crumbs{padding:1rem 0 0;font-size:.78rem;color:var(--ink-soft)}
+.crumbs a{color:var(--ink-soft)}
+h1{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem);line-height:1.12;margin:.4rem 0 .6rem;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.2;margin:0 0 .5rem}
+h3{font-size:1.08rem;margin:0 0 .35rem}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink)}
+section{padding:2.5rem 0}
+hr.rule{border:0;border-top:1px solid var(--hair);margin:0}
+
+/* dual-coded pills: icon + word + color, never color alone (R4.2) */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:2px;border:1px solid}
+.pill-free{color:var(--forest);border-color:var(--forest);background:color-mix(in srgb,var(--forest) 10%,transparent)}
+.pill-paid{color:var(--claret);border-color:var(--claret);background:color-mix(in srgb,var(--claret) 10%,transparent)}
+.pill-warn{color:var(--claret);border-color:var(--claret);background:transparent}
+.dateline{font-size:.72rem;color:var(--ink-soft)}
+
+/* Signature 1 — the ROUTE-SPINE */
+.route{position:relative;margin:0;padding:0;list-style:none}
+.route>li{position:relative;padding:0 0 2.75rem 3.25rem}
+.route>li::before{content:"";position:absolute;left:1.03rem;top:1.6rem;bottom:-.4rem;width:2px;background:var(--hair)}
+.route>li:last-child::before{display:none}
+.station-num{position:absolute;left:0;top:.15rem;width:2.15rem;height:2.15rem;border-radius:50%;
+  border:2px solid var(--hair);background:var(--paper);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:.85rem}
+.route>li.here .station-num{border-color:var(--claret);background:var(--claret);color:var(--paper)}
+.station-label{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:.15rem}
+
+.card{border:1px solid var(--hair);background:var(--paper-2);padding:1rem 1.1rem;border-radius:3px;margin:0 0 .85rem}
+.card h3{margin-bottom:.25rem}
+.card p{margin:.35rem 0}
+.note{border-left:3px solid var(--claret);padding:.6rem 0 .6rem .9rem;margin:1rem 0;color:var(--ink)}
+.note .eyebrow{color:var(--claret)}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--claret);color:var(--paper);padding:.6rem 1rem;z-index:100;font-family:var(--sans);font-size:.85rem;font-weight:700;text-decoration:none}
+.skip:focus{left:0;color:var(--paper)}
+/* Browse chips — the way into the directory for someone who does not know what to type.
+   Each one is a real link carrying a filter, so they work without JavaScript and can be
+   shared, bookmarked and crawled. The count is part of the affordance: it tells you whether
+   a provider holds twenty things or one before you spend a click. */
+ul.chips{display:flex;flex-wrap:wrap;gap:.5rem;padding:0;margin:.75rem 0 0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.82rem;
+  border:1px solid var(--hair);background:var(--paper-2);color:var(--ink);
+  padding:.35rem .7rem;border-radius:2px;text-decoration:none;line-height:1.3}
+.chip:hover{border-color:var(--claret);color:var(--claret)}
+.chip span{font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);
+  border-left:1px solid var(--hair);padding-left:.5rem}
+.chip:hover span{color:var(--claret)}
+ul.plain{list-style:none;padding:0;margin:.5rem 0 1.5rem}
+ul.plain li{padding:.45rem 0;border-bottom:1px solid var(--hair)}
+ul.plain li a{font-weight:600}
+.muted{color:var(--ink-soft);font-size:.92em}
+.note-warn{border-left-width:5px;background:color-mix(in srgb,var(--ink) 4%,transparent);padding-right:.9rem}
+.subtle-link{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft)}
+
+/* Signature 2 — the LEDGER */
+.ledger{width:100%;border-collapse:collapse;font-size:.9rem;margin:.5rem 0 0}
+.ledger th,.ledger td{border-bottom:1px solid var(--hair);padding:.55rem .3rem;text-align:left;vertical-align:top}
+.ledger th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.07em;font-size:.68rem;color:var(--ink-soft);font-weight:700;width:38%}
+.ledger td.figure{text-align:right;white-space:nowrap}
+.ledger tr.total td,.ledger tr.total th{border-bottom:2px solid var(--ink)}
+.cpay{font-size:1.05rem;font-weight:700}
+.cpay small{display:block;font-size:.72rem;font-weight:400;color:var(--ink-soft);white-space:nowrap}
+.seal{display:inline-flex;align-items:center;gap:.4rem;border:2px solid var(--claret);color:var(--claret);
+  padding:.3rem .7rem;border-radius:2px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.door{display:block;border:1px solid var(--hair);background:var(--paper-2);padding:1.25rem;border-radius:3px;text-decoration:none;color:var(--ink)}
+.door:hover{border-color:var(--claret);color:var(--ink)}
+.door h3{color:var(--claret)}
+.trust{display:flex;flex-wrap:wrap;gap:2rem;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:1.25rem 0}
+.trust div{min-width:7rem}
+.trust .n{font-family:var(--mono);font-size:1.6rem;font-weight:700;display:block;line-height:1.1}
+.trust .l{font-family:var(--sans);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:.5rem 0 0;list-style:none}
+.tags li{font-family:var(--mono);font-size:.78rem;border:1px solid var(--hair);padding:.15rem .5rem;border-radius:2px;color:var(--ink-soft)}
+footer.site{border-top:1px solid var(--hair);margin-top:3rem;padding:2rem 0;font-size:.85rem;color:var(--ink-soft)}
+footer.site a{color:var(--ink-soft)}
+footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))}
+.tablewrap{overflow-x:auto}
+@media (max-width:34rem){
+  .route>li{padding-left:2.75rem}
+  .ledger th{width:50%}
+}
+/* The spec asks for the route to draw as one orchestrated load moment. It must
+   ENHANCE a already-visible page, never gate it: no fill-mode, so the resting
+   style (fully visible) applies before and after. A crawler, a print, or a
+   paused animation still sees every station. */
+@media (prefers-reduced-motion:no-preference){
+  .route>li{animation:rise .5s ease-out}
+  .route>li:nth-child(2){animation-delay:.06s}
+  .route>li:nth-child(3){animation-delay:.12s}
+  .route>li:nth-child(4){animation-delay:.18s}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media print{nav.top,.btn{display:none}}
+</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://learncomputerstuff.dev/"},{"@type":"ListItem","position":2,"name":"Security guidebook","item":"https://learncomputerstuff.dev/g/"},{"@type":"ListItem","position":3,"name":"NIST Cybersecurity Framework 2.0","item":"https://learncomputerstuff.dev/g/csf-20/"}]}</script>
+</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><div class="wrap">
+<a class="brand" href="/"><span class="seal-dot" aria-hidden="true"></span>Learn Computer Stuff</a><nav class="top" aria-label="Main"><a href="/f/">Careers</a><a href="/method/">Method</a><a class="btn" href="/start/">Start here</a></nav>
+</div></header>
+<div class="wrap"><div class="crumbs"><a href="/">Home</a> / <a href="/g/">Security guidebook</a> / <span>NIST Cybersecurity Framework 2.0</span></div></div>
+<main id="main"><div class="wrap">
+<section>
+<span class="eyebrow">Security guidebook · Stage E · Expert</span><h1>NIST Cybersecurity Framework 2.0</h1>
+<p class="lede prose">Every security program eventually faces the same meeting: leadership asks "how secure are we, and what should we do next?" and the answer has to be structured, comparable, and honest. The NIST Cybersecurity Framework is the most widely used structure for that answer in the United States — it is the language in which gap assessments, roadmaps, and program charters get written. The GRC analyst lives inside it: scoping assessments against it, writing the Current and Target Profiles, and turning the gap between them into a funded plan. This lesson teaches the framework as a working tool, not a poster.</p>
+<p class="dateline">Lesson published 2026-10-09 · Worked case authored and reviewed 2026-10-10 · no command line in this lesson</p>
+<table class="ledger"><tbody>
+<tr><th scope="row">Stage</th><td>E (Expert)</td></tr><tr><th scope="row">Level</th><td>3 (scope and run a CSF gap assessment unaided, and defend the resulting action plan)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> (the risk language the profiles are written in); <a href="/g/governance/"><code>e-governance</code></a> (who decides what the Target Profile says). No command line in this lesson</td></tr><tr><th scope="row">Map references</th><td>brief §5 "Governance frameworks"; GRC analyst path; feeds <a href="/g/iso27001/"><code>e-iso27001</code></a>, <a href="/g/soc2/"><code>e-soc2</code></a>, <a href="/g/security-program/"><code>e-security-program</code></a>.</td></tr>
+</tbody></table>
+</section>
+<section style="padding-top:0">
+<h2>1. Where this shows up</h2>
+<p>Every security program eventually faces the same meeting: leadership asks "how secure are we, and what should we do next?" and the answer has to be structured, comparable, and honest. The NIST Cybersecurity Framework is the most widely used structure for that answer in the United States — it is the language in which gap assessments, roadmaps, and program charters get written. The GRC analyst lives inside it: scoping assessments against it, writing the Current and Target Profiles, and turning the gap between them into a funded plan. This lesson teaches the framework as a working tool, not a poster.</p>
+<h2>2. Before you start</h2>
+<ul>
+<li>You can write a risk in the standard form — asset, threat, vulnerability, impact, likelihood (<a href="/g/risk-assessment/"><code>e-risk-assessment</code></a>). The profiles below are risk statements wearing a framework's clothes.</li>
+<li>You understand who owns security decisions (<a href="/g/governance/"><code>e-governance</code></a>). A Target Profile is a decision document; someone has to sign it.</li>
+<li>No tools. The work product is a document set: a Current-vs-Target profile sketch and a prioritized action plan. Bring the hard rule from the brief: no invented numbers — every maturity claim traces to named evidence.</li>
+</ul>
+<h2>3. How it works</h2>
+<p><strong>What it is.</strong> The NIST Cybersecurity Framework (CSF) 2.0 is a voluntary framework for managing cybersecurity risk, published by NIST as CSWP 29 on February 26, 2024. "Voluntary" matters: nobody certifies you against it, and no regulator grades you with it — organizations adopt it because it gives risk conversations a shared structure. The framework states <strong>outcomes</strong> (what good looks like), not <strong>actions</strong> (how to get there). That distinction is the whole philosophy: two organizations can achieve the same outcome with completely different controls, and the CSF treats both as valid. It is a language for describing a program, not a checklist for building one.</p>
+<p><strong>The three parts.</strong> CSF 2.0 has three components that work together:</p>
+<ol>
+<li><strong>The CSF Core</strong> — the taxonomy itself: Functions, Categories, Subcategories. This is the vocabulary.</li>
+<li><strong>Organizational Profiles</strong> — a way to describe where you are and where you want to be, in the Core's vocabulary. The gap between them is your action plan.</li>
+<li><strong>Tiers</strong> — a way to characterize how rigorous your risk management practices are, as a communication aid.</li>
+</ol>
+<p><strong>The Core: 6 Functions, 22 Categories, 106 Subcategories.</strong> The hierarchy runs Function → Category → Subcategory, each level a more specific outcome. The six Functions, with <strong>Govern</strong> new in 2.0 and sitting at the center of the wheel:</p>
+<ul>
+<li><strong>Govern (GV)</strong> — the organization's cybersecurity risk management strategy, expectations, and policy are established, communicated, and monitored. Governance is a function now, not an assumption — the framework's way of saying strategy is a first-class outcome.</li>
+<li><strong>Identify (ID)</strong> — understand what you have and what threatens it.</li>
+<li><strong>Protect (PR)</strong> — safeguards to manage risk to systems and data.</li>
+<li><strong>Detect (DE)</strong> — find cybersecurity events in time.</li>
+<li><strong>Respond (RS)</strong> — act on detected events.</li>
+<li><strong>Recover (RC)</strong> — restore capabilities impaired by an event.</li>
+</ul>
+<p>The 22 Categories (short labels from the framework's own table):</p>
+<p>| Function | Categories |</p>
+<p>|---|---|</p>
+<p>| Govern | Organizational Context (GV.OC) · Risk Management Strategy (GV.RM) · Roles, Responsibilities, and Authorities (GV.RR) · Policy (GV.PO) · Oversight (GV.OV) · Cybersecurity Supply Chain Risk Management (GV.SC) |</p>
+<p>| Identify | Asset Management (ID.AM) · Risk Assessment (ID.RA) · Improvement (ID.IM) |</p>
+<p>| Protect | Identity Management, Authentication, and Access Control (PR.AA) · Awareness and Training (PR.AT) · Data Security (PR.DS) · Platform Security (PR.PS) · Technology Infrastructure Resilience (PR.IR) |</p>
+<p>| Detect | Continuous Monitoring (DE.CM) · Adverse Event Analysis (DE.AE) |</p>
+<p>| Respond | Incident Management (RS.MA) · Incident Analysis (RS.AN) · Incident Response Reporting and Communication (RS.CO) · Incident Mitigation (RS.MI) |</p>
+<p>| Recover | Incident Recovery Plan Execution (RC.RP) · Incident Recovery Communication (RC.CO) |</p>
+<p>Each Category divides into Subcategories — 106 in total — each stating one specific outcome (for example, under Organizational Context: the organizational mission is understood and informs cybersecurity risk management). Around the Core sit two supporting layers: <strong>Informative References</strong>, which map each Subcategory to controls in other standards (this is how the CSF talks to ISO 27001 and SP 800-53 without duplicating them), and <strong>Implementation Examples</strong>, which illustrate — not prescribe — how an outcome might be achieved.</p>
+<p><strong>Profiles: Current vs Target.</strong> An Organizational Profile is a selection of Core outcomes that matter to <em>this</em> organization, with a statement of where it stands on each. The method: build the <strong>Current Profile</strong> (where we are, evidenced), build the <strong>Target Profile</strong> (where we need to be, decided), and the gap between them becomes the action plan — prioritized by risk, cost, and impact. Community Profiles extend the idea to groups with shared priorities (a sector, a supply chain). The profile is the framework's unit of work: everything else is vocabulary for writing profiles well.</p>
+<p><strong>Tiers: Partial, Risk Informed, Repeatable, Adaptive.</strong> The four Tiers (Tier 1 Partial through Tier 4 Adaptive) describe the rigor of an organization's risk management practices — how aware, organized, and adaptive its approach is. They are a <strong>communication aid</strong>, not a grade. The failure mode is treating Tier 4 as the goal everywhere: a Tier 2 practice can be the right, risk-informed answer for a low-criticality outcome, and saying so honestly is better governance than inflating every Tier.</p>
+<p><strong>What it is not.</strong> There is no such thing as "CSF certified." Any vendor or assessor selling CSF certification is selling something NIST does not offer. And the Core is not a control catalog — if you need prescriptive controls, the Informative References point you to the standards that have them.</p>
+<h2>4. Walkthrough</h2>
+<p>No CLI by design — the walkthrough is the worked case, authored and self-reviewed 2026-10-10 against the primary document (CSWP 29, fetched in-session; category table verified against the document's own Table 1). The fictional company is <strong>Meridian Analytics</strong>, a 180-person SaaS analytics firm used across this guidebook's governance lessons. Every fact about Meridian below is invented and labeled.</p>
+<p><strong>Step 1 — Frame the engagement.</strong> Meridian's leadership wants a gap assessment: "tell us where we stand and what to do first." Scope: the production SaaS platform and the corporate IT that supports it. Out of scope: the office physical plant (covered under a separate facilities review). Timebox: two weeks. Decision-maker for the Target Profile: the CTO, with the board's risk committee informed.</p>
+<p><strong>Step 2 — Draft the Current Profile (representative slice).</strong> For each Function, assess one Category honestly against named evidence. Six rows worked in full; the remaining sixteen Categories get the same treatment in the reader's own pass (see "On your own").</p>
+<p>| # | Category | Current state (evidenced) | Target | Gap → action |</p>
+<p>|---|---|---|---|---|</p>
+<p>| 1 | GV.OC Organizational Context | Partial: mission statement exists; no written statement of which data types matter most. Evidence: company wiki, 2026-03. | Risk-informed: data classification scheme (<a href="/g/asset-classification/"><code>e-asset-classification</code></a>) published and referenced in the security policy. | Action A1: draft classification scheme; owner: GRC analyst; due Q1. |</p>
+<p>| 2 | ID.AM Asset Management | Risk-informed: CMDB covers production; ~15% of SaaS-tool accounts unowned. Evidence: CMDB export 2026-09, IAM review. | Repeatable: quarterly access reviews with named owners for every asset class. | Action A2: assign owners to orphaned accounts; owner: IAM lead; due Q1. |</p>
+<p>| 3 | PR.AA Identity Mgmt, Auth, Access Control | Repeatable: SSO + MFA enforced for staff; service accounts exempt with documented exceptions. Evidence: IdP policy export. | Repeatable (hold): close the service-account exceptions or accept the risk in writing. | Action A3: CTO risk-acceptance memo or remediation plan; due Q1. |</p>
+<p>| 4 | DE.CM Continuous Monitoring | Partial: central logging exists; no alerting on authentication anomalies. Evidence: SIEM config review. | Risk-informed: alerting on impossible-travel + brute-force patterns (the <a href="/g/soc-triage/"><code>c-soc-triage</code></a> patterns). | Action A4: deploy two detections; owner: detection engineer; due Q2. |</p>
+<p>| 5 | RS.MA Incident Management | Risk-informed: IR plan exists (SP 800-61 structure); never table-topped. Evidence: plan doc v1.2, 2025-11. | Repeatable: annual tabletop with findings tracked. | Action A5: run tabletop; owner: IR lead; due Q2. |</p>
+<p>| 6 | RC.RP Incident Recovery Plan Execution | Partial: backups run nightly; restore never tested end-to-end. Evidence: backup job logs. | Risk-informed: tested restore meeting the RPO in <a href="/g/bcp-drp/"><code>e-bcp-drp</code></a> terms. | Action A6: full restore test; owner: platform lead; due Q2. |</p>
+<p><strong>Step 3 — Characterize Tiers (honestly).</strong> Meridian's risk management practices: risk-informed (Tier 2) overall — risks are discussed and inform decisions, but the approach is not yet organization-wide and repeatable. Two Categories (PR.AA, RS.MA) show repeatable practices; the rest are Tier 1–2. The assessment says so plainly instead of averaging upward.</p>
+<p><strong>Step 4 — Prioritize the action plan.</strong> Order by risk reduction per effort: A4 (detection gap on the authentication path — highest), A2 (unowned accounts), A1 (classification unlocks everything downstream), A3 (decision, not work — cheapest), A5, A6. Each action names an owner and a due quarter. Nothing in the plan requires a tool Meridian doesn't have.</p>
+<p><strong>Step 5 — Self-review.</strong> Checklist, all true before this ships: every Current claim cites named evidence (not "we think"); every Target is a decision someone signed, not a wish; no Category claims a Tier above its evidence; the plan's order is argued from risk, not from ease; the words "certified" and "compliant" appear nowhere.</p>
+<h2>5. On your own</h2>
+<p>Complete the Current Profile for the remaining sixteen Categories of Meridian Analytics, using the same four columns (current + evidence, target, gap → action). Success test: a reviewer who has never met you can trace any row from its Current claim to the named evidence, and can tell which Target decisions are signed and which are still open. Then write the one-paragraph Tier rationale you would put in front of the CTO — and notice how hard it is to be honest about Tier 1s.</p>
+<h2>6. Where it goes wrong</h2>
+<ul>
+<li><strong>The checklist fallacy.</strong> Treating 106 Subcategories as 106 boxes to tick. The framework states outcomes; two organizations can satisfy the same Subcategory with entirely different controls. If your assessment reads like an audit of a fixed control list, you are using the wrong tool — use the Informative References to find the control catalog you actually need.</li>
+<li><strong>Tier inflation.</strong> Rating everything Tier 3 because Tier 2 feels embarrassing. Tiers describe rigor, and rigor should follow risk: a Tier 2 practice guarding a low-criticality outcome is good governance, honestly stated.</li>
+<li><strong>"CSF certified."</strong> There is no such certification. If a vendor claims it, that claim itself is a finding about the vendor.</li>
+<li><strong>Shelfware profiles.</strong> A Current Profile built from interviews with no evidence, or a Target Profile nobody signed. The profile is a decision document; an unsigned target is a wish list.</li>
+<li><strong>Govern as decoration.</strong> Adding GV rows to the spreadsheet while strategy is still decided by whoever shouts loudest. Govern is at the center of the wheel because the framework considers strategy load-bearing — if GV.OC and GV.RM are Tier 1, say so and fix them first.</li>
+</ul>
+<h2>7. Read the source</h2>
+<p>Primary documents first — read in this order, then the free resources:</p>
+<ol>
+<li><strong>CSF 2.0 itself (CSWP 29, Feb 26 2024)</strong> — read §§1–3 (the framework's own explanation of Core, Profiles, Tiers), skim the appendices. Free PDF from NIST.</li>
+<li><strong>NIST's CSF 2.0 Quick-Start Guides page</strong> — <em>start here if the PDF feels heavy</em>: the Organizational Profiles guide and the Tiers guide are the fastest on-ramps to the method this lesson teaches. Free.</li>
+<li><strong>NIST SP 800-30 Rev. 1, Guide for Conducting Risk Assessments</strong> — <em>read</em> for the risk assessment method that sits behind every honest Current Profile; the CSF tells you what outcomes to describe, SP 800-30 tells you how to assess the risk. Free.</li>
+</ol>
+<h2>8. Check yourself</h2>
+<ol>
+<li>The CSF states outcomes, not actions. Explain what breaks — concretely, in an assessment — if an assessor treats a Subcategory as a prescriptive control requirement.</li>
+<li>Meridian's DE.CM row says "Partial" with evidence "SIEM config review." A manager asks you to rate it "Risk-informed" because "we have a SIEM." What do you say, and what evidence would change your answer?</li>
+<li>Why does the framework put Govern at the center instead of treating governance as one row among many? Give the mechanism: what fails downstream when GV.RM is Tier 1?</li>
+<li>An Informative Reference maps a Subcategory to an ISO 27001 control. Does satisfying the ISO control automatically satisfy the Subcategory? Explain the direction of the mapping.</li>
+<li>Two organizations both claim Tier 3 for RS.MA. One ran a tabletop last quarter with tracked findings; the other has a plan document dated three years ago. What does the Tier claim actually tell you, and what question do you ask next?</li>
+</ol>
+<h2>9. Prove it</h2>
+<p>The artifact: a Current-vs-Target profile sketch (all 22 Categories, evidence per row) plus a prioritized action plan with named owners, for a fictional organization you define. Publish it as a document a stranger can follow — every Current claim traceable to named (fictional, labeled) evidence, every Target a signed decision.</p>
+<p>After this lesson you can honestly claim: you can scope a CSF 2.0 gap assessment, write Current and Target Profiles, and turn the gap into a risk-ordered plan. You cannot yet claim: any certification (none exists), or that a profile you wrote describes a real organization — the first real one happens on a real engagement.</p>
+<h2>10. Leads to</h2>
+<ul>
+<li><a href="/g/iso27001/"><code>e-iso27001</code></a> — the certifiable management system organizations pair with the CSF's outcomes language.</li>
+<li><a href="/g/soc2/"><code>e-soc2</code></a> — the attestation report customers ask for, and how its criteria differ from a framework.</li>
+<li><a href="/g/security-program/"><code>e-security-program</code></a> — the Govern loop running continuously: strategy, metrics, and the charter.</li>
+<li>GRC analyst path: this lesson is the assessment method the path's checkpoints assume.</li>
+</ul>
+</section>
+<section><div class="note"><span class="eyebrow">Keep going</span>
+<p class="prose">This lesson is one of one hundred one in the security guidebook. Part of <a href="/g/stage-e/">Stage E · Expert</a>. <a href="/g/">See all one hundred one lessons →</a></p></div></section>
+</div></main>
+<footer class="site"><div class="wrap"><div class="cols">
+<div><strong>Learn Computer Stuff</strong><br>The free route in, and what the certificates really cost.</div>
+<div><a href="/f/">All careers</a><br><a href="/start/">Start here</a><br><a href="/method/">How we verify</a></div>
+<div>Claims here carry the date they were checked, or say plainly that they were not — an entry added by hand reads <em>operator-added</em> rather than borrowing a date it never earned.</div>
+</div></div></footer>
+</body></html>
