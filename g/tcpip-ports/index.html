@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -163,7 +165,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage A · Foundations</span><h1>TCP/IP and ports</h1>
 <p class="lede prose">Every connection you will ever investigate or exploit is TCP (or UDP) to an IP address and a port. The SOC analyst triaging "suspicious outbound connection" is reading exactly the states this lesson teaches: who connected to whom, on what port, and whether the handshake completed. The penetration tester whose scan shows "port 8080 open" is reading a completed handshake. The incident responder deciding whether data left the network is asking whether a connection was ever ESTABLISHED. Ports are also the first access-control boundary you will meet — a firewall is, at its simplest, a list of which ports may complete handshakes. Learn what a port really is now, and "open port," "listening service," and "connection" stop being vocabulary and become things you can observe.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; UDP + packet-capture steps not run by us</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; UDP step not run by us (sandbox blocks UDP loopback); packet-capture step re-ran 2026-10-10 with real tcpdump</p>
 <table class="ledger"><tbody>
 <tr><th scope="row">Stage</th><td>A (Foundations)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism — you can explain the handshake, read connection states, and say what a port is without hand-waving)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/dns-depth/"><code>a-dns-depth</code></a> (names resolve to addresses; this lesson moves bytes to those addresses)</td></tr><tr><th scope="row">Map references</th><td>Pre-map foundations; feeds <a href="/g/http-depth/"><code>a-http-depth</code></a>, Stage B (every vulnerability lesson opens connections), Stage D (network forensics reads these states).</td></tr>
 </tbody></table>
@@ -188,7 +190,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h3>Worked example: one connection, observed three ways</h3>
 <p>From the walkthrough (§4): a Python server listens on <code>127.0.0.1:18443</code>. <code>ss -tln</code> shows it in LISTEN — the kernel, not the application, is now answering SYNs. A client connects; <code>ss -tn</code> shows two ESTABLISHED rows: <code>127.0.0.1:37494 → 127.0.0.1:18443</code> (client, ephemeral port from the kernel's range) and the mirror (server side, on 18443). The handshake completed inside <code>create_connection()</code>, before any application byte moved. Binding 18443 a second time fails with <code>EADDRINUSE</code> — one owner per port. Binding port 80 as the unprivileged <code>nobody</code> user fails with <code>Permission denied</code> — the privileged-port rule, demonstrated rather than asserted. The client closes; the server holds; <code>ss</code> shows FIN-WAIT-2/CLOSE-WAIT — the half-close. Both close; the first closer lands in TIME-WAIT for 60 seconds. Every state has a name, every name was observed, and a packet capture (your exercise, step 8) would show you the SYN/SYN-ACK/ACK/FIN segments behind each one.</p>
 <h2>4. Walkthrough</h2>
-<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-tcpip-ports.log</code>. Clean environment: stock Python 3.12, <code>ss</code> (iproute2 6.1.0), loopback only, 2026-10-09. Two steps marked not-run (UDP datagrams — sandbox blocks UDP loopback; packet capture — no tcpdump here).</p>
+<p><strong>Run by us</strong> on this machine — transcript: <code>runs/a-tcpip-ports.log</code>. Clean environment: stock Python 3.12, <code>ss</code> (iproute2 6.1.0), loopback only, 2026-10-09. One step marked not-run (UDP datagrams — sandbox blocks UDP loopback). Packet capture re-ran 2026-10-10 with real tcpdump (see step 8).</p>
 <ol>
 <li><strong>Open a listener and see LISTEN.</strong> Start the background Python server on <code>127.0.0.1:18443</code>; <code>ss -tln | grep 18443</code>. The kernel holds the port now — SYNs get SYN-ACKs before your code runs.</li>
 <li><strong>Connect and see ESTABLISHED.</strong> Connect with Python, hold the socket; <code>ss -tn | grep 18443</code> shows both directions. Name the ephemeral port and say which range it came from.</li>

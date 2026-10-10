@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -217,14 +219,14 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>CycloneDX Specification — Object Model Overview</strong> (<a href="https://cyclonedx.org/specification/overview/)">cyclonedx.org/specification/overview/)</a> — <em>read</em> the Components section (it covers machine-learning models explicitly) and <em>skim</em> the rest; <em>note</em> the recognized predicate type <code>https://cyclonedx.org/bom</code> for attestations.</li>
+<li><strong>CycloneDX Specification — Object Model Overview</strong> (<a href="https://cyclonedx.org/specification/overview/">cyclonedx.org/specification/overview/</a>) — <em>read</em> the Components section (it covers machine-learning models explicitly) and <em>skim</em> the rest; <em>note</em> the recognized predicate type <code>https://cyclonedx.org/bom</code> for attestations.</li>
 <li><strong>Sigstore documentation — Overview</strong> (<a href="https://docs.sigstore.dev">docs.sigstore.dev</a>) — <em>read</em> fully: keyless signing, Fulcio, Rekor, and the four verification checks. <em>Then</em> read the cosign sign/verify pages when you do walkthrough step 6.</li>
 <li><strong>SLSA specification</strong> (<a href="https://slsa.dev">slsa.dev</a>) — <em>skim</em> the "about" page and the provenance model; you are learning the vocabulary (attestation, provenance, levels), not implementing SLSA on day one.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>OpenSSF model-signing project</strong> (<a href="https://github.com/sigstore/model-transparency)">github.com/sigstore/model-transparency)</a> — free; where model-specific signing is being built — read the README and the threat model.</li>
-<li><strong>Hugging Face model-card and commit-hash documentation</strong> (huggingface.co/docs) — free; how pinning and provenance actually look on the hub you will use.</li>
+<li><strong>OpenSSF model-signing project</strong> (<a href="https://github.com/sigstore/model-transparency">github.com/sigstore/model-transparency</a>) — free; where model-specific signing is being built — read the README and the threat model.</li>
+<li><strong>Hugging Face model-card and commit-hash documentation</strong> (<a href="https://huggingface.co/docs">huggingface.co/docs</a>) — free; how pinning and provenance actually look on the hub you will use.</li>
 <li><strong>OWASP LLM04:2026</strong> (<a href="https://github.com/GenAI-Security-Project/GenAI-LLM-Top10">github.com/GenAI-Security-Project/GenAI-LLM-Top10</a>, <code>2026/final/LLM04_SupplyChain.md</code>) — free; the Top 10 entry this lesson expands, with its own prevention checklist.</li>
 </ol>
 <h2>8. Check yourself</h2>

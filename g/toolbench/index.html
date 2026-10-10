@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -163,7 +165,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>The toolbench: fifteen phases, one question each</h1>
 <p class="lede prose">Every engagement in the methodology lesson runs on tools, and every tool in this lesson exists to answer exactly one question. Beginners collect tools; professionals collect answers. The difference shows up in the report: "I ran a scan and it found nothing" is a tool report, while "I asked which names resolve, got four candidates, and confirmed two are in scope" is an answer report. This lesson teaches the bench the way the field's working catalog organizes it — fifteen phases in activation order, each gated by the authorization lesson — so that when a later lesson says "phase 4," you know exactly which question you are answering and which tool answers it. The catalog this lesson follows is the owner's own <code>Web-Security-Tool-Catalog.md</code>: use its table and its activation order; its "Paid layer" table is ignored throughout the guidebook because the guidebook teaches the free path.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; tools not installed here marked not run by us with reader procedures</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · loopback only; nmap/Semgrep/Chromium steps re-ran 2026-10-10; remaining tools marked not run by us with reader procedures</p>
 <table class="ledger"><tbody>
 <tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>2 (operate: answer each phase's question on a prepared target; level 3 when the phases chain across a full finding)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/authorization-scope/"><code>b-authorization-scope</code></a>; <a href="/g/methodology/"><code>b-methodology</code></a>; <a href="/g/http-depth/"><code>a-http-depth</code></a>; <a href="/g/linux-cli/"><code>a-linux-cli</code></a></td></tr><tr><th scope="row">Map references</th><td>the fifteen tool phases in activation order (owner's tool catalog); feeds every <code>b-…</code> vulnerability lesson.</td></tr>
 </tbody></table>
@@ -233,16 +235,16 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p>Primary documents first — the tool projects themselves (all fetched in-session, 2026-10-09):</p>
 <ul>
 <li><strong><a href="https://nmap.org">nmap.org</a></strong> — <em>read</em> the front page's "what it does" and the documentation index; nmap is phase 5's deep instrument (service/version detection), and its docs are the honest treatment of what a scan can and cannot prove.</li>
-<li><strong>ffuf</strong> (<a href="https://github.com/ffuf/ffuf)">github.com/ffuf/ffuf)</a> — <em>read</em> the README's usage and examples; the project's own words on recursion, filtering, and rate control are phase 7's operating manual.</li>
-<li><strong>jq manual</strong> (<a href="https://jqlang.github.io/jq/manual)">jqlang.github.io/jq/manual)</a> — <em>read</em> the tutorial section; <em>use</em> it as the reference every time phase 8 needs a new filter. This is the one tool document worth reading end to end early.</li>
-<li><strong>ProjectDiscovery katana</strong> (<a href="https://github.com/projectdiscovery/katana)">github.com/projectdiscovery/katana)</a> — <em>skim</em> the README for crawl modes; phase 6's instrument, and the README is explicit about scope-respecting options.</li>
-<li><strong>OWASP Amass</strong> (<a href="https://github.com/owasp-amass/amass)">github.com/owasp-amass/amass)</a> — <em>skim</em> the README's enumeration techniques; phase 5's other deep instrument. Note its passive emphasis — the design respects hard rule 1 structurally.</li>
-<li><strong>Trivy</strong> (<a href="https://github.com/aquasecurity/trivy)">github.com/aquasecurity/trivy)</a> and <strong>Gitleaks</strong> (<a href="https://github.com/gitleaks/gitleaks)">github.com/gitleaks/gitleaks)</a> — <em>read</em> each README's "what it finds" section; phase 12's pair, and both are explicit that a match is a lead (Gitleaks' verification-off posture matches hard rule 5 by design).</li>
+<li><strong>ffuf</strong> (<a href="https://github.com/ffuf/ffuf">github.com/ffuf/ffuf</a>) — <em>read</em> the README's usage and examples; the project's own words on recursion, filtering, and rate control are phase 7's operating manual.</li>
+<li><strong>jq manual</strong> (<a href="https://jqlang.github.io/jq/manual">jqlang.github.io/jq/manual</a>) — <em>read</em> the tutorial section; <em>use</em> it as the reference every time phase 8 needs a new filter. This is the one tool document worth reading end to end early.</li>
+<li><strong>ProjectDiscovery katana</strong> (<a href="https://github.com/projectdiscovery/katana">github.com/projectdiscovery/katana</a>) — <em>skim</em> the README for crawl modes; phase 6's instrument, and the README is explicit about scope-respecting options.</li>
+<li><strong>OWASP Amass</strong> (<a href="https://github.com/owasp-amass/amass">github.com/owasp-amass/amass</a>) — <em>skim</em> the README's enumeration techniques; phase 5's other deep instrument. Note its passive emphasis — the design respects hard rule 1 structurally.</li>
+<li><strong>Trivy</strong> (<a href="https://github.com/aquasecurity/trivy">github.com/aquasecurity/trivy</a>) and <strong>Gitleaks</strong> (<a href="https://github.com/gitleaks/gitleaks">github.com/gitleaks/gitleaks</a>) — <em>read</em> each README's "what it finds" section; phase 12's pair, and both are explicit that a match is a lead (Gitleaks' verification-off posture matches hard rule 5 by design).</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
 <li><strong>The owner's tool catalog</strong> (<code>Web-Security-Tool-Catalog.md</code> — the table and activation order this lesson follows) — free; the one-page version of this lesson to keep open during engagements.</li>
-<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; every phase gets its practice target here, each lab its own authorized scope.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free; every phase gets its practice target here, each lab its own authorized scope.</li>
 <li><strong>OWASP Cheat Sheet Series</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side of every finding your bench produces.</li>
 </ol>
 <h2>8. Check yourself</h2>

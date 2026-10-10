@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -239,14 +241,14 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final)">csrc.nist.gov/pubs/sp/800/61/r3/final)</a> — <em>read</em> fully; it is the lifecycle spine of this lesson. <em>Note</em> the April 2025 date, the CSF 2.0 Community Profile structure, and that it supersedes Rev. 2 (2012) — older summaries are stale.</li>
-<li><strong>NIST SP 800-92</strong> (<a href="https://doi.org/10.6028/NIST.SP.800-92)">doi.org/10.6028/NIST.SP.800-92)</a> — <em>re-read</em> the retention and review sections with IR eyes: your timeline is only as long as your retention.</li>
-<li><strong>CERT Guide to Coordinated Vulnerability Disclosure</strong> (<a href="https://certcc.github.io/CERT-Guide-to-CVD/)">certcc.github.io/CERT-Guide-to-CVD/)</a> — <em>read</em> the communication principles; <em>note</em> IR's external-notification obligations rhyme with CVD's (coordinate before you announce).</li>
+<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final">csrc.nist.gov/pubs/sp/800/61/r3/final</a>) — <em>read</em> fully; it is the lifecycle spine of this lesson. <em>Note</em> the April 2025 date, the CSF 2.0 Community Profile structure, and that it supersedes Rev. 2 (2012) — older summaries are stale.</li>
+<li><strong>NIST SP 800-92</strong> (<a href="https://doi.org/10.6028/NIST.SP.800-92">doi.org/10.6028/NIST.SP.800-92</a>) — <em>re-read</em> the retention and review sections with IR eyes: your timeline is only as long as your retention.</li>
+<li><strong>CERT Guide to Coordinated Vulnerability Disclosure</strong> (<a href="https://certcc.github.io/CERT-Guide-to-CVD/">certcc.github.io/CERT-Guide-to-CVD/</a>) — <em>read</em> the communication principles; <em>note</em> IR's external-notification obligations rhyme with CVD's (coordinate before you announce).</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
 <li><strong>SANS IR-related reading via free summaries</strong> — the incident-handler subject area is taught from free material per the brief; use the 800-61 Rev. 3 text itself as primary.</li>
-<li><strong>Velociraptor</strong> (docs.velociraptor.app) — free; the evidence-preservation and collection tool: memory capture, disk triage, fleet-wide IOC sweeps like the one in the worked example.</li>
+<li><strong>Velociraptor</strong> (<a href="https://docs.velociraptor.app">docs.velociraptor.app</a>) — free; the evidence-preservation and collection tool: memory capture, disk triage, fleet-wide IOC sweeps like the one in the worked example.</li>
 <li><strong>The <a href="/g/log-sources/"><code>c-log-sources</code></a> blind-spot column</strong> — re-read your own source map: every blind spot you named there is a limitation pre-written for your first real IR report.</li>
 </ol>
 <h2>8. Check yourself</h2>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -239,11 +241,11 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 <h2>7. Read the source</h2>
 <ol>
-<li><strong>FIRST CVSS v4.0 Specification Document</strong> (version 1.2, <a href="https://first.org/cvss/v4.0/specification-document)">first.org/cvss/v4.0/specification-document)</a> — the metric definitions and the MacroVector scoring description. Read the Base, Threat, Environmental, and Supplemental sections; skim the scoring math, then run the reference implementation.</li>
-<li><strong>FIRST CVSS v4.0 Examples Document</strong> (version 1.8, <a href="https://first.org/cvss/v4.0/examples)">first.org/cvss/v4.0/examples)</a> — the official worked examples with v3.x comparisons. Study all three calibration cases above; they are the answer key for your hand-scoring.</li>
-<li><strong>FIRST CVSS v3.1 Specification</strong> (<a href="https://first.org/cvss/v3.1/)">first.org/cvss/v3.1/)</a> — the equations. Read the Base scoring section; you implemented it in the walkthrough.</li>
+<li><strong>FIRST CVSS v4.0 Specification Document</strong> (version 1.2, <a href="https://first.org/cvss/v4.0/specification-document">first.org/cvss/v4.0/specification-document</a>) — the metric definitions and the MacroVector scoring description. Read the Base, Threat, Environmental, and Supplemental sections; skim the scoring math, then run the reference implementation.</li>
+<li><strong>FIRST CVSS v4.0 Examples Document</strong> (version 1.8, <a href="https://first.org/cvss/v4.0/examples">first.org/cvss/v4.0/examples</a>) — the official worked examples with v3.x comparisons. Study all three calibration cases above; they are the answer key for your hand-scoring.</li>
+<li><strong>FIRST CVSS v3.1 Specification</strong> (<a href="https://first.org/cvss/v3.1/">first.org/cvss/v3.1/</a>) — the equations. Read the Base scoring section; you implemented it in the walkthrough.</li>
 </ol>
-<p>Free resources (≤3): the <strong>FIRST v4.0 web calculator</strong> (<a href="https://first.org/cvss/calculator/4.0)">first.org/cvss/calculator/4.0)</a> — your verification tool; the <strong>cvss-v4-calculator repository</strong> (<a href="https://github.com/FIRSTdotorg/cvss-v4-calculator)">github.com/FIRSTdotorg/cvss-v4-calculator)</a> — the reference implementation the walkthrough ran; the <strong>v3.1 user guide</strong> (<a href="https://first.org/cvss/v3.1/user-guide)">first.org/cvss/v3.1/user-guide)</a> — scoring judgment guidance.</p>
+<p>Free resources (≤3): the <strong>FIRST v4.0 web calculator</strong> (<a href="https://first.org/cvss/calculator/4.0">first.org/cvss/calculator/4.0</a>) — your verification tool; the <strong>cvss-v4-calculator repository</strong> (<a href="https://github.com/FIRSTdotorg/cvss-v4-calculator">github.com/FIRSTdotorg/cvss-v4-calculator</a>) — the reference implementation the walkthrough ran; the <strong>v3.1 user guide</strong> (<a href="https://first.org/cvss/v3.1/user-guide">first.org/cvss/v3.1/user-guide</a>) — scoring judgment guidance.</p>
 <h2>8. Check yourself</h2>
 <ol>
 <li>A vulnerability's v4.0 Base vector scores 7.7; adding <code>/E:U</code> drops it to 5.2. Explain the mechanism — what does the Threat group know that the Base group does not, and why did v3.1 fail to make this visible in practice?</li>

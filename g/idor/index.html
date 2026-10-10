@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -217,15 +219,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>PortSwigger Web Security Academy — IDOR</strong> (<a href="https://portswigger.net/web-security/access-control/idor)">portswigger.net/web-security/access-control/idor)</a> — <em>read</em> fully; it is short and it is the canonical explanation (direct DB references, static-file references, horizontal vs vertical escalation).</li>
-<li><strong>OWASP Top 10:2025 — A01 Broken Access Control</strong> (<a href="https://owasp.org/Top10/2025)">owasp.org/Top10/2025)</a> — <em>read</em> the A01 entry; <em>note</em> that the 2025 edition folds SSRF into A01 — the category is "the server does something for you that it shouldn't," and IDOR is its most common shape.</li>
-<li><strong>OWASP WSTG — WSTG-ATHZ-04</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide)">owasp.org/www-project-web-security-testing-guide)</a> — <em>read</em> the test procedure; this is the checklist form of the walkthrough above. <em>Skip</em> the other ATHZ tests until the next lesson.</li>
+<li><strong>PortSwigger Web Security Academy — IDOR</strong> (<a href="https://portswigger.net/web-security/access-control/idor">portswigger.net/web-security/access-control/idor</a>) — <em>read</em> fully; it is short and it is the canonical explanation (direct DB references, static-file references, horizontal vs vertical escalation).</li>
+<li><strong>OWASP Top 10:2025 — A01 Broken Access Control</strong> (<a href="https://owasp.org/Top10/2025">owasp.org/Top10/2025</a>) — <em>read</em> the A01 entry; <em>note</em> that the 2025 edition folds SSRF into A01 — the category is "the server does something for you that it shouldn't," and IDOR is its most common shape.</li>
+<li><strong>OWASP WSTG — WSTG-ATHZ-04</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide">owasp.org/www-project-web-security-testing-guide</a>) — <em>read</em> the test procedure; this is the checklist form of the walkthrough above. <em>Skip</em> the other ATHZ tests until the next lesson.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Academy — Access Control labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; the IDOR labs are the hands-on companion to this lesson.</li>
+<li><strong>PortSwigger Academy — Access Control labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free, hosted, authorized; the IDOR labs are the hands-on companion to this lesson.</li>
 <li><strong>OWASP Cheat Sheet Series — Access Control</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side: deny-by-default, centralized authorization.</li>
-<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI)">github.com/OWASP/crAPI)</a> — free; run locally via Docker and work the vehicle/order BOLA challenges (<code>GET /identity/api/v2/vehicle/{id}/location</code> with two users) — IDOR's API twin.</li>
+<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI">github.com/OWASP/crAPI</a>) — free; run locally via Docker and work the vehicle/order BOLA challenges (<code>GET /identity/api/v2/vehicle/{id}/location</code> with two users) — IDOR's API twin.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -226,15 +228,15 @@ return response.text</code></pre>
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>PortSwigger Web Security Academy — SSRF</strong> (<a href="https://portswigger.net/web-security/ssrf)">portswigger.net/web-security/ssrf)</a> — <em>read</em> fully; the canonical treatment (loopback attacks, back-end systems, blacklist/whitelist bypasses, open-redirect bypass, blind SSRF). <em>Do</em> the labs after this lesson.</li>
-<li><strong>CWE-918</strong> (<a href="https://cwe.mitre.org/data/definitions/918.html)">cwe.mitre.org/data/definitions/918.html)</a> — <em>skim</em> the definition; cite the ID in findings.</li>
+<li><strong>PortSwigger Web Security Academy — SSRF</strong> (<a href="https://portswigger.net/web-security/ssrf">portswigger.net/web-security/ssrf</a>) — <em>read</em> fully; the canonical treatment (loopback attacks, back-end systems, blacklist/whitelist bypasses, open-redirect bypass, blind SSRF). <em>Do</em> the labs after this lesson.</li>
+<li><strong>CWE-918</strong> (<a href="https://cwe.mitre.org/data/definitions/918.html">cwe.mitre.org/data/definitions/918.html</a>) — <em>skim</em> the definition; cite the ID in findings.</li>
 <li><strong>Your cloud provider's metadata docs</strong> (<a href="https://docs.aws.amazon.com">docs.aws.amazon.com</a> for IMDSv2, <a href="https://cloud.google.com">cloud.google.com</a> for the metadata server, <a href="https://learn.microsoft.com">learn.microsoft.com</a> for Azure IMDS) — <em>read</em> the authentication requirements for the one you use; <em>note</em> what each requires and what that stops.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Academy — SSRF labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; basic, blind, and filter-bypass labs.</li>
+<li><strong>PortSwigger Academy — SSRF labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free, hosted, authorized; basic, blind, and filter-bypass labs.</li>
 <li><strong>OWASP SSRF Prevention Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side: allow-lists, canonicalization, egress controls.</li>
-<li><strong>HackerOne Hacktivity — disclosed SSRF reports</strong> (<a href="https://hackerone.com/hacktivity)">hackerone.com/hacktivity)</a> — free; read two disclosed reports to see how real findings chain SSRF to impact.</li>
+<li><strong>HackerOne Hacktivity — disclosed SSRF reports</strong> (<a href="https://hackerone.com/hacktivity">hackerone.com/hacktivity</a>) — free; read two disclosed reports to see how real findings chain SSRF to impact.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

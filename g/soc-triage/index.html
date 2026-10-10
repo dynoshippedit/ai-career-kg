@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -231,9 +233,9 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final)">csrc.nist.gov/pubs/sp/800/61/r3/final)</a> — <em>read</em> the incident-response lifecycle framing; <em>note</em> it is now a CSF 2.0 Community Profile (April 2025), not the old four-phase playbook — the structure changed and the old summaries are stale.</li>
-<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (2006, via <a href="https://doi.org/10.6028/NIST.SP.800-92)">doi.org/10.6028/NIST.SP.800-92)</a> — <em>read</em> the log-management infrastructure functions and challenges (volume, immutability, inconsistent formats, retention); <em>note</em> the r1 draft status before citing anything newer.</li>
-<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/)">attack.mitre.org/tactics/enterprise/)</a> — <em>read</em> the 15 tactics; <em>note</em> v19.2 split Defense Evasion into <strong>Stealth</strong> (hide actions) and <strong>Defense Impairment</strong> (break the defenders' tooling) — any 14-tactic list you find is stale.</li>
+<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final">csrc.nist.gov/pubs/sp/800/61/r3/final</a>) — <em>read</em> the incident-response lifecycle framing; <em>note</em> it is now a CSF 2.0 Community Profile (April 2025), not the old four-phase playbook — the structure changed and the old summaries are stale.</li>
+<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (2006, via <a href="https://doi.org/10.6028/NIST.SP.800-92">doi.org/10.6028/NIST.SP.800-92</a>) — <em>read</em> the log-management infrastructure functions and challenges (volume, immutability, inconsistent formats, retention); <em>note</em> the r1 draft status before citing anything newer.</li>
+<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/">attack.mitre.org/tactics/enterprise/</a>) — <em>read</em> the 15 tactics; <em>note</em> v19.2 split Defense Evasion into <strong>Stealth</strong> (hide actions) and <strong>Defense Impairment</strong> (break the defenders' tooling) — any 14-tactic list you find is stale.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -228,9 +230,9 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first — read them in this order:</p>
 <ol>
-<li><strong>The CERT Guide to Coordinated Vulnerability Disclosure</strong> (<a href="https://certcc.github.io/CERT-Guide-to-CVD/)">certcc.github.io/CERT-Guide-to-CVD/)</a> — the model this lesson follows. Read: the quick-start ("in a Nutshell"), Principles, Roles, Phases. Skim: Preparation, Operation, Troubleshooting. This is the professional reference you will return to.</li>
+<li><strong>The CERT Guide to Coordinated Vulnerability Disclosure</strong> (<a href="https://certcc.github.io/CERT-Guide-to-CVD/">certcc.github.io/CERT-Guide-to-CVD/</a>) — the model this lesson follows. Read: the quick-start ("in a Nutshell"), Principles, Roles, Phases. Skim: Preparation, Operation, Troubleshooting. This is the professional reference you will return to.</li>
 <li><strong>OpenSSF Guidance for Security Researchers (finder guide)</strong> (<a href="https://github.com/ossf/oss-vulnerability-guide">github.com/ossf/oss-vulnerability-guide</a>, <code>finder-guide.md</code>) — the finder's perspective for open source: disclosure options, how to write a complete report, the "Getting a CVE ID" section, what to do about unresponsive maintainers, and the SECURITY.md/embargo templates. Read the report-writing and troubleshooting sections end to end.</li>
-<li><strong>RFC 9116 — security.txt</strong> (<a href="https://rfc-editor.org/rfc/rfc9116)">rfc-editor.org/rfc/rfc9116)</a> — the contact-file standard: required fields, lookup order, expiry semantics. Short; read it whole.</li>
+<li><strong>RFC 9116 — security.txt</strong> (<a href="https://rfc-editor.org/rfc/rfc9116">rfc-editor.org/rfc/rfc9116</a>) — the contact-file standard: required fields, lookup order, expiry semantics. Short; read it whole.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

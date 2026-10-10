@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -217,7 +219,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ol>
 <li><strong>NIST SP 800-86, Guide to Integrating Forensic Techniques into Incident Response</strong> (<a href="https://csrc.nist.gov">csrc.nist.gov</a>) — read chapters 1–3 for the forensic process model and the collection/handling discipline; skim the tool catalog (it ages, the process doesn't). This is the process spine this lesson follows.</li>
 <li><strong>Volatility 3 documentation</strong> (<a href="https://volatilityfoundation.org">volatilityfoundation.org</a>) — read the plugin workflow pages (imageinfo → pslist → netscan → malfind); skip API internals until you write plugins. The command sequence is the memory-forensics lesson in miniature.</li>
-<li><strong>SANS SIFT Workstation documentation</strong> (<a href="https://sans.org/tools/sift-workstation)">sans.org/tools/sift-workstation)</a> — read the tool list and what each tool answers; this is your lab shopping list, organized by evidence domain.</li>
+<li><strong>SANS SIFT Workstation documentation</strong> (<a href="https://sans.org/tools/sift-workstation">sans.org/tools/sift-workstation</a>) — read the tool list and what each tool answers; this is your lab shopping list, organized by evidence domain.</li>
 </ol>
 <p>Then at most three free resources, each genuinely free: <strong>Autopsy</strong> (free, open-source disk forensics — your first real tool), <strong>Eric Zimmerman's tools</strong> (free Windows artifact parsers — the MFT/USN/prefetch readers), <strong>Wireshark</strong> (free — the network domain's microscope, from <a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a> onward).</p>
 <h2>8. Check yourself</h2>

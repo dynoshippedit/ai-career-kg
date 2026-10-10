@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -163,7 +165,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage D · Specialist</span><h1>Application security: concepts</h1>
 <p class="lede prose">Someone has to make sure the software gets <em>built</em> securely, not just tested after release. Application security is that discipline: threat modeling before code, scanners and reviews during development, verification before release. It is where the Stage B vulnerability classes meet the development process — every SQL injection you learned to find becomes a SAST rule, a code-review checklist item, and a threat-model entry. AppSec engineers, security champions, and consultants do this work; every developer-adjacent security role touches it.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · STRIDE worked case + teaching-sketch SAST with triage; real Semgrep/ZAP steps are reader-side</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · STRIDE worked case + teaching-sketch SAST with triage; real Semgrep step re-ran 2026-10-10; ZAP step is reader-side</p>
 <table class="ledger"><tbody>
 <tr><th scope="row">Stage</th><td>D (Specialist)</td></tr><tr><th scope="row">Level</th><td>3 (threat-model a small app with STRIDE, run SAST and triage its output, review a diff for security — scanner operation at production scale is reader-side)</td></tr><tr><th scope="row">Prerequisites</th><td>Stage B web-vulnerability wave (you must recognize the flaws scanners hunt), <a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/sdlc/"><code>e-sdlc</code></a> (the program this tooling serves)</td></tr><tr><th scope="row">Map references</th><td>serves the Stage D AppSec specialist track; the hands-on techniques for <strong>CISSP objectives 8.1–8.5</strong> (secure software: design, verification, acquired software — governance taught in <a href="/g/sdlc/"><code>e-sdlc</code></a>, tooling taught here).</td></tr>
 </tbody></table>
@@ -242,8 +244,8 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p>Primary, in this order:</p>
 <ol>
 <li><strong>OWASP Threat Modeling Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — read the four questions, the STRIDE table, and the cloud-threat-modeling section; it is the process this lesson teaches, from its authors.</li>
-<li><strong>Semgrep documentation</strong> (<a href="https://semgrep.dev/docs)">semgrep.dev/docs)</a> — read the quickstart (install via pipx/uv, <code>semgrep login</code>, <code>semgrep ci</code>) to see the real tool's shape; note the login-centered flow.</li>
-<li><strong>OWASP ASVS</strong> (<a href="https://owasp.org/www-project-application-security-verification-standard)">owasp.org/www-project-application-security-verification-standard)</a> — the verification requirements catalog; skim the level structure to see what "verified" can mean at three depths.</li>
+<li><strong>Semgrep documentation</strong> (<a href="https://semgrep.dev/docs">semgrep.dev/docs</a>) — read the quickstart (install via pipx/uv, <code>semgrep login</code>, <code>semgrep ci</code>) to see the real tool's shape; note the login-centered flow.</li>
+<li><strong>OWASP ASVS</strong> (<a href="https://owasp.org/www-project-application-security-verification-standard">owasp.org/www-project-application-security-verification-standard</a>) — the verification requirements catalog; skim the level structure to see what "verified" can mean at three depths.</li>
 </ol>
 <p>Free resources for going deeper (at most three):</p>
 <ul>

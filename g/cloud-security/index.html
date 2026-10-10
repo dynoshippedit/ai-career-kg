@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -223,15 +225,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary, in this order:</p>
 <ol>
-<li><strong>AWS Shared Responsibility Model</strong> (<a href="https://aws.amazon.com/compliance/shared-responsibility-model/)">aws.amazon.com/compliance/shared-responsibility-model/)</a> — read the "Security of the Cloud" vs "Security in the Cloud" split, then the inherited/shared/customer control examples. One page; it is the whole mental model.</li>
-<li><strong>Prowler repository</strong> (<a href="https://github.com/prowler-cloud/prowler)">github.com/prowler-cloud/prowler)</a> — read the README's description and the check/framework table to see what an assessment covers; note the CLI-first workflow.</li>
-<li><strong>ScoutSuite repository</strong> (<a href="https://github.com/nccgroup/ScoutSuite)">github.com/nccgroup/ScoutSuite)</a> — read the description: point-in-time, API-gathered, offline-after-collection, HTML report. Understand <em>why</em> that shape fits audits.</li>
+<li><strong>AWS Shared Responsibility Model</strong> (<a href="https://aws.amazon.com/compliance/shared-responsibility-model/">aws.amazon.com/compliance/shared-responsibility-model/</a>) — read the "Security of the Cloud" vs "Security in the Cloud" split, then the inherited/shared/customer control examples. One page; it is the whole mental model.</li>
+<li><strong>Prowler repository</strong> (<a href="https://github.com/prowler-cloud/prowler">github.com/prowler-cloud/prowler</a>) — read the README's description and the check/framework table to see what an assessment covers; note the CLI-first workflow.</li>
+<li><strong>ScoutSuite repository</strong> (<a href="https://github.com/nccgroup/ScoutSuite">github.com/nccgroup/ScoutSuite</a>) — read the description: point-in-time, API-gathered, offline-after-collection, HTML report. Understand <em>why</em> that shape fits audits.</li>
 </ol>
 <p>Free resources for going deeper (at most three):</p>
 <ul>
 <li><strong>CIS Benchmarks</strong> (free PDFs) — the actual check definitions behind Prowler's CIS-mapped checks; name the benchmark edition you audit against. <em>For: knowing what each check asserts.</em></li>
 <li><strong>Cloudsplaining</strong> (open-source IAM policy analyzer) — the walkthrough's tool; run it on every policy you write. <em>For: the reading habit, automated.</em></li>
-<li><strong>Stratus Red Team</strong> (<a href="https://github.com/DataDog/stratus-red-team)">github.com/DataDog/stratus-red-team)</a> — cloud adversary emulation for a dedicated sandbox account; the "what to look for" catalog for the detection half. <em>For: learning cloud attack paths safely, sandbox-only.</em></li>
+<li><strong>Stratus Red Team</strong> (<a href="https://github.com/DataDog/stratus-red-team">github.com/DataDog/stratus-red-team</a>) — cloud adversary emulation for a dedicated sandbox account; the "what to look for" catalog for the detection half. <em>For: learning cloud attack paths safely, sandbox-only.</em></li>
 </ul>
 <h2>8. Check yourself</h2>
 <ol>

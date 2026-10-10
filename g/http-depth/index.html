@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -240,16 +242,16 @@ Content-Length: ...
 <h2>7. Read the source</h2>
 <p>Primary documents first — read with a purpose, skip without guilt:</p>
 <ul>
-<li><strong>RFC 9110, HTTP Semantics</strong> (<a href="https://rfc-editor.org/rfc/rfc9110)">rfc-editor.org/rfc/rfc9110)</a> — <em>read</em> §9 (methods) and §15 (status codes); <em>skim</em> the field registry sections; <em>skip</em> the ABNF grammar on first pass. This is the shared meaning of all HTTP versions.</li>
-<li><strong>RFC 6265, HTTP State Management Mechanism</strong> (<a href="https://rfc-editor.org/rfc/rfc6265)">rfc-editor.org/rfc/rfc6265)</a> — <em>read</em> §4 (Set-Cookie semantics, the attributes); <em>skim</em> §5 (user-agent processing); <em>skip</em> the date-parsing algorithm unless you implement cookies.</li>
-<li><strong>RFC 8446, The Transport Layer Security (TLS) Protocol Version 1.3</strong> (<a href="https://rfc-editor.org/rfc/rfc8446)">rfc-editor.org/rfc/rfc8446)</a> — <em>read</em> the handshake overview (§2); <em>skip</em> the cryptographic details — know what the handshake achieves, not the math.</li>
-<li><strong>RFC 7519, JSON Web Token</strong> (<a href="https://rfc-editor.org/rfc/rfc7519)">rfc-editor.org/rfc/rfc7519)</a> — <em>read</em> §3–4 (structure and claims) and §7.2 (validation); <em>skim</em> §11 (security considerations); <em>skip</em> the JWE appendices until you need encryption.</li>
+<li><strong>RFC 9110, HTTP Semantics</strong> (<a href="https://rfc-editor.org/rfc/rfc9110">rfc-editor.org/rfc/rfc9110</a>) — <em>read</em> §9 (methods) and §15 (status codes); <em>skim</em> the field registry sections; <em>skip</em> the ABNF grammar on first pass. This is the shared meaning of all HTTP versions.</li>
+<li><strong>RFC 6265, HTTP State Management Mechanism</strong> (<a href="https://rfc-editor.org/rfc/rfc6265">rfc-editor.org/rfc/rfc6265</a>) — <em>read</em> §4 (Set-Cookie semantics, the attributes); <em>skim</em> §5 (user-agent processing); <em>skip</em> the date-parsing algorithm unless you implement cookies.</li>
+<li><strong>RFC 8446, The Transport Layer Security (TLS) Protocol Version 1.3</strong> (<a href="https://rfc-editor.org/rfc/rfc8446">rfc-editor.org/rfc/rfc8446</a>) — <em>read</em> the handshake overview (§2); <em>skip</em> the cryptographic details — know what the handshake achieves, not the math.</li>
+<li><strong>RFC 7519, JSON Web Token</strong> (<a href="https://rfc-editor.org/rfc/rfc7519">rfc-editor.org/rfc/rfc7519</a>) — <em>read</em> §3–4 (structure and claims) and §7.2 (validation); <em>skim</em> §11 (security considerations); <em>skip</em> the JWE appendices until you need encryption.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
 <li><strong>MDN Web Docs — HTTP</strong> (<a href="https://developer.mozilla.org">developer.mozilla.org</a>) — the best free guided tour; read the "Messages," "Methods," and "Status codes" articles after the RFCs to consolidate.</li>
-<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; the request-smuggling and auth labs in Stage B will assume everything in this lesson.</li>
-<li><strong>curl documentation</strong> (<code>curl --help</code>, <a href="https://curl.se/docs)">curl.se/docs)</a> — free; the tool you will use for the next hundred lessons deserves an hour of manual reading.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free; the request-smuggling and auth labs in Stage B will assume everything in this lesson.</li>
+<li><strong>curl documentation</strong> (<code>curl --help</code>, <a href="https://curl.se/docs">curl.se/docs</a>) — free; the tool you will use for the next hundred lessons deserves an hour of manual reading.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

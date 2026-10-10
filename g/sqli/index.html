@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -227,15 +229,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>PortSwigger Web Security Academy — SQL injection</strong> (<a href="https://portswigger.net/web-security/sql-injection)">portswigger.net/web-security/sql-injection)</a> — <em>read</em> fully; it is the canonical treatment (detection probes, UNION technique, blind families, second-order, prevention). <em>Skim</em> the lab list; <em>do</em> the labs after this lesson.</li>
+<li><strong>PortSwigger Web Security Academy — SQL injection</strong> (<a href="https://portswigger.net/web-security/sql-injection">portswigger.net/web-security/sql-injection</a>) — <em>read</em> fully; it is the canonical treatment (detection probes, UNION technique, blind families, second-order, prevention). <em>Skim</em> the lab list; <em>do</em> the labs after this lesson.</li>
 <li><strong>OWASP SQL Injection Prevention Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — <em>read</em> the four defense options in order; <em>note</em> that escaping is "STRONGLY DISCOURAGED" and <em>read</em> the least-privilege section. This is the fix side, stated as checkpoints.</li>
-<li><strong>CWE-89</strong> (<a href="https://cwe.mitre.org/data/definitions/89.html)">cwe.mitre.org/data/definitions/89.html)</a> — <em>skim</em> the weakness definition and its relationships; cite the ID in findings.</li>
+<li><strong>CWE-89</strong> (<a href="https://cwe.mitre.org/data/definitions/89.html">cwe.mitre.org/data/definitions/89.html</a>) — <em>skim</em> the weakness definition and its relationships; cite the ID in findings.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Academy — SQL injection labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; 18+ labs across every family in this lesson.</li>
-<li><strong>OWASP Juice Shop</strong> (<a href="https://owasp.org/www-project-juice-shop)">owasp.org/www-project-juice-shop)</a> — free; run locally via Docker: "Login Admin" (bypass), "User Credentials" (UNION retrieval), "Database Schema" (enumeration).</li>
-<li><strong>DVWA — SQL Injection modules</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — free; run locally via Docker: the Low→High difficulty ladder shows the naive filters, and Impossible shows the parameterized fix.</li>
+<li><strong>PortSwigger Academy — SQL injection labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free, hosted, authorized; 18+ labs across every family in this lesson.</li>
+<li><strong>OWASP Juice Shop</strong> (<a href="https://owasp.org/www-project-juice-shop">owasp.org/www-project-juice-shop</a>) — free; run locally via Docker: "Login Admin" (bypass), "User Credentials" (UNION retrieval), "Database Schema" (enumeration).</li>
+<li><strong>DVWA — SQL Injection modules</strong> (<a href="https://github.com/digininja/DVWA">github.com/digininja/DVWA</a>) — free; run locally via Docker: the Low→High difficulty ladder shows the naive filters, and Impossible shows the parameterized fix.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -211,7 +213,7 @@ date -u +%Y-%m-%d</code></pre>
 <p>Expected: the beacon's CV near 0.1 (regular), the human's CV near 1.0 (irregular). The number <em>is</em> the detection concept: regularity, not content.</p>
 <p><strong>Step 4 — Build a Navigator layer.</strong> Write <code>layer.json</code>: an ATT&amp;CK Navigator layer (v4.5 format) annotating 5 techniques from the worked example with scores and comments naming the data source that would detect each. Validate it parses:</p>
 <pre><code>python3 -c &quot;import json; d=json.load(open(&#x27;layer.json&#x27;)); print(&#x27;valid JSON,&#x27;, len(d[&#x27;techniques&#x27;]), &#x27;techniques&#x27;)&quot;</code></pre>
-<p>Expected: <code>valid JSON, 5 techniques</code>. Importing it into the ATT&amp;CK Navigator (your browser, <a href="https://mitre-attack.github.io/attack-navigator)">mitre-attack.github.io/attack-navigator)</a> is reader-side — <strong>not run by us</strong> here.</p>
+<p>Expected: <code>valid JSON, 5 techniques</code>. Importing it into the ATT&amp;CK Navigator (your browser, <a href="https://mitre-attack.github.io/attack-navigator">mitre-attack.github.io/attack-navigator</a>) is reader-side — <strong>not run by us</strong> here.</p>
 <p><strong>Step 5 — Emulation tooling (reader-side).</strong> Atomic Red Team (<a href="https://github.com/redcanaryco/atomic-red-team">github.com/redcanaryco/atomic-red-team</a> — public, MIT-licensed, verified 2026-10-09) publishes small YAML-defined tests mapped to technique IDs. In your isolated lab: pick three <em>discovery</em>-family atomics (T1082 system information, T1018 remote discovery, T1033 system owner), run each, and record which of your defenses logged it. Running these here is <strong>not run by us</strong> — this machine is not an isolated lab, and emulation tooling never runs on shared infrastructure.</p>
 <p><strong>Step 6 — Close the loop on paper.</strong> Take the blind-tactic list from step 2 and write one paragraph per blind tactic: what telemetry would close it, and which existing log source from <a href="/g/log-sources/"><code>c-log-sources</code></a> provides it. This is the purple-team memo in miniature.</p>
 <h2>5. On your own</h2>
@@ -227,15 +229,15 @@ date -u +%Y-%m-%d</code></pre>
 <h2>7. Read the source</h2>
 <p>Primary, in this order:</p>
 <ol>
-<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/)">attack.mitre.org/tactics/enterprise/)</a> — read the 15 tactic definitions first; they are the table of contents. Then read the <strong>Command and Control tactic page</strong> end to end, techniques then the detection/mitigation notes.</li>
-<li><strong>Atomic Red Team repository</strong> (<a href="https://github.com/redcanaryco/atomic-red-team)">github.com/redcanaryco/atomic-red-team)</a> — read the README's philosophy section, then open one atomic's YAML to see how a test maps to a technique ID.</li>
-<li><strong>ATT&amp;CK Navigator</strong> (<a href="https://mitre-attack.github.io/attack-navigator)">mitre-attack.github.io/attack-navigator)</a> — open it, load the layer file from the walkthrough, and read how scores and comments render.</li>
+<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/">attack.mitre.org/tactics/enterprise/</a>) — read the 15 tactic definitions first; they are the table of contents. Then read the <strong>Command and Control tactic page</strong> end to end, techniques then the detection/mitigation notes.</li>
+<li><strong>Atomic Red Team repository</strong> (<a href="https://github.com/redcanaryco/atomic-red-team">github.com/redcanaryco/atomic-red-team</a>) — read the README's philosophy section, then open one atomic's YAML to see how a test maps to a technique ID.</li>
+<li><strong>ATT&amp;CK Navigator</strong> (<a href="https://mitre-attack.github.io/attack-navigator">mitre-attack.github.io/attack-navigator</a>) — open it, load the layer file from the walkthrough, and read how scores and comments render.</li>
 </ol>
 <p>Free resources for going deeper (at most three):</p>
 <ul>
 <li><strong>RITA</strong> (Real Intelligence Threat Analytics) — beacon analysis over Zeek logs; the free tool that implements the walkthrough's step 3 at production scale. <em>For: turning the statistics concept into real detections.</em></li>
 <li><strong>LOLBAS</strong> (<a href="https://lolbas-project.github.io">lolbas-project.github.io</a>) — the defender's catalog of living-off-the-land binaries, each with legitimate vs abusive uses. <em>For: the T1218 reference you will actually query.</em></li>
-<li><strong>MITRE Caldera</strong> (<a href="https://github.com/mitre/caldera)">github.com/mitre/caldera)</a> — agent-based planned adversary emulation for the isolated lab, when atomic tests stop being enough. <em>For: the next step after Atomic Red Team.</em></li>
+<li><strong>MITRE Caldera</strong> (<a href="https://github.com/mitre/caldera">github.com/mitre/caldera</a>) — agent-based planned adversary emulation for the isolated lab, when atomic tests stop being enough. <em>For: the next step after Atomic Red Team.</em></li>
 </ul>
 <h2>8. Check yourself</h2>
 <ol>

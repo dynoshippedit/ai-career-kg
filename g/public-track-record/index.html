@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -211,7 +213,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li><strong>Hype over mechanism.</strong> "Critical 0-day!!" for a finding whose impact section can't name the data at risk. The field has a long memory for inflated severity; one hype write-up costs more credibility than ten quiet ones earn.</li>
 <li><strong>Claiming unproven impact.</strong> "Could lead to full database compromise" when you read one table. State what you proved; mark the rest as untested. The honest-impact discipline from section 3 is the whole game.</li>
 <li><strong>Publishing before the timeline allows.</strong> The disclosure lesson's clock governs: vendor deadline first, publication after. A write-up that burns a vendor mid-patch is not research, it's an attack with footnotes.</li>
-<li><strong>Publishing pwn.college solutions.</strong> Their no-solutions rule is explicit (<a href="/g/exploit-concepts/"><code>d-exploit-concepts</code></a>). Mechanics in your own words: yes. Flags, solution scripts, challenge write-ups: no. Violating a community's stated rule in your first public artifact is a remarkable way to start.</li>
+<li><strong>Publishing <a href="https://pwn.college">pwn.college</a> solutions.</strong> Their no-solutions rule is explicit (<a href="/g/exploit-concepts/"><code>d-exploit-concepts</code></a>). Mechanics in your own words: yes. Flags, solution scripts, challenge write-ups: no. Violating a community's stated rule in your first public artifact is a remarkable way to start.</li>
 <li><strong>The write-up as bragging.</strong> If the reader learns nothing they can reuse, it's a trophy, not a track record. The test from section 1: a year later, a stranger, the mechanism re-derivable.</li>
 <li><strong>Plagiarism, including self-plagiarism of others' work.</strong> Findings are yours or they aren't. Reproducing someone else's published technique without credit is the end of the track record before it starts.</li>
 </ul>

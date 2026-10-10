@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -224,13 +226,13 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>PortSwigger Web Security Academy — OS command injection</strong> (<a href="https://portswigger.net/web-security/os-command-injection)">portswigger.net/web-security/os-command-injection)</a> — <em>read</em> fully; the canonical treatment (metacharacter classes, blind techniques: time/redirect/OAST, prevention). <em>Note</em> the prevention order: never shell out first, allow-list second, never escape.</li>
-<li><strong>CWE-78</strong> (<a href="https://cwe.mitre.org/data/definitions/78.html)">cwe.mitre.org/data/definitions/78.html)</a> — <em>skim</em> the definition and its parent CWE-77 (command injection); cite the ID in findings.</li>
+<li><strong>PortSwigger Web Security Academy — OS command injection</strong> (<a href="https://portswigger.net/web-security/os-command-injection">portswigger.net/web-security/os-command-injection</a>) — <em>read</em> fully; the canonical treatment (metacharacter classes, blind techniques: time/redirect/OAST, prevention). <em>Note</em> the prevention order: never shell out first, allow-list second, never escape.</li>
+<li><strong>CWE-78</strong> (<a href="https://cwe.mitre.org/data/definitions/78.html">cwe.mitre.org/data/definitions/78.html</a>) — <em>skim</em> the definition and its parent CWE-77 (command injection); cite the ID in findings.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Academy — OS command injection labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; in-band plus the three blind techniques from this lesson.</li>
-<li><strong>DVWA — Command Injection module</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — free; run locally via Docker: the Low→High ladder shows naive escaping failing, and Impossible shows the allow-list fix.</li>
+<li><strong>PortSwigger Academy — OS command injection labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free, hosted, authorized; in-band plus the three blind techniques from this lesson.</li>
+<li><strong>DVWA — Command Injection module</strong> (<a href="https://github.com/digininja/DVWA">github.com/digininja/DVWA</a>) — free; run locally via Docker: the Low→High ladder shows naive escaping failing, and Impossible shows the allow-list fix.</li>
 <li><strong>OWASP Command Injection Defense Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — free; the fix side: safe APIs per language, allow-list patterns.</li>
 </ol>
 <h2>8. Check yourself</h2>

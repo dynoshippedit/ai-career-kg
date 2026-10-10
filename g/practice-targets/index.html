@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -232,17 +234,17 @@ docker run -t -p 127.0.0.1:5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga</code></pre
 <h2>7. Read the source</h2>
 <p>Primary documents first — the projects' own READMEs (all fetched in-session, 2026-10-09):</p>
 <ul>
-<li><strong>DVWA</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — <em>read</em> the setup and difficulty-level sections; the README is the authority on <code>compose up</code> and on what each level's defenses do.</li>
-<li><strong>OWASP Juice Shop</strong> (<a href="https://github.com/juice-shop/juice-shop)">github.com/juice-shop/juice-shop)</a> — <em>read</em> the run section and the challenge-hint policy; <em>note</em> how the score board structures practice.</li>
-<li><strong>OWASP WebGoat</strong> (<a href="https://github.com/WebGoat/WebGoat)">github.com/WebGoat/WebGoat)</a> — <em>read</em> the Docker run section including the <code>-e TZ=</code> note; <em>skim</em> the lesson list to map lessons to this guidebook's vulnerability classes.</li>
-<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI)">github.com/OWASP/crAPI)</a> — <em>read</em> the deploy/docker instructions; <em>note</em> the MailHog companion and what it is for.</li>
-<li><strong>DVGA</strong> (<a href="https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application)">github.com/dolevf/Damn-Vulnerable-GraphQL-Application)</a> — <em>read</em> the run section; <em>note</em> the <code>:5013</code> port and the all-interfaces default you will override.</li>
+<li><strong>DVWA</strong> (<a href="https://github.com/digininja/DVWA">github.com/digininja/DVWA</a>) — <em>read</em> the setup and difficulty-level sections; the README is the authority on <code>compose up</code> and on what each level's defenses do.</li>
+<li><strong>OWASP Juice Shop</strong> (<a href="https://github.com/juice-shop/juice-shop">github.com/juice-shop/juice-shop</a>) — <em>read</em> the run section and the challenge-hint policy; <em>note</em> how the score board structures practice.</li>
+<li><strong>OWASP WebGoat</strong> (<a href="https://github.com/WebGoat/WebGoat">github.com/WebGoat/WebGoat</a>) — <em>read</em> the Docker run section including the <code>-e TZ=</code> note; <em>skim</em> the lesson list to map lessons to this guidebook's vulnerability classes.</li>
+<li><strong>OWASP crAPI</strong> (<a href="https://github.com/OWASP/crAPI">github.com/OWASP/crAPI</a>) — <em>read</em> the deploy/docker instructions; <em>note</em> the MailHog companion and what it is for.</li>
+<li><strong>DVGA</strong> (<a href="https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application">github.com/dolevf/Damn-Vulnerable-GraphQL-Application</a>) — <em>read</em> the run section; <em>note</em> the <code>:5013</code> port and the all-interfaces default you will override.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
 <li><strong>Docker's official install documentation</strong> (<a href="https://docs.docker.com">docs.docker.com</a>) — free; the only install guide this lesson endorses. Install from the vendor, not from a blog's curl pipe.</li>
-<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; the hosted sixth target, each lab its own authorized scope.</li>
-<li><strong>OWASP WSTG v4.2</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/v42/)">owasp.org/www-project-web-security-testing-guide/v42/)</a> — free; once the targets are up, this is the checklist you run against them — the methodology lesson's companion.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free; the hosted sixth target, each lab its own authorized scope.</li>
+<li><strong>OWASP WSTG v4.2</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/v42/">owasp.org/www-project-web-security-testing-guide/v42/</a>) — free; once the targets are up, this is the checklist you run against them — the methodology lesson's companion.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

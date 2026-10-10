@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -248,15 +250,15 @@ level: high</code></pre>
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>Sigma specification</strong> (<a href="https://github.com/SigmaHQ/sigma-specification)">github.com/SigmaHQ/sigma-specification)</a> — <em>read</em> the Sigma Rules Specification fully; <em>skim</em> the modifiers appendix (it's a reference); <em>read</em> the tags appendix before you tag anything; <em>note</em> the 2.x version changes. This is the contract your rules are written against.</li>
-<li><strong>Sigma main rule repository</strong> (<a href="https://github.com/SigmaHQ/sigma)">github.com/SigmaHQ/sigma)</a> — <em>read</em> five rules in your logsource categories as style references; <em>note</em> the four rule types (generic detection, threat hunting, emerging threat, compliance).</li>
-<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final)">csrc.nist.gov/pubs/sp/800/61/r3/final)</a> — <em>read</em> the detection-and-analysis framing; <em>note</em> the April 2025 date and CSF 2.0 Community Profile structure — old four-phase summaries are stale.</li>
+<li><strong>Sigma specification</strong> (<a href="https://github.com/SigmaHQ/sigma-specification">github.com/SigmaHQ/sigma-specification</a>) — <em>read</em> the Sigma Rules Specification fully; <em>skim</em> the modifiers appendix (it's a reference); <em>read</em> the tags appendix before you tag anything; <em>note</em> the 2.x version changes. This is the contract your rules are written against.</li>
+<li><strong>Sigma main rule repository</strong> (<a href="https://github.com/SigmaHQ/sigma">github.com/SigmaHQ/sigma</a>) — <em>read</em> five rules in your logsource categories as style references; <em>note</em> the four rule types (generic detection, threat hunting, emerging threat, compliance).</li>
+<li><strong>NIST SP 800-61 Rev. 3</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final">csrc.nist.gov/pubs/sp/800/61/r3/final</a>) — <em>read</em> the detection-and-analysis framing; <em>note</em> the April 2025 date and CSF 2.0 Community Profile structure — old four-phase summaries are stale.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>Atomic Red Team</strong> (<a href="https://github.com/redcanaryco/atomic-red-teams)">github.com/redcanaryco/atomic-red-teams)</a> — free adversary-emulation tests mapped to ATT&amp;CK: the positive corpus for validating your detections, and the honest way to prove a gap.</li>
+<li><strong>Atomic Red Team</strong> (<a href="https://github.com/redcanaryco/atomic-red-team">github.com/redcanaryco/atomic-red-team</a>) — free adversary-emulation tests mapped to ATT&amp;CK: the positive corpus for validating your detections, and the honest way to prove a gap.</li>
 <li><strong>Detection-as-code references in <code>sources.csv</code></strong> — the lifecycle (draft → CI → soak → ship → review → retire) this lesson's workflow follows.</li>
-<li><strong>MITRE ATT&amp;CK Navigator</strong> (<a href="https://mitre-attack.github.io/attack-navigator/)">mitre-attack.github.io/attack-navigator/)</a> — free; layer your rule tags over the matrix and look at what's dark — that darkness is your roadmap.</li>
+<li><strong>MITRE ATT&amp;CK Navigator</strong> (<a href="https://mitre-attack.github.io/attack-navigator/">mitre-attack.github.io/attack-navigator/</a>) — free; layer your rule tags over the matrix and look at what's dark — that darkness is your roadmap.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

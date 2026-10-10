@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -213,8 +215,8 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents — read in this order:</p>
 <ol>
-<li><strong>PortSwigger Web Security Academy — Business logic vulnerabilities</strong> (<a href="https://portswigger.net/web-security/logic-flaws)">portswigger.net/web-security/logic-flaws)</a>: definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). <em>Verified in night research 2026-10-09; re-fetch at build time before linking.</em></li>
-<li><strong>OWASP Top 10:2025 — A06 Insecure Design</strong> (<a href="https://owasp.org/Top10/2025/)">owasp.org/Top10/2025/)</a>: what "insecure design" means as a category and why logic flaws live there rather than under Injection. <em>Verified in-session 2026-10-09.</em></li>
+<li><strong>PortSwigger Web Security Academy — Business logic vulnerabilities</strong> (<a href="https://portswigger.net/web-security/logic-flaws">portswigger.net/web-security/logic-flaws</a>): definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). <em>Verified in night research 2026-10-09; re-fetch at build time before linking.</em></li>
+<li><strong>OWASP Top 10:2025 — A06 Insecure Design</strong> (<a href="https://owasp.org/Top10/2025/">owasp.org/Top10/2025/</a>): what "insecure design" means as a category and why logic flaws live there rather than under Injection. <em>Verified in-session 2026-10-09.</em></li>
 <li><strong>WSTG business-logic testing</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/">owasp.org/www-project-web-security-testing-guide/</a> — WSTG-BUSL): the test-case checklist form of this lesson's methodology. Skim the test IDs; use as a checklist on your next workflow.</li>
 </ol>
 <p>Free resources for going deeper (≤3): <strong>PortSwigger business-logic labs</strong> (the hands-on companion); <strong>Juice Shop logic challenges</strong> ("Payback Time" negative-quantity, "Christmas Special" — gamified, free); <strong>disclosed HackerOne logic-flaw reports</strong> (read for how impact is argued in money terms — study the reasoning, never the payload).</p>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -163,7 +165,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <section>
 <span class="eyebrow">Security guidebook · Stage B · Practitioner</span><h1>CSRF: when the victim&#x27;s browser does the attacker&#x27;s work</h1>
 <p class="lede prose">Cross-site request forgery is the attack where the victim's own browser issues the malicious request — authenticated, cookie-attached, indistinguishable from legitimate traffic. It sits in <strong>OWASP Top 10:2025 A01</strong> and carries <strong>CWE-352</strong>. You will meet it in every cookie-sessioned application with state-changing actions: email changes, password changes, transfers, privilege grants. It is also the lesson that teaches the single most repeated rule in web security: <strong>no state changes via GET — ever.</strong> From the defender's side, it is nearly invisible to signature WAFs (the forged request is syntactically identical to a real one), which is why the fix is design, not detection.</p>
-<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo app; browser-click sub-step not run by us</p>
+<p class="dateline">Lesson published 2026-10-09 · Walkthrough run 2026-10-09 · local demo app; browser-click sub-step re-ran 2026-10-10 (headless Chromium)</p>
 <table class="ledger"><tbody>
 <tr><th scope="row">Stage</th><td>B (Practitioner)</td></tr><tr><th scope="row">Level</th><td>3 (mechanism + live reproduction + fix verification)</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a> (cookies, same-origin policy, GET vs POST), <a href="/g/idor/"><code>b-idor</code></a> (server-side trust), B-AUTH (authorization discipline: you test only what you are allowed to touch)</td></tr><tr><th scope="row">Map references</th><td>OWASP Top 10:2025 A01 · WSTG-SESS-05 · CWE-352</td></tr>
 </tbody></table>
@@ -235,14 +237,14 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>PortSwigger Web Security Academy — CSRF</strong> (<a href="https://portswigger.net/web-security/csrf)">portswigger.net/web-security/csrf)</a> — <em>read</em> fully; the canonical treatment (three conditions, the email-change example, token/SameSite/Referer defenses and their bypass labs). <em>Do</em> the labs after this lesson.</li>
+<li><strong>PortSwigger Web Security Academy — CSRF</strong> (<a href="https://portswigger.net/web-security/csrf">portswigger.net/web-security/csrf</a>) — <em>read</em> fully; the canonical treatment (three conditions, the email-change example, token/SameSite/Referer defenses and their bypass labs). <em>Do</em> the labs after this lesson.</li>
 <li><strong>OWASP CSRF Prevention Cheat Sheet</strong> (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) — <em>read</em> the token patterns (synchronizer, signed double-submit) and the defense-in-depth section; <em>note</em> the warning that naive double-submit is bypassable via cookie injection, and that XSS defeats all CSRF mitigations.</li>
 <li><strong>draft-ietf-httpbis-rfc6265bis §5.6.7</strong> (<a href="https://ietf.org">ietf.org</a> — the SameSite attribute; RFC 6265 has no §4.1.2.7) — <em>skim</em> the cookie attribute semantics; cite it when you set the attribute.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Academy — CSRF labs</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free, hosted, authorized; no-defense plus token-validation, SameSite, and Referer bypass labs.</li>
-<li><strong>DVWA — CSRF module</strong> (<a href="https://github.com/digininja/DVWA)">github.com/digininja/DVWA)</a> — free; run locally via Docker: the Low→High ladder, and Impossible shows the token implementation.</li>
+<li><strong>PortSwigger Academy — CSRF labs</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free, hosted, authorized; no-defense plus token-validation, SameSite, and Referer bypass labs.</li>
+<li><strong>DVWA — CSRF module</strong> (<a href="https://github.com/digininja/DVWA">github.com/digininja/DVWA</a>) — free; run locally via Docker: the Low→High ladder, and Impossible shows the token implementation.</li>
 <li><strong>MDN — SameSite cookies</strong> (<a href="https://developer.mozilla.org">developer.mozilla.org</a>) — free; the browser-behavior reference for Strict/Lax/None.</li>
 </ol>
 <h2>8. Check yourself</h2>

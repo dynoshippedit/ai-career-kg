@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -224,13 +226,13 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first — read with a purpose, skip without guilt:</p>
 <ul>
-<li><strong>RFC 1034, Domain Names — Concepts and Facilities</strong> (<a href="https://rfc-editor.org/rfc/rfc1034)">rfc-editor.org/rfc/rfc1034)</a> — <em>read</em> the concept sections on the name space, zones, and the resolver/name-server split. This is the vocabulary; 1035 is the machinery.</li>
-<li><strong>RFC 1035, Domain Names — Implementation and Specification</strong> (<a href="https://rfc-editor.org/rfc/rfc1035)">rfc-editor.org/rfc/rfc1035)</a> — <em>read</em> §2.1–2.2 (overview, common configurations — the diagrams of who asks whom), §3.2–3.3 (RR definitions and the standard types), §4.1 (message format — match each field to the walkthrough output), §4.2 (transport — UDP normally, TCP when); <em>skim</em> §6–7 (server/resolver implementation); <em>skip</em> §5 (master file syntax) until you run a real nameserver.</li>
+<li><strong>RFC 1034, Domain Names — Concepts and Facilities</strong> (<a href="https://rfc-editor.org/rfc/rfc1034">rfc-editor.org/rfc/rfc1034</a>) — <em>read</em> the concept sections on the name space, zones, and the resolver/name-server split. This is the vocabulary; 1035 is the machinery.</li>
+<li><strong>RFC 1035, Domain Names — Implementation and Specification</strong> (<a href="https://rfc-editor.org/rfc/rfc1035">rfc-editor.org/rfc/rfc1035</a>) — <em>read</em> §2.1–2.2 (overview, common configurations — the diagrams of who asks whom), §3.2–3.3 (RR definitions and the standard types), §4.1 (message format — match each field to the walkthrough output), §4.2 (transport — UDP normally, TCP when); <em>skim</em> §6–7 (server/resolver implementation); <em>skip</em> §5 (master file syntax) until you run a real nameserver.</li>
 <li><strong>RFC 4033–4035, DNSSEC</strong> (<a href="https://rfc-editor.org">rfc-editor.org</a>) — <em>read</em> 4033 §2–3 (what DNSSEC adds: RRSIG, DNSKEY, DS, the chain of trust) when you do step 9 on your own machine; <em>skip</em> the cryptographic details.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>Cloudflare Learning Center — DNS</strong> (<a href="https://cloudflare.com/learning/dns/what-is-dns)">cloudflare.com/learning/dns/what-is-dns)</a> — the clearest free walkthrough of the 8-step resolution chain, recursive vs authoritative servers, and caching; read after the RFCs to consolidate.</li>
+<li><strong>Cloudflare Learning Center — DNS</strong> (<a href="https://cloudflare.com/learning/dns/what-is-dns">cloudflare.com/learning/dns/what-is-dns</a>) — the clearest free walkthrough of the 8-step resolution chain, recursive vs authoritative servers, and caching; read after the RFCs to consolidate.</li>
 <li><em>(Second slot intentionally empty — the RFCs plus one guide are the right depth here. A DNSSEC visualization tool goes in the directory, not the lesson.)</em></li>
 </ol>
 <h2>8. Check yourself</h2>

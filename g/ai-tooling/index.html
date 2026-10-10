@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -214,7 +216,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p>Read the primary material in this order:</p>
 <ol>
 <li><strong>Anthropic's CVP announcement</strong> (<a href="https://anthropic.com">anthropic.com</a>, 2026-10-06 — "Expanding the Cyber Verification Program") — read the tier table and the Glasswing numbers from the vendor's own words; note the publish time. <em>Gap, stated plainly: the announcement URL was not fetched in this session (the guessed path 404'd); the tier details below are consistent across 6+ outlets dated 2026-10-06–08 and one secondary page that read the announcement directly — re-fetch the primary before publishing.</em></li>
-<li><strong>The secondary reading</strong> (cellcog.ai/blog/anthropic-cyber-verification-program, read 2026-10-09) — the tier table, the CyScenarioBench numbers, and the Glasswing figures as transcribed from the announcement, with the independent-validation caveat stated.</li>
+<li><strong>The secondary reading</strong> (<a href="https://cellcog.ai/blog/anthropic-cyber-verification-program">cellcog.ai/blog/anthropic-cyber-verification-program</a>, read 2026-10-09) — the tier table, the CyScenarioBench numbers, and the Glasswing figures as transcribed from the announcement, with the independent-validation caveat stated.</li>
 <li><strong>Anthropic Help Center: real-time cyber safeguards</strong> (<a href="https://support.claude.com">support.claude.com</a>) — what the safeguards block in the general product, so you understand what the tiers lift.</li>
 </ol>
 <p>Then at most three free resources, each genuinely free: <strong>Project Zero's disclosure policy</strong> (<a href="https://googleprojectzero.blogspot.com">googleprojectzero.blogspot.com</a> — the 90-day clock your future disclosures will run on), <strong>the CERT CVD guide</strong> (<a href="https://cert.org">cert.org</a> — the process behind "reported vulnerabilities"), <strong>your evidence repo</strong> (free — where the track record already lives).</p>

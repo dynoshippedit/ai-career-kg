@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -220,15 +222,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>OWASP WSTG v4.2</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/v42/)">owasp.org/www-project-web-security-testing-guide/v42/)</a> — <em>read</em> the category list and one full test (start with <code>WSTG-ATHZ-04</code>, the IDOR test — ID confirmed on the primary page in-session); <em>use</em> the guide as the checklist for every web test you run. <em>Skip</em> v5.0 drafts for reporting purposes.</li>
+<li><strong>OWASP WSTG v4.2</strong> (<a href="https://owasp.org/www-project-web-security-testing-guide/v42/">owasp.org/www-project-web-security-testing-guide/v42/</a>) — <em>read</em> the category list and one full test (start with <code>WSTG-ATHZ-04</code>, the IDOR test — ID confirmed on the primary page in-session); <em>use</em> the guide as the checklist for every web test you run. <em>Skip</em> v5.0 drafts for reporting purposes.</li>
 <li><strong>PTES Technical Guidelines</strong> (<a href="https://pentest-standard.org">pentest-standard.org</a> — Technical Guidelines page) — <em>read</em> the seven phase descriptions; this page was unreachable from some networks during earlier research and fetched cleanly in-session on 2026-10-09. If it 403s for you, the phase names are corroborated widely — but cite the date you checked.</li>
 <li><strong>NIST SP 800-115</strong> (<a href="https://csrc.nist.gov/pubs/sp/800/115/final">csrc.nist.gov/pubs/sp/800/115/final</a> — Final, September 2008) — <em>read</em> the planning phase (rules of engagement, handling of findings); <em>skim</em> the execution techniques; <em>note</em> the three methods (testing, examination, interviewing) as the frame for non-technical assessment work.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
-<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security)">portswigger.net/web-security)</a> — free; the hands-on companion: every vulnerability lesson in this guidebook maps to Academy topics, and each lab is a chance to practice citing WSTG IDs.</li>
+<li><strong>PortSwigger Web Security Academy</strong> (<a href="https://portswigger.net/web-security">portswigger.net/web-security</a>) — free; the hands-on companion: every vulnerability lesson in this guidebook maps to Academy topics, and each lab is a chance to practice citing WSTG IDs.</li>
 <li><strong>OWASP ASVS</strong> (<a href="https://owasp.org">owasp.org</a> — Application Security Verification Standard) — free; read alongside the WSTG to learn the verify-vs-test relationship: ASVS states requirements, WSTG tests them.</li>
-<li><strong>HackerOne Hacktivity disclosed reports</strong> (<a href="https://HackerOne.com/hacktivity)">HackerOne.com/hacktivity)</a> — free; read two reports' methodology sections and map each step the researcher describes to a PTES phase.</li>
+<li><strong>HackerOne Hacktivity disclosed reports</strong> (<a href="https://HackerOne.com/hacktivity">HackerOne.com/hacktivity</a>) — free; read two reports' methodology sections and map each step the researcher describes to a PTES phase.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

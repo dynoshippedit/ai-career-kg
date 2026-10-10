@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -216,15 +218,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>7. Read the source</h2>
 <p>Primary documents first:</p>
 <ul>
-<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (<a href="https://doi.org/10.6028/NIST.SP.800-92)">doi.org/10.6028/NIST.SP.800-92)</a> — <em>read</em> the infrastructure functions and the five challenges (volume, immutability, formats, review, retention); <em>note</em> the 2006 date and check the r1 draft status before citing anything newer.</li>
-<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/)">attack.mitre.org/tactics/enterprise/)</a> — <em>read</em> the 15 tactics; <em>note</em> v19.2 split Defense Evasion into <strong>Stealth</strong> (TA0005) and <strong>Defense Impairment</strong> (TA0112) — stale 14-tactic lists mislead.</li>
-<li><strong>SwiftOnSecurity sysmon-config</strong> (<a href="https://github.com/SwiftOnSecurity/sysmon-config)">github.com/SwiftOnSecurity/sysmon-config)</a> — <em>read</em> the config itself as the industry's starting answer to "what should an endpoint record"; <em>study</em> how excludes are written, because each one is a visibility decision.</li>
+<li><strong>NIST SP 800-92, Guide to Computer Security Log Management</strong> (<a href="https://doi.org/10.6028/NIST.SP.800-92">doi.org/10.6028/NIST.SP.800-92</a>) — <em>read</em> the infrastructure functions and the five challenges (volume, immutability, formats, review, retention); <em>note</em> the 2006 date and check the r1 draft status before citing anything newer.</li>
+<li><strong>MITRE ATT&amp;CK Enterprise tactics</strong> (<a href="https://attack.mitre.org/tactics/enterprise/">attack.mitre.org/tactics/enterprise/</a>) — <em>read</em> the 15 tactics; <em>note</em> v19.2 split Defense Evasion into <strong>Stealth</strong> (TA0005) and <strong>Defense Impairment</strong> (TA0112) — stale 14-tactic lists mislead.</li>
+<li><strong>SwiftOnSecurity sysmon-config</strong> (<a href="https://github.com/SwiftOnSecurity/sysmon-config">github.com/SwiftOnSecurity/sysmon-config</a>) — <em>read</em> the config itself as the industry's starting answer to "what should an endpoint record"; <em>study</em> how excludes are written, because each one is a visibility decision.</li>
 </ul>
 <p>Then at most three free resources:</p>
 <ol>
 <li><strong>Wazuh</strong> (<a href="https://wazuh.com">wazuh.com</a>) — free XDR: agents plus manager plus dashboard; generates the endpoint and identity telemetry in this lesson against your own lab VMs.</li>
 <li><strong>Security Onion</strong> (<a href="https://securityonion.net">securityonion.net</a>) — free NSM distro: Zeek and Suricata sensors generating the network telemetry in this lesson.</li>
-<li><strong>Velociraptor</strong> (docs.velociraptor.app) — free endpoint collection and hunting; the tool for asking a fleet "which of you has seen this" during scoping.</li>
+<li><strong>Velociraptor</strong> (<a href="https://docs.velociraptor.app">docs.velociraptor.app</a>) — free endpoint collection and hunting; the tool for asking a fleet "which of you has seen this" during scoping.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>

@@ -32,6 +32,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--serif);
   font-size:1.0625rem;line-height:1.65;margin:0;overflow-x:hidden}
 *,*::before,*::after{box-sizing:border-box}
 img{max-width:100%;height:auto}
+code{overflow-wrap:anywhere}
+pre{overflow-x:auto;max-width:100%}
 
 /* wayfinding SYSTEM voice */
 .eyebrow,.chip,.station-label,nav a,.crumb,.btn,.pill,.seal,.band{font-family:var(--sans)}
@@ -222,9 +224,9 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ul>
 <h2>7. Read the source</h2>
 <ol>
-<li><strong>CWE Top 25 (2025)</strong> (<a href="https://cwe.mitre.org/top25/)">cwe.mitre.org/top25/)</a> — the current edition, its 39,080-record dataset, and the per-weakness pages for the CWEs in your findings. Read the methodology note so you know what the ranking actually measures.</li>
-<li><strong>FIRST EPSS</strong> (<a href="https://first.org/epss)">first.org/epss)</a> — what the model predicts (probability of exploitation in the next 30 days), the daily publication, the free data access. Read the documentation; query the API.</li>
-<li><strong>CISA KEV catalog</strong> (<a href="https://cisa.gov/known-exploited-vulnerabilities-catalog)">cisa.gov/known-exploited-vulnerabilities-catalog)</a> — the addition criteria (valid ID + exploitation evidence + remediation guidance), the due dates, the nomination process. Download the CSV.</li>
+<li><strong>CWE Top 25 (2025)</strong> (<a href="https://cwe.mitre.org/top25/">cwe.mitre.org/top25/</a>) — the current edition, its 39,080-record dataset, and the per-weakness pages for the CWEs in your findings. Read the methodology note so you know what the ranking actually measures.</li>
+<li><strong>FIRST EPSS</strong> (<a href="https://first.org/epss">first.org/epss</a>) — what the model predicts (probability of exploitation in the next 30 days), the daily publication, the free data access. Read the documentation; query the API.</li>
+<li><strong>CISA KEV catalog</strong> (<a href="https://cisa.gov/known-exploited-vulnerabilities-catalog">cisa.gov/known-exploited-vulnerabilities-catalog</a>) — the addition criteria (valid ID + exploitation evidence + remediation guidance), the due dates, the nomination process. Download the CSV.</li>
 <li><strong>Commerce OIG report OIG-26-020-I</strong> (<a href="https://oversight.gov">oversight.gov</a>, 2026-05-26) — the government confirmation of the NVD policy change. Read the findings on enrichment prioritization.</li>
 </ol>
 <p>Free resources (≤3): the <strong>EPSS API documentation</strong> (<a href="https://api.first.org">api.first.org</a>) — your programmatic access; <strong>CAPEC</strong> (<a href="https://capec.mitre.org">capec.mitre.org</a>) — the attack-pattern side of your write-ups; the <strong>NVD dashboard</strong> (<a href="https://nvd.nist.gov">nvd.nist.gov</a>) — to see "Not Scheduled" with your own eyes and practice reading past it.</p>
