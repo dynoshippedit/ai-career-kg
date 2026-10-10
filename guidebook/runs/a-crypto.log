@@ -47,3 +47,17 @@ The od '*' between 0000016 and 0000080 means bytes 16-79 are FOUR IDENTICAL
 identical ECB blocks). CBC shows four different blocks. This is the leak.
 --- cleanup ---
 scratch dir deleted after the run; lesson keys never reused.
+
+--- Update 2026-10-10 (depth audit 2, lens 1+4): salt demonstration, new walkthrough step 8 ---
+OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024), same sandbox, scratch dir /tmp/cryptowalk2.
+Commands (verbatim) and output:
+$ printf 'salt-A:password123' | openssl dgst -sha256
+SHA2-256(stdin)= d2687dc771abbb9133f625b4f082f2110dfbbc4a715dd108386bfd471ca8fae5
+$ printf 'salt-B:password123' | openssl dgst -sha256
+SHA2-256(stdin)= ba258d3dfa076c0b5b68d3a0d7b243ef31705c33e2dcbec9e4bdfeda5bb4fd0f
+$ printf 'password123' | openssl dgst -sha256
+SHA2-256(stdin)= ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
+Interpretation: same password, three different digests — the salt is part of the hashed input, so identical
+passwords no longer collide, and a precomputed lookup (rainbow) table built for one salt is useless against
+another. The unsalted digest ef92b778... matches the step-7 observation that it is reversible by lookup.
+Cleanup: /tmp/cryptowalk2 deleted after the run.

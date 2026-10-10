@@ -18,3 +18,18 @@ positive: TP=2 FP=0 TN=0 FN=0
 benign  : TP=0 FP=0 TN=3 FN=0
 
 false positives before tuning: 1, after: 0
+
+--- 2026-10-10: real backend conversion (depth-audit-2, lens 4) ---
+# tools: sigma-cli 3.1.0, pySigma 1.5.1, pysigma-backend-splunk 2.1.0,
+# pysigma-pipeline-sysmon 2.0.0, Python 3.12.3 · date: 2026-10-10 (UTC) · loopback
+# rule file: FICTIONAL encoded_ps_rule.yml (the lesson's own rule, recreated verbatim)
+# NOTE: `sigma plugin list` hit a dead proxy endpoint (RemoteDisconnected), so the
+# Splunk backend and Sysmon pipeline were installed from PyPI instead:
+# pip install sigma-cli pysigma-backend-splunk pysigma-pipeline-sysmon — all succeeded.
+$ sigma convert -t splunk -p sysmon encoded_ps_rule.yml
+Parsing Sigma rules
+EventID=1 Image="*\\powershell.exe" CommandLine IN ("* -enc *", "* -EncodedCommand *")
+# exit 0. The lesson rule compiles to the Splunk search above: same matching logic
+# as the teaching harness (Image suffix + CommandLine substring), now in real SPL.
+# The corpus-evaluation steps (v1/v2 tuning numbers) still use the teaching harness;
+# only the backend-conversion step is real.

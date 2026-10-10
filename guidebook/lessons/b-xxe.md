@@ -19,7 +19,7 @@ dateline: "Walkthrough run 2026-10-10 · transcript in runs/b-xxe.log"
 
 ## 1. Where this shows up
 
-XML is still everywhere: SOAP APIs, SAML assertions, document uploads (DOCX/XLSX are zipped XML), SVG images, configuration files. An XML parser that resolves **external entities** will fetch URLs and read files *on the attacker's behalf* — which makes XXE the XML-flavored cousin of SSRF, plus a denial-of-service variant (billion laughs) that needs no network at all. This lesson takes you to Level 3: you will reproduce entity expansion against a local parser, understand why real-world parsers are more dangerous than the demo, and verify the hardening.
+XML is still everywhere: SOAP APIs, SAML assertions (SAML — Security Assertion Markup Language — the XML-based tokens used in single sign-on logins), document uploads (DOCX/XLSX are zipped XML), SVG images, configuration files. An XML parser that resolves **external entities** will fetch URLs and read files *on the attacker's behalf* — which makes XXE the XML-flavored cousin of SSRF, plus a denial-of-service variant (billion laughs) that needs no network at all. This lesson takes you to Level 3: you will reproduce entity expansion against a local parser, understand why real-world parsers are more dangerous than the demo, and verify the hardening.
 
 ## 2. Before you start
 
@@ -48,7 +48,7 @@ XML lets a document define its own shortcuts called **entities**:
 <root>&xxe;</root>
 ```
 
-A parser with external entities enabled reads `/etc/passwd` and puts its content where `&xxe;` was. Change the SYSTEM identifier to `http://169.254.169.254/...` and you have SSRF through the parser. **Why it arises in real code:** the developer enabled a feature-rich XML parser with default settings, and the defaults of several major parsers (Java's, libxml2's, .NET's older ones, PHP's) historically resolved external entities. The developer never asked "what can the *document* make my parser do?"
+A parser with external entities enabled reads `/etc/passwd` and puts its content where `&xxe;` was. Change the SYSTEM identifier to `http://169.254.169.254/...` and you have SSRF through the parser. **Why it arises in real code:** the developer enabled a feature-rich XML parser with default settings, and the defaults of several major parsers (Java's, libxml2's, .NET's older ones, PHP's) historically resolved external entities. Why the defaults were dangerous: external entities were designed as a *feature* for trusted documents — shared boilerplate pulled into many files from one place. XML's threat model assumed the document author was trustworthy. On the web, the document author is the attacker, and the feature became the vulnerability. The developer never asked "what can the *document* make my parser do?"
 
 **Billion laughs: the DoS variant.** Entities can reference other entities:
 
@@ -62,7 +62,13 @@ A few hundred bytes of definitions expand to gigabytes — exponential amplifica
 
 **What the demo shows honestly.** Python's `xml.etree` — the walkthrough's parser — *expands internal entities* (billion laughs works, demonstrated) but *refuses external entities* (raises an error, demonstrated). Real-world parsers in other ecosystems resolve external entities unless hardened — that is where the file-read and SSRF impact lives, and it is taught here at concept level with the exact hardening, practiced hands-on in PortSwigger's labs. The lesson's honesty rule: the demo proves what *this* parser does; the dangerous behavior is named, sourced, and not pretended about.
 
-**How defenders see it.** `<!DOCTYPE` and `<!ENTITY` in request bodies are the tripwire — legitimate XML from your own clients rarely contains either (your schemas don't use DTDs). Alert on both strings in XML-bearing endpoints. In code review: any XML parser configured with DTD processing or external-entity resolution enabled; `DocumentBuilderFactory` without `disallow-doctype-decl`; `XmlReader` without `DtdProcessing.Prohibit`. The fix is parser configuration, and the detection is the DOCTYPE string.
+**How defenders see it.** `<!DOCTYPE` and `<!ENTITY` in request bodies are the tripwire — legitimate XML from your own clients rarely contains either (your schemas don't use DTDs — document type definitions, the XML mechanism that declares entities and structure). In the request log, the attack announces itself:
+
+```
+POST /upload 200 312ms  body="<?xml version=\"1.0\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]>..."
+```
+
+Legitimate clients send data; only an attacker sends a DOCTYPE. Alert on both strings in XML-bearing endpoints. In code review: any XML parser configured with DTD processing or external-entity resolution enabled; `DocumentBuilderFactory` without `disallow-doctype-decl`; `XmlReader` without `DtdProcessing.Prohibit`. The fix is parser configuration, and the detection is the DOCTYPE string.
 
 ### Worked example: the upload demo
 
@@ -72,7 +78,7 @@ An XML upload endpoint (stdlib Python, local only — the walkthrough runs it):
 - Billion-laughs document (300 bytes of entity definitions) → parsed, **30,000 chars** of expanded text. The 1000x amplification is the vulnerability: scale the definitions slightly and the parser falls over.
 - External-entity document (`SYSTEM "file:///etc/hostname"`) → **rejected by the parser** (this parser doesn't resolve externals — the dangerous behavior is documented, not demonstrated, per the honesty rule above).
 
-The fix, in the same app: **reject any document containing a DOCTYPE** — no DTD means no entities of either kind. Re-test: billion laughs → 400 rejected; benign XML → still parses. Then the general rule for real stacks: disable DTD processing and external-entity resolution in the parser configuration (the OWASP XML Security Cheat Sheet lists the exact flags per parser), and prefer JSON where the format is your choice.
+The fix, in the same app: **reject any document containing a DOCTYPE** — no DTD means no entities of either kind. (A DOCTYPE — the declaration at the top of an XML document that can carry the document's own entity definitions.) Re-test: billion laughs → 400 rejected; benign XML → still parses. Then the general rule for real stacks: disable DTD processing and external-entity resolution in the parser configuration (the OWASP XML Security Cheat Sheet lists the exact flags per parser), and prefer JSON where the format is your choice.
 
 ## 4. Walkthrough
 
@@ -97,7 +103,7 @@ No step above is marked "not run by us" — expansion, refusal, and hardening al
 
 - **"Our parser doesn't resolve externals, so we're safe."** Billion laughs needs no external resolution — internal entity expansion alone is a DoS. Harden against *both*.
 - **Allowlists of "safe" SYSTEM URLs.** `file:///etc/passwd` blocked but `http://169.254.169.254/` allowed is SSRF through the parser. The fix is disabling the feature, not filtering its targets.
-- **Testing file reads against real files on real targets.** The file content in the response is exfiltration the moment it works. In labs, read the lab's designated canary file; nowhere else.
+- **Testing file reads against real files on real targets.** The file content in the response is exfiltration the moment it works. In labs, read the lab's designated canary file (a canary file — a harmless file the lab provides specifically for you to read as proof, so you never touch real data); nowhere else.
 - **Assuming JSON APIs can't have XXE.** The content type is negotiated, not declared: if the endpoint *parses* XML anywhere in the chain (a library, a middleware, a document converter), the XML you send is the XML that matters. Test what is parsed, not what the docs say.
 - **Forgetting SVG and document uploads.** SVG is XML. DOCX is zipped XML. "File upload" features are XML parser features in disguise — the XXE checklist applies to every upload that gets parsed.
 - **Partial hardening.** Disabling external entities but leaving DTDs on still allows billion laughs. The cheat sheet's rule is total: disallow DOCTYPE declarations entirely unless the application genuinely needs DTDs (it almost never does).

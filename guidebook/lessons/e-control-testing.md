@@ -43,7 +43,7 @@ A **security control** is a safeguard that claims something: "only authorized us
 **Target identification and analysis** (SP 800-115 §4) — build the inventory, then probe it:
 
 - **Network discovery and port/service identification:** find the hosts and what they expose. Proves the *attack surface as the scanner sees it*. Can't prove you've found everything — the scanner sees what responds.
-- **Vulnerability scanning:** match observed services against known vulnerabilities. Proves *candidates* — "this looks like CVE-20XX-XXXX on this version." Can't prove exploitability — version banners lie, backports confuse scanners, and a match is a hypothesis awaiting validation. The scan's ten thousand findings are the start of triage, not the end of testing.
+- **Vulnerability scanning:** match observed services against known vulnerabilities. Proves *candidates* — "this looks like CVE-20XX-XXXX on this version." Can't prove exploitability — version banners lie, backports (a security fix applied to an older software version without changing the version number — the banner says "vulnerable," the code is patched) confuse scanners, and a match is a hypothesis awaiting validation. The scan's ten thousand findings are the start of triage, not the end of testing.
 - **Wireless scanning:** passive and active discovery of the radio environment. Proves what's broadcasting — including the rogue AP nobody inventoried.
 
 **Vulnerability validation** (SP 800-115 §5) — confirm the candidates:

@@ -30,7 +30,7 @@ Every tool you will meet in Stage B is, under the hood, a program that opens con
 
 ## 3. How it works
 
-A Python script is a text file the interpreter executes top to bottom. `python3 fetch.py` runs it; `python3 -i` drops you into the interactive interpreter where you can try one line at a time. The interpreter is your laboratory: before a construct goes into a script, try it in the REPL and watch what it returns. Tracebacks read bottom-up — the last line names the error, the lines above show the call chain that reached it. Learning to read a traceback is half of debugging; the other half is `print()`.
+A Python script is a text file the interpreter executes top to bottom. `python3 fetch.py` runs it; `python3 -i` drops you into the interactive interpreter — the REPL (read-eval-print loop: read a line, evaluate it, print the result, repeat) — where you can try one line at a time. The interpreter is your laboratory: before a construct goes into a script, try it in the REPL and watch what it returns. Tracebacks read bottom-up — the last line names the error, the lines above show the call chain that reached it. Learning to read a traceback is half of debugging; the other half is `print()`.
 
 **Making HTTP requests.** The standard library's `urllib.request` opens URLs and returns response objects. `urlopen(url)` gives you `.status`, `.headers`, and `.read()` for the body. Errors are exceptions: `HTTPError` (the server answered with 4xx/5xx — it still carries the status code) and `URLError` (no answer at all — connection refused, DNS failure). Catching them separately matters because they mean different things: an HTTPError is the *target speaking*, a URLError is the *network failing*. The walkthrough's `fetch.py` is fourteen lines that take a URL, print the status and content type, and optionally extract one key from a JSON body. That shape — fetch, check, extract, report — is the skeleton of half the reconnaissance tooling in existence.
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     main()
 ```
 
-Read it the way the lesson teaches: imports (`urllib` → network, `argparse` → drivable, `json` → parses bodies) — entry point (`if __name__ == "__main__"` → `main()`) — the try block is the whole job (fetch, then branch on whether the user asked for a JSON key) — the except blocks separate "server said no" from "nobody answered." The `timeout=5` is the line beginners omit and then learn about the hard way: without it, a hung server hangs your script forever.
+Read it the way the lesson teaches: imports (`urllib` → network, `argparse` → drivable, `json` → parses bodies) — entry point (the `if __name__ == "__main__"` guard runs `main()` only when the file is executed directly, not when another script imports it — the standard Python entry-point idiom) — the try block is the whole job (fetch, then branch on whether the user asked for a JSON key) — the except blocks separate "server said no" from "nobody answered," and `sys.exit(1)` tells the calling shell the script failed (a nonzero exit is how scripts report failure to whatever runs them). The `timeout=5` is the line beginners omit and then learn about the hard way: without it, a hung server hangs your script forever.
 
 ## 4. Walkthrough
 
@@ -98,7 +98,7 @@ Read it the way the lesson teaches: imports (`urllib` → network, `argparse` �
 ## 6. Where it goes wrong
 
 - **`pip install` as a first resort.** Every dependency is attack surface and a future breakage. The walkthrough uses stdlib only, on purpose — write it with the standard library first, and reach for third-party packages only when the stdlib genuinely cannot do it. When you do install, pin versions and read what you installed.
-- **Running scripts you haven't read.** `curl URL | python3` is the Python twin of piping to shell — you just gave a stranger code execution. Download, read (you now can), then run.
+- **Running scripts you haven't read.** `curl URL | python3` is the Python twin of piping to shell — you just gave a stranger code execution. Download, read (you now can), then run. The defender's version of the same habit: when you inherit an unknown script — or triage a suspicious one — the first greps are `eval(`, `exec(`, `base64`, `os.system`, `subprocess`, and any hardcoded IP or hostname. An obfuscated blob plus network calls is the shape of a malicious script; ruling that out is what "read before you run" buys you.
 - **No timeouts.** A script without timeouts is a script that hangs in production at 3 AM. Every network call gets a timeout, no exceptions.
 - **Catching everything.** `except Exception:` swallows the distinction the walkthrough's two branches preserve. Catch what you can handle; let the rest traceback loudly.
 - **Hardcoded targets and credentials.** The walkthrough's `127.0.0.1:8471` is fine for a lab; a "tool" with a hardcoded IP and password is a liability. Arguments for targets, environment or files for secrets, never literals.

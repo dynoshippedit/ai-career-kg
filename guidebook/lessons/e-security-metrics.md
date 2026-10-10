@@ -39,7 +39,7 @@ A **measure** is a number collected by a defined method; a **metric** is a measu
 
 **The measure specification.** Every measure gets the same six fields: **definition** (exactly what is counted, with the formula), **data source** (the system of record — the scanner, the ticketing system, the training platform — never "an analyst's spreadsheet" if a system exists), **collection method** (automated query, sampled review, attestation — and who runs it), **cadence** (daily, weekly, monthly, quarterly — matched to how fast the number can meaningfully move), **target or threshold** (the number that triggers action, with the action named), and **owner** (the person who explains the number when it's red). A measure missing any field is a dashboard decoration.
 
-**Collection discipline.** Automate what can be automated (scanner APIs, ticket queries, log counts); sample what can't (manual control tests, configuration reviews — with the sampling method stated, because a convenience sample is a bias); attest sparingly (self-attestation is the weakest collection method and gets the shortest leash). Every collection method is documented so the number is reproducible — the next analyst, or the auditor, gets the same number from the same method. And the program states its own limits: what isn't measured, and why — the unmeasured backup-restore test is the classic gap.
+**Collection discipline.** Automate what can be automated (scanner APIs, ticket queries, log counts); sample what can't (manual control tests, configuration reviews — with the sampling method stated, because a convenience sample is a bias); attest sparingly (self-attestation is the weakest collection method and gets the shortest leash — because the reporter and the measured are the same party, so the number measures willingness to report well, not compliance). Every collection method is documented so the number is reproducible — the next analyst, or the auditor, gets the same number from the same method. And the program states its own limits: what isn't measured, and why — the unmeasured backup-restore test is the classic gap.
 
 **Review cadence and the anti-gaming rule.** Metrics are reviewed on their cadence by their owners, with trends, not snapshots — a single month's number is noise; six months is a story. The review asks three questions: is the number moving toward the target, do we believe the number (spot-check the collection), and is the target still right. And the program watches for gaming: when "training completion" hits 100% because the module auto-plays, the measure is broken, not the workforce — fix the collection, not the people.
 
@@ -59,9 +59,9 @@ A **measure** is a number collected by a defined method; a **metric** is a measu
 | Measure | Definition | Source / method | Cadence | Threshold → action |
 |---|---|---|---|---|
 | Aged criticals | Critical vulns open >30 days | Scanner, automated | Weekly | >10 → CISO briefing |
-| Un-MFA'd privileged accounts | Privileged accounts without phishing-resistant MFA | IdP + PAM inventory, automated | Weekly | >0 → immediate remediation ticket |
+| Un-MFA'd privileged accounts | Privileged accounts without phishing-resistant MFA | IdP (identity provider — the system that authenticates users, e.g. the SSO login) + PAM (privileged access management — the system that vaults and controls administrator credentials) inventory, automated | Weekly | >0 → immediate remediation ticket |
 | Unencrypted sensitive stores | Data stores with customer PII lacking encryption at rest | Discovery scan, quarterly sample | Quarterly | Any → risk acceptance or remediation in 30 days |
-| Mean analyst triage time | Mean minutes from alert to triage decision | SIEM + ticketing, automated | Monthly | Trend review — rising means capacity or tuning problem |
+| Mean analyst triage time | Mean minutes from alert to triage decision | SIEM (the central log-analysis platform) + ticketing, automated | Monthly | Trend review — rising means capacity or tuning problem |
 
 **Program notes.** Collection is automated except the quarterly discovery sample (documented sampling method: stratified by data classification tier). Every measure has a named owner. The quarterly metrics review includes a gaming check: the analyst spot-checks two automated numbers by recomputing them by hand. Unmeasured and stated: mean time to *detect* (the SIEM migration in progress makes the number unreliable until Q3 — honest gap, dated).
 
@@ -86,11 +86,11 @@ A **measure** is a number collected by a defined method; a **metric** is a measu
 
 - **Vanity metrics.** "Attacks blocked: 4,000,000" — the firewall counting internet background noise. Impressive, meaningless, unmoving.
 - **Measures without targets.** The number is collected, reviewed, and admired. Nobody knows what value would trigger action, so nothing ever does.
-- **Gaming the collection.** Training auto-plays, tickets closed without remediation, scanners excluded from the scope that would fail. The program must spot-check its own numbers.
+- **Gaming the collection.** Training auto-plays, tickets closed without remediation, scanners excluded from the scope that would fail. The program must spot-check its own numbers. The tell: the measure improves while the underlying risk doesn't — training completion at 100% while phishing click rates climb.
 - **The unmeasured critical.** Backup restores never tested, detection time never measured — the gaps cluster exactly where measurement is hardest, which is where it matters most.
 - **Snapshot reviews.** "This month: 12." Twelve what, versus what, trending where? A number without history is a rumor.
 - **Attestation as the default.** "The system owner confirms compliance quarterly." Self-reported, unverified, and the first thing an auditor discounts.
-- **Metric sprawl.** Sixty measures, none owned, none reviewed. Fifteen owned measures beat sixty ornaments.
+- **Metric sprawl.** Sixty measures, none owned, none reviewed. Fifteen owned measures beat sixty ornaments. The tell: the review meeting where nobody can name the owner of any measure on the slide.
 - **Citing the withdrawn revision.** SP 800-55 Rev. 1 is superseded — the program's methodology cites Vols. 1–2 (December 2024). Standards hygiene is part of measurement hygiene.
 
 ## 7. Read the source

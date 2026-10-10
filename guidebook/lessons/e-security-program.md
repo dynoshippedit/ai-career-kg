@@ -29,7 +29,7 @@ Someone has to own security as a whole — not the vulnerabilities, the tools, o
 
 ## 3. How it works
 
-A security program is a loop, not a project. NIST CSF 2.0 §5 describes the mechanism as a **bidirectional flow**: executives set priorities and communicate expectations about risk appetite, accountability, and resources; managers build Target Profiles and action plans; practitioners implement, measure operational risk, and report back up. The program is that loop running continuously. Everything in this lesson hangs off it.
+A security program is a loop, not a project. NIST CSF 2.0 §5 describes the mechanism as a **bidirectional flow**: executives set priorities and communicate expectations about risk appetite, accountability, and resources; managers build Target Profiles (the CSF's description of where the organization wants its cybersecurity posture to be) and action plans; practitioners implement, measure operational risk, and report back up. The program is that loop running continuously — a loop, not a project, because threats, technology, and the business change continuously; a project ends, and the day it ends the program starts decaying. Everything in this lesson hangs off it.
 
 **Strategy.** Strategy lives in Govern — the CSF function at the center of the wheel. In plain terms, the strategy answers four questions, and the charter records the answers:
 1. **What are we protecting, and why does it matter?** (The mission, in business terms — customer data, service availability, the things a breach would actually break.)
@@ -55,7 +55,7 @@ Beacon Logistics (the fictional freight company from `e-risk-assessment`): custo
 
 **2. Scope.** In scope: the customer portal, the customer database, the admin panel, the cloud accounts that host them, and the third parties with access to customer data. Out of scope (stated explicitly): vehicle telematics, corporate email — with the note that scope is reviewed annually, because unstated scope is where incidents come from.
 
-**3. Roles and accountability (RACI, abridged).**
+**3. Roles and accountability (RACI, abridged).** (RACI: Responsible — does the work; Accountable — owns the outcome, exactly one per row; Consulted — asked before; Informed — told after.)
 
 | Activity | Program lead | IT lead | Founders |
 |---|---|---|---|
@@ -93,9 +93,9 @@ Take the Harborlight Books assistant threat model from `ai-threat-modeling` and 
 
 - **Activity reported as risk.** "We blocked 10,000 attacks" is the canonical vanity metric — it measures being attacked, not being safe. Every metric in the charter must survive the decision test.
 - **KPIs without KRIs.** The program looks industrious while exposure grows. The charter requires both families, reported together, every time.
-- **Metrics nobody owns.** A metric with no owner and no review date is a number that will be wrong within a quarter and nobody will notice. SP 800-55's program discipline — roles, communication, data management — exists because of this failure.
-- **The charter as a wish list.** A charter that promises outcomes without authority ("the program will ensure...") instead of defining authority ("the program lead may...") is a document that will be ignored at the first conflict. Authority is the charter's real content.
-- **Invented numbers.** A metric nobody measured teaches leadership to trust numbers that aren't real — and then to distrust the real ones. Placeholders are labeled; sources are named; the lesson's hard rule holds.
+- **Metrics nobody owns.** A metric with no owner and no review date is a number that will be wrong within a quarter and nobody will notice. SP 800-55's program discipline — roles, communication, data management — exists because of this failure. The tell: the red number in the review with no one in the room to explain it.
+- **The charter as a wish list.** A charter that promises outcomes without authority ("the program will ensure...") instead of defining authority ("the program lead may...") is a document that will be ignored at the first conflict. Authority is the charter's real content — the observable is the verbs: "ensure" and "guarantee" instead of "may" and "decides."
+- **Invented numbers.** A metric nobody measured teaches leadership to trust numbers that aren't real — and then to distrust the real ones. Placeholders are labeled; sources are named; the lesson's hard rule holds. The tell: a suspiciously round target with no named data source.
 
 ## 7. Read the source
 

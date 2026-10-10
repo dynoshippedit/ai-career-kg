@@ -1,0 +1,3 @@
+claim,url,fetch_date,chars_fetched,status
+"BIND 9 query-log entry format (client @0x.., ip#port, query name/class/type, flags; example line)","https://github.com/isc-projects/bind9/blob/HEAD/doc/arm/logging-categories.inc.rst",2026-10-10,6358,verified
+"Windows logon type codes: 2 Interactive, 3 Network, 10 RemoteInteractive (numeric identifiers reported in Security audit events)","https://learn.microsoft.com/en-us/windows-server/identity/securing-privileged-access/reference-tools-logon-types",2026-10-10,55070,verified

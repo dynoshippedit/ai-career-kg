@@ -184,12 +184,12 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>What SOC 2 is.</strong> SOC 2 is an <strong>examination engagement</strong>: an independent Certified Public Accountant examines a service organization's system and its controls against the AICPA's <strong>Trust Services Criteria</strong>, and issues a report with an opinion. Three load-bearing distinctions:</p>
 <ol>
 <li><strong>It is an attestation report, not a certificate.</strong> There is no "SOC 2 certified." The deliverable is a report containing management's description of the system, the auditor's opinion, and (in Type II) test descriptions and results. Anyone selling "SOC 2 certification" is mislabeling the product.</li>
-<li><strong>There is no pass/fail.</strong> The opinion addresses whether controls were suitably designed (Type I) and operated effectively (Type II) to meet the criteria. A report can contain qualified opinions and described exceptions — and a careful reader learns more from the exceptions than from a clean opinion.</li>
+<li><strong>There is no pass/fail.</strong> The opinion addresses whether controls were suitably designed (Type I) and operated effectively (Type II) to meet the criteria. A report can contain qualified opinions and described exceptions — and a careful reader learns more from the exceptions than from a clean opinion. The report informs the reader's risk decision; it doesn't make it — the customer decides whether the described exceptions matter to them, which is why the exceptions are the most-read section.</li>
 <li><strong>It is performed by a CPA under attestation standards.</strong> Not by an IT consultant, not by the vendor itself. The independence of the examiner is part of what the report is worth.</li>
 </ol>
 <p><strong>The five Trust Services Criteria.</strong> The criteria are the yardstick — control <em>objectives</em>, not a control list. The current edition is the <strong>2017 Trust Services Criteria, with revised points of focus issued in 2022</strong> (the full criteria document is available from the AICPA with a free account):</p>
 <ul>
-<li><strong>Security</strong> — protection against unauthorized access. This is the mandatory one: every SOC 2 engagement includes the Security criterion (the "common criteria"). The other four are optional, selected by what the organization commits to.</li>
+<li><strong>Security</strong> — protection against unauthorized access. This is the mandatory one: every SOC 2 engagement includes the Security criterion (the "common criteria"). Mandatory because the other criteria assume it: availability of a system anyone can alter is not the availability you committed to — security is the foundation the rest stand on. The other four are optional, selected by what the organization commits to.</li>
 <li><strong>Availability</strong> — the system is available as committed (think SLAs).</li>
 <li><strong>Processing Integrity</strong> — processing is complete, valid, accurate, timely, and authorized (think: the analytics outputs customers make decisions on).</li>
 <li><strong>Confidentiality</strong> — confidential information is protected as committed (think NDAs, customer data handling commitments).</li>
@@ -209,12 +209,12 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Step 1 — Inventory the commitments.</strong> Before choosing criteria, list what Meridian has <em>promised</em>, because criteria follow commitments:</p>
 <p>| Commitment (fictional, labeled) | Source | Implicates |</p>
 <p>|---|---|---|</p>
-<p>| "99.9% monthly uptime" | Enterprise MSA §7 (fictional) | Availability |</p>
+<p>| "99.9% monthly uptime" | Enterprise MSA (master services agreement — the main customer contract) §7 (fictional) | Availability |</p>
 <p>| "Customer data encrypted at rest and in transit; access logged" | Security exhibit to the MSA (fictional) | Security, Confidentiality |</p>
 <p>| "Analytics outputs validated against source on every run" | Product documentation (fictional) | Processing Integrity |</p>
 <p>| "We process end-user personal data per our privacy notice; deletion on request within 30 days" | Privacy notice v3 (fictional) | Privacy, Confidentiality |</p>
 <p><strong>Step 2 — Scope the criteria.</strong> Security: mandatory, in scope. Availability: in scope — the 99.9% SLA is a written commitment. Processing Integrity: in scope — customers make decisions on the outputs. Confidentiality: in scope — the security exhibit promises it. Privacy: in scope — personal data plus a deletion commitment. All five: this is a full-scope engagement, and the memo says why each one earned its place.</p>
-<p><strong>Step 3 — Define the system boundary.</strong> In scope: the SaaS production platform, the data pipeline, corporate identity systems. Out of scope: the marketing website (no customer data); sub-processors are <em>carved out</em> with the complementary-subservice-organization-controls language — Meridian's report will state what it relies on its cloud provider for, explicitly. Boundary owner: CTO.</p>
+<p><strong>Step 3 — Define the system boundary.</strong> In scope: the SaaS production platform, the data pipeline, corporate identity systems. Out of scope: the marketing website (no customer data); sub-processors are <em>carved out</em> (the report states which controls it relies on the sub-processor for, instead of testing them itself — the "complementary subservice organization controls" language) — Meridian's report will state what it relies on its cloud provider for, explicitly. Boundary owner: CTO.</p>
 <p><strong>Step 4 — Choose Type I vs Type II.</strong> Meridian has never been examined. The memo recommends: Type I now (design review — finds the design gaps cheaply), Type II covering the following twelve months (the report customers actually want). Rationale stated plainly: a Type II over a period when controls were still being built would produce a report full of exceptions — honest but commercially useless. Sequence the work, don't fake the evidence.</p>
 <p><strong>Step 5 — Draft the evidence list per criterion.</strong> For each in-scope criterion, name the controls (from the <a href="/g/iso27001/"><code>e-iso27001</code></a> SoA) and the evidence the auditor will ask for: Security → IdP policy exports, MFA enrollment reports, access-review records; Availability → uptime measurements vs the SLA, incident records; Processing Integrity → validation job logs, reconciliation reports; Confidentiality → encryption configs, NDA register; Privacy → deletion request log with 30-day evidence, data inventory. Every row names where the artifact lives.</p>
 <p><strong>Step 6 — Self-review.</strong> Checklist, all true before this ships: every criterion traces to a written commitment (no criterion included "to look thorough"); the boundary is explicit including carve-outs; the Type I→Type II sequencing is argued, not assumed; the words "certified" and "pass" appear nowhere; the memo states what the report will <em>not</em> prove (it is not a penetration test, not a guarantee).</p>
@@ -223,15 +223,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>6. Where it goes wrong</h2>
 <ul>
 <li><strong>"SOC 2 certified."</strong> The most common mislabel in the industry. There is an examination, an opinion, and a report. There is no certificate. Using the word in your own materials is a finding about you.</li>
-<li><strong>Type I sold as ongoing assurance.</strong> A point-in-time design opinion waved at a customer asking "are your controls working?" It answers a different question than the one asked — say which question your report answers.</li>
-<li><strong>Scoping by ambition instead of commitment.</strong> Including Privacy with no privacy commitments, or excluding Availability while the SLA promises 99.9%. Criteria follow promises; audit the promises first.</li>
+<li><strong>Type I sold as ongoing assurance.</strong> A point-in-time design opinion waved at a customer asking "are your controls working?" It answers a different question than the one asked — say which question your report answers. The tell: the report on file is a Type I dated fourteen months ago — it says nothing about whether the controls operated at any point since.</li>
+<li><strong>Scoping by ambition instead of commitment.</strong> Including Privacy with no privacy commitments, or excluding Availability while the SLA promises 99.9%. Criteria follow promises; audit the promises first. The tell: ask which written commitment the criterion traces to — silence is the finding.</li>
 <li><strong>The clean-opinion reflex.</strong> Treating exceptions in a Type II report as failures to hide. Exceptions with root causes and remediation are what a mature program looks like — the report a customer trusts is the honest one, not the blank one.</li>
 <li><strong>SOC 1 vs SOC 2 confusion.</strong> Handing a customer's CISO your SOC 1 (financial-reporting controls) when they asked about security. The testimony this lesson is built on exists partly because this error is endemic — know which report answers which question.</li>
 </ul>
 <h2>7. Read the source</h2>
 <ol>
-<li><strong>AICPA: 2017 Trust Services Criteria (With Revised Points of Focus — 2022)</strong> — <em>read</em> the resource page for what the criteria are, who publishes them, and the edition currency; the full criteria document needs a free AICPA account. This is the yardstick everything in the lesson is measured against.</li>
-<li><strong>AICPA testimony before the ERISA Advisory Council (July 18, 2022)</strong> — <em>read</em> the SOC suite section: SOC 1 vs SOC 2 vs SOC for Cybersecurity, Type I vs Type II, who uses each report and why. An AICPA officer explaining the suite in plain language, on the public record.</li>
+<li><strong>AICPA: 2017 Trust Services Criteria (With Revised Points of Focus — 2022)</strong> — <em>read</em> the resource page first for what the criteria are, who publishes them, and the edition currency — the page orients you before the document; the full criteria document needs a free AICPA account. This is the yardstick everything in the lesson is measured against.</li>
+<li><strong>AICPA testimony before the ERISA Advisory Council (July 18, 2022)</strong> — <em>read</em> the SOC suite section first: SOC 1 vs SOC 2 vs SOC for Cybersecurity, Type I vs Type II, who uses each report and why. An AICPA officer explaining the suite in plain language, on the public record — the plain-language map before the technical documents.</li>
 </ol>
 <h2>8. Check yourself</h2>
 <ol>
@@ -247,7 +247,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>10. Leads to</h2>
 <ul>
 <li><a href="/g/security-audits/"><code>e-security-audits</code></a> — audit method: how the examiner tests what your memo scoped.</li>
-<li><a href="/g/cyber-law/"><code>e-cyber-law</code></a> — the MSAs, DPAs, and privacy notices whose commitments drive the criteria.</li>
+<li><a href="/g/cyber-law/"><code>e-cyber-law</code></a> — the MSAs, DPAs (data processing agreements — the contracts governing personal-data handling), and privacy notices whose commitments drive the criteria.</li>
 <li><a href="/g/board-communication/"><code>e-board-communication</code></a> — reporting the examination plan and its results upward.</li>
 <li>GRC analyst path: this lesson is the vendor-risk reading skill the path's checkpoints assume.</li>
 </ul>

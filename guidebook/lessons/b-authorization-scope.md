@@ -103,7 +103,7 @@ No step above is marked "not run by us" — this lesson's work product is writin
 - **Safe harbor as a shield.** A program's safe-harbor promise covers the program's own response to in-rules testing. It does not bind law enforcement, it does not cover other organizations' systems you touched along the way, and it evaporates the moment you step outside the rules.
 - **Responsible disclosure without permission.** Finding a vulnerability in a system you were not authorized to test and then disclosing it "responsibly" does not retroactively authorize the testing. The disclosure can be responsible and the access still unauthorized. This is why coordinated disclosure (Stage C) starts with finding the security contact, not with testing.
 - **Using a found credential "to prove impact."** Rule 4 has no exception for thoroughness. Log it, report the exposure, demonstrate with your own accounts.
-- **Scanning at engagement scale against a VDP.** A disclosure program that invites reports is not inviting your scanner's full crawl. Read the forbidden-test-types list; rate limits and scope apply to automation too.
+- **Scanning at engagement scale against a VDP.** A disclosure program that invites reports is not inviting your scanner's full crawl. (A VDP — vulnerability disclosure program — is the same standing-offer structure as a bounty program, with safe harbor but no payout.) Read the forbidden-test-types list; rate limits and scope apply to automation too.
 - **Assuming scope is static.** Programs change scope. Re-read the policy before each session, not just the first one.
 
 ## 7. Read the source

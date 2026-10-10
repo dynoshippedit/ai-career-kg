@@ -29,14 +29,14 @@ Every security program eventually faces its real audience: people who control th
 
 ## 3. How it works
 
-The board's problem is not ignorance — it is *attention under uncertainty*. Directors decide about cyber risk the way they decide about financial or operational risk: given limited time, what must I know, what changed, and what do you need from me? CSF 2.0 §5 states the translation rule explicitly: express cybersecurity in the general risk-management language executives already use, and integrate it with the enterprise risk picture rather than presenting cyber as a separate universe. The memo is that rule, applied.
+The board's problem is not ignorance — it is *attention under uncertainty*. Directors decide about cyber risk the way they decide about financial or operational risk: given limited time, what must I know, what changed, and what do you need from me? CSF 2.0 §5 states the translation rule explicitly: express cybersecurity in the general risk-management language executives already use, and integrate it with the enterprise risk picture rather than presenting cyber as a separate universe. Why this rule exists: the board holds the risk-acceptance authority — only it can formally accept a residual risk — and it can only accept what it understands in its own terms. A risk the board never understood is a risk nobody accepted; it just happened. The memo is that rule, applied.
 
 **The one-page structure.** Five sections, in this order, each earning its place:
 
 1. **What we protect and why it matters.** One to two lines: customer data and service availability, and what a breach or outage *costs the business* — contractual penalties, lost customers, regulatory exposure — in plain words. This is the frame; everything after it is detail under this frame.
-2. **Where we stand.** Posture vs. target in one sentence: current profile, target profile, the gap that matters most. No maturity-model lecture — the sentence exists to orient, not to educate.
+2. **Where we stand.** Posture vs. target in one sentence: current profile, target profile, the gap that matters most. No maturity-model lecture (a maturity model is a staged scale describing how developed a capability is — ad-hoc, defined, managed, and so on; the Tier concept from `e-security-program` is one) — the sentence exists to orient, not to educate.
 3. **Top risks.** Three bullets maximum. Each bullet leads with *business impact*, follows with *technical cause in half a line*, and cites the register ID. "Extended outage of the customer portal if backups fail — restore has never been tested (R-02)." The discipline: impact first is not dumbing down, it is respecting the reader's job — they decide on impact.
-4. **What changed since last time.** KRI movements with sources: "Risks above tolerance: 4 → 2 (risk register); mean time to patch internet-facing systems: 21 → 12 days (vulnerability scans)." Trends, not snapshots — a board that sees only the current number cannot tell whether the program is working.
+4. **What changed since last time.** KRI movements with sources: "Risks above tolerance: 4 → 2 (risk register); mean time to patch internet-facing systems: 21 → 12 days (vulnerability scans)." (KPI: key performance indicator — did we do the work, e.g. patches deployed. KRI: key risk indicator — is the risk changing, e.g. risks above tolerance. KPIs measure effort; KRIs measure exposure.) Trends, not snapshots — a board that sees only the current number cannot tell whether the program is working.
 5. **Decisions required.** Numbered asks, each naming the decision type: *approve* (fund this), *accept* (formally accept this residual risk until a date), or *direct* (tell the organization to do this). "1. Approve managed backup testing to close R-02. 2. Formally accept residual risk R-04 until the supplier review completes in Q1." The ask is the memo's reason for existing — a memo with no decisions required is a newsletter.
 
 **Appendix (half page, allowed to spill).** The metric definitions used above and where each number came from: "Risks above tolerance — count of High/Critical risks without a funded response; source: risk register, reviewed [date]." This is where the honesty lives — a director who doubts a number can check it.
@@ -63,7 +63,7 @@ Built from the `e-security-program` charter and the `e-risk-assessment` register
 > **5. Decisions required.**
 > 1. Approve managed backup testing (quarterly restore tests with documented results) to close R-02.
 > 2. Approve the emergency patching window for the edge VPN this month to address R-03.
-> 3. Formally accept residual risk R-04 (supplier compromise) until the supplier review completes in Q1, or direct accelerated review.
+> 3. Formally accept residual risk R-04 — residual risk is the risk that remains *after* controls are applied, the part you live with, not the part you fixed — (supplier compromise) until the supplier review completes in Q1, or direct accelerated review.
 >
 > **Appendix — metric definitions and sources.** Risks above tolerance: count of High/Critical risks without a funded response; source: risk register. Patch latency: days from disclosure to deployed fix for internet-facing systems; source: vulnerability scans. Restore-test status: pass/fail with log reference; source: quarterly test log.
 
@@ -93,7 +93,7 @@ Write the incident briefing version: the same Beacon Logistics, but the edge VPN
 - **The register as the memo.** Twenty rows of threat-source → vulnerability → impact is the analyst's working document, not the board's. The memo's job is triage, and triage means leaving things out.
 - **Burying the ask.** The decisions required sit at the end because the memo earns them — but "at the end" still means *present and numbered*, not implied in paragraph four. A board that has to infer the ask will infer the wrong one.
 - **Activity as reassurance.** "The team blocked 10,000 attacks this quarter" feels like good news and means nothing. If it appears in a draft, it is a signal the author doesn't trust the real metrics — fix the metrics, not the sentence.
-- **The single security score.** A board that wants one number is asking for comfort, not information. The Tier concept and the KPI/KRI distinction (from `e-security-program`) are the honest answer: posture is a profile, risk is a set of indicators, and any single number hides exactly what the board needs to see.
+- **The single security score.** A board that wants one number is asking for comfort, not information. The Tier concept and the KPI/KRI distinction (from `e-security-program`) are the honest answer: posture is a profile, risk is a set of indicators, and any single number hides exactly what the board needs to see. The observable symptom of this failure: a board that never asks a follow-up question. Questions mean the memo landed; silence means it was filed.
 - **Unexamined placeholders.** A "[n]" that survives three quarters becomes a number everyone has seen and nobody measured. The appendix's source labels exist to catch this — review them every cycle.
 
 ## 7. Read the source

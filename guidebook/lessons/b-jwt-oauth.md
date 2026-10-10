@@ -25,7 +25,7 @@ JSON Web Tokens carry identity between services: `header.payload.signature`, bas
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including Authorization headers.
 - You know what a digital signature proves — and what defeats it (`a-crypto`'s misuse pairs: unverified signatures, wrong keys).
-- You can hand-decode base64url and HMAC-sign a string in Python (the walkthrough does it step by step; no JWT library needed — building tokens by hand is the lesson).
+- You can hand-decode base64url and HMAC-sign a string in Python (the walkthrough does it step by step; no JWT library needed — building tokens by hand is the lesson). (base64url — base64 with a URL-safe alphabet, `-` and `_` instead of `+` and `/`, per RFC 4648 §5 — so token parts survive inside URLs.)
 - Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is *authentication bypass* — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.
 - Tooling: Python 3, curl, OpenSSL (for the RSA keypair the key-confusion demo needs).
 
@@ -37,13 +37,19 @@ Every flaw below is the verifier skipping a step:
 
 **`alg=none`: the signature that isn't.** The attacker sets the header to `{"alg":"none"}` and drops the signature. A verifier that *trusts the token's own `alg` claim* skips verification entirely — and accepts a fully attacker-written payload. **Why it arises:** the verification code switches on the token-supplied algorithm instead of an allow-list the server controls. (Some libraries historically supported `none` for "unsecured" use cases; the bug is accepting it where security was intended.)
 
-**Key confusion (RS256→HS256): the public key as a password.** The server verifies RS256 (RSA) tokens with its RSA *public* key — which is public by design. The attacker crafts a token with `alg: HS256`, signs it with HMAC using *the RSA public key bytes as the HMAC secret* (downloadable from the server's JWKS endpoint), and the confused verifier — using one key variable for both algorithms — checks the HMAC against the public key and accepts. **Why it arises:** one code path, one key variable, two algorithms with different key semantics. The fix is architectural: never let the token choose the algorithm; bind each key to exactly one algorithm.
+**Key confusion (RS256→HS256): the public key as a password.** The server verifies RS256 (RSA) tokens with its RSA *public* key — which is public by design. The attacker crafts a token with `alg: HS256`, signs it with HMAC using *the RSA public key bytes as the HMAC secret* (downloadable from the server's JWKS endpoint — JWKS is the JSON Web Key Set, the server's published list of its public keys, RFC 7517), and the confused verifier — using one key variable for both algorithms — checks the HMAC against the public key and accepts. **Why it arises:** one code path, one key variable, two algorithms with different key semantics. The fix is architectural: never let the token choose the algorithm; bind each key to exactly one algorithm.
 
 **`exp`/`aud`/`iss` ignored: the claims nobody reads.** A verifier that checks the signature but never checks expiry accepts a stolen token forever; one that skips `aud` accepts tokens minted for a *different* service; one that skips `iss` accepts tokens from a different issuer. **Why it arises:** the JWT library verifies the signature and returns the payload; the *application* never validates the claims. Signature validity and token *acceptability* are two different checks.
 
-**OAuth `redirect_uri` games: where the code goes.** In the authorization-code flow, the client tells the authorization server where to send the code (`redirect_uri`). If the server validates it with a *prefix match* (`startswith("https://trusted-app.example")`), the attacker registers `https://trusted-app.example.evil.example/` — a different domain that passes the prefix check — and the authorization code (which becomes an access token) goes to the attacker. Related games: unregistered `redirect_uri` parameters, `state` not validated (CSRF on the login flow), and `scope` escalation where the token request asks for more than the user granted. **Why it arises:** string matching instead of exact allow-list comparison, and optional parameters treated as decorative.
+**OAuth `redirect_uri` games: where the code goes.** In the authorization-code flow, the client tells the authorization server where to send the code (`redirect_uri`). Why a code at all, instead of handing the browser the token directly: the browser is an untrusted channel — URLs land in history, logs, and Referer headers. The code is short-lived, single-use, and worthless without the client's secret at the token endpoint; the token itself only ever travels server-to-server. If the server validates `redirect_uri` with a *prefix match* (`startswith("https://trusted-app.example")`), the attacker registers `https://trusted-app.example.evil.example/` — a different domain that passes the prefix check — and the authorization code (which becomes an access token) goes to the attacker. Related games: unregistered `redirect_uri` parameters, `state` not validated (CSRF on the login flow), and `scope` escalation where the token request asks for more than the user granted. **Why it arises:** string matching instead of exact allow-list comparison, and optional parameters treated as decorative.
 
-**How defenders see it.** `alg=none` in Authorization headers is a near-certain attack signal — legitimate clients never send it. Algorithm *changes* for one principal (RS256 yesterday, HS256 today) is the key-confusion tripwire. Expired-token reuse shows up as `exp` far in the past on otherwise valid signatures. OAuth abuse shows up in `redirect_uri` values: unexpected domains, subdomains of trusted names, and authorization codes redeemed from unexpected IPs. Detection rule shapes: alert on `alg:none` tokens; alert on algorithm flips per issuer; alert on `redirect_uri` values not in the exact allow-list.
+**How defenders see it.** `alg=none` in Authorization headers is a near-certain attack signal — legitimate clients never send it. Decoded, the attack is unmistakable — the header any defender can read with one base64url decode:
+
+```
+{"alg": "none", "typ": "JWT"}
+```
+
+No legitimate client sends this. One log line, zero ambiguity. Algorithm *changes* for one principal (RS256 yesterday, HS256 today) is the key-confusion tripwire. Expired-token reuse shows up as `exp` far in the past on otherwise valid signatures. OAuth abuse shows up in `redirect_uri` values: unexpected domains, subdomains of trusted names, and authorization codes redeemed from unexpected IPs. Detection rule shapes: alert on `alg:none` tokens; alert on algorithm flips per issuer; alert on `redirect_uri` values not in the exact allow-list.
 
 ### Worked example: the Harborlight verifier
 
@@ -93,14 +99,14 @@ No step above is marked "not run by us" — all three forgeries, the redirect by
 
 Primary documents first:
 
-- **RFC 7519** (rfc-editor.org/rfc/rfc7519.txt — verified 2026-10-10): JSON Web Token — the claims registry (`exp`, `aud`, `iss`, `sub`) and the JOSE header. *Read* §4 (claims); *note* what the RFC says the *application* must validate.
+- **RFC 7519** (rfc-editor.org/rfc/rfc7519.txt — verified 2026-10-10): JSON Web Token — the claims registry (`exp`, `aud`, `iss`, `sub`) and the JOSE header. (JOSE — JSON Object Signing and Encryption — the family of standards JWT comes from: JWS for signing, JWE for encryption, JWK for keys.) *Read* §4 (claims); *note* what the RFC says the *application* must validate.
 - **RFC 6749** (rfc-editor.org/rfc/rfc6749.txt — verified 2026-10-09): OAuth 2.0 — the authorization-code flow and `redirect_uri` handling. *Read* §4.1 (code flow); *note* §4.1.2's exact-match language.
 - **PortSwigger Web Security Academy — JWT attacks** (portswigger.net/web-security/jwt — verified 2026-10-10): the canonical flaw catalog — unverified signature, `none`, key confusion, `kid`/`jku`. *Read* fully, then do the labs in order.
 
 Then at most three free resources:
 
 1. **PortSwigger JWT + OAuth labs** (portswigger.net/web-security — free): the ordered lab set this lesson's method mirrors, hosted and authorized.
-2. **RFC 8725 (JWT BCP)** (rfc-editor.org — free): the best-practices RFC — the fix list in standards language. *Skim* after the labs.
+2. **RFC 8725 (JWT BCP)** (rfc-editor.org — free): the best-practices RFC — the fix list in standards language. (BCP — Best Current Practice — the IETF's label for "do it this way"; RFC 8725 is BCP 225, verified 2026-10-10.) *Skim* after the labs.
 3. **`a-crypto`** (this guidebook): signatures — what they prove, and the misuse pairs this lesson weaponizes.
 
 ## 8. Check yourself
@@ -115,7 +121,7 @@ Then at most three free resources:
 
 **Artifact:** the one-page reports from "On your own" (one per lab): token decoded, forgery class, exact proof, root cause, the general rule violated, defender detection — plus your local-demo notes (the three forgeries, the redirect bypass, the six fixed-build cases).
 
-**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can decode JWTs by hand, forge `alg=none`, expired-claim, and key-confusion tokens against vulnerable verifiers on authorized targets, bypass prefix-match redirect validation, and verify the complete fix. You cannot yet claim: OAuth/OIDC implementation review — `kid`/`jku` exploitation, PKCE analysis, and multi-IdP trust design are the deeper layer this lesson points at.
+**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can decode JWTs by hand, forge `alg=none`, expired-claim, and key-confusion tokens against vulnerable verifiers on authorized targets, bypass prefix-match redirect validation, and verify the complete fix. You cannot yet claim: OAuth/OIDC implementation review — `kid`/`jku` exploitation, PKCE analysis (PKCE — Proof Key for Code Exchange, RFC 7636: the client invents a one-time secret binding the authorization request to the token exchange, so a stolen code alone is useless), and multi-IdP trust design (IdP — identity provider: the service that authenticates users and mints the tokens) are the deeper layer this lesson points at.
 
 ## 10. Leads to
 

@@ -19,7 +19,7 @@ dateline: "Worked case authored and reviewed 2026-10-10 · no command line in th
 
 ## 1. Where this shows up
 
-Governance is the reason security has a budget, a mandate, and someone to answer to. It shows up in the board meeting where the CISO explains why the security program costs what it costs; in the audit finding that says "tone at the top" is missing; in the charter that decides whether the CISO reports to the CIO (and gets overruled on every expensive control) or to the CEO with a direct line to the board; and in the moment a company picks a control framework — CSF, ISO 27001, SOC 2 — and that choice quietly shapes every security decision for five years. Management runs the controls; governance decides which controls are worth running, and why.
+Governance is the reason security has a budget, a mandate, and someone to answer to. It shows up in the board meeting where the CISO explains why the security program costs what it costs; in the audit finding that says "tone at the top" (the visible ethical commitment of leadership — what executives actually reward and punish — which sets the organization's real culture) is missing; in the charter that decides whether the CISO reports to the CIO (and gets overruled on every expensive control) or to the CEO with a direct line to the board; and in the moment a company picks a control framework — CSF, ISO 27001, SOC 2 — and that choice quietly shapes every security decision for five years. Management runs the controls; governance decides which controls are worth running, and why.
 
 ## 2. Before you start
 
@@ -48,7 +48,7 @@ The three-lines model (a standard governance frame: operational management as th
 **Control framework selection.** The framework is the language governance speaks — and the choice is a governance decision with a rationale, not a procurement default:
 
 - **NIST CSF 2.0:** outcomes-based, free, flexible; strong where the organization needs a common language across business and technical stakeholders. No certification exists — anyone selling "CSF certification" is selling something else.
-- **ISO/IEC 27001:** the certifiable management system (Clauses 4–10) with Annex A's 93 controls as a reference catalog selected by risk assessment — the choice when customers or regulators expect an independently audited ISMS. The standard itself is a paid document; the lesson teaches from free equivalents and says so.
+- **ISO/IEC 27001:** the certifiable management system (ISMS: information security management system — the documented, audited system of policies, processes, and controls that manages information security) (Clauses 4–10) with Annex A's 93 controls as a reference catalog selected by risk assessment — the choice when customers or regulators expect an independently audited ISMS. The standard itself is a paid document; the lesson teaches from free equivalents and says so.
 - **SOC 2:** an attestation report (not a certificate) against the AICPA Trust Services Criteria, Type I (design at a point in time) or Type II (operating effectiveness over a period) — the choice when customers demand third-party assurance about a service organization.
 
 The rationale matters more than the choice: "we chose CSF 2.0 because our board needs outcomes language and we have no certification driver" is governance; "everyone uses ISO" is fashion.

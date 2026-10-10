@@ -36,9 +36,15 @@ A GraphQL server exposes one endpoint (usually `/graphql`). You POST `{"query": 
 
 **Nested-query DoS: the client sets the price.** `{ user { posts { comments { author { posts { comments { text } } } } } } }` — each level fans out (5 posts × 5 comments × 5 authors × ...). The client wrote a short string; the server does exponential work. REST endpoints have fixed cost; GraphQL queries have *client-chosen* cost. **Why it arises:** resolvers are written per-field with no global view of what a nested query costs. Defenses: query depth limits, query cost analysis (assign each field a cost, reject over budget), pagination caps, timeouts.
 
-**Field-level authorization: one resolver, one missing check.** `ssn` resolves for any caller because its resolver never asks "may *this* principal see *this* field?" Object-level authz (`b-api-abuse`'s BOLA) is not enough: the user object is legitimately readable, but the *field* isn't. **Why it arises:** authorization is checked at the query root ("is this user logged in?") and assumed to cover everything beneath it. Every sensitive field needs its own check, in its own resolver.
+**Field-level authorization: one resolver, one missing check.** (A resolver — the function the server runs to fetch one field's value; every field in the schema has one.) `ssn` resolves for any caller because its resolver never asks "may *this* principal see *this* field?" (A principal — the identity the request acts as.) Object-level authz (`b-api-abuse`'s BOLA) is not enough: the user object is legitimately readable, but the *field* isn't. **Why it arises:** authorization is checked at the query root ("is this user logged in?") and assumed to cover everything beneath it. Every sensitive field needs its own check, in its own resolver.
 
-**How defenders see it.** `__schema` / `__type` in request bodies is the introspection tripwire — legitimate clients almost never send these in production. Nested-query abuse shows up as requests with extreme brace depth and response-time outliers on `/graphql`. Field-level gaps are found in code review (resolvers without authz checks) and in testing (request every sensitive field as a low-privilege principal). Detection rule shapes: alert on introspection queries in production traffic; alert on `/graphql` requests over N levels deep or over M ms.
+**How defenders see it.** `__schema` / `__type` in request bodies is the introspection tripwire — legitimate clients almost never send these in production. In the query log, the tripwire is literal — the attacker's reconnaissance is the only traffic that looks like this:
+
+```
+POST /graphql 200 12ms  body={"query": "{ __schema { types { name } } }"}
+```
+
+Legitimate clients ask for data; only a mapper asks for the schema. Nested-query abuse shows up as requests with extreme brace depth and response-time outliers on `/graphql`. Field-level gaps are found in code review (resolvers without authz checks) and in testing (request every sensitive field as a low-privilege principal). Detection rule shapes: alert on introspection queries in production traffic; alert on `/graphql` requests over N levels deep or over M ms.
 
 ### Worked example: the Harborlight GraphQL demo
 
@@ -106,7 +112,7 @@ Then at most three free resources:
 
 **Artifact:** the one-page report from "On your own": introspection status, the field×principal matrix, the nesting measurement (no DoS performed), the three fixes for that stack, defender detection — plus your local-demo notes (the three proofs and four fix verifications).
 
-**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can probe GraphQL introspection, test field-level authorization, measure nested-query cost scaling, and verify the three fixes — on authorized targets, without performing denial of service. You cannot yet claim: production GraphQL security review — persisted queries, cost-analysis tuning, and gateway policy design are the operational layer this lesson doesn't cover.
+**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can probe GraphQL introspection, test field-level authorization, measure nested-query cost scaling, and verify the three fixes — on authorized targets, without performing denial of service. You cannot yet claim: production GraphQL security review — persisted queries (query strings pre-registered with the server, invoked by ID instead of sent as arbitrary text), cost-analysis tuning, and gateway policy design are the operational layer this lesson doesn't cover.
 
 ## 10. Leads to
 

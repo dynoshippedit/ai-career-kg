@@ -29,7 +29,7 @@ Business-logic flaws are the highest-creativity class in bounty work: no injecti
 
 Every other class in this wave is about the application *mishandling input*. Business-logic flaws are about the application *doing exactly what it was coded to do*, where what it was coded to do is wrong. The vulnerability is not in a line of code but in an **assumption** nobody wrote down: users will use the browser UI (so client-side controls suffice), steps happen in order, numbers are positive, coupons apply once, the total on the receipt is the total the server computed.
 
-The finding methodology is a discipline, not a trick. Run it in this order on every workflow you test:
+The finding methodology is a discipline, not a trick. Run it in this order on every workflow you test. The map comes first for a reason: you cannot violate an assumption nobody has named. Drawing the state machine externalizes the designer's mental model — every arrow you draw is a transition you can then try to skip, repeat, reorder, or revisit.
 
 **1. State-machine mapping.** Enumerate every state of the workflow and every transition between states, then draw it. Cart → checkout → payment → fulfillment, with the arrows labeled. The flaws live in the transitions the designers didn't draw: can checkout be reached without a cart? Can payment be revisited after fulfillment? Can the same state be entered twice?
 
@@ -37,7 +37,7 @@ The finding methodology is a discipline, not a trick. Run it in this order on ev
 
 **3. Trust-boundary review.** Mark every value the client supplies that the server *uses*: price, quantity, discount, currency, user ID, step index, the total itself. Each one is a candidate for tampering. The rule that kills the whole class: **the server re-derives every money value from its own data and never accepts a client-computed amount.** A price in a POST body is not a price; it is a suggestion from a stranger.
 
-**4. Numeric edge fuzzing.** For every numeric field, try `-1`, `0`, `0.0001`, absurdly large values, and negative discounts. Watch the computed total. Applications that never considered a negative quantity will happily subtract it.
+**4. Numeric edge fuzzing.** (Fuzzing — feeding unexpected or extreme inputs to see what the application does with them; here done by hand, one value at a time, not with a fuzzer tool.) For every numeric field, try `-1`, `0`, `0.0001`, absurdly large values, and negative discounts. Watch the computed total. Applications that never considered a negative quantity will happily subtract it.
 
 **5. Race/parallelism check.** Where two requests touch the same balance, coupon, or stock count, fire them concurrently. If the check ("is this coupon unused?") and the action ("mark it used") are two separate steps, the second request slips between them.
 
@@ -86,7 +86,7 @@ Take the fixed demo shop and find a *fourth* assumption the walkthrough didn't v
 
 Primary documents — read in this order:
 
-1. **PortSwigger Web Security Academy — Business logic vulnerabilities** (portswigger.net/web-security/logic-flaws): definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). *Verified in-session 2026-10-10.*
+1. **PortSwigger Web Security Academy — Business logic vulnerabilities** (portswigger.net/web-security/logic-flaws): definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints — endpoints serving two purposes, e.g. one checkout path for the web UI and one for the mobile app, where a control present on one is missing on the other — insufficient workflow validation, flawed state machines). *Verified in-session 2026-10-10.*
 2. **OWASP Top 10:2025 — A06 Insecure Design** (owasp.org/Top10/2025/): what "insecure design" means as a category and why logic flaws live there rather than under Injection. *Verified in-session 2026-10-09.*
 3. **WSTG business-logic testing** (owasp.org/www-project-web-security-testing-guide/ — WSTG-BUSL): the test-case checklist form of this lesson's methodology. Skim the test IDs; use as a checklist on your next workflow.
 

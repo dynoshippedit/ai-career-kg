@@ -17,7 +17,7 @@ dateline: "Walkthrough run 2026-10-09 · labeled fictional event set; decision t
 
 ## 1. Where this shows up
 
-Every alert a security operations center produces lands on a human who has minutes — not hours — to decide what it means. That decision is triage: turning a detection's hypothesis into a classification and a routing action. It is the daily work of the SOC analyst role (`/r/soc-analyst/`), the skill every detection engineer writes rules *for*, and the discipline that stands between a 3 AM page and a real incident. Get triage wrong and two things happen: real attacks sit in a queue, and analysts burn out on noise. This lesson teaches the decision flow, not the tools — the flow survives every SIEM change.
+Every alert a security operations center produces lands on a human who has minutes — not hours — to decide what it means. That decision is triage: turning a detection's hypothesis into a classification and a routing action. It is the daily work of the SOC analyst role (`/r/soc-analyst/`), the skill every detection engineer writes rules *for*, and the discipline that stands between a 3 AM page and a real incident. Get triage wrong and two things happen: real attacks sit in a queue, and analysts burn out on noise. This lesson teaches the decision flow, not the tools — the flow survives every SIEM change. (A SIEM — security information and event management — is the platform that ingests logs from many sources so you can search and correlate them in one place; the triage discipline is the same whatever vendor's console you're staring at.)
 
 ## 2. Before you start
 
@@ -30,15 +30,15 @@ Every alert a security operations center produces lands on a human who has minut
 Triage is a pipeline with eight stages. Memorize the shape, because under time pressure you will fall back to whatever shape you trained:
 
 1. **Intake.** Acknowledge the alert. Read the detection's hypothesis *first* — what did the rule claim to see, and in which log? Identify the user, the asset, the application, the data source. Time-box this: triage is minutes.
-2. **Enrichment.** Attach context before judging: asset criticality (domain controller or test VM?), user role (admin? service account?), IP geolocation, threat intel on the IOCs, and — most valuable — other alerts on the same entities in the same window.
+2. **Enrichment.** Attach context before judging: asset criticality (domain controller or test VM?), user role (admin? service account?), IP geolocation, threat intel (curated records of known-malicious IPs, domains, and file hashes — from feeds or commercial sources — that let you attach a verdict to an observable) on the IOCs (indicators of compromise — the observables tied to the intrusion), and — most valuable — other alerts on the same entities in the same window.
 3. **Scoping.** The single most important triage question: *one host or a campaign?* Pivot the alert's entities (user, host, IP, hash, domain) across the estate and the time window. One host with a suspicious IOC is an incident candidate; the same IOC on forty hosts is either a campaign or a broken rule — different handling either way.
 4. **Severity vs. priority.** Severity is the detection's technical rating (how bad *if true*). Priority is severity × asset value × confidence. A critical alert on a decommissioned lab VM is low priority; a medium alert on the CFO's laptop is high priority. Triage sets priority; the rule only suggested severity.
 5. **Investigation.** Build the timeline around the alert. Find root cause and initial access. Check for lateral movement. Determine what data was touched. One log source never tells the story — correlate endpoint, identity, and network together.
-6. **Containment recommendation and escalation.** Triage does not contain; it *recommends*. Escalation criteria decide who acts (below).
-7. **Classification and routing.** Every alert ends in one of five buckets: **false positive** (rule matched wrongly → tune the rule), **benign true positive** (rule matched correctly on expected activity → close with reason), **suspicious** (needs deeper work → Tier 2), **confirmed incident** (start the IR playbook), **duplicate** (link to the parent case).
+6. **Containment recommendation and escalation.** Triage does not contain; it *recommends*. The split is deliberate: containment needs full scoping, carries evidence-destruction and legal risk, and requires authority the triage analyst doesn't hold. Triage runs in minutes; IR acts with coordination. Recommending instead of acting keeps the fast decision from becoming the irreversible one. Escalation criteria decide who acts (below).
+7. **Classification and routing.** Every alert ends in one of five buckets: **false positive** (rule matched wrongly → tune the rule), **benign true positive** (rule matched correctly on expected activity → close with reason), **suspicious** (needs deeper work → Tier 2, the more experienced analysts who take the cases Tier 1 can't close), **confirmed incident** (start the IR playbook), **duplicate** (link to the parent case).
 8. **Documentation and lessons learned.** Write the triage note: what was seen, what was checked, what was decided, the evidence. Feed the outcome back — IOCs to intel, tuning notes to detection engineering, process gaps to the playbook. An alert that teaches nothing is an alert wasted.
 
-**Escalate** from triage to incident response when any of these hold: confirmed malicious activity (not merely suspicious); lateral movement or multiple affected hosts; data access or exfiltration indicators; persistence found; a crown-jewel asset (domain controller, backups, finance, executive); or you cannot rule out maliciousness within the triage time box — uncertainty on a high-value asset escalates, it does not close.
+**Escalate** from triage to incident response when any of these hold: confirmed malicious activity (not merely suspicious); lateral movement or multiple affected hosts; data access or exfiltration indicators; persistence found; a crown-jewel asset (domain controller, backups, finance, executive); or you cannot rule out maliciousness within the triage time box — uncertainty on a high-value asset escalates, it does not close. The rule is asymmetric cost: a missed compromise on a domain controller costs more than a hundred wasted escalations. Uncertainty is a routing input — "I can't rule it out" — not a verdict.
 
 ### Worked example: the impossible-travel decision tree
 
@@ -50,7 +50,7 @@ The alert: `j.chen` signed in from Chicago at 09:12 and from Lagos at 09:19 — 
 4. **VPN check.** Is the user in a VPN group, and is the source IP a known VPN vendor exit range? Corporate VPN exits routinely geolocate far from the user.
 5. **Cross-user check.** Does this IP appear in other users' sign-ins? A shared egress IP explains many "impossible" logins at once.
 6. **History.** Has this user triggered this before? Repeat benign triggers are tuning candidates, not investigation candidates.
-7. **Corroborating signals.** Failed MFA pushes, unknown device, unusual apps, a password reset right before — any one flips the verdict toward compromise.
+7. **Corroborating signals.** Failed MFA pushes, unknown device, unusual apps, a password reset right before — any one flips the verdict toward compromise. Concretely: in the sign-in log, look for repeated MFA challenges the user denied or ignored right after the travel-violating sign-in — a burst of "MFA denied" results is the attacker trying to push through.
 
 All-benign answers → close as benign true positive, note the pattern for the rule owner. Any corroborating signal → escalate: force password reset, revoke sessions, treat as compromise until proven otherwise.
 
@@ -96,7 +96,7 @@ Primary documents first:
 
 Then at most three free resources:
 
-1. **The SOC triage workflow references in `sources.csv`** — the community triage handbook and analyst checklists used to build this lesson's trees.
+1. **MITRE, *11 Strategies of a World-Class Cybersecurity Operations Center*** (mitre.org — free download, 20-page summary plus the full book) — the SOC operator's field manual. Read the 20-page summary first; then strategy 5 (prioritize incident response) and strategy 7 (select and collect the right data), which are this lesson's enrichment and scoping in the wild. Skip the staffing and structure chapters until you manage a SOC.
 2. **Wazuh** (wazuh.com) — free, open-source XDR: agents, manager, dashboard. The lab where you practice this lesson against real telemetry from your own VMs.
 3. **Security Onion** (securityonion.net) — free network security monitoring distro (Zeek + Suricata + Sigma-based detection). The lab where the network half of triage lives.
 

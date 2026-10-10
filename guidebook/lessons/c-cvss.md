@@ -36,7 +36,9 @@ CVSS answers one question: *how bad is this vulnerability, technically?* Not how
 
 - **Base metrics** (prefix `CVSS:3.1`): Attack Vector `AV` (N etwork / A djacent / L ocal / P hysical — how the attacker reaches it), Attack Complexity `AC` (L ow / H igh), Privileges Required `PR` (N one / L ow / H igh), User Interaction `UI` (N one / R equired), Scope `S` (U nchanged / C hanged — does exploitation escape into another security authority?), and the impact triad Confidentiality / Integrity / Availability `C/I/A` (H igh / L ow / N one each).
 - **Temporal metrics**: Exploit Code Maturity `E`, Remediation Level `RL`, Report Confidence `RC` — the score *as of now*. Rarely published in practice, which v4.0 noticed.
-- **Environmental metrics**: Confidentiality/Integrity/Availability Requirements `CR/IR/AR` plus Modified Base metrics — the score *for your environment*.
+- **Environmental metrics**: Confidentiality/Integrity/Availability Requirements `CR/IR/AR` plus Modified Base metrics (the Base metrics re-scored with your environment's actual values, prefixed `M` — e.g. `MAV:N` where the flaw isn't network-reachable in your shop) — the score *for your environment*.
+
+**Why the split.** Exploitability describes the *flaw* — how an attacker reaches it, which the vendor knows best. Impact describes the *consequence* — what breaks, which the consumer knows best. Because the two answer different questions, a defender can keep the vendor's attack facts and re-weight the consequences for their own environment (that is what the Environmental group is for). One blended number would force every consumer to accept the vendor's judgment about their own losses.
 
 The Base score comes from specified equations: exploitability from AV·AC·PR·UI, impact from C·I·A, combined with a round-up rule (the spec's Roundup: the smallest number to one decimal place at or above the computed value). Scope Changed uses a different impact formula — getting the scope judgment right is the highest-leverage decision in v3.1 scoring.
 
@@ -47,7 +49,9 @@ The Base score comes from specified equations: exploitability from AV·AC·PR·U
 
 The v4.0 Base metrics rename the impact triad into two systems: the **vulnerable system** (VC/VI/VA — what happens to the system with the flaw) and the **subsequent system** (SC/SI/SA — what happens to what it can reach afterward), replacing v3.1's single Scope bit with a real impact model. New metric **Attack Requirements** `AT` (N one / P resent) captures target-specific preconditions that v3.1 smeared into Attack Complexity. User Interaction is refined to None / Passive / Active.
 
-v4.0 scoring is not equations but **MacroVectors**: each vector maps to an equivalence class (EQ1–EQ6), the class has a lookup-table score, and the vector's score interpolates within the class. The reference implementation is public (FIRST's cvss-v4-calculator) — the walkthrough runs it verbatim.
+v4.0 scoring is not equations but **MacroVectors**: each vector maps to an equivalence class (EQ1–EQ6), the class has a lookup-table score, and the vector's score interpolates within the class. (An equivalence class is a group of vectors FIRST judged to carry similar severity — grouping lets 15+ million possible vectors share 101 scores instead of each demanding its own.) The reference implementation is public (FIRST's cvss-v4-calculator) — the walkthrough runs it verbatim.
+
+**Why v4.0 abandoned the equations.** The v3.x formulas multiplied sub-scores algebraically, and the resulting decimals did not always match what experienced scorers judged the severity to be. FIRST's own FAQ says v4.0 scores come from "expert ranking done by the CVSS SIG members" instead of the old algebraic weighting: the lookup tables anchor each equivalence class to a score humans calibrated, so the math serves the judgment instead of overriding it. When a v4.0 score surprises you, the explanation is a human ranking decision, not a formula artifact.
 
 **Nomenclature** tells you what a number claims: `CVSS-B` (Base only), `CVSS-BT` (+Threat), `CVSS-BE` (+Environmental), `CVSS-BTE` (all three). A bare "7.3" is meaningless until you know which of these it is. Base assumes worst-case Threat and Environmental defaults; consumers refine downward or upward.
 
@@ -97,9 +101,9 @@ v4.0 scoring is not equations but **MacroVectors**: each vector maps to an equiv
 
 ## 7. Read the source
 
-1. **FIRST CVSS v4.0 Specification Document** (version 1.2, first.org/cvss/v4.0/specification-document) — the metric definitions and the MacroVector scoring description. Read the Base, Threat, Environmental, and Supplemental sections; skim the scoring math, then run the reference implementation.
-2. **FIRST CVSS v4.0 Examples Document** (version 1.8, first.org/cvss/v4.0/examples) — the official worked examples with v3.x comparisons. Study all three calibration cases above; they are the answer key for your hand-scoring.
-3. **FIRST CVSS v3.1 Specification** (first.org/cvss/v3.1/) — the equations. Read the Base scoring section; you implemented it in the walkthrough.
+1. **FIRST CVSS v4.0 Examples Document** (version 1.8, first.org/cvss/v4.0/examples) — read this *before* the Specification. The official worked examples with v3.x comparisons are the answer key for your hand-scoring: study all three calibration cases above before you touch the metric definitions.
+2. **FIRST CVSS v4.0 Specification Document** (version 1.2, first.org/cvss/v4.0/specification-document) — the metric definitions and the MacroVector scoring description. Read the Base, Threat, Environmental, and Supplemental sections in that order; skim the MacroVector lookup math and run the reference implementation instead of working the tables by hand; skip the version-history appendices on first pass. The FAQ (§3.17) explains why v4.0 scores differ from v3.1's — read it when a score surprises you.
+3. **FIRST CVSS v3.1 Specification** (first.org/cvss/v3.1/) — the equations. Read the Base scoring section; you implemented it in the walkthrough. Skip the Temporal and Environmental sections on first pass — Temporal vectors were rarely published, and the Environmental group is where v4.0 changed the most.
 
 Free resources (≤3): the **FIRST v4.0 web calculator** (first.org/cvss/calculator/4.0) — your verification tool; the **cvss-v4-calculator repository** (github.com/FIRSTdotorg/cvss-v4-calculator) — the reference implementation the walkthrough ran; the **v3.1 user guide** (first.org/cvss/v3.1/user-guide) — scoring judgment guidance.
 

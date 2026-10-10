@@ -39,7 +39,7 @@ Every security program eventually faces the same meeting: leadership asks "how s
 
 **The Core: 6 Functions, 22 Categories, 106 Subcategories.** The hierarchy runs Function → Category → Subcategory, each level a more specific outcome. The six Functions, with **Govern** new in 2.0 and sitting at the center of the wheel:
 
-- **Govern (GV)** — the organization's cybersecurity risk management strategy, expectations, and policy are established, communicated, and monitored. Governance is a function now, not an assumption — the framework's way of saying strategy is a first-class outcome.
+- **Govern (GV)** — the organization's cybersecurity risk management strategy, expectations, and policy are established, communicated, and monitored. Governance is a function now, not an assumption — the framework's way of saying strategy is a first-class outcome. Why at the center: a strategy failure cascades into every other function — unfunded Identify, unstaffed Detect, untested Recover — so the framework puts the thing that breaks everything else where you can't skip it.
 - **Identify (ID)** — understand what you have and what threatens it.
 - **Protect (PR)** — safeguards to manage risk to systems and data.
 - **Detect (DE)** — find cybersecurity events in time.
@@ -69,7 +69,7 @@ Each Category divides into Subcategories — 106 in total — each stating one s
 
 No CLI by design — the walkthrough is the worked case, authored and self-reviewed 2026-10-10 against the primary document (CSWP 29, fetched in-session; category table verified against the document's own Table 1). The fictional company is **Meridian Analytics**, a 180-person SaaS analytics firm used across this guidebook's governance lessons. Every fact about Meridian below is invented and labeled.
 
-**Step 1 — Frame the engagement.** Meridian's leadership wants a gap assessment: "tell us where we stand and what to do first." Scope: the production SaaS platform and the corporate IT that supports it. Out of scope: the office physical plant (covered under a separate facilities review). Timebox: two weeks. Decision-maker for the Target Profile: the CTO, with the board's risk committee informed.
+**Step 1 — Frame the engagement.** Meridian's leadership wants a gap assessment: "tell us where we stand and what to do first." Scope: the production SaaS platform and the corporate IT that supports it. Out of scope: the office physical plant (covered under a separate facilities review). Timebox: two weeks. Decision-maker for the Target Profile: the CTO, with the board's risk committee (the board subcommittee that oversees risk) informed.
 
 **Step 2 — Draft the Current Profile (representative slice).** For each Function, assess one Category honestly against named evidence. Six rows worked in full; the remaining sixteen Categories get the same treatment in the reader's own pass (see "On your own").
 

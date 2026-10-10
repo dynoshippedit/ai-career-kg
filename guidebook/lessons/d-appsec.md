@@ -32,7 +32,7 @@ Someone has to make sure the software gets *built* securely, not just tested aft
 
 ### Threat modeling with STRIDE: design-time security
 
-Threat modeling happens at design time, not test time: you model the system, enumerate what can go wrong, and turn the answers into requirements before code exists. The OWASP cheat sheet frames it as four questions — *what are we working on? what can go wrong? what are we going to do about it? did we do a good enough job?* — and the standard technique for the second question is **STRIDE**, six prompts applied to every component, data flow, and trust boundary in your data-flow diagram:
+Threat modeling happens at design time, not test time: you model the system, enumerate what can go wrong, and turn the answers into requirements before code exists. The OWASP cheat sheet frames it as four questions — *what are we working on? what can go wrong? what are we going to do about it? did we do a good enough job?* — and the standard technique for the second question is **STRIDE**, six prompts applied to every component, data flow, and trust boundary in your data-flow diagram. A **trust boundary** is where data crosses from one trust level to another — browser to server, app to database, your code to a third-party service; everything crossing it is suspect until checked. The six prompts are not arbitrary: each one threatens a different security property (spoofing → authentication, tampering → integrity, repudiation → accountability, information disclosure → confidentiality, denial of service → availability, elevation of privilege → authorization), which is what makes the enumeration systematic instead of a brainstorm:
 
 | Letter | Threat | Violates | Example |
 |---|---|---|---|
@@ -58,7 +58,7 @@ The lesson that organizes all four: *no family sees business logic.* A coupon th
 
 ### Secure-SDLC integration
 
-Security gates fit the development phases: requirements get abuse cases; design gets the threat model; implementation gets SAST in the IDE and pre-commit hooks; verification gets DAST/SCA plus manual testing against the threat model; release gets the go/no-go on open findings; operations gets the feedback loop. The gates that survive are the ones that don't break delivery — a SAST gate that blocks every merge on 200 false positives gets disabled by Friday. Tuning (the Sigma lesson's false-positive discipline, applied to code) is what keeps gates alive.
+Security gates fit the development phases: requirements get abuse cases (misuse scenarios: what an attacker would do with this feature, written as requirements the design must survive); design gets the threat model; implementation gets SAST in the IDE and pre-commit hooks (scripts that run checks automatically every time code is committed); verification gets DAST/SCA plus manual testing against the threat model; release gets the go/no-go on open findings; operations gets the feedback loop. The gates that survive are the ones that don't break delivery — a SAST gate that blocks every merge on 200 false positives gets disabled by Friday. Tuning (the Sigma lesson's false-positive discipline, applied to code) is what keeps gates alive.
 
 ### Code review technique
 
@@ -120,7 +120,7 @@ Threat-model the login flow of any app you built in Stage B labs: draw the data-
 Primary, in this order:
 1. **OWASP Threat Modeling Cheat Sheet** (cheatsheetseries.owasp.org) — read the four questions, the STRIDE table, and the cloud-threat-modeling section; it is the process this lesson teaches, from its authors.
 2. **Semgrep documentation** (semgrep.dev/docs) — read the quickstart (install via pipx/uv, `semgrep login`, `semgrep ci`) to see the real tool's shape; note the login-centered flow.
-3. **OWASP ASVS** (owasp.org/www-project-application-security-verification-standard) — the verification requirements catalog; skim the level structure to see what "verified" can mean at three depths.
+3. **OWASP ASVS** (owasp.org/www-project-application-security-verification-standard) — the verification requirements catalog; skim the level structure to see what "verified" can mean at three depths. Skip the individual requirement text on first pass — open the catalog when you are writing requirements, not as reading.
 
 Free resources for going deeper (at most three):
 - **OWASP SAMM** (owaspsamm.org) — the maturity model for the AppSec program around the tooling; free, verified live 2026-10-09. *For: placing scanners inside a program instead of a toolbox.*
@@ -143,7 +143,7 @@ Free resources for going deeper (at most three):
 
 ## 10. Leads to
 
-- `e-sdlc` — the program that deploys this tooling: gates, champions, metrics.
+- `e-sdlc` — the program that deploys this tooling: gates, champions (developers trained to carry security into their own teams), metrics.
 - `c-sigma-detection` — the same triage discipline, applied to detection rules instead of code findings.
 - Stage D capstone direction: threat-model, scan, and review a real open-source app; publish the assessment.
 - Map: Stage D AppSec track (STRIDE → SAST/DAST/IAST/SCA → SDLC integration → code review → ASVS verification) — the hands-on half of CISSP 8.1–8.5, whose governance half lives in `e-sdlc`.

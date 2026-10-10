@@ -1,0 +1,11 @@
+claim,url,fetch_date,chars_fetched,status
+"TOTP = Time-Based One-Time Password (RFC 6238 title); time-based variant of HOTP; default 30-second time step (§4.1, §5.2)",https://www.rfc-editor.org/rfc/rfc6238.txt,2026-10-10,32174,verified
+"PKCE = Proof Key for Code Exchange (""pixy""); mitigates the authorization code interception attack via code_verifier / code_challenge (§1)",https://www.rfc-editor.org/rfc/rfc7636.txt,2026-10-10,39482,verified
+"JWKS = JSON Web Key Set: a JSON object representing a set of JWKs, with a ""keys"" member that is an array of JWKs (RFC 7517 §2, §5)",https://www.rfc-editor.org/rfc/rfc7517.txt,2026-10-10,93906,verified
+"base64url = Base 64 Encoding with URL and Filename Safe Alphabet (RFC 4648 §5); differs from base64 in the 62nd/63rd alphabet characters",https://www.rfc-editor.org/rfc/rfc4648.txt,2026-10-10,35491,verified
+"Bearer token = security token where any party in possession (a ""bearer"") can use it without demonstrating possession of cryptographic key material (RFC 6750 §1.2)",https://www.rfc-editor.org/rfc/rfc6750.txt,2026-10-10,38949,verified
+"Certificate Transparency = publicly auditable, append-only logs of issued TLS certificates so anyone can audit CA activity (§1)",https://www.rfc-editor.org/rfc/rfc6962.txt,2026-10-10,55048,verified
+"RFC 8725 is BCP 225, Category: Best Current Practice, title ""JSON Web Token Best Current Practices"" (updates RFC 7519)",https://www.rfc-editor.org/rfc/rfc8725.txt,2026-10-10,30793,verified
+"__Host- cookie prefix: user agent ignores the cookie unless secure-only-flag is true, host-only-flag is true, and Path=/ (draft-ietf-httpbis-rfc6265bis-22 §5.7 step 21); draft expires 4 June 2026",https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis,2026-10-10,330609,verified
+"IMDSv2 is session-oriented: session token created with a PUT request to /latest/api/token; token must be included in subsequent GETs; requests without a valid token get 401 when token usage is required",https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html,2026-10-10,68051,verified
+"SP 800-63B-4 current edition: published July 2025, supersedes SP 800-63B (CSRC publication landing page)",https://csrc.nist.gov/pubs/sp/800/63/b/4/final,2026-10-10,45732,verified

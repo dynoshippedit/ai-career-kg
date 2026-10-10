@@ -36,8 +36,8 @@ Modern systems are mostly other people's code, running on other people's infrast
 
 - **Access:** what the supplier can touch — data, systems, network. A billing platform holding customer records is a different risk than a survey tool holding anonymous responses. Scope to the access, not the marketing.
 - **Criticality:** what breaks if the supplier fails — compromised, breached, or simply gone? The dependency that halts dispatch (for Copperline Freight) or exposes patient data (for Harbor Clinic) gets the deep assessment; the office snack-delivery app does not. Criticality sets the assessment's depth.
-- **Security posture evidence:** what the supplier can *show*, not claim — independent attestations (SOC 2 Type II reports, ISO 27001 certificates), penetration-test summaries, vulnerability-disclosure programs, incident history. A questionnaire answered by the vendor's sales team is a claim; an auditor's report is evidence. Both have uses; never confuse them.
-- **Fourth parties:** who the supplier depends on — their cloud provider, their subprocessors, their own vendors. You will not get the full graph; you assess whether the supplier *manages* it (their subprocessor list, their notification obligations to you).
+- **Security posture evidence:** what the supplier can *show*, not claim — independent attestations (SOC 2 Type II reports, ISO 27001 certificates), penetration-test summaries, vulnerability-disclosure programs, incident history. A questionnaire answered by the vendor's sales team is a claim; an auditor's report is evidence. The difference is authorship and liability: the questionnaire is self-graded by the party that benefits from a good score; the auditor's report is produced by an independent party whose professional standing depends on its accuracy. Both have uses; never confuse them.
+- **Fourth parties:** who the supplier depends on — their cloud provider, their subprocessors (a subprocessor is a vendor's vendor — a third party the supplier uses to handle your data), their own vendors. You will not get the full graph; you assess whether the supplier *manages* it (their subprocessor list, their notification obligations to you).
 - **Concentration and exit:** what happens if you must leave — data export formats, contract termination terms, migration cost. An assessment that ignores exit has assessed only the honeymoon.
 - **Provenance and integrity:** for software — where the code came from, how it was built, whether you can verify it. The SBOM's job (below).
 
@@ -53,14 +53,14 @@ Modern systems are mostly other people's code, running on other people's infrast
 
 ### Worked example: Harbor Clinic — SaaS billing platform assessment (fictional)
 
-**The acquisition (fictional).** Harbor Clinic (fictional, continued) is buying a cloud billing platform: it will hold patient names, contact details, and payment tokens; it integrates with the EHR via API; the vendor is a 40-person SaaS company, SOC 2 Type II attested, hosted on a major cloud provider.
+**The acquisition (fictional).** Harbor Clinic (fictional, continued) is buying a cloud billing platform: it will hold patient names, contact details, and payment tokens; it integrates with the EHR (electronic health record — the clinic's patient-record system) via API; the vendor is a 40-person SaaS company, SOC 2 Type II attested, hosted on a major cloud provider.
 
 **Risk factors identified:**
 
 1. **Access (high):** the platform holds patient contact data and payment tokens, and its API integration can read appointment records. A breach of the vendor is a breach of the clinic's patients — notification obligations (`e-cyber-law`) trigger regardless of whose infrastructure failed.
 2. **Criticality (high):** billing halts without it; no manual fallback exists beyond paper invoices. Outage equals revenue stop.
 3. **Posture evidence (medium):** SOC 2 Type II report provided (read it — the auditor's exceptions section, not the marketing summary); no published vulnerability-disclosure program; incident history: one 2024 incident disclosed, handled adequately per the report.
-4. **Fourth parties (medium):** hosted on a major cloud provider (subprocessor listed); payment processing via a PCI-assessed processor (evidence requested, not yet received); the vendor's own subprocessor list exists but change-notification is not contractual.
+4. **Fourth parties (medium):** hosted on a major cloud provider (subprocessor listed); payment processing via a PCI-assessed processor (assessed against PCI DSS, the payment-card industry's security standard; evidence requested, not yet received); the vendor's own subprocessor list exists but change-notification is not contractual.
 5. **Exit (high risk):** data export is CSV-only, no API bulk export; contract auto-renews with 90-day termination notice; no contractual data-deletion attestation. Leaving would be painful — which is exactly when you negotiate exit, before signing.
 6. **Provenance (low for SaaS, noted):** SBOM not applicable to the service directly, but requested for the vendor's client-side integration library.
 
@@ -94,14 +94,14 @@ Modern systems are mostly other people's code, running on other people's infrast
 
 ## 6. Where it goes wrong
 
-- **Questionnaire theater.** The vendor's self-attestation filed as an assessment. Questionnaires have a place (scoping, low-criticality); they are not evidence.
+- **Questionnaire theater.** The vendor's self-attestation filed as an assessment. Questionnaires have a place (scoping, low-criticality); they are not evidence. The tell: the vendor file contains only the self-attested questionnaire — no independent evidence requested or received.
 - **Assessing the vendor, not the access.** A thorough review of a vendor's corporate security that never asks what *this* deployment can touch. Scope to the access.
 - **Fourth-party blindness.** The assessment stops at the vendor's front door. Their subprocessors, their cloud, their libraries — the risk graph continues past the contract signature.
 - **The unread SBOM.** Requested, delivered, never opened. An SBOM needs a reader, a format, and a cadence — or it is theater.
 - **No exit analysis.** The assessment covers the honeymoon. Negotiate exit before signing, when you still have leverage.
 - **"We'll review later."** The acquisition closes, the assessment never happens. C-SCRM in the acquisition process by default — `e-governance`'s rule: the process must not depend on someone remembering.
 - **Approved with concerns.** The decision document lists worries with no owner and no date. Concerns without ownership are abandonment with a signature.
-- **Snapshot assessments.** Assessed once at purchase, never again. Breaches, acquisitions, and architecture changes are trigger events — record them in advance.
+- **Snapshot assessments.** Assessed once at purchase, never again. Breaches, acquisitions, and architecture changes are trigger events — record them in advance. The tell: the vendor file's last update predates the vendor's acquisition — the trigger event happened, the file didn't notice.
 
 ## 7. Read the source
 

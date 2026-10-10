@@ -19,7 +19,7 @@ dateline: "Worked case authored and reviewed 2026-10-10 · no command line in th
 
 ## 1. Where this shows up
 
-Every control in this guidebook assumes a human who knows what to do. The phishing email that the finance officer reports instead of clicking — or does not. The developer who recognizes a secret in a code review because training made it salient. The new hire who knows the acceptable-use policy because onboarding taught it, not because it was emailed as a PDF. Security awareness, education, and training is the program that builds those humans — and it is where most organizations run an annual checkbox video, measure completions, and declare victory while the click rate never moves. This lesson teaches the program as NIST now frames it: not a training course but a learning program, designed around audiences, measured by behavior change, and owned like any other security control.
+Every control in this guidebook assumes a human who knows what to do. The phishing email that the finance officer reports instead of clicking — or does not. The developer who recognizes a secret in a code review because training made it salient. The new hire who knows the acceptable-use policy (the rules for what employees may and may not do with company systems and data) because onboarding taught it, not because it was emailed as a PDF. Security awareness, education, and training is the program that builds those humans — and it is where most organizations run an annual checkbox video, measure completions, and declare victory while the click rate never moves. This lesson teaches the program as NIST now frames it: not a training course but a learning program, designed around audiences, measured by behavior change, and owned like any other security control.
 
 ## 2. Before you start
 
@@ -63,9 +63,9 @@ Every control in this guidebook assumes a human who knows what to do. The phishi
 - **Needs assessment findings:** two 2025 incidents involved credential phishing of dispatchers; the finance team wires funds on email instruction; drivers use personal devices for dispatch messaging. The program targets these three behaviors first.
 - **Audience segments and objectives:**
   - *All staff (240):* report suspected phishing via the new report button within 15 minutes; never act on financial instruction by email alone (verify by voice). Quarterly short modules plus monthly simulations.
-  - *Dispatchers and finance (45):* targeted deep-dives — business-email-compromise patterns, voice-verification procedure for payment changes. The highest-risk segment gets the most attention.
+  - *Dispatchers and finance (45):* targeted deep-dives — business-email-compromise patterns (BEC: an attacker impersonating an executive, vendor, or colleague to trick someone into sending money or credentials), voice-verification procedure for payment changes. The highest-risk segment gets the most attention.
   - *IT and privileged users (18):* admin-targeting awareness, secrets handling, the reporting expectations for their elevated risk. Coordinated with `e-iam`'s privileged-access work.
-  - *Executives (8):* whaling and impersonation briefing, their role in incident communications, visible participation in the program (credibility).
+  - *Executives (8):* whaling (phishing aimed specifically at senior executives, who are high-value targets with broad authority) and impersonation briefing, their role in incident communications, visible participation in the program (credibility).
   - *New hires:* day-one security onboarding — acceptable use, reporting, phishing basics — before system access, not after.
 - **Topic calendar (quarters):** Q1 — phishing recognition and the report button (launch); Q2 — business email compromise and payment verification; Q3 — passwords, MFA, and device hygiene; Q4 — holiday-season social engineering and the annual review. Monthly phishing simulations throughout, difficulty ramping, templates drawn from the real threats the SOC sees (`c-soc-triage` feeds the template library).
 - **Phishing simulation rules of engagement:** purpose is learning; results never feed performance reviews; no public shaming; immediate teaching-moment feedback on click; report-rate is the headline metric; executives included; program existence announced, timing not.
@@ -106,7 +106,7 @@ Every control in this guidebook assumes a human who knows what to do. The phishi
 
 Primary documents first:
 
-- **NIST SP 800-50 Rev. 1, Building a Cybersecurity and Privacy Learning Program** (September 2024; csrc.nist.gov) — *read* the CPLP framing and the program-design guidance; *note* the deliberate retirement of the awareness/training/education split and why. Free.
+- **NIST SP 800-50 Rev. 1, Building a Cybersecurity and Privacy Learning Program** (September 2024; csrc.nist.gov) — *read* the CPLP life-cycle framing first (the approach is a life cycle, not a course — the publication says so on its CSRC page); then *read* the metrics and evaluation-methods guidance (this is what backs this lesson's effectiveness-vs-activity split); *note* the deliberate retirement of the awareness/training/education split and why. *Skim* the federal-agency-specific detail — the method transfers to any organization; the workforce labels may not. Free.
 
 Then at most three free resources:
 

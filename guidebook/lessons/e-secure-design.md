@@ -31,9 +31,9 @@ Controls are the end of an argument, not the beginning. A firewall rule, an encr
 
 **The Saltzer and Schroeder principles (1975).** From "The Protection of Information in Computer Systems" — eight compressed lessons about how systems actually fail:
 
-- **Economy of mechanism.** Keep the security design small enough to analyze. Every extra component in the trusted path is another place for a flaw to hide — prefer a tiny, well-understood reference monitor over a sprawling policy engine.
+- **Economy of mechanism.** Keep the security design small enough to analyze. Every extra component in the trusted path is another place for a flaw to hide — prefer a tiny, well-understood reference monitor (the single component that mediates every access decision — one place to get right) over a sprawling policy engine.
 - **Fail-safe defaults.** Base access decisions on permission, not exclusion: deny by default. Blacklists fail because you cannot enumerate every bad thing; whitelists fail into outages, and outages get noticed.
-- **Complete mediation.** Every access to every object is checked, with no cached shortcuts or "internal" exceptions. The check must sit on the path the attacker actually travels — the unauthenticated internal endpoint is the classic violation.
+- **Complete mediation.** Every access to every object is checked, with no cached shortcuts or "internal" exceptions. The "no cached shortcuts" clause matters because a cached decision was made under old context — by a different component, for a different request — and can be stale or poisoned; the check must be evaluated at the moment of access. The check must sit on the path the attacker actually travels — the unauthenticated internal endpoint is the classic violation.
 - **Open design.** Security must not depend on the secrecy of the design. A mechanism that survives public scrutiny has *been* scrutinized; obscurity is a hope, not a control.
 - **Separation of privilege.** Require more than one key to unlock where it matters: dual control on key ceremonies, distinct approver and executor. This bounds the blast radius of one compromised credential.
 - **Least privilege.** Every subject gets the minimum authority it needs, for the minimum time. Unused privilege is unmonitored attack surface — the principle behind just-in-time elevation in `e-iam`.
@@ -42,7 +42,7 @@ Controls are the end of an argument, not the beginning. A firewall rule, an encr
 
 (OWASP's Security by Design principles restate this lineage for application architects — minimize attack surface, secure defaults, least privilege, defense in depth, fail securely, don't trust services, separation of duties, avoid security by obscurity, keep security simple, fix issues correctly.)
 
-**From principles to requirements to controls.** The disciplined flow (NIST SP 800-160, *Engineering Trustworthy Secure Systems*): derive **system security requirements** from stakeholder needs, threats, and the principles; select **controls** from a catalog — NIST SP 800-53 is the reference — that satisfy those requirements; **tailor** for context; record the chain in a **traceability matrix** so every control answers "which requirement do you satisfy?" An unmapped control is cost without justification; an unimplemented requirement is a promise the architecture quietly broke. Selection is never "apply the whole catalog" — it is risk-proportionate, which is why this lesson takes `e-risk-assessment` decisions as input.
+**From principles to requirements to controls.** The disciplined flow (NIST SP 800-160, *Engineering Trustworthy Secure Systems*): derive **system security requirements** from stakeholder needs, threats, and the principles; select **controls** from a catalog — NIST SP 800-53 is the reference — that satisfy those requirements; **tailor** (adjust the selected controls — add, remove, or scope them — to fit the system's risk and context) for context; record the chain in a **traceability matrix** so every control answers "which requirement do you satisfy?" An unmapped control is cost without justification; an unimplemented requirement is a promise the architecture quietly broke. Selection is never "apply the whole catalog" — it is risk-proportionate, which is why this lesson takes `e-risk-assessment` decisions as input.
 
 **Platform security capabilities.** The platform is the foundation the architecture stands on:
 
@@ -56,16 +56,16 @@ The deployment decision is where these capabilities become architecture: two "eq
 
 ### Worked example: Harborline Logistics — architecture review with traceability
 
-**The system (fictional).** Harborline Logistics runs a fleet-management platform: vehicle telematics gateways (cellular IoT) report to an ingestion API; a dispatch web app assigns routes; a billing service invoices customers; the database tier is proposed to move from cloud to colocation.
+**The system (fictional).** Harborline Logistics runs a fleet-management platform: vehicle telematics gateways (telematics: the systems reporting vehicle location and status over cellular; cellular IoT) report to an ingestion API; a dispatch web app assigns routes; a billing service invoices customers; the database tier is proposed to move from cloud to colocation.
 
 **Principle-by-principle review (pass/fail with rationale):**
 
 1. **Economy of mechanism — FAIL.** Authorization lives in three places: the API gateway, a per-service middleware library, and ad-hoc checks in the dispatch app. *Fix:* one authorization service on the request path. *Requirement R1:* "All access decisions are made by a single authorization component."
 2. **Fail-safe defaults — PASS (with note).** The gateway denies by default; routes open explicitly. *Note:* a debug endpoint sits in staging's default route table — a hygiene item, not a design flaw.
 3. **Complete mediation — FAIL.** The billing service reads telematics data straight from the database, bypassing the API's authorization checks. *Requirement R2:* "Every data access traverses the authorization component; no service holds database credentials."
-4. **Open design — PASS.** Standard OIDC, AES-GCM via the platform crypto library, no custom protocols. The architecture is shared with customer auditors.
+4. **Open design — PASS.** Standard OIDC (OpenID Connect — the authentication protocol that lets users log in via an identity provider), AES-GCM via the platform crypto library, no custom protocols. The architecture is shared with customer auditors.
 5. **Separation of privilege — FAIL.** The on-call engineer can both approve and execute production database changes. *Requirement R3:* "Production data changes require a distinct approver and executor."
-6. **Least privilege — PARTIAL.** Services run as non-root with scoped roles (pass); but the gateway agent runs as root and the ingestion API's database account holds write access it never uses (fail). *Requirement R4:* "Service identities hold only the permissions their call graph requires; reviewed quarterly."
+6. **Least privilege — PARTIAL.** Services run as non-root with scoped roles (pass); but the gateway agent runs as root and the ingestion API's database account holds write access it never uses (fail). *Requirement R4:* "Service identities hold only the permissions their call graph (the set of functions and APIs the service actually invokes) requires; reviewed quarterly."
 7. **Least common mechanism — FAIL.** All tenants share one database schema with application-level tenant filtering — one bug from cross-tenant disclosure. *Fix:* database-enforced row security, a real boundary below the application.
 8. **Psychological acceptability — FAIL.** Production deploys need a 14-step manual runbook, so engineers batch changes and deploy at midnight, tired. *Fix:* a one-command pipeline with approvals *in* it, not around it.
 
@@ -101,8 +101,8 @@ The deployment decision is where these capabilities become architecture: two "eq
 
 ## 6. Where it goes wrong
 
-- **Principles as wall art.** The eight principles in a slide deck, referenced in zero design decisions. Principles exist only in review minutes — a design never challenged against them was never reviewed.
-- **The control shopping list.** Controls selected because they are in the catalog or the last audit mentioned them, with no requirement behind them. Untraced controls are how you get an expensive SIEM and an unpatched VPN.
+- **Principles as wall art.** The eight principles in a slide deck, referenced in zero design decisions. Principles exist only in review minutes — a design never challenged against them was never reviewed. The test: ask for last quarter's design-review minutes — if no principle appears in them, the principles are wall art.
+- **The control shopping list.** Controls selected because they are in the catalog or the last audit mentioned them, with no requirement behind them. Untraced controls are how you get an expensive SIEM and an unpatched VPN. The tell: the trace matrix has controls with empty requirement rows — cost without justification.
 - **Complete mediation's quiet exceptions.** The internal endpoint, the batch job, the "temporary" direct database access still there three years later. Every exception is a second, unreviewed architecture.
 - **Fail-open defaults inherited from the framework.** ORMs, web frameworks, and cloud consoles ship permissive and expect you to lock down. Review the *actual* default configuration, not the documented one.
 - **Psychological acceptability treated as soft.** It is about humans: the secure path must be the easy path, or the organization builds an insecure path around it and calls it productivity.

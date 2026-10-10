@@ -194,7 +194,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Target identification and analysis</strong> (SP 800-115 §4) — build the inventory, then probe it:</p>
 <ul>
 <li><strong>Network discovery and port/service identification:</strong> find the hosts and what they expose. Proves the <em>attack surface as the scanner sees it</em>. Can't prove you've found everything — the scanner sees what responds.</li>
-<li><strong>Vulnerability scanning:</strong> match observed services against known vulnerabilities. Proves <em>candidates</em> — "this looks like CVE-20XX-XXXX on this version." Can't prove exploitability — version banners lie, backports confuse scanners, and a match is a hypothesis awaiting validation. The scan's ten thousand findings are the start of triage, not the end of testing.</li>
+<li><strong>Vulnerability scanning:</strong> match observed services against known vulnerabilities. Proves <em>candidates</em> — "this looks like CVE-20XX-XXXX on this version." Can't prove exploitability — version banners lie, backports (a security fix applied to an older software version without changing the version number — the banner says "vulnerable," the code is patched) confuse scanners, and a match is a hypothesis awaiting validation. The scan's ten thousand findings are the start of triage, not the end of testing.</li>
 <li><strong>Wireless scanning:</strong> passive and active discovery of the radio environment. Proves what's broadcasting — including the rogue AP nobody inventoried.</li>
 </ul>
 <p><strong>Vulnerability validation</strong> (SP 800-115 §5) — confirm the candidates:</p>

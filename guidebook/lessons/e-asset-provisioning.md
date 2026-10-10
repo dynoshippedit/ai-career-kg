@@ -33,7 +33,7 @@ Every asset the organization owns was acquired, configured, assigned, and — ev
 
 - **Request and approval.** Who may ask for an asset, and who approves. Unapproved assets are shadow IT by definition, and shadow IT is inventory's permanent enemy.
 - **Secure configuration.** The asset is built to a known-good baseline before it touches production: hardened image, patched, encrypted storage, logging enabled, default credentials replaced.
-- **Recording.** The asset enters the inventory with its identity: what it is, where it is, what it holds, its classification tier, its owner, its expected lifespan. CM-8's requirements are the checklist: the inventory must accurately reflect the system, include all components, avoid duplicate accounting, be at the granularity needed for tracking, and carry the accountability information the organization defines. "The spreadsheet" fails most of these; the lesson's position is that the inventory must be a system of record, not a file.
+- **Recording.** The asset enters the inventory with its identity: what it is, where it is, what it holds, its classification tier, its owner, its expected lifespan. The record is created *before* deployment, not after — because anything that exists even briefly unrecorded can be forgotten, and the inventory's whole job is that nothing is forgotten. CM-8's requirements are the checklist: the inventory must accurately reflect the system, include all components, avoid duplicate accounting, be at the granularity needed for tracking, and carry the accountability information the organization defines. "The spreadsheet" fails most of these; the lesson's position is that the inventory must be a system of record, not a file.
 - **Owner assignment.** Every asset gets exactly one owner — the person accountable for its protection decisions — at provisioning time, not later. The classification lesson assigned owners to *information types*; provisioning assigns owners to *assets*. The two meet in the record: this laptop (asset) holds Confidential patient data (type) owned by the CMO, while the laptop itself is owned by its assigned user under IT's custodianship.
 - **Verification.** Someone confirms the asset matches its record: right configuration, right owner, right location, logging working. Unverified provisioning is how the inventory and reality diverge on day one.
 
@@ -51,7 +51,7 @@ Every asset the organization owns was acquired, configured, assigned, and — ev
 
 **The provisioning workflow (all asset classes, one gate each).**
 
-1. **Request.** Ticket in the ITSM system: what, why, which project, requested owner. Cloud resources: requested through the same ticket — the console's "create" button is not a request process.
+1. **Request.** Ticket in the ITSM system (IT service management — the organization's ticketing and workflow system): what, why, which project, requested owner. Cloud resources: requested through the same ticket — the console's "create" button is not a request process.
 2. **Approval.** Manager approval for standard items; security review for anything holding Confidential or above, anything internet-facing, anything processing patient data. Approval records the classification tier the asset will hold.
 3. **Secure build.** Laptops: standard hardened image (encrypted disk, EDR, logging). Servers/cloud: baseline template from the hardened catalog — no hand-built production systems. Credentials: no defaults; secrets in the vault from birth.
 4. **Record.** CMDB entry created *before* deployment: asset ID, type, location, owner, classification tier of data it will hold, expected lifespan, related assets (which system it belongs to, which data flows through it).
@@ -67,7 +67,7 @@ Findings (fictional, labeled):
 2. **Stale ownership:** 31 assets owned by departed employees. *Decision: ownership transferred to current team leads within two weeks; HR-feed trigger added so departures reassign asset ownership automatically.*
 3. **Ghost server:** a decommissioned lab server still powered on, still on the network, holding Confidential patient data from 2024 — it never got a retirement ticket. *Decision: data sanitized per 800-88r2, server decommissioned properly, CMDB history retained; retirement-ticket requirement added to the decommissioning checklist.*
 4. **Duplicate accounting:** 14 laptops recorded in both the CMDB and the old spreadsheet, with conflicting owners. *Decision: spreadsheet retired as a system of record; CMDB declared authoritative; duplicates merged with the verified owner.*
-5. **Unverified builds:** 9 servers deployed in the last quarter with no verification record. *Decision: verified retroactively (2 needed remediation); verification checklist made a merge-gate — no record, no production.*
+5. **Unverified builds:** 9 servers deployed in the last quarter with no verification record. *Decision: verified retroactively (2 needed remediation); verification checklist made a merge-gate (a check that blocks deployment until it passes) — no record, no production.*
 
 **Audit close-out:** every finding has a decision, an owner, and a date. The next audit is scheduled (quarterly discovery reconciliation; annual full audit). The CMDB is declared the authoritative inventory — one system of record, which is the finding that fixes findings 1 and 4 structurally.
 

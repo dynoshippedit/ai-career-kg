@@ -27,7 +27,9 @@ Every alert triage ever performed started as a detection someone wrote. Detectio
 
 ## 3. How it works
 
-Sigma is the vendor-agnostic detection format: one YAML rule compiles — via pySigma backends (Sigma CLI, sigconverter.io, Detection Studio) — into Splunk SPL, Sentinel KQL, Elastic EQL, and others. Write once, run on whatever SIEM the employer has. The format is defined by the Sigma specification (SigmaHQ/sigma-specification): the rules spec, the correlation spec (multi-event rules), the filters spec, and appendices for modifiers, tags, and the taxonomy of supported log sources. The community rule repository (SigmaHQ/sigma) holds thousands of rules in four types: generic detection, threat hunting, emerging threat, and compliance.
+Sigma is the vendor-agnostic detection format: one YAML rule compiles — via pySigma backends (Sigma CLI, sigconverter.io, Detection Studio) — into Splunk SPL, Sentinel KQL, Elastic EQL, and others. Write once, run on whatever SIEM the employer has. (pySigma is the shared conversion library; a *backend* is the converter that turns one Sigma rule into the target SIEM's own query language — Splunk's SPL, Sentinel's KQL, Elastic's EQL. The rule's logic lives once, in YAML; the backend translates it.)
+
+**Why a shared format exists at all.** Every SIEM speaks its own query language. Before Sigma, a detection written for one employer's Splunk had to be rewritten from scratch for the next employer's Sentinel — and community rule-sharing was impossible, because there was no common tongue. The format is the fix: the *logic* lives once and the *translation* is mechanical, so rules survive job changes and SIEM migrations instead of dying with the console they were written in. The format is defined by the Sigma specification (SigmaHQ/sigma-specification): the rules spec, the correlation spec (multi-event rules), the filters spec, and appendices for modifiers, tags, and the taxonomy of supported log sources. The community rule repository (SigmaHQ/sigma) holds thousands of rules in four types: generic detection, threat hunting, emerging threat, and compliance.
 
 Read a real rule field by field — suspicious encoded PowerShell:
 
@@ -55,7 +57,7 @@ level: high
 
 - **title / description:** what a human reads in the alert queue. Name the *behavior*, not the malware family — behaviors outlive campaigns.
 - **id:** UUIDv4, globally unique. How rules are tracked across versions, forks, and SIEM conversions. Generate one with `python3 -c "import uuid; print(uuid.uuid4())"`.
-- **status:** maturity — `experimental`, `test`, `stable`, `deprecated`, `unsupported`. Never ship `experimental` to production without a soak period.
+- **status:** maturity — `experimental`, `test`, `stable`, `deprecated`, `unsupported`. Never ship `experimental` to production without a soak period (running the rule against live data in count-only mode — no pages — to measure its real false-positive rate before it can wake anyone).
 - **references:** the research the rule is built on — ATT&CK technique pages, write-ups. A rule without references is un-auditable.
 - **tags:** ATT&CK mapping (`attack.execution`, `attack.t1059.001`). The union of tags across your ruleset *is* your detection map — this is what makes coverage measurable.
 - **logsource:** where the rule looks. `category: process_creation` + `product: windows` means "Windows process-creation telemetry" — Sysmon Event ID 1 or Windows 4688 in practice. The category is the contract: if your environment doesn't produce it, the rule is a paper rule.
@@ -68,7 +70,7 @@ level: high
 
 1. **Baseline.** Before shipping, know what normal looks like *in your environment* — run the logic against historical data and count hits.
 2. **Threshold.** Set the firing bar from the baseline: frequency thresholds, rarity windows, allowlisted entities. A rule firing 200 times a day on updater activity is broken, not sensitive.
-3. **Suppress.** Build benign filters into the rule, narrow the logsource, add context. Tune in order: filters first, thresholds second, narrowing third.
+3. **Suppress.** Build benign filters into the rule, narrow the logsource, add context. Tune in order: filters first, thresholds second, narrowing third. The order is load-bearing: a filter removes *known-benign* matches without changing what the rule catches; a threshold trades true positives for fewer false positives; narrowing the logsource changes the *population watched* — which is blindness wearing a tuning costume.
 4. **Ship with a runbook.** Every production rule carries its expected FP profile and a triage runbook — analysts can't action what they can't interpret.
 
 **Detection-as-code** treats rules like software: Sigma YAML in git; CI on every change (schema validation against the spec, linting for missing ATT&CK tags or impossible conditions, conversion to each SIEM backend, behavioral tests — the rule fires on a positive corpus and stays silent on a benign corpus); staging soak against live data to measure the real FP rate; quarterly review and retirement. A proven gap is a deliverable: run an Atomic Red Team test for a technique and get no alert — that false negative is a finding, not an absence of findings.
@@ -87,8 +89,13 @@ level: high
 6. **Run v2.** Positive: still 2/2. Benign: 0/3. False positives: 1 → 0, true positives unchanged. That delta is the entire tuning loop in miniature: the rule got *quieter* without getting *blinder*.
 7. **Write the runbook stub.** Three lines per the lesson: what the alert means, the first three triage checks (parent process? user context? decode the command?), and the escalation criterion. A rule without a runbook doesn't ship.
 8. **Record the honest limitation.** The harness matched substrings; a real backend compiles to the SIEM's query language, and translation can change semantics (case sensitivity, regex dialect). The lesson's corpora are two and three events — production behavioral tests use hundreds. Note both in the log.
+9. **Convert for real.** Install the reference compiler and a backend on your own machine: `pip install sigma-cli pysigma-backend-splunk pysigma-pipeline-sysmon`. Then run `sigma convert -t splunk -p sysmon encoded_ps_rule.yml`. The run (transcript: `runs/c-sigma-detection.log`, 2026-10-10) produced the Splunk search below — the rule you wrote, now as the query the SIEM would execute:
+   ```
+   EventID=1 Image="*\\powershell.exe" CommandLine IN ("* -enc *", "* -EncodedCommand *")
+   ```
+   Compare it with the harness's matching logic from step 4: same behavior, real syntax. This is the detection-as-code promise made concrete — the YAML you maintain compiles to whatever the employer's console speaks.
 
-No step above is marked "not run by us" — the schema validation, both corpus runs, the tuning delta, and the limitation notes all executed and the transcript records the real numbers. (No SIEM backend conversion was run here — the harness stands in for it, and the lesson says so.)
+No step above is marked "not run by us" — the schema validation, both corpus runs, the tuning delta, the limitation notes, and the backend conversion all executed and the transcript records the real numbers. (The corpus *evaluation* still uses the teaching harness — only the conversion step runs the real compiler.)
 
 ## 5. On your own
 
@@ -116,7 +123,7 @@ Primary documents first:
 Then at most three free resources:
 
 1. **Atomic Red Team** (github.com/redcanaryco/atomic-red-team) — free adversary-emulation tests mapped to ATT&CK: the positive corpus for validating your detections, and the honest way to prove a gap.
-2. **Detection-as-code references in `sources.csv`** — the lifecycle (draft → CI → soak → ship → review → retire) this lesson's workflow follows.
+2. **Sigma CLI** (github.com/SigmaHQ/sigma-cli) — the reference compiler this lesson's walkthrough now runs. Read the README's Usage section: the commands that matter are `sigma plugin list` / `sigma plugin install <backend>` (fetching backends) and `sigma convert -t <backend> -p <pipeline> <rule.yml>` (the conversion, with `-p` naming the log-source pipeline). Skip the output-format options (`-f`, `--output-dir`) until you ship to a real SIEM.
 3. **MITRE ATT&CK Navigator** (mitre-attack.github.io/attack-navigator/) — free; layer your rule tags over the matrix and look at what's dark — that darkness is your roadmap.
 
 ## 8. Check yourself

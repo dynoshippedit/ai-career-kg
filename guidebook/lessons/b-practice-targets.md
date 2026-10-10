@@ -48,7 +48,7 @@ docker pull bkimminich/juice-shop
 docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop
 ```
 
-Then `http://localhost:3000`. The `--rm` flag removes the container when you stop it — score progress resets, which is the point: you re-earn it. (Scores can be persisted with a volume; the README documents how. For practice, ephemeral is better.)
+Then `http://localhost:3000`. The `--rm` flag removes the container when you stop it — score progress resets, which is the point: you re-earn it. (Ephemeral — thrown away when the container stops; nothing persists. Scores can be persisted with a volume; the README documents how. For practice, ephemeral is better.)
 
 **OWASP WebGoat.** A Java lessons application with structured lessons (each vulnerability is a taught lesson, not just a target) plus **WebWolf**, a companion "attacker mailbox" that receives the callbacks your attacks trigger. Serves the deserialization, XXE, and authentication lessons especially. Note the timezone flag: the README documents `-e TZ=<your-zone>` because the JWT lessons are time-sensitive — set it to your host's timezone or the token-expiry lessons will confuse you.
 
@@ -76,7 +76,7 @@ docker pull dolevf/dvga
 docker run -t -p 127.0.0.1:5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga
 ```
 
-Then `http://localhost:5013`. Note the deliberate correction in the command above: the README shows `-p 5013:5013`, which binds the container's port to *all* host interfaces. The lesson's version binds it to loopback only (`127.0.0.1:5013:5013`). The `-e WEB_HOST=0.0.0.0` stays — that is the *container-internal* bind (the app must listen inside its own network namespace); the `-p` flag is the *host* bind, and that is where your safety lives. Understand the difference between those two binds before you run anything else in this lesson.
+Then `http://localhost:5013`. Note the deliberate correction in the command above: the README shows `-p 5013:5013`, which binds the container's port to *all* host interfaces. The lesson's version binds it to loopback only (`127.0.0.1:5013:5013`). The `-e WEB_HOST=0.0.0.0` stays — that is the *container-internal* bind (the app must listen inside its own network namespace — the container's private view of the network: its own interfaces, its own localhost, separate from your machine's); the `-p` flag is the *host* bind, and that is where your safety lives. Why the app must bind 0.0.0.0 *inside* the container: the container's localhost is not your machine's localhost. If the app bound 127.0.0.1 inside its own namespace, Docker's port-forward could never reach it — the app would be up and unreachable. So the app listens on all interfaces *of its own private network*, and the `-p 127.0.0.1:5013:5013` flag decides which of *your* interfaces may knock on the door. Understand the difference between those two binds before you run anything else in this lesson.
 
 **PortSwigger Web Security Academy.** Not local, but the sixth target: hosted, free, authorized by design — every lab is its own ephemeral target with defined scope, resettable per lab. Account signup and lab launch are reader-side (your browser, your account). The Academy's front page confirms: free, interactive labs, Burp Community compatible (verified in-session, 2026-10-09). Use it for every vulnerability class alongside the local targets.
 

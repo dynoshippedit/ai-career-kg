@@ -1,0 +1,5 @@
+=== canary abort demo (2026-10-10) ===
+compiler: gcc with -fstack-protector-strong
+*** stack smashing detected ***: terminated
+/bin/bash: line 1:  6459 Aborted                 ./smash
+exit=134

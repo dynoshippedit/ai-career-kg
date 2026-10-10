@@ -23,29 +23,29 @@ Triage ends with "confirmed incident" — and then a different discipline takes 
 
 - You can triage an alert to a classification and write a handoff note (`c-soc-triage`) — IR *starts* from that handoff package.
 - You can build a cross-source timeline (`c-log-sources`) — the report's evidence section is that timeline, written for an executive.
-- Internalize the boundary: **triage recommends, IR acts.** The moment you touch a containment action (isolate a host, reset credentials, block an IOC), you are doing IR, with IR's obligations: preserve evidence first, coordinate, document everything.
+- Internalize the boundary: **triage recommends, IR acts.** The moment you touch a containment action (isolate a host, reset credentials, block an IOC — an indicator of compromise, an observable tied to the intrusion such as an IP, a domain, or a file hash), you are doing IR, with IR's obligations: preserve evidence first, coordinate, document everything.
 
 ## 3. How it works
 
-The current spine is **NIST SP 800-61 Rev. 3** (final, April 2025) — and note what changed: it is now titled *Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile*. It supersedes Rev. 2 (2012) and restructures incident handling around the CSF 2.0 functions rather than the old four-phase playbook. Old summaries of 800-61 you find online describe Rev. 2 — treat them as stale. The lifecycle, in the shape you will actually use:
+The current spine is **NIST SP 800-61 Rev. 3** (final, April 2025) — and note what changed: it is now titled *Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile*. (A Community Profile is a pre-built CSF profile for a shared use case — a baseline of outcomes NIST publishes so organizations can adopt it instead of building their own from scratch.) It supersedes Rev. 2 (2012) and restructures incident handling around the CSF 2.0 functions rather than the old four-phase playbook. Old summaries of 800-61 you find online describe Rev. 2 — treat them as stale. The lifecycle, in the shape you will actually use:
 
-**Preparation.** Everything that makes the later phases possible, built *before* anything happens: the IR team and its contact tree, the playbooks for common incident types, the tooling (EDR, log retention that actually covers the timeline you'll need), the communication plan (who talks to legal, to executives, to customers — and in what order), and practiced roles. An incident is the wrong time to discover you have no retention.
+**Preparation.** Everything that makes the later phases possible, built *before* anything happens: the IR team and its contact tree, the playbooks for common incident types (a playbook is the written response plan for one incident type: who does what, in what order, with which tools), the tooling (EDR, log retention that actually covers the timeline you'll need), the communication plan (who talks to legal, to executives, to customers — and in what order), and practiced roles. An incident is the wrong time to discover you have no retention.
 
 **Detection and analysis.** Triage's output becomes IR's input. The handoff package: the timeline, the affected entities, the evidence collected, what has and has not been contained, recommended next actions. Analysis here means scoping the incident fully *before* acting — the classic failure is containing the one known host while the adversary's second foothold watches.
 
-**Containment.** Stop the bleeding without destroying the evidence. Short-term containment (isolate the host from the network — but *not* power off, which kills memory evidence) comes before long-term containment (block IOCs at the perimeter, rotate credentials). The ordering matters: preserve first, then contain, and contain *quietly* — tipping off the adversary before you're ready trades one incident for a faster-moving one.
+**Containment.** Stop the bleeding without destroying the evidence. Short-term containment (isolate the host from the network — but *not* power off, which kills memory evidence) comes before long-term containment (block IOCs at the perimeter, rotate credentials). The ordering matters: preserve first, then contain, and contain *quietly* — tipping off the adversary before you're ready trades one incident for a faster-moving one. Attacker infrastructure gets neutralized quietly too: sinkholing their domains (pointing the DNS at a server you control, so infected hosts phone home to you instead of the attacker) and blocking their IPs at the perimeter cut the command channel without announcing that you know.
 
-**Eradication.** Remove the cause: kill the persistence (the Run key, the rogue account, the web shell), patch the exploited flaw, remove the attacker's artifacts. Eradication without complete scoping is theater — this is where missed second footholds come back.
+**Eradication.** Remove the cause: kill the persistence (the Run key — the Windows registry key whose entries launch at logon, a classic persistence spot — the rogue account, the web shell), patch the exploited flaw, remove the attacker's artifacts. Eradication without complete scoping is theater — this is where missed second footholds come back.
 
 **Recovery.** Bring systems back into production carefully: rebuild from known-good media where the compromise was deep, restore from clean backups, monitor closely for re-infection. Recovery is a *decision*, not the absence of incident — someone signs off that the environment is clean, with evidence.
 
 **Post-incident activity.** The lessons-learned review: what happened, what worked, what didn't, what changes (detection, logging, playbook, architecture). The report from this phase is the artifact below — and its recommendations are the only part of IR that prevents the *next* incident.
 
-Two principles govern all of it. **Evidence before action:** every containment step that destroys data (reimaging, deleting logs) needs the evidence preserved first — memory capture, disk image, log export. **Communicate in the right order:** internal coordination before external notification; legal before public statements. The report you write is read by people who were not in the room; it must stand alone.
+Two principles govern all of it. **Evidence before action:** every containment step that destroys data (reimaging, deleting logs) needs the evidence preserved first — memory capture, disk image, log export. **Communicate in the right order:** internal coordination before external notification; legal before public statements. The order is risk management, not politeness: public statements create legal and regulatory exposure, and uncoordinated notifications tip the adversary. Internal alignment first means every external message is consistent and counsel has seen it. The report you write is read by people who were not in the room; it must stand alone.
 
 ### Worked example: the WS-4417 intrusion — full IR report
 
-*Scenario (fictional, labeled):* the intrusion assembled across the `c-log-sources` walkthrough — password spray from `203.0.113.99` against `DC-01`, `t.nguyen`'s account compromised at 03:19, encoded PowerShell on `WS-4417` at 03:21, DGA-shaped DNS burst, beacon-shaped firewall flows, audit log cleared at 03:25. Triage escalated at 03:40. What follows is the report IR would write.
+*Scenario (fictional, labeled):* the intrusion assembled across the `c-log-sources` walkthrough — password spray from `203.0.113.99` against `DC-01`, `t.nguyen`'s account compromised at 03:19, encoded PowerShell on `WS-4417` at 03:21, DGA-shaped DNS burst (DGA — domain generation algorithm — is malware that generates hundreds of pseudo-random domain names and queries them until one resolves to the real command server, so defenders can't blocklist it in advance), beacon-shaped firewall flows, audit log cleared at 03:25. Triage escalated at 03:40. What follows is the report IR would write.
 
 ---
 
@@ -81,7 +81,7 @@ Two principles govern all of it. **Evidence before action:** every containment s
 
 **Limitations — what we cannot claim.** No proxy logs existed, so web activity is unknown. No EDR process tree, so in-memory-only activity before 03:21 is unknown. The 1102 means the local timeline after 03:25 is incomplete. "No evidence of exfiltration" is not "evidence of no exfiltration" — say which one you have.
 
-**Lessons learned / recommendations.** (1) Enforce MFA on all accounts — kills this entire attack class. (2) Alert on spray shape (the `c-sigma-detection` "on your own" rule, now with a real reason to exist). (3) Enable command-line auditing on all endpoints (the 4688 was luck). (4) Deploy proxy logging — the initial-access vector question was unanswerable. (5) Forward logs off-host in real time so a future 1102 can't blind the timeline.
+**Lessons learned / recommendations.** (1) Enforce MFA on all accounts — kills this entire attack class. (2) Alert on spray shape (the `c-sigma-detection` "on your own" rule, now with a real reason to exist — concretely: multiple 4625s from one IP across three or more users inside a short window; the count, the IP, and the user spread are the three fields the rule keys on). (3) Enable command-line auditing on all endpoints (the 4688 was luck). (4) Deploy proxy logging — the initial-access vector question was unanswerable. (5) Forward logs off-host in real time so a future 1102 can't blind the timeline.
 
 ---
 
@@ -125,8 +125,8 @@ Primary documents first:
 
 Then at most three free resources:
 
-1. **SANS IR-related reading via free summaries** — the incident-handler subject area is taught from free material per the brief; use the 800-61 Rev. 3 text itself as primary.
-2. **Velociraptor** (docs.velociraptor.app) — free; the evidence-preservation and collection tool: memory capture, disk triage, fleet-wide IOC sweeps like the one in the worked example.
+1. **SANS, *Dynamic Incident Response*** (sans.org/engage/dynamic-incident-response — free, CC BY 4.0, no purchase or login) — the modern practitioner book arguing incidents don't follow the linear script. Read the "Verify, triage, and scope" chapter first — it is this lesson's scoping discipline from the field; skip the domain chapters (ransomware, cloud, OT) until you specialize. The free DAIR model poster is the two-page summary.
+2. **Velociraptor** (docs.velociraptor.app) — free; the evidence-preservation and collection tool: memory capture, disk triage, fleet-wide IOC sweeps like the one in the worked example. Read the Quickstart to stand it up, then the Artifact Reference (the pre-built collection queries — that is what the IOC sweep runs on); skip the VQL Reference on first pass — it is a language manual, not a lesson.
 3. **The `c-log-sources` blind-spot column** — re-read your own source map: every blind spot you named there is a limitation pre-written for your first real IR report.
 
 ## 8. Check yourself

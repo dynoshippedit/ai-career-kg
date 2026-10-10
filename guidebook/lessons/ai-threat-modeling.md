@@ -40,7 +40,7 @@ Threat modeling is three moves, in order: **map the system, mark the trust bound
 - **Memory:** what the agent writes to itself and re-reads later crosses time as well as trust — yesterday's tool output is today's "trusted" context.
 - **The pipeline:** training data and build infrastructure are a boundary in time — everything the model "knows" crossed it months ago (`ai-pipeline`).
 
-**Move 3 — STRIDE, adapted to AI.** Ask each prompt at each element and each boundary:
+**Move 3 — STRIDE, adapted to AI.** Ask each prompt at each element and each boundary. Why six fixed prompts instead of brainstorming? Because brainstorming finds the threats you can imagine; the six prompts force you to ask about attacker goals you wouldn't have thought of — repudiation especially, the category teams forget until after the incident, when they need the logs they didn't keep.
 
 - **Spoofing.** Who can pretend to be whom? A fake agent identity in a multi-agent system; spoofed tool output (the tool *says* it succeeded — did it?); one tenant's history replayed as another's; a phishing page that looks like your assistant's UI. Mitigations live in authentication and provenance: sign tool results, namespace memory per tenant, authenticate agents to each other.
 - **Tampering.** What can be modified, and who can modify it? Training data and fine-tuning sets; the RAG corpus; the system prompt in config; tool definitions and their permission policies; the agent's memory store. This is where `ai-pipeline`'s provenance controls and the vector store's write-access controls answer.
@@ -73,6 +73,8 @@ Harborlight Books (the fictional bookstore from `a-osint-research`) runs a suppo
 | T6 | Model output | Info. disclosure | System prompt extracted via "repeat your instructions" | Extract LLM System Prompt | Accept (documented): prompt contains no secrets — verified by review, owner named, dated |
 
 Note T6: "accept" is a legitimate treatment when it is explicit, owned, and verified — the model treats acceptance as a decision, not a shrug.
+
+**What the defender sees, per threat.** Each row's treatment should produce a concrete signal — a control you can't tell is working isn't one: T1, a chunk-hash drift alert naming the poisoned document; T2, a retrieval-log line where the chunk's tenant doesn't match the requester; T3, an approval-gate override alert, or a destructive tool call from a session that was supposed to be read-only; T4, a support summary whose provenance labels show it was built from a poisoned session; T5, the CI red-team gate blocking a candidate and logging the trigger prompt; T6, extraction-phrasing alerts against the system prompt. When you write the register, each treatment gets its signal in the same row.
 
 ## 4. Walkthrough
 

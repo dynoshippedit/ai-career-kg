@@ -38,7 +38,7 @@ os.system("ping -c 1 " + user_input)
 
 `os.system` hands the string to a **shell**, and the shell parses the whole thing as a command line. If `user_input` is `127.0.0.1`, the command is what the developer meant. If `user_input` is `127.0.0.1; whoami`, the shell runs `ping -c 1 127.0.0.1`, then runs `whoami`. The input stopped being an argument and became code — the same sentence as SQLi, one layer down. The vulnerability is not the `ping`; it is the shell sitting between the application and the operating system, interpreting metacharacters the developer never intended the user to supply.
 
-**The metacharacter classes, in probe order.** These are what the shell understands, so these are what you test:
+**The metacharacter classes, in probe order.** A metacharacter is a character the shell treats as an *instruction* rather than literal text — `;` means "run the next command," not "the character semicolon." These are what the shell understands, so these are what you test:
 
 - **Command separators (Windows + Unix):** `&`, `&&`, `|`, `||` — chain a new command after the original.
 - **Separators (Unix only):** `;`, newline — end the original command entirely.
@@ -59,7 +59,7 @@ A minimal diagnostic app (stdlib Python, local only — the walkthrough runs it)
 
 Baseline: `host=127.0.0.1` returns ping output. Probe: `host=127.0.0.1; echo PROBE-XYZ` — the response contains `PROBE-XYZ`. That string in the output *is* the vulnerability: your input was executed as a shell command. Confirm with `whoami` — the response now tells you which OS user the web app runs as (impact evidence, read-only). Blind channel: `email=x; sleep 5` at `/feedback` — the "thanks" takes 5 seconds. The delay is the proof, no output needed.
 
-The fix, in the same app: stop calling the shell. The ping becomes a subprocess call with an argument list and no shell (`["ping", "-c", "1", host]` — the host can never become a command), plus an allow-list check that the host is a valid IP or hostname. Re-test: `; echo PROBE-XYZ` now fails the allow-list (or is passed as a literal argument to ping, which errors harmlessly); `sleep 5` changes nothing; legitimate `127.0.0.1` still works. Then the rule, stated once and kept: the single most effective defense is to **never call out to OS commands from application code** — almost every use case has a safer platform API. If you must, allow-list; never escape metacharacters.
+The fix, in the same app: stop calling the shell. The ping becomes a subprocess call with an argument list and no shell (`["ping", "-c", "1", host]` — the host can never become a command), plus an allow-list check that the host is a valid IP or hostname. The reason this is structural and not cosmetic: with an argument list and no shell, there is no parsing phase at all — the operating system hands the string to `ping` directly as one argument. A `;` in the input never gets *interpreted*, because nothing interprets it. The shell was the parser; removing the shell removes the parse. Re-test: `; echo PROBE-XYZ` now fails the allow-list (or is passed as a literal argument to ping, which errors harmlessly); `sleep 5` changes nothing; legitimate `127.0.0.1` still works. Then the rule, stated once and kept: the single most effective defense is to **never call out to OS commands from application code** — almost every use case has a safer platform API. If you must, allow-list; never escape metacharacters.
 
 ## 4. Walkthrough
 
@@ -85,7 +85,7 @@ No step above is marked "not run by us" — in-band, blind, the fix, and all fou
 
 - **Blocklist "sanitization."** Stripping `;` and `&` while leaving newlines, `$()`, backticks, or `${IFS}` — the shell has more metacharacters than your list. Allow-list or no-shell; there is no third option that holds.
 - **"The input is numeric."** Validation that isn't actually enforced, or enforced client-side — the server is the only place a check counts.
-- **Fixing the sink but not the pattern.** You patched the ping page; the feedback form still shells out. Every `system()`/`shell_exec()`/backtick call in the codebase is the same bug wearing a different feature.
+- **Fixing the sink but not the pattern.** (The sink — the exact code location where untrusted input reaches the dangerous operation: here, the `os.system` call.) You patched the ping page; the feedback form still shells out. Every `system()`/`shell_exec()`/backtick call in the codebase is the same bug wearing a different feature.
 - **Blind = not vulnerable.** The absence of output is a channel problem, not a verdict. Time delays and OAST exist precisely for this case.
 - **Over-proving.** Running `whoami` proves the finding. Pivoting, reading `/etc/passwd`, or establishing persistence on an authorized target is outside every scope — the impact statement says what the access *could* reach, and stops.
 - **Forgetting the parent process.** Defenders don't hunt your payload string; they hunt the web-worker-spawns-shell pair. Your report's detection section should say so.

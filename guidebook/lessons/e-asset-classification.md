@@ -43,7 +43,7 @@ Three ideas in that paragraph do most of the work:
 
 - **Ordered and few.** Four is the sweet spot: fewer and the top tier becomes a dumping ground; more and nobody can keep them straight. Each tier needs a one-sentence definition anchored in impact, not "sensitive stuff."
 - **Exemplified.** Every tier carries concrete examples from the organization's own data — abstract definitions drift, examples don't.
-- **Owned.** Every information type has a **data owner** — the business person accountable for classification decisions — distinct from the **custodian** (IT, who implements controls) and the **steward** (who tends data quality). Classification without an owner is a suggestion.
+- **Owned.** Every information type has a **data owner** — the business person accountable for classification decisions — distinct from the **custodian** (IT, who implements controls) and the **steward** (who tends data quality). Name the role, not the person: people leave, roles persist, and the scheme must survive both. Classification without an owner is a suggestion.
 - **Connected to handling.** A tier that implies no handling rule is decoration. Each tier must hook to handling requirements — labeling, storage, transmission, disposal — which is the next lesson's entire subject. Write the scheme and the handling matrix together, or the scheme will never be used.
 
 **Classification vs. categorization.** The vocabulary matters: in the NIST frame, you *classify information types* and *categorize systems* — the system's category derives from the information it holds (adjusted for its use and connectivity). In commercial speech the two words blur, but the direction is what matters: the data's sensitivity drives the system's protection level, not the other way around. A hardened server holding Public data is wasted hardening; a default-configured server holding Restricted data is the finding.
@@ -91,7 +91,7 @@ Three ideas in that paragraph do most of the work:
 
 - **The dumping-ground top tier.** Everything "important" becomes Restricted, and Restricted becomes unenforceable. The top tier must be small — if it is not, the definitions are wrong.
 - **Secrecy as the only axis.** Classifying on confidentiality alone and forgetting integrity and availability. The modified lab result and the unreachable patient portal are both failures the scheme should have priced.
-- **The sample-vs-collection error.** Rating one record instead of the database. Aggregation is the most common under-classification in practice, and it is exactly what breach-notification math punishes.
+- **The sample-vs-collection error.** Rating one record instead of the database. Aggregation is the most common under-classification in practice, and it is exactly what breach-notification math punishes (breach notification: the legal requirement to tell affected people and regulators when their data is exposed — the bigger the collection, the bigger the notification and the fine).
 - **Orphan types.** Information with no owner — usually the logs, the backups, the shared drive nobody admits to creating. The inventory step exists to surface them; the ownership step exists to adopt them.
 - **The unhooked scheme.** A beautiful four-tier policy that changes no handling rule. Classification that does not drive handling, provisioning, and retention is a document, not a control — the matrix in the next lesson is the enforcement.
 - **Tier names without definitions.** "Confidential" meaning one thing to legal and another to engineering. The one-sentence impact definition per tier is load-bearing; the examples are the calibration. And schemes decay: data changes sensitivity over time, so the scheme needs a review trigger — the inventory audit in the provisioning lesson is one.
@@ -128,6 +128,6 @@ Then at most three free resources:
 
 - `e-handling-requirements` — the handling matrix this scheme hooks to; classification without handling is decoration.
 - `e-asset-provisioning` — ownership and inventory as an operating process: the scheme's owners and types become the CMDB's records.
-- `e-data-lifecycle` — each classified type gets a lifecycle: retention, remanence, destruction.
+- `e-data-lifecycle` — each classified type gets a lifecycle: retention, remanence (the residual data left behind after deletion attempts — the bytes `rm` never overwrote), destruction.
 - `e-risk-assessment` — the impact-rating method this lesson applies; reread it as the "how to rate honestly" companion.
 - Map refs: **CISSP 2.1** (this lesson); feeds **CISSP 2.2** (handling), **2.3** (provisioning), **2.4** (lifecycle roles).

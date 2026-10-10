@@ -34,7 +34,7 @@ The guidebook's thesis, stated in the brief and repeated in every stage, is that
 
 Study the write-ups the field respects and the same anatomy appears every time:
 
-1. **Root cause first.** One paragraph, before any exploitation detail: what was wrong, in what component, and why it was wrong. The Project Zero discipline — crash → root cause → primitive — exists because readers who understand the cause can find the *class*; readers who only see the exploit can only replay the *instance*.
+1. **Root cause first.** One paragraph, before any exploitation detail: what was wrong, in what component, and why it was wrong. The Project Zero discipline — crash → root cause → primitive — exists because readers who understand the cause can find the *class*; readers who only see the exploit can only replay the *instance*. (A *primitive* is a basic capability the exploit is built from — a controlled read, a controlled write, a way to steer execution. Naming the primitive says what the bug *gives* you, before you build anything on it.)
 2. **The mechanism from first principles.** Not "I ran tool X and got a shell" but the chain of reasoning: what the code did, what assumption it made, how the assumption was violated, what that violation bought. The reader should be able to re-derive your finding, not just re-run it.
 3. **Confirmation.** How you verified it — the request/response pair, the second account, the fixed-build retest. A finding with one observation is a hypothesis; the write-up shows the work that promoted it.
 4. **Honest impact.** What you proved (data read, in this table, with these rows) versus what you assumed (and therefore don't claim). Inflated impact is the fastest way to lose a reader's trust permanently.
@@ -44,13 +44,13 @@ Study the write-ups the field respects and the same anatomy appears every time:
 ### The formats and what each demands
 
 - **The research write-up** (blog, Project Zero style): mechanism-first, full technical depth, aimed at peers. The bar is novelty of understanding — a new class, a new technique, a surprising interaction. Length is whatever the mechanism needs.
-- **The bounty report**: one page, structured for triage — summary, impact, reproduction steps (exact), the fix. The reader is a tired triager with fifty reports in the queue; clarity is respect. Reproduction steps must work *exactly as written* — every failed repro burns your reputation with that program.
+- **The bounty report**: one page, structured for triage — summary, impact, reproduction steps (exact), the fix. The reader is a tired triager (the person who first reviews incoming reports and decides which ones deserve investigation) with fifty reports in the queue; clarity is respect. Reproduction steps must work *exactly as written* — every failed repro burns your reputation with that program.
 - **The CVE request**: the permanent record (`c-cve-program`) — product, versions, the independently-fixable flaw, references. Dry by design; the write-up is where the story lives.
 - **The talk**: the write-up performed — narrative arc, one mechanism per talk, the demo that proves it. Same bar, different medium.
 
 ### The Project Zero bar, concretely
 
-Google's Project Zero publishes under a 90-day disclosure policy (90 days to fix, then details publish; a 2026 "Reporting Transparency" trial announces the report's existence within a week). But the policy isn't the lesson — the *writing* is. Read any two posts and notice: the root cause stated in one paragraph before any exploitation detail; the dead ends documented; the closing recommendations aimed at the *systemic* fix (the whole class), not just the instance. James Kettle's HTTP/2 research is the other template: novel mechanism → real-world validation against real stacks → open tooling and free labs so readers can learn. In both cases the write-up *teaches the class*, and the specific bugs are evidence for the lesson.
+Google's Project Zero publishes under a 90-day disclosure policy (90 days to fix, then details publish; a 2026 "Reporting Transparency" trial announces the report's existence within a week). The deadline is the same mechanism as the embargo in `c-cvd`: without a date, "responsible" publication becomes indefinite delay. Ninety days converts the vendor's promise into a commitment — and the write-up's publication date is the receipt. But the policy isn't the lesson — the *writing* is. Read any two posts and notice: the root cause stated in one paragraph before any exploitation detail; the dead ends documented; the closing recommendations aimed at the *systemic* fix (the whole class), not just the instance. James Kettle's HTTP/2 research is the other template: novel mechanism → real-world validation against real stacks → open tooling and free labs so readers can learn. In both cases the write-up *teaches the class*, and the specific bugs are evidence for the lesson.
 
 ### Worked example: one finding, two formats
 
@@ -70,7 +70,7 @@ Take one finding of your own — a Stage B lab result, a practice-target chain, 
 
 ## 6. Where it goes wrong
 
-- **Hype over mechanism.** "Critical 0-day!!" for a finding whose impact section can't name the data at risk. The field has a long memory for inflated severity; one hype write-up costs more credibility than ten quiet ones earn.
+- **Hype over mechanism.** "Critical 0-day!!" (a 0-day is a flaw with no patch available, so defenders have had "zero days" to fix it — it is a claim about the *vendor's* state, not your finding's severity) for a finding whose impact section can't name the data at risk. The field has a long memory for inflated severity; one hype write-up costs more credibility than ten quiet ones earn.
 - **Claiming unproven impact.** "Could lead to full database compromise" when you read one table. State what you proved; mark the rest as untested. The honest-impact discipline from section 3 is the whole game.
 - **Publishing before the timeline allows.** The disclosure lesson's clock governs: vendor deadline first, publication after. A write-up that burns a vendor mid-patch is not research, it's an attack with footnotes.
 - **Publishing pwn.college solutions.** Their no-solutions rule is explicit (`d-exploit-concepts`). Mechanics in your own words: yes. Flags, solution scripts, challenge write-ups: no. Violating a community's stated rule in your first public artifact is a remarkable way to start.

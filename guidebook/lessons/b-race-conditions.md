@@ -42,7 +42,7 @@ if coupon.uses_left > 0:      # CHECK
 
 Request A checks: `uses_left` is 1, proceeds. Before A acts, request B checks: `uses_left` is *still* 1 (A hasn't decremented yet), proceeds. Both act. The coupon was single-use; it has now been used twice, and `uses_left` reads -1 — the arithmetic itself testifies.
 
-**Why it arises in real code.** The developer tested sequentially: redeem, redeem again, second one correctly rejected. Sequential testing can *never* find a race — the flaw exists only in the interleaving. And the window is invisible in code review unless you're looking for it: the check and the act are each correct; only their *non-atomicity* is wrong. The wider the window between them (a payment-gateway call, an email send), the easier the race is to win.
+**Why it arises in real code.** The developer tested sequentially: redeem, redeem again, second one correctly rejected. Sequential testing can *never* find a race — the flaw exists only in the interleaving. And the window is invisible in code review unless you're looking for it: the check and the act are each correct; only their *non-atomicity* is wrong. (Atomic means indivisible: the operation completes entirely or not at all, with no observable intermediate state — no other request can catch it half-done.) The wider the window between them (a payment-gateway call, an email send), the easier the race is to win.
 
 **The general class.** Anywhere state is read, then written based on the read:
 - **Balances and transfers:** check-then-debit across two requests → negative balances, duplicated payouts.
@@ -53,7 +53,14 @@ Request A checks: `uses_left` is 1, proceeds. Before A acts, request B checks: `
 
 **Why single-request testing misses it.** Scanners send one request at a time. So do humans clicking through the UI. Races require *concurrency*: two requests in flight simultaneously, timed to land inside the window. That is also why races are flaky — sometimes you win, sometimes you don't — and why the finding must include the *mechanism* (the check/act gap you identified in code or behavior), not just "it worked once."
 
-**How defenders see it.** The arithmetic testifies: `uses_left = -1`, negative balances, duplicate usernames, two redemptions one millisecond apart in the logs. Detection rule shapes: alert on invariant violations the application should never produce (negative counters, duplicate "unique" values); alert on near-simultaneous duplicate actions from one principal. In code review: any read-then-write on shared state without atomicity — the fix shapes below are what you look for.
+**How defenders see it.** The arithmetic testifies: `uses_left = -1`, negative balances, duplicate usernames, two redemptions one millisecond apart in the logs. An invariant is a condition the application promises is always true — `uses_left` never goes negative, usernames are unique. The race breaks the promise, and the broken promise is the evidence:
+
+```
+2026-10-10T01:15:44.112Z redeem coupon=SAVE10 session=A result=200 uses_left=0
+2026-10-10T01:15:44.112Z redeem coupon=SAVE10 session=B result=200 uses_left=-1
+```
+
+Same millisecond, same coupon, two sessions — and the counter at -1. Detection rule shapes: alert on invariant violations the application should never produce (negative counters, duplicate "unique" values); alert on near-simultaneous duplicate actions from one principal. In code review: any read-then-write on shared state without atomicity — the fix shapes below are what you look for.
 
 ### Worked example: the coupon race, generalized
 
@@ -62,7 +69,7 @@ A coupon endpoint (stdlib Python, local only — the walkthrough runs it): `POST
 - Sequential: redeem → 200; redeem again → 409 "already used." Correct — and this is exactly what the developer tested.
 - Race: two threads redeem *concurrently* → **both 200**, `uses_left` reads **-1**, redemptions = 2. The single-use coupon was used twice. The -1 is the proof: no legitimate sequence of operations produces it.
 
-The fix, in the same app: the check and the act happen **under one lock** (in production: a database transaction with row locking, or an atomic compare-and-set / single UPDATE with a WHERE clause on the expected state). Re-run the race: one 200, one 409, `uses_left` = 0. Then the general rule: **make check-and-act atomic** — the database, not application code, is the arbiter of shared state.
+The fix, in the same app: the check and the act happen **under one lock** (in production: a database transaction with row locking, or an atomic compare-and-set / single UPDATE with a WHERE clause on the expected state — compare-and-set writes the new value only if the current value is still what you expect; if another request changed it first, your write fails instead of clobbering). Re-run the race: one 200, one 409, `uses_left` = 0. Then the general rule: **make check-and-act atomic** — the database, not application code, is the arbiter of shared state. Why the database: it is the one process every request passes through — the only place with a total order on operations. Ten app servers can disagree about what happened first; the database serializes them into a single sequence. Atomicity has to live where the order is decided.
 
 ## 4. Walkthrough
 
@@ -118,7 +125,7 @@ Then at most three free resources:
 
 **Artifact:** the one-page report from "On your own": check/act/window, the race result with the invariant violation quoted, the atomicity fix for that stack, defender detection — plus your local-demo notes (sequential baseline, the -1, the fixed-build verification).
 
-**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can identify check-then-act gaps, win races with concurrent requests on authorized targets, and verify atomicity fixes. You cannot yet claim: production concurrency review — multi-host atomicity design (distributed locks, transaction isolation levels) is the operational layer this lesson points at but doesn't teach.
+**This lesson takes you to Level 3 (Apply).** You can honestly claim: you can identify check-then-act gaps, win races with concurrent requests on authorized targets, and verify atomicity fixes. You cannot yet claim: production concurrency review — multi-host atomicity design (distributed locks, transaction isolation levels — the rules for how much of other transactions' unfinished work your transaction may see) is the operational layer this lesson points at but doesn't teach.
 
 ## 10. Leads to
 

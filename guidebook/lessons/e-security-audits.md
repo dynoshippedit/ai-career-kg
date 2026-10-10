@@ -29,7 +29,7 @@ Testing asks "can it be broken?"; audit asks "is the control operating as claime
 
 ## 3. How it works
 
-An **audit** is an independent, evidence-based examination of whether controls operate as intended. Three words carry the weight: **independent** (the auditor is not the control owner — self-review is not audit), **evidence-based** (conclusions rest on artifacts, not assertions), and **criteria** (there is a stated standard the control is measured against — a policy, a regulation, a framework). Testing finds weaknesses; audit renders a verdict against criteria. Both matter; they are not the same.
+An **audit** is an independent, evidence-based examination of whether controls operate as intended. Three words carry the weight: **independent** (the auditor is not the control owner — self-review is not audit), **evidence-based** (conclusions rest on artifacts, not assertions), and **criteria** (there is a stated standard the control is measured against — a policy, a regulation, a framework). The product is **assurance**: an independent conclusion that gives stakeholders justified confidence the controls work — as opposed to a consultant's advice or a tester's findings. Testing finds weaknesses; audit renders a verdict against criteria. Both matter; they are not the same.
 
 **The standards: ISACA's ITAF.** The profession's framework is ISACA's **IT Audit Framework (ITAF), 5th Edition** — the comprehensive framework establishing standards for IT audit and assurance practitioners' roles and responsibilities, ethics, and expected professional behavior, plus guidance for planning, performing, and reporting engagements (the 5th edition integrates AI audit guidance). ITAF structures engagements the way this lesson does: plan against risk, perform with supervision and evidence discipline, report with conclusions and follow-up. The lesson teaches from ITAF's structure and from free overviews — the framework document itself is the auditor's primary, and where access requires steps, the lesson says so honestly.
 
@@ -41,7 +41,7 @@ An **audit** is an independent, evidence-based examination of whether controls o
 - **Scope and criteria:** which systems, which period, measured against which policy/standard. The criteria are named explicitly — findings argue against criteria, not against the auditor's opinion.
 - **Procedures:** the tests — inquiry (ask), observation (watch), inspection (read the artifact), reperformance (redo the control yourself). The plan mixes them deliberately: inquiry alone is hearsay; reperformance is the gold standard and the most expensive.
 - **Evidence requests:** the artifacts, named in advance — the change tickets, the approval records, the access logs, the configuration exports. Advance requests are the facilitation half: the auditee gathers; the auditor verifies.
-- **Sampling:** you cannot test every change ticket. The sampling approach states the population, the method (judgmental for the risky items — all emergency changes, all privileged changes — plus random or systematic for the rest), the sample size rationale, and what a sample failure means (one failed emergency change is a finding; one failed routine change may expand the sample).
+- **Sampling:** you cannot test every change ticket. The rationale is economic: exhaustive testing costs more than the assurance is worth, and a well-designed sample supports the verdict — audit aims for *reasonable* assurance, not proof. So the expensive procedures (reperformance) go 100% on the risky items (every emergency change), while routine items get the random sample — effort follows risk, not volume. The sampling approach states the population, the method (judgmental for the risky items — all emergency changes, all privileged changes — plus random or systematic (every Nth item) for the rest), the sample size rationale, and what a sample failure means (one failed emergency change is a finding; one failed routine change may expand the sample).
 
 **The finding write-up.** A finding has five parts, and the discipline is that each is separate: **criteria** (what should be), **condition** (what is — the observed fact), **cause** (why it happened — the control gap, not the person), **effect** (the risk — what the gap exposes), and **recommendation** (the fix, addressed to the control owner). Management responds; the auditor evaluates the response; disagreement is documented, not negotiated away. The finding that holds up is the one where each part is evidenced and the chain from criteria to recommendation has no gaps.
 
@@ -64,7 +64,7 @@ An **audit** is an independent, evidence-based examination of whether controls o
 - **Recommendation:** Add a system-enforced review task on emergency-ticket closure (owner: release manager, due 2026-11-30); retroactively review the 6 missing (owner: change manager, due 2026-10-31).
 - **Management response:** Accepted. (Documented; the auditor does not implement the fix — independence.)
 
-**Facilitation notes.** Evidence delivered two days before fieldwork; the release manager (control owner) attended all inquiry sessions; one finding was initially disputed ("the reviews happened verbally") — resolved by criteria: the policy requires *records*, and none exist. The dispute and its resolution are in the workpapers.
+**Facilitation notes.** Evidence delivered two days before fieldwork (the period when auditors are on-site examining evidence); the release manager (control owner) attended all inquiry sessions; one finding was initially disputed ("the reviews happened verbally") — resolved by criteria: the policy requires *records*, and none exist. The dispute and its resolution are in the workpapers (the auditor's documented evidence file — every test, artifact, and note supporting the conclusions).
 
 ## 4. Walkthrough
 
@@ -89,10 +89,10 @@ An **audit** is an independent, evidence-based examination of whether controls o
 - **Self-review called audit.** The control owner "audits" their own control. Independence is structural — reporting line, not good intentions.
 - **Criteria never named.** Findings argued against the auditor's opinion instead of a stated standard. Management disputes the opinion; they can't dispute the criteria they signed.
 - **Inquiry as the only procedure.** "The manager said the reviews happen." Without inspection or reperformance, the audit is a transcription service.
-- **Sampling without rationale.** "We looked at a few." A few of what, chosen how, meaning what? The sample is the audit's evidentiary foundation — vague sampling voids the verdict.
+- **Sampling without rationale.** "We looked at a few." A few of what, chosen how, meaning what? The sample is the audit's evidentiary foundation — vague sampling voids the verdict. The tell: the workpapers' sampling section is blank, or says "selected a few."
 - **Findings negotiated away.** The draft finding softened until it says nothing, because the relationship mattered more than the verdict. Disagreement is documented; the finding stands on its evidence.
 - **The auditee who performs.** Facilitation curdled into obstruction: evidence dribbled out, proxies sent to interviews, answers rehearsed. The auditor notes it — and the note becomes a finding about the control environment.
-- **No follow-up.** The report issued, the findings tracked nowhere. ITAF's reporting standards include follow-up — a finding without tracked remediation is a suggestion.
+- **No follow-up.** The report issued, the findings tracked nowhere. ITAF's reporting standards include follow-up — a finding without tracked remediation is a suggestion. The tell: last year's findings still "open" in the register with no remediation date — the report was issued, the loop never closed.
 - **Auditor implements the fix.** Helpful, and fatal to independence. The auditor recommends; the owner implements; the auditor verifies.
 
 ## 7. Read the source
