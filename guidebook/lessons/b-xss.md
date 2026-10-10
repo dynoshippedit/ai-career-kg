@@ -77,6 +77,7 @@ Extend the demo (or your PortSwigger lab target): find one reflection point the 
 - **"It needs a click, so it's low severity."** Reflected XSS needs user interaction, yes — but the crafted link can be one click inside a phishing email, and stored XSS needs none. Severity follows impact on the *application's* data, not the payload's elegance.
 - **CSP as the only fix.** CSP is mitigation, not remediation: it reduces what an injected script can do, but misconfigured policies (`unsafe-inline`, overly broad `script-src`) are bypassable, and the underlying injection is still a vulnerability. Fix the encoding; keep the CSP as depth.
 - **DOM XSS blind spot.** Scanners and server logs are nearly blind to DOM-based XSS. If your methodology is "proxy and grep responses," you will miss the entire class — reading client-side JavaScript is the only reliable detection.
+- **Detecting the other two types.** Reflected and stored XSS *do* leave server-side traces: look for `<script`, `javascript:`, and event-handler strings in request logs (WAF or app logs), and deploy a CSP with `report-uri`/`report-to` — the violation reports tell you when something tried to execute that the policy blocked, which is often the first sign the injection exists. Detection finds the instance; only the encoding fix removes the class.
 - **Framework false confidence.** Modern frameworks auto-escape in templates — until you use `innerHTML`, `dangerouslySetInnerHTML`, `v-html`, or template injection into scripts. Audit the escape hatches, not the framework's marketing.
 
 ## 7. Read the source
@@ -85,7 +86,7 @@ Primary documents — read in this order, skipping as marked:
 
 1. **PortSwigger Web Security Academy — Cross-site scripting** (portswigger.net/web-security/cross-site-scripting): the topic page — types, contexts, prevention checklist. Read fully; then work the reflected/stored/DOM labs (the largest Academy topic — dozens of labs, free).
 2. **MDN — Content Security Policy guide** (developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP): directives, nonces, hashes, `unsafe-inline` warnings. Read the "how CSP protects against XSS" and nonce sections; skim the rest.
-3. **OWASP XSS Prevention Cheat Sheet** (cheatsheetseries.owasp.org): the output-encoding rules per context. *Slug unverified at build — confirm the exact cheat-sheet URL before linking; the rule content is corroborated by the PortSwigger and MDN pages above.*
+3. **OWASP XSS Prevention Cheat Sheet** (cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html — verified 2026-10-09): the output-encoding rules per context — read the rule set for HTML, attribute, JavaScript, and URL contexts.
 
 Free resources for going deeper (≤3): **PortSwigger XSS labs** (the hands-on companion — reflected, stored, DOM, filter bypasses); **MDN CSP reference** (directive-by-directive semantics); **the `b-security-headers` lesson** (this guidebook — CSP as deployed defense).
 

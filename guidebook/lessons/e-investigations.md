@@ -87,7 +87,7 @@ Primary documents first:
 
 Then at most three free resources:
 
-1. **NIST SP 800-61 Rev. 2, Computer Security Incident Handling Guide** (csrc.nist.gov) — free; the incident-handling process this lesson's tree attaches to — reread the analysis and evidence-collection phases with investigation types in mind.
+1. **NIST SP 800-61 Rev. 3, Incident Response Recommendations and Considerations** (csrc.nist.gov — final April 2025, verified 2026-10-09) — free; the incident-response process this lesson's tree attaches to — reread the analysis and evidence-collection phases with investigation types in mind. (Rev. 2 is superseded; do not use it.)
 
 ## 8. Check yourself
 

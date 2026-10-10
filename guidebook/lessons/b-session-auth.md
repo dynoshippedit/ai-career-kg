@@ -77,7 +77,7 @@ Pick one account you own (your password manager, your GitHub, your email): enrol
 Primary documents — read in this order:
 
 1. **PortSwigger Web Security Academy — Authentication vulnerabilities** (portswigger.net/web-security/authentication): the flaw families — brute force, MFA bypass logic, password-reset poisoning, session handling. Read the topic page fully; work the labs (free). *Verified in-session 2026-10-09.*
-2. **OWASP Authentication Cheat Sheet** (cheatsheetseries.owasp.org): the control catalog — password storage, lockout, MFA, reset flows. Use as the checklist your implementations are graded against. *Slug unverified at build — confirm the exact cheat-sheet URL before linking; control content corroborated by the PortSwigger page.*
+2. **OWASP Authentication Cheat Sheet** (cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html — verified 2026-10-09): the control catalog — password storage, lockout, MFA, reset flows. Use as the checklist your implementations are graded against.
 3. **RFC 6265 §4 — HTTP State Management Mechanism** (rfc-editor.org/rfc/rfc6265): what a cookie *is* — attributes, `Set-Cookie` semantics, the security considerations section. Read §4.1 and the security section; skim the rest. *Verified in the pilot (sources.csv).*
 
 Free resources for going deeper (≤3): **PortSwigger authentication labs** (brute-force, 2FA bypass, reset-token labs — the hands-on companion); **the `b-security-headers` lesson** (cookie flags as deployed defense); **your own services' security docs** (the "on your own" task — primary sources for how production auth actually behaves).
