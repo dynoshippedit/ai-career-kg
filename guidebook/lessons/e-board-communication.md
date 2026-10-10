@@ -114,11 +114,11 @@ Free resources for going deeper (≤3): the CSF 2.0 document (CSWP 29); SP 800-3
 
 ## 9. Prove it
 
-**Artifact:** the one-page board memo for Beacon Logistics — five sections plus appendix, placeholders labeled, acronym sweep logged, director test passed and recorded.
+**Artifact:** the one-page board memo — five sections plus appendix, placeholders labeled, acronym sweep logged, director test passed and recorded — for an organization that is NOT Beacon Logistics: your employer, a company you know, or a fictional organization of your own invention with its own program charter and risk register behind the memo. The worked example above is Beacon's; this artifact must be yours — a stranger reading it should be able to reconstruct your charter's measurement plan and your register's risk decisions from the appendix alone.
 
 **You can claim:** "I can brief leadership on cybersecurity posture, risk, and decisions — translating technical findings into business-impact language, reporting only what I can source, and structuring every communication around the decision it needs."
 
-**You cannot claim:** executive experience; that good communication substitutes for a working program (the memo reports on the charter's program — without it, the memo is fiction with good formatting); or authority to accept risk on a company's behalf.
+**You cannot claim:** executive experience; that good communication substitutes for a working program (the memo reports on a charter's program — without one behind it, the memo is fiction with good formatting); or authority to accept risk on a company's behalf.
 
 ## 10. Leads to
 

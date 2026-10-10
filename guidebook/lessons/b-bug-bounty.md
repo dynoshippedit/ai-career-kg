@@ -3,7 +3,7 @@ lesson_id: b-bug-bounty
 slug: bug-bounty
 stage: B
 level: 3
-prerequisites: [b-authorization-scope, b-idor, b-security-headers]
+prerequisites: [b-authorization-scope, b-idor]
 roles: [pentester]
 map_refs: []
 test_date: 2026-10-09

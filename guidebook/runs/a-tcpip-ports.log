@@ -93,3 +93,20 @@ Read: [S] SYN, [S.] SYN-ACK, [.] ACK (handshake complete), [P.] data each way,
 [F.] FIN each way with final ACKs. The three-way handshake and teardown from
 the lesson's state diagram, observed on the wire for real.
 Step 5 (UDP) remains not run by us — this sandbox still blocks UDP loopback.
+
+--- Re-run entry 2026-10-10: new walkthrough step 9 (third depth pass) ---
+Step 9: read the routing table and the address plan. Run by us, loopback
+container, read-only commands.
+$ ip route
+default via 198.19.0.1 dev host0
+198.19.0.0/30 dev host0 proto kernel scope link src 198.19.0.2
+Read: the first line is the default route (0.0.0.0/0): anything not matching a
+more specific entry goes via 198.19.0.1 out dev host0. The second line is the
+directly-connected /30 the machine sits in (2 usable host addresses).
+$ ip -br addr
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+host0@if3        UP             198.19.0.2/30 fd8b:4f84:7d32:99::2/64 fe80::70dc:7cff:fe34:2ffd/64
+Read: lo carries 127.0.0.1/8 (IPv4 loopback) and ::1/128 (IPv6 loopback).
+host0 carries 198.19.0.2/30 (matches the route's src), one IPv6 global
+(fd8b:.../64 - an fd00::/8 ULA, private IPv6 space) and one fe80::/64
+link-local. One interface, three addresses: IPv4, IPv6 global, IPv6 link-local.

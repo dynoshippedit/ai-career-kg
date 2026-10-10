@@ -116,7 +116,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- `e-governance`** — the charter that authorizes policy: approval, ownership, exceptions.
-- `e-awareness-training`** — the program that teaches the documents: policy is only real when people know it.
-- `e-crypto-applied`** — the technical baseline the encryption standard references.
+- `e-governance` — the charter that authorizes policy: approval, ownership, exceptions.
+- `e-awareness-training` — the program that teaches the documents: policy is only real when people know it.
+- `e-crypto-applied` — the technical baseline the encryption standard references.
 - Map refs: **CISSP 1.6** (this lesson); feeds **CISSP 1.3** (governance) and **7.3** (configuration management).

@@ -25,7 +25,7 @@ Web applications build pages from **templates**: files mixing fixed HTML with pl
 
 - You can read HTTP requests and responses cold (`a-http-depth`).
 - You understand the XSS lesson's data-vs-code distinction — SSTI is that distinction failing on the *server* instead of in the browser.
-- Your target is written down and authorizes your testing: this lesson's local toy engine, a PortSwigger Academy SSTI lab, or a bounty program whose scope explicitly includes the asset. Template engines are also *your own* code's risk — the fix section is written for builders too. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local toy engine, a PortSwigger Academy SSTI lab, or a bounty program whose scope explicitly includes the asset. Template engines are also *your own* code's risk — the fix section is written for builders too. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl. A cheat sheet of engine-specific payloads is for the labs, not this lesson.
 
 ## 3. How it works

@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
 <li>You have <strong>two test accounts you own</strong> on whatever target you practice against — the entire lesson is comparing what account A can see versus what account B can see. Never use someone else's account or data.</li>
-<li>Your scope is written down and the target authorizes your testing: your own local lab, a PortSwigger Academy lab, or a bounty program whose scope explicitly includes the asset. IDOR testing without authorization is not research; re-read B-AUTH if this sentence surprised you.</li>
+<li>Your scope is written down and the target authorizes your testing: your own local lab, a PortSwigger Academy lab, or a bounty program whose scope explicitly includes the asset. IDOR testing without authorization is not research; re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl is enough for this lesson; an interception proxy (Burp Community) makes it faster later.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -248,10 +248,10 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Can't claim yet:</strong> "I can find authorization flaws in general" — function-level bypasses, privilege escalation, and API authorization are the next lessons.</p>
 <h2>10. Leads to</h2>
 <ul>
-<li><strong>B-VULN-02 — Broken access control (general)</strong> — IDOR as one member of the family: missing function-level checks, role tampering, forced browsing.</li>
-<li><strong>B-VULN-05 — API abuse / BOLA</strong> — the same flaw through API-shaped endpoints (API1:2023).</li>
-<li><strong>B-DEF — Defensive basics</strong> — sit on the other side: given your own attack traffic, write the detection (per-session ID spread).</li>
-<li><strong>B-BOUNTY — Bug bounty mechanics</strong> — this lesson's report format is the dry run for a real submission.</li>
+<li><strong>Broken access control, the rest of the family</strong> — no separate lesson: missing function-level checks, role tampering, and forced browsing are the same missing-check shape as IDOR — run this lesson's template (whose object? whose function? whose role?) against each on your next lab target.</li>
+<li><strong><a href="/g/api-abuse/"><code>b-api-abuse</code></a> — API abuse / BOLA</strong> — the same flaw through API-shaped endpoints (API1:2023).</li>
+<li><strong>Defensive basics</strong> (<a href="/g/security-headers/"><code>b-security-headers</code></a> §3) — sit on the other side: given your own attack traffic, write the detection (per-session ID spread).</li>
+<li><strong><a href="/g/bug-bounty/"><code>b-bug-bounty</code></a> — Bug bounty mechanics</strong> — this lesson's report format is the dry run for a real submission.</li>
 <li>Map refs: <strong>OWASP Top 10:2025 A01</strong>, <strong>WSTG-ATHZ-04</strong>, <strong>CISSP 5.4</strong> (authorization mechanisms and models, via Stage E).</li>
 </ul>
 </section>

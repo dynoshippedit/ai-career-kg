@@ -152,3 +152,27 @@ Version: 8.5.0-2ubuntu10.15
 Description: command line tool for transferring data with URL syntax
 
 Start/stop/enable of services NOT run here (needs a real VM with systemd as init and privilege); lesson marks those "not run by us".
+
+--- Re-run entry 2026-10-10: new walkthrough step 10 (third depth pass) ---
+Step 10: observe process memory. Run by us, read-only commands.
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       7.6Gi       150Mi       365Mi       640Mi       184Mi
+Swap:             0B          0B          0B
+Read: 7.7 GiB total, no swap configured (Swap: 0B) - on this box, memory
+pressure has nowhere to spill; the OOM killer is the only relief valve.
+$ ps -o pid,rss,vsz,comm --sort=-rss | head -6
+    PID   RSS    VSZ COMMAND
+     29 327304 1604840 hatch
+    726  19152   44768 hatch-execd
+  10488   3988    7868 ps
+      1   3492   20844 systemd
+  10484   3368   4344 bash
+Read: RSS (kilobytes of physical RAM actually held) vs VSZ (kilobytes of
+address space reserved). PID 29 reserves 1.6 GB of address space (VSZ) but
+holds 327 MB of RAM (RSS) - the gap is normal: reserved-but-untouched mappings.
+$ grep -E "VmRSS|VmSize" /proc/1/status
+VmSize:	    20844 kB
+VmRSS:	     3492 kB
+Read: same two numbers for PID 1 straight from the kernel's /proc - ps only
+reformats what the kernel already publishes.

@@ -25,7 +25,7 @@ Every security incident is, at its core, an identity question: somebody (or some
 
 - You understand authentication schemes (Basic, Bearer, JWT structure, OAuth 2.0/OIDC flows) from `a-http-depth`, and users/groups/permissions from `a-linux-cli`.
 - You have seen authentication fail in `b-session-auth` — this lesson is the organizational answer to those failures.
-- No tools. The work products are documents: a lifecycle design and a completed access review. Bring the habit from `e-risk-assessment` of writing reasons, owners, and dates.
+- No tools. The work products are documents: a lifecycle design and a completed access review. Bring the discipline of writing reasons, owners, and dates.
 
 ## 3. How it works
 

@@ -24,7 +24,7 @@ Most outages are caused by changes, and most unauthorized changes were made by a
 ## 2. Before you start
 
 - You have a baseline from `e-config-management` — change management is the process that updates it legitimately.
-- You know the incident lifecycle from `c-incident-response` — emergency changes borrow its urgency without borrowing its improvisation.
+- Emergency changes borrow the incident discipline's urgency without its improvisation — the incident lifecycle itself is `c-incident-response`'s subject; this lesson needs only the idea that emergencies compress timelines.
 - No tools. The work products are documents: reviewed change requests (approve/reject with rationale), a change-process design, and an emergency-change procedure. Primary spine: **NIST SP 800-128** (change control within configuration management, August 2011) and **SP 800-53 CM-3** (baseline change control).
 
 ## 3. How it works

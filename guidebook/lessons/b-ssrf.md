@@ -25,7 +25,7 @@ Server-side request forgery is the vulnerability where the *attacker* doesn't ma
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including redirects and URL structure (userinfo, fragments, encoding).
 - You understand the IDOR lesson's core pattern — the server trusting client-supplied input — because SSRF is that pattern aimed at the network instead of the database.
-- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SSRF lab, or a bounty program whose scope explicitly includes the asset. On cloud-hosted targets, the metadata endpoint is in scope only if the program says so — assume it doesn't until written down. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SSRF lab, or a bounty program whose scope explicitly includes the asset. On cloud-hosted targets, the metadata endpoint is in scope only if the program says so — assume it doesn't until written down. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl is enough. For blind cases, an OAST/collaborator domain you control.
 
 ## 3. How it works
@@ -131,6 +131,6 @@ Then at most three free resources:
 ## 10. Leads to
 
 - `b-csrf` — the browser makes the request instead of the server; compare which party's trust each class abuses.
-- B-VULN second wave: XXE — the same server-fetches-attacker-URL shape through XML parsers.
-- B-DEF (defensive basics) — sit on the other side: write the egress alert for your own attack traffic.
+- `b-xxe` — the same server-fetches-attacker-URL shape through XML parsers.
+- **Defensive basics** (`b-security-headers` §3) — sit on the other side: write the egress alert for your own attack traffic.
 - Map refs: **OWASP Top 10:2025 A01**, **WSTG-INPV-19**, **CWE-918**.

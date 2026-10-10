@@ -3,7 +3,7 @@ lesson_id: b-deserialization
 slug: deserialization
 stage: B
 level: 3
-prerequisites: [a-python-security, a-http-depth]
+prerequisites: [a-python-security, a-http-depth, a-linux-cli]
 roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
@@ -25,7 +25,7 @@ Applications constantly convert objects to bytes and back — sessions in cookie
 
 - You can read Python and run shell commands (`a-python-security`, `a-linux-cli`).
 - You understand cookies carry client-controlled state (`a-http-depth`) — this lesson's session cookie is the attack vector.
-- Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy deserialization lab, or a bounty program whose scope explicitly includes the asset. The payload pattern here is *generic and powerful* — it belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy deserialization lab, or a bounty program whose scope explicitly includes the asset. The payload pattern here is *generic and powerful* — it belongs in labs and authorized scope, never in curiosity-driven testing. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: Python 3 and curl. No proxy needed; the payloads are hand-built.
 
 ## 3. How it works

@@ -24,7 +24,7 @@ Data has a body. It lives on drives, tapes, USB sticks, printed pages, and the b
 ## 2. Before you start
 
 - You understand that handling rules derive from classification — the retention schedule says how long; this lesson says how.
-- You have seen the chain-of-custody discipline in `e-investigation-forensics` — media protection applies the same custody thinking to everyday operations, not just investigations.
+- Media protection applies chain-of-custody thinking (the discipline `e-investigation-forensics` teaches for investigations) to everyday operations. The concept is defined in §3; that lesson is the deep version.
 - No tools. The work products are documents: a media-handling procedure, a labeling scheme, a sanitization decision table, and a transport log. Primary spine: **NIST SP 800-88 Rev. 2** (Guidelines for Media Sanitization, September 2025 — Rev. 1 withdrawn September 26, 2025).
 
 ## 3. How it works

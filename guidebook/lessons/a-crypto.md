@@ -8,7 +8,7 @@ roles: []
 map_refs: ["CISSP 3.6"]
 test_date: 2026-10-10
 description: "Cryptography: what hashing, encryption, signatures and certificates do — and the misuses that defeat each one, demonstrated live. A free hands-on lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-10 · salt demonstration added 2026-10-10 (run, transcript appended) · transcript in runs/a-crypto.log"
+dateline: "Walkthrough run 2026-10-10 · salt demonstration added 2026-10-10 (run, transcript appended) · transcript in runs/a-crypto.log · third depth pass 2026-10-10 (Prove-it artifact now requires a fourth paragraph of unaided application to a system of the reader's choice)"
 ---
 # Cryptography: what the primitives do, and what breaks when you misuse them
 
@@ -108,7 +108,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the three-paragraph crypto review from "On your own," plus your walkthrough notes showing each command and what it proved (avalanche observed, ECB blocks identical, signature failed after tampering, cert fields read).
+**Artifact:** the three-paragraph crypto review from "On your own," **plus a fourth paragraph applying the same treatment to a system you actually use** — your password manager, your bank's login page, your own lab server: name the primitive, the promise it was supposed to keep, the misuse (or its absence — "correctly constructed because…" is a valid verdict if you can defend it), and the evidence you based it on. Plus your walkthrough notes showing each command and what it proved (avalanche observed, ECB blocks identical, signature failed after tampering, cert fields read). The fourth paragraph is the unaided application; the first three were guided.
 
 **This lesson takes you to Level 2 (Operate).** You can honestly claim: you can operate the core primitives, verify their guarantees hands-on, and recognize the six classic misuses in code or configuration. You cannot yet claim: cryptographic design judgment or protocol analysis — that is what `e-crypto-applied` finishes, including modes, key lifecycle, and TLS 1.3.
 

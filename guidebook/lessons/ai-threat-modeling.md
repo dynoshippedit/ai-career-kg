@@ -25,6 +25,7 @@ Before anyone writes a control, someone has to answer: what are we actually afra
 
 - You can draw the LLM application stack from memory (`ai-llm-architecture`) and name each layer's attack surface.
 - You know the OWASP LLM Top 10:2026 risks by mechanism (`ai-llm-top10`), and the pipeline's five stages (`ai-pipeline`).
+- `e-risk-assessment` — the risk-register method this lesson's deliverable uses: likelihood and impact in words, the four treatments (mitigate, transfer, accept, avoid), and owned residual risk.
 - No tools, no terminal. The work product is a document. Bring the refusal to invent threats you cannot connect to the diagram — a threat with no asset and no path is a worry, not a finding.
 
 ## 3. How it works
@@ -119,7 +120,7 @@ Free resources for going deeper (≤3): the ATLAS matrix; the OWASP Threat Model
 
 ## 9. Prove it
 
-**Artifact:** the complete threat-model document for the Harborlight assistant — data-flow diagram (photo/scan of the whiteboard is fine), trust-boundary statements, STRIDE table, ATLAS mappings, and the risk register with treatments, owners, and the self-review checklist signed off.
+**Artifact:** the complete threat-model document for the Meridian pipeline from §5 — data-flow diagram (photo/scan of the whiteboard is fine), trust-boundary statements, STRIDE table, ATLAS mappings, and the risk register with treatments, owners, and the self-review checklist signed off.
 
 **You can claim:** "I can threat-model an AI system end to end — map its data flows, mark its trust boundaries, apply STRIDE adapted to AI components, map threats to MITRE ATLAS, and produce a risk register with owned treatments."
 

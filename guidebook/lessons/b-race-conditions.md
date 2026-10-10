@@ -26,7 +26,7 @@ Most web code runs as **check, then act**: check the coupon is unused, then appl
 - You can read HTTP requests and responses cold (`a-http-depth`).
 - You have done `b-business-logic` — its coupon race is this lesson's worked example, extended to the general check-then-act pattern.
 - You understand threads at the level of "two things happening at once" — the walkthrough uses two threads; the concept is concurrent requests, however they arrive.
-- Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy race-conditions lab, or a bounty program whose scope explicitly includes the asset. Race testing sends *bursts* of requests — confirm the program tolerates burst traffic before you start, and keep every burst small and local-first. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy race-conditions lab, or a bounty program whose scope explicitly includes the asset. Race testing sends *bursts* of requests — confirm the program tolerates burst traffic before you start, and keep every burst small and local-first. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: Python 3 (threads) and curl. No proxy needed.
 
 ## 3. How it works

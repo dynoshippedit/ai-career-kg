@@ -81,7 +81,7 @@ Two principles govern all of it. **Evidence before action:** every containment s
 
 **Limitations — what we cannot claim.** No proxy logs existed, so web activity is unknown. No EDR process tree, so in-memory-only activity before 03:21 is unknown. The 1102 means the local timeline after 03:25 is incomplete. "No evidence of exfiltration" is not "evidence of no exfiltration" — say which one you have.
 
-**Lessons learned / recommendations.** (1) Enforce MFA on all accounts — kills this entire attack class. (2) Alert on spray shape (the `c-sigma-detection` "on your own" rule, now with a real reason to exist — concretely: multiple 4625s from one IP across three or more users inside a short window; the count, the IP, and the user spread are the three fields the rule keys on). (3) Enable command-line auditing on all endpoints (the 4688 was luck). (4) Deploy proxy logging — the initial-access vector question was unanswerable. (5) Forward logs off-host in real time so a future 1102 can't blind the timeline.
+**Lessons learned / recommendations.** (1) Enforce MFA on all accounts — kills this entire attack class. (2) Alert on spray shape — the detection rule this incident now justifies (concretely: multiple 4625s from one IP across three or more users inside a short window; the count, the IP, and the user spread are the three fields the rule keys on; `c-sigma-detection` teaches the rule format for writing it). (3) Enable command-line auditing on all endpoints (the 4688 was luck). (4) Deploy proxy logging — the initial-access vector question was unanswerable. (5) Forward logs off-host in real time so a future 1102 can't blind the timeline.
 
 ---
 
@@ -139,7 +139,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the full IR report from the walkthrough (or your "on your own" report): executive summary, sourced timeline, scope, root cause, ordered containment/eradication/recovery, honest limitations, traceable recommendations.
+**Artifact:** the §5 report — the beaconing case with your three invented post-escalation events, written to the full structure: executive summary, sourced timeline, scope, root cause, ordered containment/eradication/recovery, honest limitations, traceable recommendations. Not the walkthrough's WS-4417 report — that one was the worked example. This one must be yours: a stranger reading it should not be able to tell which parts came from the lesson.
 
 **Honest claim:** "I can take a triage escalation, scope it, order containment without destroying evidence, and write the IR report that stands alone."
 **Can't claim yet:** "I can lead incident response" — leading means legal coordination, executive communication under pressure, and adversary-aware operations across a real enterprise (`d-dfir-deep` track).

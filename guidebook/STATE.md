@@ -417,3 +417,16 @@ NOT integrated: build_site.py untouched, no build run, no commit, no push — in
 **Directory:** 35 rows added to data/catalog.json (889 → 924) — done in a prior unit, schema unchanged.
 
 **Not committed, not pushed** (parent's lane).
+
+## Depth audit 3 — 2026-10-10 (coordinator)
+
+Three new lenses across all 110 lessons (per-stage reports DEPTH-AUDIT-3-A/B/C/D/E/AI.md; merged DEPTH-AUDIT-3.md):
+1. Scope completeness — §5 sub-items taught not mentioned. Biggest yields: a-tcpip-ports (+IPv4/IPv6 subnetting, DHCP DORA, routing, middleboxes), a-http-depth (+Basic/Bearer/OAuth/OIDC flows, TLS 1.3 handshake steps), a-linux-cli (+memory: VSZ/RSS, /proc, OOM killer), b-security-headers §3 (+defensive-basics foundation), c-vuln-ecosystem (+CWE-89↔CAPEC-66), c-ai-tooling (+CVP primary verified, trust enforcement), d-malware-analysis (+sandboxing subsection), e-soc2 (+three-frameworks comparison).
+2. Prereq chain integrity — broke the a-linux-cli→a-tcpip-ports→a-dns-depth→a-linux-cli cycle; fixed the false "read C via a-reading-code" claim in d-exploit-concepts (no lesson teaches C; inline foundation added); 12 dead B-AUTH refs + 9 dead §10 pointers fixed in Stage B; 6 breaks in Stage C; 15 in Stage E (inline micro-foundations, no frontmatter changes); 4 in AI track (incl. a circular forward reference).
+3. Exercise quality — recall questions rewritten as explain/predict (a-dns-depth Q1, d-exploit-concepts Q1, ai-supply-chain Q5, ~20 more); vague success tests made reader-verifiable; "redo the walkthrough" §9 escape hatches closed (b-api-abuse, b-sqli, c-cvss, c-incident-response, e-board-communication, e-security-program, ai-threat-modeling).
+
+Coordinator decisions ratified: (1) d-redteam-concepts removed from d-exploit-concepts prereqs (§10 pointer ≠ prereq); (2) ai-governance removed from c-ai-tooling prereqs (zero concepts used); (3) broken-access-control stays consolidated in b-idor (prior documented decision); (4) block-assumption convention stands for Stage D/E ("Stage X cold" wording, d-appsec/e-sdlc precedent); (5) E's 12 optional prereq additions logged not applied.
+
+sources.csv: 375 → 388 rows (13 new verified + CVP row merged with 2026-10-10 re-fetch detail); new dedicated `chars_fetched` column (legacy rows keep embedded counts in claim text — no data lost). New run-log appends: a-tcpip-ports, a-linux-cli, a-http-depth (4 new steps, all run on loopback 2026-10-10).
+
+Not committed, not pushed (parent's lane).

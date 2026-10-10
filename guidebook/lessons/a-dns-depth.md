@@ -8,7 +8,7 @@ roles: [soc-analyst, security-analyst, pentester]
 map_refs: []
 test_date: 2026-10-09
 description: "DNS in depth: the resolution chain, message format, record types, caching and DNSSEC — every step run locally against a toy authoritative server. A free lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-09 · loopback only; TCP form of DNS used (sandbox blocks UDP)"
+dateline: "Walkthrough run 2026-10-09 · loopback only; TCP form of DNS used (sandbox blocks UDP) · third depth pass 2026-10-10 (check-yourself Q1 rewritten to explain/predict; DoT/DoH pointer fixed — taught nowhere in Stage A, flagged as gap)"
 ---
 # DNS in depth
 
@@ -44,7 +44,7 @@ The record types you must know (RFC 1035 §3.3): **A** (IPv4 address), **AAAA** 
 
 Two mechanics make DNS fast and make it dangerous. First, **caching**: every answer carries a TTL, and every resolver along the path may serve the cached copy until it expires. This is why DNS changes take time to propagate — and why a poisoned cache entry persists: the attacker only needs to win once per TTL window. Second, **transport**: DNS normally rides **UDP** (one question, one answer, no handshake — fast), with **TCP fallback** for large answers and zone transfers (a zone transfer is a secondary nameserver copying a zone's full record set from the primary — the one operation that always needs TCP's reliability) (RFC 1035 §4.2). UDP's lack of a handshake is exactly what made classic cache-poisoning attacks possible: forging a reply is cheap when there is no connection to hijack. (The 2008 Kaminsky attack is the famous demonstration — understand *that unauthenticated UDP was the flaw*, not the exploit code.)
 
-**DNSSEC** is the fix for authenticity, and you must understand precisely what it does and does not do. It adds signatures (`RRSIG` records) over the data, with keys (`DNSKEY`) linked up the tree through delegation-signer (`DS`) records — a **chain of trust from the root's key down to the zone**. A validating resolver checks the signatures and sets the `ad` flag. What it fixes: forged answers. What it does *not* fix: privacy (queries and answers are still plaintext — that needs DoT/DoH: DNS over TLS / DNS over HTTPS, where the query is encrypted inside a TLS or HTTPS connection to the resolver — a different lesson), or the last mile between the stub resolver and your application.
+**DNSSEC** is the fix for authenticity, and you must understand precisely what it does and does not do. It adds signatures (`RRSIG` records) over the data, with keys (`DNSKEY`) linked up the tree through delegation-signer (`DS`) records — a **chain of trust from the root's key down to the zone**. A validating resolver checks the signatures and sets the `ad` flag. What it fixes: forged answers. What it does *not* fix: privacy (queries and answers are still plaintext — that needs DoT/DoH: DNS over TLS / DNS over HTTPS, where the query is encrypted inside a TLS or HTTPS connection to the resolver — a *different* tool from DNSSEC, and one no Stage A lesson covers in depth; know the name, the problem it solves, and that it answers "who can see my queries," not "are the answers genuine"), or the last mile between the stub resolver and your application.
 
 One more resolution source lives *before* DNS: **`/etc/hosts`** (and its Windows equivalent). The OS checks local files before asking the network. Malware has abused this for decades — a hosts-file entry silently redirects a name without touching DNS at all. When a name resolves strangely, check the files first.
 
@@ -101,7 +101,7 @@ Then at most three free resources:
 
 ## 8. Check yourself
 
-1. Your stub resolver asks for `shop.example.com`. List every server the recursive resolver contacts in the worst case (nothing cached), and name what each one returns — a referral or an answer.
+1. Your stub resolver asks for `shop.example.com` and gets an answer in 4ms. Explain which servers were actually contacted and why it was that fast — then predict what changes, server by server, when the same query runs against a completely cold cache, and what each server returns at each step (referral or answer).
 2. A response has `rcode=NXDOMAIN` with `an=0`. A colleague says "DNS is down." Explain precisely what is wrong with that conclusion and what you would check next.
 3. You add a CNAME `www` → `web` and an A record for `web`. A user reports the site is slow to first byte but fast after. Explain using TTLs and the CNAME chase.
 4. An attacker can see but not modify your DNS traffic. Which of these does DNSSEC protect you against: (a) the attacker forging an answer, (b) the attacker learning which names you look up? Explain what each protection would actually require.

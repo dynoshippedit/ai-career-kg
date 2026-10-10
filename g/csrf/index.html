@@ -177,8 +177,8 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>2. Before you start</h2>
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), and you know what the browser attaches automatically: cookies, including session cookies, on every request to the cookie's domain.</li>
-<li>You know the same-origin policy's shape: one site's script can't <em>read</em> another site's responses — but it can <em>cause</em> the browser to <em>send</em> requests there. That asymmetry is this entire lesson.</li>
-<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy CSRF lab, DVWA's CSRF module, or a bounty program whose scope explicitly includes the asset. The "attacker's page" in this lesson is a local HTML file you open in your own browser against your own lab — never hosted against someone else's site. Re-read B-AUTH if this sentence surprised you.</li>
+<li>The same-origin policy's shape (taught properly in §3 below): one site's script can't <em>read</em> another site's responses — but it can <em>cause</em> the browser to <em>send</em> requests there. That asymmetry is this entire lesson.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy CSRF lab, DVWA's CSRF module, or a bounty program whose scope explicitly includes the asset. The "attacker's page" in this lesson is a local HTML file you open in your own browser against your own lab — never hosted against someone else's site. Re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl plus a browser with two profiles (or containers) so you can hold a victim session and an attacker page apart.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -265,9 +265,9 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Can't claim yet:</strong> "I can bypass CSRF defenses" — token-validation bypasses, SameSite bypasses, and Referer tricks are the PortSwigger bypass labs, not claimed from this lesson.</p>
 <h2>10. Leads to</h2>
 <ul>
-<li>B-VULN second wave: XSS — the class that defeats every mitigation in this lesson; understand the dependency.</li>
+<li><a href="/g/xss/"><code>b-xss</code></a> — the class that defeats every mitigation in this lesson; understand the dependency.</li>
 <li><a href="/g/ssrf/"><code>b-ssrf</code></a> — compare: in CSRF the <em>browser</em> makes the forged request, in SSRF the <em>server</em> does. Which trust relationship does each abuse?</li>
-<li>B-DEF (defensive basics) — sit on the other side: write the application-layer alert for your own attack traffic.</li>
+<li><strong>Defensive basics</strong> (<a href="/g/security-headers/"><code>b-security-headers</code></a> §3) — sit on the other side: write the application-layer alert for your own attack traffic.</li>
 <li>Map refs: <strong>OWASP Top 10:2025 A01</strong>, <strong>WSTG-SESS-05</strong>, <strong>CWE-352</strong>.</li>
 </ul>
 </section>

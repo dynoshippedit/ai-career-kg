@@ -56,6 +56,14 @@ A Type I is a design review; a Type II is evidence of operation. Customers who u
 
 **The SOC family, kept straight.** The AICPA's testimony before the ERISA Advisory Council — the primary source for this section — lays the suite out plainly: **SOC 1** reports on controls relevant to user entities' *internal control over financial reporting* (the auditors' world); **SOC 2** reports on controls against the Trust Services Criteria (the security/availability/integrity/confidentiality/privacy world); **SOC for Cybersecurity** examines an *entity's own* cybersecurity risk management program. SOC 1 answers the CFO's auditor; SOC 2 answers the customer's CISO; confusing the two is the classic procurement error.
 
+**The three frameworks side by side.** This lesson and the two beside it (`e-csf-20`, `e-iso27001`) cover the three instruments organizations actually mix — what each is, who needs it, and how they relate:
+
+- **NIST CSF 2.0** — the voluntary outcomes language: six functions, 22 categories, 106 subcategories describing *what good looks like*, never how. No certification exists. Who needs it: any organization that wants a shared risk vocabulary across business and technical stakeholders, with no certification driver.
+- **ISO/IEC 27001** — the certifiable management system (ISMS): Clauses 4–10 audited, Annex A's 93 controls selected by risk assessment, the SoA recording the reasoning. Who needs it: organizations whose customers or regulators expect an independently audited ISMS — common in Europe and regulated industries.
+- **SOC 2** — the CPA attestation report: a service organization's controls examined against the Trust Services Criteria, Type I (design at a point in time) or Type II (operating effectiveness over a period). Who needs it: service organizations whose customers demand third-party assurance about the service they sell.
+
+How they relate: the CSF's Informative References map its Subcategories to ISO 27001's controls — the same control selection can satisfy both, outcomes in one language and audited system in the other. The ISO 27001 SoA's selected controls then become the SOC 2 engagement's *tested* controls: 27001 decides what to implement, SOC 2 examines whether it operates. One evidence base can serve all three, but the purposes stay distinct: CSF communicates, 27001 manages, SOC 2 attests.
+
 ## 4. Walkthrough
 
 No CLI by design — the walkthrough is the worked case, authored and self-reviewed 2026-10-10 against the primary sources (AICPA's Trust Services Criteria resource page and the AICPA's 2022 testimony, both fetched in-session). The fictional company is **Meridian Analytics** (180-person SaaS analytics firm). Every fact about Meridian is invented and labeled.

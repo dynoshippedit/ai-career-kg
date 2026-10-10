@@ -168,7 +168,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
 <p class="dateline">Walkthrough run 2026-10-09 · local demo app (no Docker on the build machine)</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/git-github/"><code>a-git-github</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>OWASP Top 10:2025 A05 Injection · WSTG-INPV-05 · CWE-89</td></tr>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/reading-code/"><code>a-reading-code</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>OWASP Top 10:2025 A05 Injection · WSTG-INPV-05 · CWE-89</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -177,8 +177,8 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>2. Before you start</h2>
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including how query parameters travel.</li>
-<li>You can read a simple SQL <code>SELECT</code> — what the <code>WHERE</code> clause does, what <code>--</code> means as a comment.</li>
-<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SQLi lab, DVWA's SQL Injection module, or a bounty program whose scope explicitly includes the asset. SQLi testing outside authorization is not research; re-read B-AUTH if this sentence surprised you.</li>
+<li>You can read a simple SQL <code>SELECT</code> (<a href="/g/reading-code/"><code>a-reading-code</code></a>) — what the <code>WHERE</code> clause does, what <code>--</code> means as a comment.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SQLi lab, DVWA's SQL Injection module, or a bounty program whose scope explicitly includes the asset. SQLi testing outside authorization is not research; re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl is enough. An interception proxy (Burp Community) makes parameter tampering faster later.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -249,15 +249,15 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>You find that input is stored via a parameterized <code>INSERT</code> but later rendered into a report query built by concatenation. Explain why the application is still vulnerable and what the developer's mistake was.</li>
 </ol>
 <h2>9. Prove it</h2>
-<p><strong>Artifact:</strong> the one-page report from "On your own" (or the walkthrough evidence chain): vulnerable parameter, boolean-pair requests and the response difference, family determination, code-level remediation, defender detection.</p>
+<p><strong>Artifact:</strong> the one-page report from "On your own" — against a target you had not touched in this lesson: vulnerable parameter, boolean-pair requests and the response difference, family determination, code-level remediation, defender detection.</p>
 <p><strong>Honest claim:</strong> "I can find SQL injection with manual probes, determine which family it belongs to, demonstrate it with a minimal read-only proof, and verify the parameterized fix."</p>
 <p><strong>Can't claim yet:</strong> "I can exploit blind SQLi at scale" — boolean-extraction tooling and OAST exfiltration are practiced in the PortSwigger labs, not claimed from this lesson.</p>
 <h2>10. Leads to</h2>
 <ul>
 <li><a href="/g/command-injection/"><code>b-command-injection</code></a> — the same input-becomes-code pattern one layer down, in the operating system.</li>
 <li><a href="/g/xss/"><code>b-xss</code></a> (second wave) — input-becomes-code in the victim's browser; compare the three injection contexts.</li>
-<li>B-DEF (defensive basics) — sit on the other side: write the WAF/slow-query detection for your own attack traffic.</li>
-<li>B-BOUNTY (bug bounty mechanics) — this lesson's report format is the dry run for a real submission.</li>
+<li><strong>Defensive basics</strong> (<a href="/g/security-headers/"><code>b-security-headers</code></a> §3) — sit on the other side: write the WAF/slow-query detection for your own attack traffic.</li>
+<li><strong><a href="/g/bug-bounty/"><code>b-bug-bounty</code></a> (bug bounty mechanics)</strong> — this lesson's report format is the dry run for a real submission.</li>
 <li>Map refs: <strong>OWASP Top 10:2025 A05</strong>, <strong>WSTG-INPV-05</strong>, <strong>CWE-89</strong>.</li>
 </ul>
 </section>

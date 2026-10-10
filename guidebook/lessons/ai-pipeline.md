@@ -25,6 +25,7 @@ Every model you will ever deploy passed through a pipeline: data was collected, 
 
 - You have read `ai-supply-chain` — you know what a hash proves (content identity), what a signature proves (origin), and what an admission policy enforces.
 - You have read `ai-llm-architecture` — you can draw the six-layer stack and point at its trust boundaries.
+- `a-git-github` — commits as content-addressed snapshots: the §4 manifest works because a hash names exact bytes, and tags move — which is why Stage 4 pins digests, not tags.
 - Python 3 on your machine. No model, no GPU, no network: the walkthrough's harness simulates the pipeline deterministically on loopback.
 - Safety framing, stated once: this lesson teaches where pipeline attacks *enter* and how each is *detected and stopped*. It does not teach attack automation, and nothing here is run against anyone else's infrastructure.
 

@@ -25,7 +25,7 @@ OS command injection is SQL injection's sibling one layer down: instead of the d
 
 - You can read HTTP requests and responses cold (`a-http-depth`).
 - You know what a shell is and what it does with `;`, `&`, `|` (`a-linux-cli`) — this lesson is what happens when a stranger gets to type into one.
-- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy command-injection lab, DVWA's Command Injection module, or a bounty program whose scope explicitly includes the asset. Never test outside authorization; re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy command-injection lab, DVWA's Command Injection module, or a bounty program whose scope explicitly includes the asset. Never test outside authorization; re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl is enough. Keep your proofs to `whoami`/`id`/`echo` — the finding is proven the moment injected output renders. Do not pivot, persist, or touch other systems.
 
 ## 3. How it works
@@ -121,6 +121,6 @@ Then at most three free resources:
 ## 10. Leads to
 
 - `b-ssrf` — the server makes requests instead of running commands; compare which trust relationship each one abuses.
-- B-DEF (defensive basics) — sit on the other side: write the Sysmon/auditd rule for your own attack traffic.
+- **Defensive basics** (`b-security-headers` §3) — sit on the other side: write the Sysmon/auditd rule for your own attack traffic.
 - D red-team concepts (Stage D) — why this class is the first thing an adversary wants, taught as defender telemetry.
 - Map refs: **OWASP Top 10:2025 A05**, **WSTG-INPV-13**, **CWE-78**.

@@ -117,7 +117,7 @@ Free resources (≤3): the **FIRST v4.0 web calculator** (first.org/cvss/calcula
 
 ## 9. Prove it
 
-**Artifact:** your three hand-scored calibration vectors with metric-by-metric justifications, the run output showing they match the published scores, and the disagreement analysis for CVE-2020-3549. This is the document you show a vendor when they dispute your severity.
+**Artifact:** the §5 KEV CVE you scored by hand in both versions — both vectors with metric-by-metric justifications, the FIRST calculator output confirming each score, and the disagreement paragraph taking a position on which version argues more honestly for *that* vulnerability. The walkthrough's three calibration cases were the training set; this CVE is the test set. A stranger should be able to audit every metric choice without having seen this lesson.
 
 **Honest claims after this lesson:** you can score any CVE by hand in v3.1 and v4.0, defend every metric choice in writing, and explain exactly where and why the versions disagree. **Cannot yet claim:** that your score is *right* in any absolute sense — CVSS is an argument framework, and two honest scorers can differ by a metric. What you can claim is that your argument is complete and checkable.
 

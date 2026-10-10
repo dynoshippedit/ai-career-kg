@@ -24,6 +24,7 @@ Every model you have ever downloaded is someone else's build artifact, produced 
 ## 2. Before you start
 
 - `ai-llm-architecture` (you know where the weights sit in the stack) and `ai-llm-top10` (LLM04:2026 is this lesson's headline risk).
+- `a-git-github` — commits as content-addressed snapshots: a commit hash names exact bytes, while a branch name is a movable pointer. That distinction is why this lesson pins hashes and distrusts "latest."
 - Python 3 and OpenSSL on your machine. No model download needed — the walkthrough builds a fake model directory and treats it as the artifact under test. The live-signing step uses Sigstore's keyless flow against the public Rekor log; it needs network and an OIDC identity, so it is marked **not run by us** here with the exact reader procedure.
 - Safety framing: you will deliberately craft a malicious pickle file *on your own machine, in a scratch directory, labeled as a hazard demo* — the classic `__reduce__` demonstration. This is the standard teaching demo for deserialization risk, contained to your own files. Nothing leaves your machine.
 
@@ -66,7 +67,7 @@ A team fine-tunes a base model and ships it. Three handoffs, three questions:
 
 ## 5. On your own
 
-**Task:** Take any model artifact on your machine (a real download, or the walkthrough's `model_dir`). Produce its AIBOM (hashes, source, framework, dataset reference), verify it, tamper one file, and show the verification catching it. Then write the admission policy: a script that takes a model directory and exits non-zero unless every file's hash matches the AIBOM and the AIBOM itself carries a signature from an expected identity (stub the signature check with a comment marking where cosign verification plugs in, until you complete step 6 above).
+**Task:** Take a model artifact you did not build in the walkthrough — a real download if you have one; the walkthrough's `model_dir` only as a last resort. Produce its AIBOM (hashes, source, framework, dataset reference), verify it, tamper one file, and show the verification catching it. Then write the admission policy: a script that takes a model directory and exits non-zero unless every file's hash matches the AIBOM and the AIBOM itself carries a signature from an expected identity (stub the signature check with a comment marking where cosign verification plugs in, until you complete step 6 above).
 
 **Success test:** The tamper is caught and named; the policy script refuses the tampered directory and accepts the clean one; the stub comment says exactly which cosign command fills it. If your policy trusts the hub's web page instead of hashes and signatures, it fails.
 
@@ -99,7 +100,7 @@ Then at most three free resources:
 2. Explain why a transparency log (Rekor) is necessary even when every artifact is signed — what attack does the log prevent that signatures alone do not?
 3. A `.pt` file from an unverified publisher arrives for fine-tuning. Explain the exact mechanism by which loading it could compromise the training machine, and the two mitigations in order of preference.
 4. Your AIBOM lists framework version X, and a vulnerability is later found in X's model loader. Explain the two questions the AIBOM answers in the first ten minutes of triage, and which question it cannot answer.
-5. A vendor says their model registry "signs all models." List the four verification checks from §3 and explain which one fails if the team never wrote the admission policy.
+5. A registry "signs all models," but no admission policy was ever written — deploys pull whatever the registry serves. An attacker publishes a backdoored model under a lookalike publisher identity and signs it properly with their own key. Predict which of the four §3 verification checks catches this, explain why the other three pass, and explain why the catching check is useless unless it runs in the deploy path.
 
 ## 9. Prove it
 

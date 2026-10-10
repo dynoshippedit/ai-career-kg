@@ -26,7 +26,7 @@ JSON Web Tokens carry identity between services: `header.payload.signature`, bas
 - You can read HTTP requests and responses cold (`a-http-depth`), including Authorization headers.
 - You know what a digital signature proves — and what defeats it (`a-crypto`'s misuse pairs: unverified signatures, wrong keys).
 - You can hand-decode base64url and HMAC-sign a string in Python (the walkthrough does it step by step; no JWT library needed — building tokens by hand is the lesson). (base64url — base64 with a URL-safe alphabet, `-` and `_` instead of `+` and `/`, per RFC 4648 §5 — so token parts survive inside URLs.)
-- Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is *authentication bypass* — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is *authentication bypass* — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: Python 3, curl, OpenSSL (for the RSA keypair the key-confusion demo needs).
 
 ## 3. How it works

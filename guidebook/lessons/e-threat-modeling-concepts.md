@@ -125,5 +125,5 @@ Then at most three free resources:
 
 - **D-APPSEC — `e-sdlc`** — the hands-on companion: STRIDE in the development workflow, this lesson's reference implementation.
 - **ai-threat-modeling — `ai-threat-modeling`** — the AI variant: methodology choice applied to AI systems.
-- `e-risk-assessment`** — the consumer: threat-model output becomes risk-register entries.
+- `e-risk-assessment` — the consumer: threat-model output becomes risk-register entries.
 - Map refs: **CISSP 1.10** (this lesson); feeds **CISSP 8.1** (security in the SDLC).

@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You understand authentication schemes (Basic, Bearer, JWT structure, OAuth 2.0/OIDC flows) from <a href="/g/http-depth/"><code>a-http-depth</code></a>, and users/groups/permissions from <a href="/g/linux-cli/"><code>a-linux-cli</code></a>.</li>
 <li>You have seen authentication fail in <a href="/g/session-auth/"><code>b-session-auth</code></a> — this lesson is the organizational answer to those failures.</li>
-<li>No tools. The work products are documents: a lifecycle design and a completed access review. Bring the habit from <a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> of writing reasons, owners, and dates.</li>
+<li>No tools. The work products are documents: a lifecycle design and a completed access review. Bring the discipline of writing reasons, owners, and dates.</li>
 </ul>
 <h2>3. How it works</h2>
 <p>IAM answers three questions in order, and the order matters. <strong>Identification</strong> is the claim: "I am alice." <strong>Authentication</strong> is the proof: a password, a token, a biometric, a certificate — something the system can verify against the claim. <strong>Authorization</strong> is the decision: given that this really is alice, what may she do? Every access-control failure you have ever read about is one of these three done wrong: nobody checked the claim, the proof was weak or replayable, or the decision was never made and the default was allow.</p>

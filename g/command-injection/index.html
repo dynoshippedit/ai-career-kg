@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>).</li>
 <li>You know what a shell is and what it does with <code>;</code>, <code>&amp;</code>, <code>|</code> (<a href="/g/linux-cli/"><code>a-linux-cli</code></a>) — this lesson is what happens when a stranger gets to type into one.</li>
-<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy command-injection lab, DVWA's Command Injection module, or a bounty program whose scope explicitly includes the asset. Never test outside authorization; re-read B-AUTH if this sentence surprised you.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy command-injection lab, DVWA's Command Injection module, or a bounty program whose scope explicitly includes the asset. Never test outside authorization; re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl is enough. Keep your proofs to <code>whoami</code>/<code>id</code>/<code>echo</code> — the finding is proven the moment injected output renders. Do not pivot, persist, or touch other systems.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -251,7 +251,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>10. Leads to</h2>
 <ul>
 <li><a href="/g/ssrf/"><code>b-ssrf</code></a> — the server makes requests instead of running commands; compare which trust relationship each one abuses.</li>
-<li>B-DEF (defensive basics) — sit on the other side: write the Sysmon/auditd rule for your own attack traffic.</li>
+<li><strong>Defensive basics</strong> (<a href="/g/security-headers/"><code>b-security-headers</code></a> §3) — sit on the other side: write the Sysmon/auditd rule for your own attack traffic.</li>
 <li>D red-team concepts (Stage D) — why this class is the first thing an adversary wants, taught as defender telemetry.</li>
 <li>Map refs: <strong>OWASP Top 10:2025 A05</strong>, <strong>WSTG-INPV-13</strong>, <strong>CWE-78</strong>.</li>
 </ul>

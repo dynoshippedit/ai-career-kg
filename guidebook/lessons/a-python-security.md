@@ -8,7 +8,7 @@ roles: [security-analyst, pentester, appsec]
 map_refs: []
 test_date: 2026-10-09
 description: "Python for security tooling: reading and changing small scripts — HTTP requests, response parsing, sockets, arguments and files — with every walkthrough step run locally. A free hands-on lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-09 · Python 3.12.3, loopback only, stdlib only, nothing external touched"
+dateline: "Walkthrough run 2026-10-09 · Python 3.12.3, loopback only, stdlib only, nothing external touched · third depth pass 2026-10-10 (handshake reference fixed — three-packet shape taught inline, full mechanics pointed to a-tcpip-ports; check-yourself Q2 rewritten to explain/predict)"
 ---
 # Python for security tooling
 
@@ -36,7 +36,7 @@ A Python script is a text file the interpreter executes top to bottom. `python3 
 
 **Parsing responses.** Bodies are bytes until you decide what they are. `json.loads()` turns a JSON body into dictionaries and lists — the moment a response becomes *data you can index into* instead of text you squint at. `r.headers.get("Content-Type")` tells you which parser to reach for. The discipline: never assume the shape; print it first (`print(type(data))`, `print(data.keys())`), then index. Scripts that assume response shapes are scripts that break on the first unexpected server.
 
-**Sockets.** Below HTTP sits TCP, and `socket` lets you speak it directly. `socket.create_connection((host, port))` performs the handshake `a-tcpip-ports` taught you; `.sendall()` and `.recv()` move bytes. The walkthrough's `sockdemo.py` stands up a listener on 127.0.0.1, connects to it, sends `hello-socket`, and reads back `ACK:hello-socket`. Ten lines, and you have now done by hand what every port scanner does at its core: open a connection and see what answers. When a tool's output confuses you later, this is the layer to think at.
+**Sockets.** Below HTTP sits TCP, and `socket` lets you speak it directly. `socket.create_connection((host, port))` performs the TCP handshake for you — SYN out, SYN-ACK back, ACK to confirm (the three-packet exchange `a-tcpip-ports` dissects in full); `.sendall()` and `.recv()` move bytes. The walkthrough's `sockdemo.py` stands up a listener on 127.0.0.1, connects to it, sends `hello-socket`, and reads back `ACK:hello-socket`. Ten lines, and you have now done by hand what every port scanner does at its core: open a connection and see what answers. When a tool's output confuses you later, this is the layer to think at.
 
 **Arguments and files.** A tool nobody can drive is a script, not a tool. `argparse` turns `sys.argv` into named options with `--help` text — `fetch.py` takes a URL positionally and `--json-key` optionally. Files are `open(path, mode)`: read the response, write it to disk, and the tool becomes a pipeline stage instead of a screenful of output. The walkthrough's final step does exactly the reader's first real edit: save the fetched body to `saved.json` — eleven lines that turn "look at this" into "keep this."
 
@@ -120,7 +120,7 @@ Then at most three free resources:
 ## 8. Check yourself
 
 1. `urlopen` raises `HTTPError` on one URL and `URLError` on another. Explain, without running anything, what the difference tells you about where the failure happened.
-2. Your script prints `bytes: 11` for a page you expected to be JSON. Name the two things you check before you call `json.loads`.
+2. Your script prints `bytes: 11` for a page you expected to be JSON. Explain what could produce that output, how you'd confirm which cause it is, and why calling `json.loads` blindly is the wrong next step.
 3. Why does every network call in a tool need a timeout? Describe the failure mode of the script that omits it.
 4. You inherit a 200-line script. Describe the exact order you read it in, and what the imports tell you before you read a single function.
 5. `sockdemo.py` uses `socket.create_connection` instead of building the socket by hand. What layer of the stack is it letting the standard library handle, and why is that the right default?

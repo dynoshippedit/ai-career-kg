@@ -239,11 +239,11 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 </ol>
 <h2>8. Check yourself</h2>
 <ol>
-<li>You find a flaw in a vendor's product. Their site has no security.txt, no SECURITY.md, and no security page — just a general contact form. Walk the CERT contact-finding order: what do you try, in what order, and what do you document at each step?</li>
+<li>A vendor's site has a security.txt but its Contact address bounces, and their SECURITY.md names a different email. Which do you use first, what do you document about the dead address, and why does the CERT order put security.txt before SECURITY.md? What changes in your documentation when the first contact method fails?</li>
 <li>The vendor acknowledges your report but proposes publishing the advisory in six months, with no patch date committed. Which CERT principle does this violate, and what is your counter-proposal?</li>
 <li>Why does the OpenSSF guide insist the report be written so "the advisory can be derived from it"? What goes wrong when the report and the advisory are written as separate documents by different people?</li>
 <li>A researcher publishes a zero-day on social media with no vendor notice, arguing "the vendor would have sat on it." Using the SandboxEscaper case, explain who paid the cost of that decision and what the coordinated alternative would have changed.</li>
-<li>Your disclosure timeline hits day 14 of vendor silence. Name the exact next step from this lesson's walkthrough — and what you must not do.</li>
+<li>Your disclosure timeline hits day 14 of vendor silence, and a colleague urges you to publish the proof of concept "to light a fire under them." Using the CERT principles from this lesson, explain the two harms that publication would cause, what the walkthrough prescribes instead, and why the prescribed step preserves your leverage better than the PoC would.</li>
 </ol>
 <h2>9. Prove it</h2>
 <p><strong>Artifact:</strong> the complete disclosure package for a fictional finding (report + timeline + advisory draft + the "vendor goes quiet" branch), plus the one-paragraph Heartbleed postmortem. Publish the postmortem on your blog or GitHub — it shows you can reason about disclosure, not just recite the phases.</p>

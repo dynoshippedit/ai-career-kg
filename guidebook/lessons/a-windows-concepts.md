@@ -8,7 +8,7 @@ roles: [soc-analyst, security-analyst, pentester]
 map_refs: []
 test_date: 2026-10-09
 description: "Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson's concepts in Windows form, taught from Microsoft's own docs with exact reader procedures. A free lesson in the security guidebook."
-dateline: "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09 · deepened 2026-10-10 (execution policy section from Microsoft's PowerShell-Docs; fixed §7 duplicate URL with registry-value-types reference)"
+dateline: "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09 · deepened 2026-10-10 (execution policy section from Microsoft's PowerShell-Docs; fixed §7 duplicate URL with registry-value-types reference) · third depth pass 2026-10-10 (check-yourself Q2 rewritten from recall to ordered investigation)"
 ---
 # Windows concepts for security
 
@@ -111,7 +111,7 @@ Then at most three free resources:
 ## 8. Check yourself
 
 1. `HKCU` is described as "a shortcut." Explain, precisely, what it is a shortcut *to*, and why editing `HKCU\Software\...` and the corresponding `HKU\<SID>\Software\...` key (SID: the account's unique security identifier) shows the same data.
-2. A service runs as LocalSystem with StartType Automatic and its executable in `C:\Users\Public\`. Name the three facts that make this worth investigating, in the order you'd check them.
+2. A service runs as LocalSystem with StartType Automatic and its executable in `C:\Users\Public\`. Walk through your investigation in order: what you check first, what each check tells you, and at what point — and on what evidence — you'd escalate it from "unusual" to "likely malicious."
 3. Why is `-FilterHashtable @{LogName='Security'; ID=4625}` preferable to `Get-WinEvent -LogName Security | Where-Object {$_.Id -eq 4625}`? (Two reasons: performance and one more.)
 4. Event 1102 appears in the Security log. What does it mean, and why does its *presence* matter more than most events' presence?
 5. Translate this Linux triage pipeline into its PowerShell equivalent, naming what changes about the data between the pipes: `grep 'Failed password' /var/log/auth.log | cut -d' ' -f11 | sort | uniq -c | sort -rn`.

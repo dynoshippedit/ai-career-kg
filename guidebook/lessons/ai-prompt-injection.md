@@ -25,7 +25,7 @@ Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications
 
 ## 2. Before you start
 
-- You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG — Retrieval-Augmented Generation: fetching relevant documents and pasting them into the prompt) adds documents, the model produces text, and tool/function calling lets that text cause actions (the `ai-llm-architecture` lesson).
+- The LLM application stack (system prompt, retrieval, tool calling) is taught in §3 below from scratch — no prior AI lesson assumed. `ai-llm-architecture` maps the same stack in full; you read it next in this track's order.
 - Python 3 on your machine. No model is required for the mechanism and defense portions — the walkthrough's harness is deterministic. The live red-team step needs a local model (Ollama + an open-weight model, your own machine, your own data only).
 - Safety framing for this lesson: we teach the attack concept, what defenders see, detection, and defenses together. No exploits for real products, no automation for attacking systems you do not own. Every hands-on step runs against code and models you control.
 

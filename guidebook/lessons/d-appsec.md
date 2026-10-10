@@ -3,7 +3,7 @@ lesson_id: d-appsec
 slug: appsec
 stage: D
 level: 3
-prerequisites: [a-http-depth, e-sdlc]
+prerequisites: [a-http-depth, e-sdlc, a-python-security]
 roles: [appsec]
 map_refs: ["CISSP 8.1", "CISSP 8.2", "CISSP 8.3", "CISSP 8.4", "CISSP 8.5"]
 test_date: 2026-10-10
@@ -26,6 +26,7 @@ Someone has to make sure the software gets *built* securely, not just tested aft
 - **Authorization:** everything hands-on here runs against code you write or training apps you run locally (Juice Shop, WebGoat). You review and scan your own code or code you are explicitly authorized to assess. Scanning or testing someone else's application without written scope is not AppSec; it is unauthorized testing.
 - You recognize the Stage B vulnerability classes cold — a scanner's output is meaningless if you can't judge whether its SQL-injection finding is real.
 - You know the secure-SDLC shape from `e-sdlc`: this lesson is the verification-phase tooling that program deploys.
+- You can write small Python scripts (`a-python-security`) — the walkthrough's teaching scanner is one you build yourself.
 - Tooling: Python 3 (stdlib only). Real SAST (Semgrep) and DAST (OWASP ZAP) steps are reader-side with exact commands; the walkthrough runs a labeled teaching sketch so the *triage* skill is practiced honestly here.
 
 ## 3. How it works
@@ -104,7 +105,7 @@ Expected: still 3 findings — the scanner is blind to the logic flaw, exactly a
 
 ## 5. On your own
 
-Threat-model the login flow of any app you built in Stage B labs: draw the data-flow diagram (components, flows, trust boundaries), run STRIDE, and write the threat list with responses. Success test: every threat names the trust boundary it crosses, every mitigation is testable ("verify by…" with a concrete check), and at least one threat maps to each of S, T, I, and E.
+Threat-model the login flow of any app you built in Stage B labs: draw the data-flow diagram (components, flows, trust boundaries), run STRIDE, and write the threat list with responses. Success test: every threat names the trust boundary it crosses, every mitigation is testable ("verify by…" with a concrete check), and at least one threat maps to each of the six STRIDE letters — if R or D comes up empty, that is a finding about your model, not a pass.
 
 ## 6. Where it goes wrong
 
@@ -137,7 +138,7 @@ Free resources for going deeper (at most three):
 
 ## 9. Prove it
 
-**Artifact:** the STRIDE threat list for the upload flow (step 1), the sketch-scanner triage notes including the demonstrated blind spot (steps 2–3), and the diff review written as developer-actionable findings (step 4).
+**Artifact:** the STRIDE threat list for the upload flow (step 1), the sketch-scanner triage notes including the demonstrated blind spot (steps 2–3), and a diff review written as developer-actionable findings — but not on the walkthrough's `review.diff`: pick a real recent commit or PR from your own Stage B lab code (or any code you are authorized to review) and review that instead. The walkthrough's artifacts stay in the log; this artifact proves the technique transfers to code the lesson didn't pick for you.
 
 **You can honestly claim:** you can threat-model a small app with STRIDE, operate SAST and judge its output, and write security review findings developers can act on. **You cannot yet claim:** production scanner operation and tuning — that needs the reader-side Semgrep/ZAP work against a real codebase, which this lesson specifies but does not perform.
 

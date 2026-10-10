@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including redirects and URL structure (userinfo, fragments, encoding).</li>
 <li>You understand the IDOR lesson's core pattern — the server trusting client-supplied input — because SSRF is that pattern aimed at the network instead of the database.</li>
-<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SSRF lab, or a bounty program whose scope explicitly includes the asset. On cloud-hosted targets, the metadata endpoint is in scope only if the program says so — assume it doesn't until written down. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SSRF lab, or a bounty program whose scope explicitly includes the asset. On cloud-hosted targets, the metadata endpoint is in scope only if the program says so — assume it doesn't until written down. Re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl is enough. For blind cases, an OAST/collaborator domain you control.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -257,8 +257,8 @@ return response.text</code></pre>
 <h2>10. Leads to</h2>
 <ul>
 <li><a href="/g/csrf/"><code>b-csrf</code></a> — the browser makes the request instead of the server; compare which party's trust each class abuses.</li>
-<li>B-VULN second wave: XXE — the same server-fetches-attacker-URL shape through XML parsers.</li>
-<li>B-DEF (defensive basics) — sit on the other side: write the egress alert for your own attack traffic.</li>
+<li><a href="/g/xxe/"><code>b-xxe</code></a> — the same server-fetches-attacker-URL shape through XML parsers.</li>
+<li><strong>Defensive basics</strong> (<a href="/g/security-headers/"><code>b-security-headers</code></a> §3) — sit on the other side: write the egress alert for your own attack traffic.</li>
 <li>Map refs: <strong>OWASP Top 10:2025 A01</strong>, <strong>WSTG-INPV-19</strong>, <strong>CWE-918</strong>.</li>
 </ul>
 </section>

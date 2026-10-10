@@ -25,7 +25,7 @@ XML is still everywhere: SOAP APIs, SAML assertions (SAML — Security Assertion
 
 - You can read HTTP requests and responses cold (`a-http-depth`).
 - You understand the SSRF lesson's shape — the server acting on attacker-chosen destinations — because XXE's file-read/SSRF impact is that shape through an XML parser.
-- Your target is written down and authorizes your testing: this lesson's local parser demo, a PortSwigger Academy XXE lab, or a bounty program whose scope explicitly includes the asset. Never point an external-entity payload at a real file on a real target to "see if it works" — the file content in the response *is* the exfiltration. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local parser demo, a PortSwigger Academy XXE lab, or a bounty program whose scope explicitly includes the asset. Never point an external-entity payload at a real file on a real target to "see if it works" — the file content in the response *is* the exfiltration. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl or any HTTP client. The payloads are small enough to write by hand.
 
 ## 3. How it works

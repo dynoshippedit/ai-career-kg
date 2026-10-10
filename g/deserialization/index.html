@@ -168,7 +168,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
 <p class="dateline">Walkthrough run 2026-10-10 · transcript in runs/b-deserialization.log</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/python-security/"><code>a-python-security</code></a>, <a href="/g/http-depth/"><code>a-http-depth</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-502 (Deserialization of Untrusted Data) · PortSwigger Web Security Academy (Deserialization)</td></tr>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/python-security/"><code>a-python-security</code></a>, <a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/linux-cli/"><code>a-linux-cli</code></a> <span class="muted">(full list in §2)</span></td></tr><tr><th scope="row">Map references</th><td>CWE-502 (Deserialization of Untrusted Data) · PortSwigger Web Security Academy (Deserialization)</td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can read Python and run shell commands (<a href="/g/python-security/"><code>a-python-security</code></a>, <a href="/g/linux-cli/"><code>a-linux-cli</code></a>).</li>
 <li>You understand cookies carry client-controlled state (<a href="/g/http-depth/"><code>a-http-depth</code></a>) — this lesson's session cookie is the attack vector.</li>
-<li>Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy deserialization lab, or a bounty program whose scope explicitly includes the asset. The payload pattern here is <em>generic and powerful</em> — it belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local demo, a PortSwigger Academy deserialization lab, or a bounty program whose scope explicitly includes the asset. The payload pattern here is <em>generic and powerful</em> — it belongs in labs and authorized scope, never in curiosity-driven testing. Re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: Python 3 and curl. No proxy needed; the payloads are hand-built.</li>
 </ul>
 <h2>3. How it works</h2>

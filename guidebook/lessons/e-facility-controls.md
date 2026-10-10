@@ -24,7 +24,7 @@ Design says what the facility should do; controls are what it actually does at 2
 ## 2. Before you start
 
 - You have the design review (`e-facility-design`) — controls implement its findings; the checklist verifies the implementation.
-- You know the control-selection discipline (`e-control-selection`) — each control here traces to a requirement, even if the requirement is "the fire code."
+- Each control here traces to a requirement, even if the requirement is "the fire code" — the control-selection discipline itself is `e-control-selection`'s subject.
 - No tools. The work product is a completed controls checklist: five families, status per control, findings with recommendations and owners.
 
 ## 3. How it works

@@ -19,7 +19,7 @@ dateline: "Worked case authored and reviewed 2026-10-10 · no command line in th
 
 ## 1. Where this shows up
 
-`b-session-auth` taught you how authentication breaks; `e-iam` taught you the strategy and lifecycle it serves. This lesson is the build: choosing the mechanisms, sequencing the rollout, handling the humans, and operating the authenticators afterward. It shows up in the MFA rollout that stalls at 60 percent adoption, the passwordless pilot that dies on the help-desk queue, the SSO migration with three apps that "can't do SAML," and the biometric deployment that never answered where the templates live. IAM engineers and the security architects who sign off on the plan live here — and the difference between this lesson and its neighbors is the direction of the work: `b-session-auth` dissects failures, `e-iam` governs the lifecycle, this lesson ships the system.
+`e-iam` taught you the strategy and lifecycle it serves; `b-session-auth` is the companion discipline — how authentication breaks, the failure mechanics this build is designed to prevent. This lesson is the build: choosing the mechanisms, sequencing the rollout, handling the humans, and operating the authenticators afterward. It shows up in the MFA rollout that stalls at 60 percent adoption, the passwordless pilot that dies on the help-desk queue, the SSO migration with three apps that "can't do SAML," and the biometric deployment that never answered where the templates live. IAM engineers and the security architects who sign off on the plan live here — and the difference between this lesson and its neighbors is the direction of the work: `b-session-auth` dissects failures, `e-iam` governs the lifecycle, this lesson ships the system.
 
 ## 2. Before you start
 

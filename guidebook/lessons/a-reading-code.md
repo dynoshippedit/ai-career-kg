@@ -3,12 +3,12 @@ lesson_id: a-reading-code
 slug: reading-code
 stage: A
 level: 3
-prerequisites: [a-http-depth, a-python-security, b-sqli]
+prerequisites: [a-http-depth, a-python-security]
 roles: [pentester, appsec]
 map_refs: []
 test_date: 2026-10-09
 description: "Reading code through a vulnerability: tracing untrusted input from a JavaScript form to a SQL query — source, path, sink — with the injection located by reading. A free lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database"
+dateline: "Walkthrough run 2026-10-09 · labeled teaching snippets, local string-trace only, nothing executed against a database · third depth pass 2026-10-10 (prereq chain fixed: b-sqli removed — the lesson teaches the injection mechanism itself and leads to b-sqli; check-yourself Q1/Q3 rewritten to explain/predict)"
 ---
 # Reading code through a vulnerability
 
@@ -105,9 +105,9 @@ Then at most three free resources:
 
 ## 8. Check yourself
 
-1. In the walkthrough's vulnerable builder, which single character is the boundary between code and data — and who controls it?
+1. An attacker submits `admin'-- ` as the username to the walkthrough's vulnerable builder. Mark the exact character where the input stops being data and becomes structure, and explain what the database now *does* with the rest of the query that the author didn't intend.
 2. The login form validates nothing client-side. Explain why that is *not* the vulnerability, and where the vulnerability actually is.
-3. Your teammate says "the ORM handles it, we don't need to review the queries." Name two ways ORM-using code still ends up with injectable SQL.
+3. Your teammate says "the ORM handles it, we don't need to review the queries" — and you find `db.execute("SELECT * FROM users ORDER BY " + sort_param)` in the codebase. Explain why the ORM's protection doesn't cover this line, and name one other ORM escape hatch you'd grep for when reading unfamiliar code.
 4. Trace `q = "x' UNION SELECT password FROM users -- "` through the On-your-own `search()` function. What does the final query do?
 5. You find `element.innerHTML = location.hash.slice(1)` in client code. Mark source, sink, and path — and state what you'd check server-side (if anything).
 

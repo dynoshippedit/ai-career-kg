@@ -3,7 +3,7 @@ lesson_id: b-sqli
 slug: sqli
 stage: B
 level: 3
-prerequisites: [a-http-depth, a-git-github]
+prerequisites: [a-http-depth, a-reading-code]
 roles: [security-analyst, pentester, appsec]
 map_refs: []
 test_date: 2026-10-09
@@ -24,8 +24,8 @@ SQL injection is the oldest injection class on the web and still one of the most
 ## 2. Before you start
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including how query parameters travel.
-- You can read a simple SQL `SELECT` — what the `WHERE` clause does, what `--` means as a comment.
-- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SQLi lab, DVWA's SQL Injection module, or a bounty program whose scope explicitly includes the asset. SQLi testing outside authorization is not research; re-read B-AUTH if this sentence surprised you.
+- You can read a simple SQL `SELECT` (`a-reading-code`) — what the `WHERE` clause does, what `--` means as a comment.
+- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy SQLi lab, DVWA's SQL Injection module, or a bounty program whose scope explicitly includes the asset. SQLi testing outside authorization is not research; re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl is enough. An interception proxy (Burp Community) makes parameter tampering faster later.
 
 ## 3. How it works
@@ -120,7 +120,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the one-page report from "On your own" (or the walkthrough evidence chain): vulnerable parameter, boolean-pair requests and the response difference, family determination, code-level remediation, defender detection.
+**Artifact:** the one-page report from "On your own" — against a target you had not touched in this lesson: vulnerable parameter, boolean-pair requests and the response difference, family determination, code-level remediation, defender detection.
 
 **Honest claim:** "I can find SQL injection with manual probes, determine which family it belongs to, demonstrate it with a minimal read-only proof, and verify the parameterized fix."
 **Can't claim yet:** "I can exploit blind SQLi at scale" — boolean-extraction tooling and OAST exfiltration are practiced in the PortSwigger labs, not claimed from this lesson.
@@ -129,6 +129,6 @@ Then at most three free resources:
 
 - `b-command-injection` — the same input-becomes-code pattern one layer down, in the operating system.
 - `b-xss` (second wave) — input-becomes-code in the victim's browser; compare the three injection contexts.
-- B-DEF (defensive basics) — sit on the other side: write the WAF/slow-query detection for your own attack traffic.
-- B-BOUNTY (bug bounty mechanics) — this lesson's report format is the dry run for a real submission.
+- **Defensive basics** (`b-security-headers` §3) — sit on the other side: write the WAF/slow-query detection for your own attack traffic.
+- **`b-bug-bounty` (bug bounty mechanics)** — this lesson's report format is the dry run for a real submission.
 - Map refs: **OWASP Top 10:2025 A05**, **WSTG-INPV-05**, **CWE-89**.

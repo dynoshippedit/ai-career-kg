@@ -3,7 +3,7 @@ lesson_id: d-redteam-concepts
 slug: redteam-concepts
 stage: D
 level: 2
-prerequisites: [a-http-depth, a-tcpip-ports, c-soc-triage, c-log-sources]
+prerequisites: [a-http-depth, a-tcpip-ports, c-soc-triage, c-log-sources, a-python-security]
 roles: [soc-analyst, security-analyst, pentester]
 map_refs: []
 test_date: 2026-10-09
@@ -26,6 +26,7 @@ A red team is hired to act like an adversary so the defenders can practice on so
 - **Authorization:** nothing in this lesson touches a live system. The walkthrough runs on your own machine against synthetic data you generate. Running adversary-emulation tooling (Atomic Red Team, Caldera, Stratus) happens only in an isolated lab you own — lab VMs, host-only networking, snapshots taken first. Emulation tooling pointed at anything you don't own is not practice; it is an attack.
 - You can read HTTP and TCP behavior cold (`a-http-depth`, `a-tcpip-ports`).
 - You know what SOC triage and log sources look like (`c-soc-triage`, `c-log-sources`) — this lesson is the adversary's half of that picture.
+- You can write small Python scripts (`a-python-security`) — the walkthrough builds its beacon-analysis tools from scratch.
 - Tooling: Python 3 (stdlib only). A browser for the reader-side ATT&CK Navigator step.
 
 ## 3. How it works
@@ -47,6 +48,8 @@ A compromised host needs a channel back to the operator: tasking in, results out
 Most C2 is **beaconing**: the implant initiates outbound connections on a schedule (inbound is blocked by NAT and firewalls; outbound web traffic is allowed). A beacon has three observable properties: **periodicity** (roughly regular check-ins, often with jitter — randomized timing added specifically to defeat naive interval detection), **asymmetry** (small regular outbound requests, occasional larger inbound tasking or outbound exfiltration bursts), and **mimicry** (ordinary protocols, increasingly ordinary destinations). Beaconing detection is a *statistics* problem, not a signature problem: no single connection looks wrong; the pattern across time does.
 
 The channel space, at concept level (ATT&CK technique IDs so you can look each up): **T1071** Application Layer Protocol — C2 inside HTTP/HTTPS, DNS, mail, the protocols the firewall already permits; **T1090** Proxy — relays between implant and operator, including multi-hop chains; **T1572** Protocol Tunneling — one protocol wrapped inside another; **T1573** Encrypted Channel — TLS defeats payload inspection, so defenders work on metadata; **T1102** Web Service — legitimate cloud storage or messaging as the medium, nearly unblockable by destination; **T1105** Ingress Tool Transfer — follow-on tooling downloaded over the channel; **T1568** Dynamic Resolution — fast-flux DNS (rapidly rotating the DNS answers so the domain resolves to new IPs constantly) and DGAs (domain generation algorithms: malware that invents new domain names on a schedule) — so the destination moves faster than blocklists. **Domain fronting** (T1090.004) is worth knowing as *history*: it abused CDN routing so traffic appeared to go to a reputable domain; the major CDNs closed the SNI/Host mismatch in 2018 and killed it. The lesson is the arms race — techniques die when platforms change — not a recipe.
+
+Why the channel exists at all: C2 serves the adversary's goals *after* access. In ATT&CK's goal language, the implant keeps its foothold (**Persistence** — staying on the host across reboots and cleanups), gathers what the operator wants (**Collection**), and moves it out (**Exfiltration**) — the channel is the means, those tactics are the ends. When malware analysis asks what an implant is *for*, this is the answer: the sample implements some subset of these goals, and C2 is how the operator drives them.
 
 ### Evasion, as a concept
 
@@ -102,7 +105,7 @@ Expected: `valid JSON, 5 techniques`. Importing it into the ATT&CK Navigator (yo
 
 ## 5. On your own
 
-Take the worked example's intrusion and extend it: add three more adversary actions (one persistence, one credential-access, one exfiltration), map each to its ATT&CK technique ID, and write the detection assignment for each as in the example. Success test: a second reader can take your mapping, look at the technique's ATT&CK detection section, and confirm your assignment names a real data source — no hand-waving.
+Take the worked example's intrusion and extend it: add three more adversary actions (one persistence, one credential-access, one exfiltration), map each to its ATT&CK technique ID, and write the detection assignment for each as in the example. Success test (alone — no second reader needed): for each of your three mappings, open the technique's ATT&CK page, read its Detection section, and confirm your assignment names a data source that section actually lists — quote the line in your notes. Any mapping whose data source isn't in the Detection section gets rewritten until it is. Three mappings, three quoted lines, no hand-waving.
 
 ## 6. Where it goes wrong
 
@@ -134,7 +137,7 @@ Free resources for going deeper (at most three):
 
 ## 9. Prove it
 
-**Artifact:** the Navigator layer file from the walkthrough plus a one-page detection-gap memo: the blind tactics, the telemetry that would close each, and the log source that provides it — written so a SOC lead could hand it to an engineer.
+**Artifact:** the Navigator layer file rebuilt around your §5 extended intrusion (the three actions *you* added, not the walkthrough's) plus a one-page detection-gap memo for a fictional estate *different* from the walkthrough's: the blind tactics, the telemetry that would close each, and the log source that provides it — written so a SOC lead who never saw this lesson could hand it to an engineer and get the work done. The walkthrough's layer stays in the log; the artifact proves the skill on material the lesson didn't hand you.
 
 **You can honestly claim:** you can name adversary behavior in ATT&CK terms, map observations to tactics and techniques, describe what telemetry each technique should produce, and explain the purple-team loop. **You cannot yet claim:** you can run emulations or write production detections — those need the isolated-lab work (Atomic Red Team, your own Sysmon/Sigma stack), which this lesson points at but does not perform.
 

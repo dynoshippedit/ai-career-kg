@@ -258,7 +258,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>Why must every published score carry its vector string? Give the concrete failure mode of a score without one, using the CVE-2023-3089 Environmental refinement as your example.</li>
 </ol>
 <h2>9. Prove it</h2>
-<p><strong>Artifact:</strong> your three hand-scored calibration vectors with metric-by-metric justifications, the run output showing they match the published scores, and the disagreement analysis for CVE-2020-3549. This is the document you show a vendor when they dispute your severity.</p>
+<p><strong>Artifact:</strong> the §5 KEV CVE you scored by hand in both versions — both vectors with metric-by-metric justifications, the FIRST calculator output confirming each score, and the disagreement paragraph taking a position on which version argues more honestly for <em>that</em> vulnerability. The walkthrough's three calibration cases were the training set; this CVE is the test set. A stranger should be able to audit every metric choice without having seen this lesson.</p>
 <p><strong>Honest claims after this lesson:</strong> you can score any CVE by hand in v3.1 and v4.0, defend every metric choice in writing, and explain exactly where and why the versions disagree. <strong>Cannot yet claim:</strong> that your score is <em>right</em> in any absolute sense — CVSS is an argument framework, and two honest scorers can differ by a metric. What you can claim is that your argument is complete and checkable.</p>
 <h2>10. Leads to</h2>
 <ul>

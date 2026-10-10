@@ -178,7 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including JSON bodies and status codes.</li>
 <li>You understand the IDOR lesson's core pattern — the server trusting client-supplied identifiers — because API1 is that pattern at API scale.</li>
-<li>Your target is written down and authorizes your testing: this lesson's local demo app, a PortSwigger API-testing lab, or a bounty program whose scope explicitly includes the API. API endpoints not referenced by the UI are still in scope only if the program says so — an undocumented endpoint is not an invitation. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local demo app, a PortSwigger API-testing lab, or a bounty program whose scope explicitly includes the API. API endpoints not referenced by the UI are still in scope only if the program says so — an undocumented endpoint is not an invitation. Re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: curl and a JSON eye (python3 -m json.tool). No proxy required for this lesson's class, though you will want one later.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -248,7 +248,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>Explain the difference between fixing BOLA and fixing excessive data exposure — why one fix does not cover the other.</li>
 </ol>
 <h2>9. Prove it</h2>
-<p><strong>Artifact:</strong> the four one-page reports from "On your own" (or the local-demo equivalents with exact requests): endpoint, evidence, the general rule violated, the fix, the defender detection.</p>
+<p><strong>Artifact:</strong> the four one-page reports from "On your own" — each against a target you had not touched in this lesson: endpoint, evidence, the general rule violated, the fix, the defender detection.</p>
 <p><strong>This lesson takes you to Level 3 (Apply).</strong> You can honestly claim: you can enumerate an API surface, find and prove BOLA, excessive data exposure, mass assignment, and missing rate limits on an authorized target, and verify each fix. You cannot yet claim: production API security review — real APIs add versioning, gateway policies, and business-logic flows (<a href="/g/business-logic/"><code>b-business-logic</code></a>) that this lesson's four classes don't cover.</p>
 <h2>10. Leads to</h2>
 <ul>

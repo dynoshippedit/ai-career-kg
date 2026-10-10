@@ -3,7 +3,7 @@ lesson_id: d-dfir-deep
 slug: dfir-deep
 stage: D
 level: 3
-prerequisites: [c-incident-response, c-log-sources, a-linux-cli, d-malware-analysis]
+prerequisites: [c-incident-response, c-log-sources, a-linux-cli, d-malware-analysis, d-redteam-concepts, a-python-security]
 roles: [soc-analyst, security-analyst, dfir]
 map_refs: []
 test_date: 2026-10-09
@@ -29,7 +29,9 @@ The three evidence domains divide by where the traces live. **Disk forensics** r
 - You know the incident lifecycle (`c-incident-response`): forensics is the investigation phase, and its output feeds containment, eradication, and the post-incident report.
 - You can read logs and sort timelines (`c-log-sources`, `a-linux-cli`).
 - You know what an implant looks like when you find one (`d-malware-analysis`) — forensics is how you find where it has been.
-- Tooling: a shell, `sort`, `awk`, `grep` — the walkthrough builds timelines from labeled data with nothing else.
+- You know the adversary's half of the artifacts: beaconing and the ATT&CK behavior language (`d-redteam-concepts`) — hunts are written in that language.
+- You can write small Python scripts (`a-python-security`) — the walkthrough generates its labeled evidence with one.
+- Tooling: a shell, `sort`, `awk`, `grep`, Python 3 — the walkthrough generates its labeled evidence with a Python script and builds timelines with coreutils.
 
 ## 3. How it works
 
@@ -55,6 +57,24 @@ Packets are the one record neither endpoint fully controls. **Full packet captur
 
 Alerting asks "did something bad happen?" Hunting asks "if the adversary did X, what would it look like in data source Y?" — and then goes looking. The hypothesis comes first, always: an untested hypothesis is a fishing expedition, and fishing expeditions produce false positives that burn the team's credibility. A hunt hypothesis has three parts: the **technique** (from ATT&CK — the behavior language from `d-redteam-concepts`), the **expected evidence** (what the technique must leave in which data source — it cannot *not* leave it), and the **scope** (which systems, which time window). You run the hypothesis against telemetry, document what you found *and what you didn't* — a negative result is a result, and it tells you where your visibility is blind. The hunts that find something become detections: the hypothesis, hardened with thresholds and tested against benign data, graduates into a Sigma rule (`c-sigma-detection`). That pipeline — hypothesis → hunt → detection — is the whole detection-engineering loop, and forensics is what you do when the loop fires.
 
+**Worked mini-example: the hunt becomes a rule.** Take the worked example's beaconing hunt — technique T1071.001, expected evidence: an internal host opening HTTPS to a rare external domain about every 60 seconds. The Sigma draft it graduates into (the *shape* is taught fully in `c-sigma-detection`; this is the graduation step, not the whole course — treat the rule text below as an illustrative sketch):
+
+```yaml
+title: Possible C2 Beaconing - Regular HTTPS to Rare Domain
+status: experimental
+description: Flags hosts with highly regular outbound HTTPS to domains first seen in the last 7 days.
+logsource:
+    category: proxy
+detection:
+    selection:
+        cs-method: 'CONNECT'
+    timeframe: 1h
+    condition: selection | count() by src_ip > 50
+level: medium
+```
+
+The translation discipline is the lesson: the hypothesis's *expected evidence* becomes the `logsource` plus `selection`; the *scope* becomes the timeframe; the *threshold* (50/hour, tuned against benign proxy data until the SOC stops drowning) is what separates a detection from a guess. A rule without the hunt behind it is YAML-shaped guessing — which is why the pipeline runs hunt first, rule second, and why the rule carries the hunt's technique ID in its references when you write the real one.
+
 ### Worked example: the narrowing, end to end
 
 A fictional workstation, WS-4417 — the same machine the incident-response lesson's worked case investigated. The alert said beaconing; forensics answers what happened.
@@ -75,7 +95,7 @@ The walkthrough builds the core forensic skill — timeline construction — fro
 
 ## 5. On your own
 
-Build the same pipeline against a second labeled evidence set you generate yourself — different attack shape (this time make it a credential-spray followed by a data-staging event, not a beacon). Produce the merged timeline, the IOC list, and the findings memo. Success test: a stranger reading only your memo can state the attacker's sequence, the compromised account, and the exfiltration window — and can point at the timeline lines that prove each claim. Then, in your own lab: install SIFT Workstation or Autopsy, load a published training image (HTB Sherlocks — Hack The Box's DFIR challenge series, realistic incident scenarios for practice — or a SANS challenge), and build a real timeline with a real tool — the walkthrough taught you what the tool is *for*.
+Build the same pipeline against a second labeled evidence set you generate yourself — different attack shape (this time make it a credential-spray followed by a data-staging event, not a beacon). Produce the merged timeline, the IOC list, and the findings memo. Success test (alone — no stranger needed): put the timeline away and read only your memo. Write down, from the memo alone: the attacker's sequence, the compromised account, and the staging/exfiltration window. Then open the timeline and check each of the three against cited timeline lines — every claim in the memo must carry its line reference, and any claim without one fails the test. Three claims, three citations, zero uncited assertions. Then, in your own lab: install SIFT Workstation or Autopsy, load a published training image (HTB Sherlocks — Hack The Box's DFIR challenge series, realistic incident scenarios for practice — or a SANS challenge), and build a real timeline with a real tool — the walkthrough taught you what the tool is *for*.
 
 ## 6. Where it goes wrong
 
@@ -108,7 +128,7 @@ Answer in your own words — no peeking at section 3:
 
 ## 9. Prove it
 
-**Artifact:** the merged super-timeline, the IOC list, and the findings memo from the walkthrough and your On-your-own case — committed to your evidence repo with the acquisition hashes recorded.
+**Artifact:** the merged super-timeline, the IOC list, and the findings memo for your §5 case — the evidence set *you* generated, the attack shape *you* chose — committed to your evidence repo with the acquisition hashes recorded. The walkthrough's beacon case stays in the log; the artifact proves you can build the timeline on evidence the lesson didn't hand you.
 
 **Honest claim:** "I can take labeled multi-source evidence, normalize it to UTC, build a merged timeline, and write a findings memo where every claim points at timeline lines." **What you cannot claim:** court-ready forensic expertise, tool certifications, or that you can attribute an intrusion to an actor — timeline construction is the foundation skill, not the profession. The profession adds real tools on real images (your lab), chain-of-custody procedure, and report writing under review.
 

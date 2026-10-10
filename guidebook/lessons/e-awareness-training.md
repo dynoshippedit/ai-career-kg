@@ -25,7 +25,7 @@ Every control in this guidebook assumes a human who knows what to do. The phishi
 
 - No technical prerequisites beyond Stage D. This lesson is program design: audiences, objectives, delivery, measurement.
 - Bring `c-soc-triage`'s human-factor material — fatigue, inattention, and workaround culture are the problems the program exists to reduce.
-- Bring your `e-policy-docs` hierarchy — the program is how policy becomes known; a policy nobody has been taught is shelfware with extra steps.
+- The program is how policy becomes known — the four-tier document hierarchy (policy, standard, procedure, guideline) is `e-policy-docs`' subject; skim that lesson's §3 if you have not read it. A policy nobody has been taught is shelfware with extra steps.
 - The work product is a one-year program plan for a fictional company, with the rules of engagement for phishing simulation and the metrics that prove effectiveness.
 
 ## 3. How it works

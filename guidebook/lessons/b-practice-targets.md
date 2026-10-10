@@ -3,7 +3,7 @@ lesson_id: b-practice-targets
 slug: practice-targets
 stage: B
 level: 2
-prerequisites: [a-linux-cli]
+prerequisites: [a-linux-cli, a-tcpip-ports]
 roles: [pentester]
 map_refs: []
 test_date: 2026-10-09

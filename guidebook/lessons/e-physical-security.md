@@ -23,8 +23,8 @@ The badge reader, the guard, the camera, the mantrap — none of them work witho
 
 ## 2. Before you start
 
-- You understand the identity lifecycle from `e-iam` — the badge lifecycle in this lesson follows the same joiner-mover-leaver logic.
-- You know the monitoring-program thinking from `e-logging-monitoring` — badge and camera events are log sources with the same integrity and review needs.
+- The badge lifecycle in this lesson follows joiner–mover–leaver logic: people join (badges issued), move (access changes), leave (access revoked) — the identity-lifecycle version is `e-iam`'s subject.
+- Badge and camera events are log sources with the same integrity and review needs — the monitoring-program discipline is `e-logging-monitoring`'s subject.
 - No tools. The work products are documents: guard post orders, a badge-lifecycle procedure, a CCTV monitoring plan, and an environmental-controls checklist. Primary spine: **NIST SP 800-53 Rev. 5, Physical and Environmental Protection (PE) family**.
 
 ## 3. How it works

@@ -23,7 +23,7 @@ IDOR is the single highest-yield vulnerability class for a beginning bounty hunt
 
 - You can read HTTP requests and responses cold (`a-http-depth`).
 - You have **two test accounts you own** on whatever target you practice against — the entire lesson is comparing what account A can see versus what account B can see. Never use someone else's account or data.
-- Your scope is written down and the target authorizes your testing: your own local lab, a PortSwigger Academy lab, or a bounty program whose scope explicitly includes the asset. IDOR testing without authorization is not research; re-read B-AUTH if this sentence surprised you.
+- Your scope is written down and the target authorizes your testing: your own local lab, a PortSwigger Academy lab, or a bounty program whose scope explicitly includes the asset. IDOR testing without authorization is not research; re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl is enough for this lesson; an interception proxy (Burp Community) makes it faster later.
 
 ## 3. How it works
@@ -116,8 +116,8 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **B-VULN-02 — Broken access control (general)** — IDOR as one member of the family: missing function-level checks, role tampering, forced browsing.
-- **B-VULN-05 — API abuse / BOLA** — the same flaw through API-shaped endpoints (API1:2023).
-- **B-DEF — Defensive basics** — sit on the other side: given your own attack traffic, write the detection (per-session ID spread).
-- **B-BOUNTY — Bug bounty mechanics** — this lesson's report format is the dry run for a real submission.
+- **Broken access control, the rest of the family** — no separate lesson: missing function-level checks, role tampering, and forced browsing are the same missing-check shape as IDOR — run this lesson's template (whose object? whose function? whose role?) against each on your next lab target.
+- **`b-api-abuse` — API abuse / BOLA** — the same flaw through API-shaped endpoints (API1:2023).
+- **Defensive basics** (`b-security-headers` §3) — sit on the other side: given your own attack traffic, write the detection (per-session ID spread).
+- **`b-bug-bounty` — Bug bounty mechanics** — this lesson's report format is the dry run for a real submission.
 - Map refs: **OWASP Top 10:2025 A01**, **WSTG-ATHZ-04**, **CISSP 5.4** (authorization mechanisms and models, via Stage E).

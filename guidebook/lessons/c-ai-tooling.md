@@ -3,12 +3,12 @@ lesson_id: c-ai-tooling
 slug: ai-tooling
 stage: C
 level: 3
-prerequisites: [c-public-track-record, ai-governance, c-cvd]
+prerequisites: [c-public-track-record, c-cvd]
 roles: []
 map_refs: []
 test_date: 2026-10-09
 description: "AI tooling professionals use: Anthropic's Cyber Verification Program as the dated worked example — three tiers, what each admits, and why it is access to tooling, never a credential. A free lesson in the security guidebook."
-dateline: "Evidence map authored 2026-10-09 · CVP details dated 2026-10-06 (announcement); primary URL to re-fetch at publish"
+dateline: "Evidence map authored 2026-10-09 · CVP details dated 2026-10-06 (announcement); primary announcement fetched and verified 2026-10-10"
 ---
 # AI tooling professionals use: the Cyber Verification Program as the worked example
 
@@ -48,6 +48,10 @@ Anthropic ran Claude Opus 5.5 through CyScenarioBench — its evaluation of mult
 
 With the announcement, Anthropic published Glasswing's first numbers: partners found **at least 129,000 verified vulnerabilities** between April and July 2026, more than **33,000** rated critical or high severity, plus 5,500 more from Anthropic's own open-source scanning. Anthropic calls these an undercount. Two professional readings: first, the scale argument for the program's existence — verified teams with capable tooling find real vulnerabilities at volume; second, the evidence argument this lesson cares about — *verified vulnerabilities, reported through a process, are the currency the field accepts*. That is the same currency the disclosure lessons teach you to mint.
 
+### How the trust is enforced
+
+The verification is not a one-time badge. Anthropic verifies every applicant and requires proof of the security controls for the tier — and data retention is mandatory for enrolled organizations so misuse can be monitored (until its zero-retention Enterprise Frontier Safeguards ship). That is the other half of the organizations-only Red Team gate: an individual has no security-controls posture to prove and no organizational data to retain. Notice what this means: trust here is verified *and watched*. A credential asserts you were good once; this asserts you are being monitored now. When you describe any verified-access program — this one or the next — ask both questions: what did they verify, and what do they watch afterward.
+
 ### The two uses, restated as the lesson's spine
 
 **Use one: how the field sorts professional work.** The tier structure is a map of the profession's own categories: defensive validation (SOC, IR, malware RE, vuln analysis) is one kind of work with one risk profile; authorized offense (pentesting, red teaming) is another, restricted to organizations with authorization to match; safety-critical testing is a third, gated by government review. When you describe your own work — in a write-up, a report, an interview — sort it the same way: what kind of work was it, under whose authorization, with what safeguards. The tiers are useful as *vocabulary* even if you never apply.
@@ -66,7 +70,7 @@ Steps: (1) restate the three tiers from memory, then check against the table in 
 
 ## 5. On your own
 
-Do the walkthrough with your *real* evidence. Inventory everything — every lab artifact, every report, every finding — and sort it into three piles: **reported** (through a disclosure process, with a timeline), **published** (write-up or CVE record, public and verifiable), and **practice** (labs, exercises, unpublished). The gap between the piles is your next quarter's plan, and the plan's items each name their disclosure path. Success test: you can state, in one paragraph, what your track record currently proves to a stranger — and what single next disclosure would most strengthen it. Then check whether the CVP's Defense Access description fits yet; if it doesn't, the answer is more evidence, not a better application.
+Do the walkthrough with your *real* evidence. Inventory everything — every lab artifact, every report, every finding — and sort it into three piles: **reported** (through a disclosure process, with a timeline), **published** (write-up or CVE record, public and verifiable), and **practice** (labs, exercises, unpublished). The gap between the piles is your next quarter's plan, and the plan's items each name their disclosure path. Success test: run the Defense Access fit check as a checklist — (1) at least one item in "reported" with vendor confirmation or a CVE record; (2) every "reported" item has a dated timeline; (3) nothing in "practice" is counted as reported. If all three hold, the description fits; if any fails, the failing item names your next quarter's work. Then state, in one paragraph, what your track record currently proves to a stranger — and what single next disclosure would most strengthen it.
 
 ## 6. Where it goes wrong
 
@@ -81,7 +85,7 @@ Do the walkthrough with your *real* evidence. Inventory everything — every lab
 
 Read the primary material in this order:
 
-1. **Anthropic's CVP announcement** (anthropic.com, 2026-10-06 — "Expanding the Cyber Verification Program") — read the tier table and the Glasswing numbers from the vendor's own words; note the publish time. *Gap, stated plainly: the announcement URL was not fetched in this session (the guessed path 404'd); the tier details below are consistent across 6+ outlets dated 2026-10-06–08 and one secondary page that read the announcement directly — re-fetch the primary before publishing.*
+1. **Anthropic's CVP announcement** (anthropic.com/news/cyber-verification-program — "Expanding the Cyber Verification Program", fetched 2026-10-10) — read the tier table, the CyScenarioBench numbers, and the Glasswing figures from the vendor's own words. Verified in-session against §3: the three tiers as stated; Defense Access admitting individual researchers with a track record of reported vulnerabilities; Red Team Access organizations-only with real-time blocks on physical-harm/mass-disruption actions; Specialized Access reviewed with the US government; the benchmark (every task blocked without CVP, 46 of 50 blocked in Defense, 34 of 50 completed in Red Team — equivalent to the 67.6% no-safeguards rate); Glasswing's 129,000 / 5,500 / 33,000+ with the fivefold-undercount caveat; and the data-retention requirement for enrolled organizations. *Gap closed 2026-10-10 — the tier facts are now primary-confirmed, not secondary-sourced.*
 2. **The secondary reading** (cellcog.ai/blog/anthropic-cyber-verification-program, read 2026-10-09) — the tier table, the CyScenarioBench numbers, and the Glasswing figures as transcribed from the announcement, with the independent-validation caveat stated.
 3. **Anthropic Help Center: real-time cyber safeguards** (support.claude.com) — what the safeguards block in the general product, so you understand what the tiers lift.
 
@@ -92,8 +96,8 @@ Then at most three free resources, each genuinely free: **Project Zero's disclos
 Answer in your own words — no peeking at section 3:
 
 1. State the brief's §3 correction about the CVP in one sentence, then explain why mistaking tooling access for a credential harms both the individual and the field.
-2. Name the three tiers, who each admits, and what distinguishes Red Team Access from Defense Access beyond "more blocks removed."
-3. Anthropic's CyScenarioBench numbers are 0/50, 4/50, 34/50 across the settings. Explain the two caveats a professional attaches before repeating these numbers.
+2. A peer with no track record wants Red Team Access because "it's the tier that does real offensive work." Explain the three mistakes in that sentence: the eligibility error, the category error about what the tiers actually sort, and the authorization error — and which tier they should be mapping their (currently empty) evidence against.
+3. A vendor announces its own benchmark showing its access tiers "behave as designed" (0/50, 4/50, 34/50 on CyScenarioBench). Explain what these numbers *can* legitimately tell you about the tier design, what they *cannot* tell you about the model's real-world defensive value, and the one independent check you would want before citing them as evidence the program works.
 4. A peer says "I'm going to apply for Specialized Access — it's the highest tier." Explain the two misunderstandings in that sentence.
 5. Map this fictional evidence set against Defense Access: one CVE credit (vendor-confirmed), two bounty reports (one triaged-valid, one duplicate-closed), three lab write-ups (unpublished). Which items count as "a record of reported vulnerabilities," and what is the single most valuable next step?
 
@@ -112,4 +116,4 @@ Answer in your own words — no peeking at section 3:
 
 ---
 
-*Walkthrough transcript: `runs/c-ai-tooling.log` · Every CVP statement dated 2026-10-06 (announcement) or 2026-10-09 (this lesson's verification). Access to tooling — never a credential, a milestone, or a CV line.*
+*Walkthrough transcript: `runs/c-ai-tooling.log` · Every CVP statement dated 2026-10-06 (announcement), 2026-10-09 (this lesson's verification), or 2026-10-10 (primary re-fetch). Access to tooling — never a credential, a milestone, or a CV line.*

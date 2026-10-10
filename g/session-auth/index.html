@@ -168,7 +168,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><span class="eyebrow">Level 3 · Apply</span> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</p>
 <p class="dateline">Walkthrough run 2026-10-09 · local demo login; MFA enrollment step not run by us</p>
 <table class="ledger"><tbody>
-<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/csrf/"><code>b-csrf</code></a> <span class="muted">(full list in §2)</span></td></tr>
+<tr><th scope="row">Stage</th><td>Stage B · Practitioner</td></tr><tr><th scope="row">Level</th><td><strong>Level 3 · Apply</strong> — do it unaided on an unfamiliar authorized target, and explain why it worked and what would have stopped it</td></tr><tr><th scope="row">Prerequisites</th><td><a href="/g/http-depth/"><code>a-http-depth</code></a>, <a href="/g/csrf/"><code>b-csrf</code></a>, <a href="/g/idor/"><code>b-idor</code></a> <span class="muted">(full list in §2)</span></td></tr>
 </tbody></table>
 </section>
 <section style="padding-top:0">
@@ -236,7 +236,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>Why does credential stuffing defeat even a perfect password-complexity policy? Name the two controls that actually address it and what each one does.</li>
 <li>A login endpoint returns <code>429</code> after 5 rapid failures from one IP. An attacker spreads attempts across 1,000 IPs, one attempt each. What broke, and what detection or control addresses the distributed version?</li>
 <li>MFA is enabled and the attacker still hijacks the account without touching the password or the second factor. Describe a mechanism by which this is possible, referencing this lesson's session material.</li>
-<li>A password-reset token never expires and is accepted multiple times. Name three distinct abuses this enables, and the three token properties that would prevent them.</li>
+<li>A password-reset token never expires and stays valid after use. An attacker recovers a year-old reset email from a breached mailbox. Explain what they can do with it that they couldn't if the token expired after an hour — then explain what changes if the token is also single-use, and which of the two properties matters more against an attacker who intercepts the email in transit.</li>
 </ol>
 <h2>9. Prove it</h2>
 <p><strong>Artifact:</strong> a session-security assessment of a lab target (the local demo or a PortSwigger auth lab): token entropy judgment (with the evidence — sequential? length? charset?), the fixation test result (pre-login id vs post-login id), the rate-limit test result (attempt count vs first <code>429</code>), cookie flags observed, and the fix verification for each — written as the authentication section of a real assessment report.</p>

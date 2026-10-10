@@ -3,7 +3,7 @@ lesson_id: b-xss
 slug: xss
 stage: B
 level: 3
-prerequisites: [a-http-depth]
+prerequisites: [a-http-depth, a-reading-code]
 roles: [security-analyst, pentester, appsec]
 map_refs: []
 test_date: 2026-10-10
@@ -22,7 +22,7 @@ Every application that renders user input in a page can carry XSS, which makes i
 ## 2. Before you start
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including where a cookie travels.
-- You can read basic JavaScript: `document.getElementById`, `innerHTML`, event handlers, `location.hash`.
+- You can read basic JavaScript (`a-reading-code`): `document.getElementById`, `innerHTML`, event handlers, `location.hash`.
 - **Authorization:** everything in the walkthrough runs against a demo app on your own loopback interface, plus PortSwigger's hosted labs (permission granted by design). Never inject markup into a site you don't own or aren't scoped to test. A reflected-XSS probe is a request like any other — the law doesn't care that it was "just a test string."
 - Tooling: Python 3 (stdlib only), curl. A browser with devtools for the reader-side steps.
 
@@ -55,7 +55,7 @@ A search page takes `?q=` and renders `<h2>Results for: {q}</h2>` with no proces
 
 ## 4. Walkthrough
 
-**Run by us** on this machine — transcript: `runs/b-xss.log`. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo app (`xss-demo.py`, stdlib only) exposes three routes: `/search?q=` (reflected), `/guestbook` (stored notes), `/dom` (a page whose script writes `location.hash` into the DOM). Proof markers are benign DOM writes — no `alert()` anywhere, per the guidebook's own discipline (see `b-idor`). Actual script *execution* happens only in a browser; the curl-visible steps prove the injection reaches the page unneutralized, and steps 4 and 6 re-ran 2026-10-10 in headless Chromium (see below) — the reader confirms execution in a PortSwigger lab too.
+**Run by us** on this machine — transcript: `runs/b-xss.log`. Clean environment: stock Python 3.12, curl 8.5.0, loopback only, 2026-10-09. The demo app (`xss-demo.py`, stdlib only) exposes three routes: `/search?q=` (reflected), `/guestbook` (stored notes), `/dom` (a page whose script writes `location.hash` into the DOM). Proof markers are benign DOM writes — no `alert()` anywhere. The discipline: proof payloads stay inert by construction, so a copied proof can't become someone else's working attack. Actual script *execution* happens only in a browser; the curl-visible steps prove the injection reaches the page unneutralized, and steps 4 and 6 re-ran 2026-10-10 in headless Chromium (see below) — the reader confirms execution in a PortSwigger lab too.
 
 **Step 1 — start the demo.** Run `python3 xss-demo.py 18091 &`; it binds 127.0.0.1:18091 and logs to stdout.
 

@@ -54,6 +54,16 @@ It names the page, the directive that fired, and what was blocked — including 
 
 Every header in this lesson is verified the same way: `curl -s -D - -o /dev/null <url>` and read what the server actually sent. Not what the framework's documentation promises, not what the config file says — what arrives on the wire. Header audits are diffed against a baseline: the expected set for the page type. A missing CSP on an HTML page is a finding; a missing CSP on a JSON API is usually fine (no execution context — a response the browser will *run*, like an HTML page, as opposed to a data response it only reads — though `nosniff` still matters there).
 
+### Defensive basics: the other side of the wire
+
+Every attack lesson in this guidebook ends with a "how defenders see it" section — this is the discipline those sections point at. A **SOC** (security operations center) analyst's job is triage: a stream of alerts, most of them noise, a few of them real. The workflow is four steps, always in this order: **collect** (the alert arrives with its context), **enrich** (who is the user, what is the asset, is this normal for them?), **decide** (true positive, false positive, or benign-true — the event happened but isn't malicious), **act** (escalate to incident response, or close with a note explaining why). The note matters: a closed alert without a written reason is indistinguishable from an ignored one.
+
+**Reading a SIEM alert.** A SIEM (security information and event management) alert is a detector's claim, not a verdict. Read it in three passes: the **rule** first (what fired, and what the detector thinks it means — e.g. "impossible travel" or "CSP violation burst"), the **entities** second (which user, which host, which IP — and whether those entities matter), the **raw event** last (verify the detector's claim against the underlying log line before you believe it). The CSP violation report above is a SIEM alert in miniature: rule (`script-src`), entities (the page and the blocked URI), raw event (the JSON itself).
+
+**Prioritization logic.** Two axes, multiplied: **fidelity** (how often is this detector right? A `script-src` violation naming your own page is direct evidence; a generic "suspicious user-agent" is a heuristic) and **impact** (if it's real, what breaks? Whose data? Which system?). High-fidelity × high-impact gets the analyst now; low-fidelity × low-impact gets tuned or suppressed — alert fatigue is the enemy, and every false positive trains the analyst to ignore the next true one. The detection-writing exercises across the attack lessons (write the alert for your own attack traffic) are practice at the fidelity axis: a detection rule you cannot explain is a detector you cannot trust.
+
+For the full treatment — triage decision trees, alert corpora, tuning against false positives — see `c-soc-triage` (Stage C), which builds directly on this foundation.
+
 ## 4. Walkthrough
 
 **Run by us** on this machine — transcript: `runs/b-security-headers.log`. Clean environment: stock Python 3.12, curl 8.5.0, openssl, loopback only, 2026-10-09. The demo (`headers-demo.py`, stdlib only) serves a small page on 127.0.0.1:18098 (HTTP) and, with a self-signed certificate, on 127.0.0.1:18099 (HTTPS).
@@ -105,7 +115,7 @@ Free resources for going deeper (≤3): **MDN HTTP headers reference** (per-head
 2. Why does HSTS do nothing against an attacker who intercepts the victim's *very first* visit to the site? Name the mechanism that addresses this and where it lives.
 3. A JSON API sends no CSP but does send `X-Content-Type-Options: nosniff`. Is the missing CSP a finding? Is the `nosniff` load-bearing? Justify both answers from the execution-context argument.
 4. `frame-ancestors 'self'` and `X-Frame-Options: ALLOW-FROM https://partner.example` are both present with different meanings. Which wins in a modern browser, and why is the combination a misconfiguration?
-5. A session cookie is set with `Secure; HttpOnly` but no `SameSite` attribute. Name the attack class this leaves open and the header from `b-csrf`'s lesson that would have closed it.
+5. A session cookie is set with `Secure; HttpOnly` but no `SameSite` attribute. An attacker hosts a page that auto-submits a cross-site POST to the site's email-change endpoint. Walk through what the browser attaches to that request and what the server does with it — then explain which cookie attribute would have stopped the request from arriving authenticated, and why `Secure` and `HttpOnly` don't help here.
 
 ## 9. Prove it
 

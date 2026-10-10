@@ -24,7 +24,7 @@ dateline: "Worked case authored and reviewed 2026-10-10 · no command line in th
 ## 2. Before you start
 
 - You can read a packet and a firewall rule (`a-tcpip-ports`) — this lesson never explains ports again; it decides where the rules live.
-- Bring the habit from `e-risk-assessment` of writing decisions with owners and dates. A segmentation diagram without a decision log is decoration.
+- Bring the discipline of writing decisions with owners and dates. A segmentation diagram without a decision log is decoration.
 - No tools. The work product is a design review document for a fictional company.
 
 ## 3. How it works

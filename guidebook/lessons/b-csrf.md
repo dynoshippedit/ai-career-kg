@@ -24,8 +24,8 @@ Cross-site request forgery is the attack where the victim's own browser issues t
 ## 2. Before you start
 
 - You can read HTTP requests and responses cold (`a-http-depth`), and you know what the browser attaches automatically: cookies, including session cookies, on every request to the cookie's domain.
-- You know the same-origin policy's shape: one site's script can't *read* another site's responses — but it can *cause* the browser to *send* requests there. That asymmetry is this entire lesson.
-- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy CSRF lab, DVWA's CSRF module, or a bounty program whose scope explicitly includes the asset. The "attacker's page" in this lesson is a local HTML file you open in your own browser against your own lab — never hosted against someone else's site. Re-read B-AUTH if this sentence surprised you.
+- The same-origin policy's shape (taught properly in §3 below): one site's script can't *read* another site's responses — but it can *cause* the browser to *send* requests there. That asymmetry is this entire lesson.
+- Your target is written down and authorizes your testing: your own local lab (this lesson's demo app), a PortSwigger Academy CSRF lab, DVWA's CSRF module, or a bounty program whose scope explicitly includes the asset. The "attacker's page" in this lesson is a local HTML file you open in your own browser against your own lab — never hosted against someone else's site. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl plus a browser with two profiles (or containers) so you can hold a victim session and an attacker page apart.
 
 ## 3. How it works
@@ -140,7 +140,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- B-VULN second wave: XSS — the class that defeats every mitigation in this lesson; understand the dependency.
+- `b-xss` — the class that defeats every mitigation in this lesson; understand the dependency.
 - `b-ssrf` — compare: in CSRF the *browser* makes the forged request, in SSRF the *server* does. Which trust relationship does each abuse?
-- B-DEF (defensive basics) — sit on the other side: write the application-layer alert for your own attack traffic.
+- **Defensive basics** (`b-security-headers` §3) — sit on the other side: write the application-layer alert for your own attack traffic.
 - Map refs: **OWASP Top 10:2025 A01**, **WSTG-SESS-05**, **CWE-352**.

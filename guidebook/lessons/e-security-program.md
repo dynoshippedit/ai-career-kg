@@ -115,7 +115,7 @@ Free resources for going deeper (≤3): the CSF 2.0 document; the SP 800-55 volu
 
 ## 9. Prove it
 
-**Artifact:** the complete program charter for Beacon Logistics — mission, scope, RACI, risk appetite statement, measurement plan (3 KPIs + 3 KRIs, each sourced/defined/targeted), and review cadence — with the self-review checklist signed off.
+**Artifact:** the complete program charter — mission, scope, RACI, risk appetite statement, measurement plan (3 KPIs + 3 KRIs, each sourced/defined/targeted), and review cadence — for an organization that is NOT Beacon Logistics: your employer, a lab treated as an organization, or a fictional company of your own invention, with the self-review checklist signed off. The worked example above is Beacon's charter; this artifact must be a different organization — a stranger should be able to tell your program's strategy, accountabilities, and measures apart from the worked case's.
 
 **You can claim:** "I can design a security program's governing document — strategy, accountability, risk-based prioritization, and a measurement plan that distinguishes program activity from actual exposure — and defend every metric in it."
 

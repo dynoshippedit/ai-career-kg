@@ -112,3 +112,27 @@ Plain HTTP against the TLS port fails silently — the handshake precedes any HT
 ## Cleanup
 
 All three server processes stopped (`kill` on recorded PIDs); ports 8321/8443 verified free afterwards. No external connections were made at any point.
+
+--- Re-run entry 2026-10-10: new walkthrough steps 11-12 (third depth pass) ---
+Step 11: Basic auth is base64, not encryption. Run by us, local only.
+$ printf '%s' 'alice:wonderland' | base64
+YWxpY2U6d29uZGVybGFuZA==
+$ printf '%s' 'YWxpY2U6d29uZGVybGFuZA==' | base64 -d
+alice:wonderland
+Read: the Authorization header would carry "Basic YWxpY2U6d29uZGVybGFuZA==" -
+decodable by anyone holding the request. Base64 is transport encoding, and
+RFC 7617 says plainly this is cleartext-equivalent without TLS.
+Step 12: name the TLS 1.3 handshake messages on the wire. Run by us: throwaway
+self-signed cert, python stdlib TLS server on 127.0.0.1:18448 (one connection,
+then exit), openssl s_client -trace as the client. Server killed by explicit
+PID afterwards; pgrep confirmed clean, port free.
+Handshake messages observed (each exactly once, in order):
+  ClientHello (284 bytes: offered cipher suites incl. TLS_AES_256_GCM_SHA384,
+    key shares, supported versions)
+  ServerHello (118 bytes: chosen cipher, server key share)
+  EncryptedExtensions (2 bytes)
+  Certificate (790 bytes: the server's self-signed cert)
+  CertificateVerify (260 bytes: signature over the handshake transcript)
+  Finished x2 (48 bytes each: both sides confirm the transcript)
+Negotiated: TLSv1.3, cipher TLS_AES_256_GCM_SHA384, Server Temp Key X25519.
+This is RFC 8446's 1-RTT full handshake, observed for real on loopback.

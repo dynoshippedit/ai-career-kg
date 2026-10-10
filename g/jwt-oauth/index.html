@@ -179,7 +179,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>You can read HTTP requests and responses cold (<a href="/g/http-depth/"><code>a-http-depth</code></a>), including Authorization headers.</li>
 <li>You know what a digital signature proves — and what defeats it (<a href="/g/crypto/"><code>a-crypto</code></a>'s misuse pairs: unverified signatures, wrong keys).</li>
 <li>You can hand-decode base64url and HMAC-sign a string in Python (the walkthrough does it step by step; no JWT library needed — building tokens by hand is the lesson). (base64url — base64 with a URL-safe alphabet, <code>-</code> and <code>_</code> instead of <code>+</code> and <code>/</code>, per RFC 4648 §5 — so token parts survive inside URLs.)</li>
-<li>Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is <em>authentication bypass</em> — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read B-AUTH if this sentence surprised you.</li>
+<li>Your target is written down and authorizes your testing: this lesson's local verifier, a PortSwigger Academy JWT/OAuth lab, or a bounty program whose scope explicitly includes the asset. Token forgery is <em>authentication bypass</em> — the highest-sensitivity class. It belongs in labs and authorized scope, never in curiosity-driven testing. Re-read <a href="/g/authorization-scope/"><code>b-authorization-scope</code></a> if this sentence surprised you.</li>
 <li>Tooling: Python 3, curl, OpenSSL (for the RSA keypair the key-confusion demo needs).</li>
 </ul>
 <h2>3. How it works</h2>

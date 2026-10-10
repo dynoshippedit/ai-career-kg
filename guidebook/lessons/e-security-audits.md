@@ -24,7 +24,7 @@ Testing asks "can it be broken?"; audit asks "is the control operating as claime
 ## 2. Before you start
 
 - You have the assessment strategy (`e-assessment-strategy`) — the audit is the independent assurance half of that strategy, distinct from the testing half.
-- You know control claims and evidence thinking from `e-control-testing` and `e-security-metrics` — audit is where evidence standards get strictest.
+- Audits demand the strictest evidence standards — the control-claim vocabulary is used in `e-control-testing` and `e-security-metrics`; this lesson teaches the standard audits require.
 - No tools. The work products are an audit plan and one completed finding for a fictional company.
 
 ## 3. How it works

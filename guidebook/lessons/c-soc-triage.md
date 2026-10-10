@@ -22,7 +22,7 @@ Every alert a security operations center produces lands on a human who has minut
 ## 2. Before you start
 
 - You can read a log line cold and count things with the command line (`a-linux-cli`).
-- You know what an authentication attack looks like from the attacker's side (`b-session-auth`): password spray, session theft, impossible travel as a signal.
+- You know the attacker's session-abuse shapes (`b-session-auth`): fixation, predictable tokens, brute force and credential stuffing as concepts, and the honest limit that a stolen post-login cookie bypasses MFA. The defensive-signal *reading* of those attacks — impossible travel, the spray shape — is taught here, in the decision trees below, not there.
 - Mindset shift from Stage B: you are no longer proving a finding. You are *disproving* an alert — innocent until the evidence says otherwise. The alert is a hypothesis, not a verdict.
 
 ## 3. How it works
@@ -65,7 +65,7 @@ The same tree shape applies to the beaconing alert (host `WS-4417`, HTTPS every 
 3. **Run the impossible-travel tree on `j.chen`.** Chicago → Lagos, 7 minutes, ~9,607 km: physically impossible. Interactive? Yes. Known device on the second sign-in? No. VPN exit? No. Verdict: **ESCALATE** — cannot rule out compromise. This is the case the alert exists for.
 4. **Run it on `m.okafor`.** Austin → Frankfurt, 38 minutes, ~8,528 km: also impossible on its face. But the second sign-in is from a known VPN exit range. Verdict: **CLOSE (benign true positive)** — and note the tuning feedback: the rule should check VPN exits before alerting.
 5. **Run it on `svc-backup`.** Ashburn → Singapore, non-interactive both times. Verdict: **CLOSE** — travel logic never applied; the rule firing on a service account is itself a tuning note.
-6. **Run the beaconing check on `WS-4417`.** Six connections, mean interval 60 s, coefficient of variation 0.03 — tight clustering over a multi-hour span. Verdict: **ESCALATE (beaconing suspected)**. Then correlate: this is the same host that appears in the log-sources lesson's DGA burst — one host, two independent suspicious signals.
+6. **Run the beaconing check on `WS-4417`.** Six connections, mean interval 60 s, coefficient of variation 0.03 — tight clustering over a multi-hour span. Verdict: **ESCALATE (beaconing suspected)**. Then run the enrichment stage on it: the DNS log shows `WS-4417` also bursting queries for nonsense domains (the DGA shape) — one host, two independent suspicious signals. (`c-log-sources` teaches the DNS source behind this pivot; you don't need it to run the tree.)
 7. **Run it on `WS-4420`.** Mean interval 1,800 s, CV 0.84 — bursty, irregular, large byte counts mixed with tiny ones: an updater, not a beacon. Verdict: **CLOSE (benign true positive)**.
 8. **Write the triage notes.** For each of the five cases, one note in the format: *what was seen / what was checked / what was decided / evidence*. The escalated `j.chen` note ends with the containment *recommendation* (password reset, session revoke) — you recommend, IR acts.
 
@@ -110,7 +110,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the five triage notes from the walkthrough plus your two invented cases — each in the format *seen / checked / decided / evidence*, with the escalated ones ending in a containment recommendation.
+**Artifact:** the two invented cases from §5 — the event JSON, the decision-tree branch that decided each, and the triage notes in *seen / checked / decided / evidence* format — presented as the handoff you would give a Tier 2 analyst. The five walkthrough notes were the practice set; the two invented cases are the proof: they must exercise branches the walkthrough didn't use, and a stranger must be able to see which branch decided each without asking you.
 
 **Honest claim:** "I can take a SOC alert, apply a decision tree, classify it into the five buckets, and write a triage note another analyst can act on without redoing my work."
 **Can't claim yet:** "I can run incident response" — containment, eradication, and recovery belong to IR (`c-incident-response`); triage recommends, it does not act.

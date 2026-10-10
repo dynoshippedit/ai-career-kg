@@ -3,7 +3,7 @@ lesson_id: b-methodology
 slug: methodology
 stage: B
 level: 2
-prerequisites: [b-authorization-scope]
+prerequisites: [b-authorization-scope, a-http-depth, a-linux-cli]
 roles: [security-analyst, pentester]
 map_refs: []
 test_date: 2026-10-09

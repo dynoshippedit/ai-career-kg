@@ -25,7 +25,7 @@ Modern applications are APIs wearing a web page as a costume: the front end is J
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including JSON bodies and status codes.
 - You understand the IDOR lesson's core pattern — the server trusting client-supplied identifiers — because API1 is that pattern at API scale.
-- Your target is written down and authorizes your testing: this lesson's local demo app, a PortSwigger API-testing lab, or a bounty program whose scope explicitly includes the API. API endpoints not referenced by the UI are still in scope only if the program says so — an undocumented endpoint is not an invitation. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local demo app, a PortSwigger API-testing lab, or a bounty program whose scope explicitly includes the API. API endpoints not referenced by the UI are still in scope only if the program says so — an undocumented endpoint is not an invitation. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl and a JSON eye (python3 -m json.tool). No proxy required for this lesson's class, though you will want one later.
 
 ## 3. How it works
@@ -116,7 +116,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the four one-page reports from "On your own" (or the local-demo equivalents with exact requests): endpoint, evidence, the general rule violated, the fix, the defender detection.
+**Artifact:** the four one-page reports from "On your own" — each against a target you had not touched in this lesson: endpoint, evidence, the general rule violated, the fix, the defender detection.
 
 **This lesson takes you to Level 3 (Apply).** You can honestly claim: you can enumerate an API surface, find and prove BOLA, excessive data exposure, mass assignment, and missing rate limits on an authorized target, and verify each fix. You cannot yet claim: production API security review — real APIs add versioning, gateway policies, and business-logic flows (`b-business-logic`) that this lesson's four classes don't cover.
 

@@ -3,12 +3,12 @@ lesson_id: a-osint-research
 slug: osint-research
 stage: A
 level: 3
-prerequisites: [a-http-depth, b-authorization-scope]
+prerequisites: [a-http-depth]
 roles: [pentester]
 map_refs: []
 test_date: 2026-10-09
 description: "OSINT and research discipline: passive vs active recon, what 'public' means, the standard sources, and documentation a stranger can re-derive — on a fictional target. A free lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-09 · fictional target, local files only, passive recon — no real target touched"
+dateline: "Walkthrough run 2026-10-09 · fictional target, local files only, passive recon — no real target touched · third depth pass 2026-10-10 (prereq chain fixed: b-authorization-scope removed — the lesson teaches the rule it needs inline and leads to that lesson; check-yourself Q4 rewritten to explain/apply)"
 ---
 # OSINT and research discipline
 
@@ -23,7 +23,7 @@ Every authorized engagement in `b-methodology` begins with reconnaissance — an
 
 ## 2. Before you start
 
-- `b-authorization-scope` read and understood — especially the hard rule that testing outside written authorization is a crime, and the subtler rule this lesson adds: **a name found is not permission.** Finding an admin panel in a sitemap does not authorize you to log into it.
+- The authorization rule, stated up front (this lesson teaches the working version; `b-authorization-scope` in Stage B gives the full legal frame): **testing outside written authorization is a crime**, and the subtler corollary — **a name found is not permission.** Finding an admin panel in a sitemap does not authorize you to log into it. Passive findings *propose* follow-up; they never *permit* it.
 - `a-http-depth` — you will read robots.txt, sitemaps, headers, and HTML source.
 - The fictional target dossier in `/tmp/osintwalk/harborlight/` (created in the walkthrough): robots.txt, sitemap.xml, index.html, and a zone file for the fictional `harborlight-books.example`. Everything below runs against these local files.
 - A notebook (paper or text file). OSINT without notes is just browsing; the artifact of this lesson is documentation.
@@ -106,7 +106,7 @@ Then at most three free resources:
 1. You find `/backup-2024/` in a real target's robots.txt during pre-scope recon. State exactly what you may do with this finding, and what you may not do — citing the rule, not your instincts.
 2. A certificate transparency log shows 40 subdomains for the target. Is querying that log passive or active? Explain what makes it so.
 3. Your notes say "admin panel uses default creds (per HTML comment)." Break that into *stated fact* vs *inference*, and state what would be needed to turn it into a confirmed finding.
-4. Name three things a job posting can reveal about a target's infrastructure, and for each, whether acting on it needs authorization.
+4. A job posting says "we're migrating our on-prem Exchange to M365 and hiring a Splunk admin." Extract three infrastructure facts from that sentence; for each, state what passive inference it supports and whether acting on that inference (e.g., probing the named system) needs authorization — and explain why the authorization answer doesn't change with how quietly you found the fact.
 5. A teammate proposes messaging a target's developer on social media "to ask about their stack." Explain why this is out of bounds, in two sentences.
 
 ## 9. Prove it

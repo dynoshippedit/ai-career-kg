@@ -121,7 +121,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- `e-iam`** — the technical lifecycle this lesson's human process drives: the checklist triggers the provisioning system.
-- `e-awareness-training`** — the ongoing employment control: keeping the day-one acknowledgments alive.
-- `e-investigations`** — the administrative track: when a departure becomes an investigation.
+- `e-iam` — the technical lifecycle this lesson's human process drives: the checklist triggers the provisioning system.
+- `e-awareness-training` — the ongoing employment control: keeping the day-one acknowledgments alive.
+- `e-investigations` — the administrative track: when a departure becomes an investigation.
 - Map refs: **CISSP 1.8** (this lesson); feeds **CISSP 5.5** (provisioning lifecycle) and **7.15** (personnel safety and security).

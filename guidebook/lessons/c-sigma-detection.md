@@ -23,7 +23,7 @@ Every alert triage ever performed started as a detection someone wrote. Detectio
 
 - You know what each log source records (`c-log-sources`) — a rule is dead on arrival if its environment can't feed its `logsource`.
 - You know what a triage analyst needs from an alert (`c-soc-triage`) — the rule's title, fields, and false-positive profile are a user interface.
-- You can read YAML without fear. Sigma rules are YAML; the walkthrough validates one field by field.
+- You can read YAML — or you can after this paragraph, which is the whole syntax this lesson needs. Sigma rules are YAML: `key: value` pairs; **indentation is nesting** (two spaces per level — tabs are illegal); a line starting with `- ` is a **list item**; `|` after a key name is a **modifier** that changes how matching works, not part of the field name (`Image|endswith` means "the Image field, matched by suffix"). If you can read that much, you can read every rule here; the walkthrough's validation step checks your reading field by field.
 
 ## 3. How it works
 
@@ -136,7 +136,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the Sigma rule YAML (valid against the spec, ATT&CK-tagged), both corpora, the before/after tuning numbers, and the three-line runbook — committed as a detection-as-code bundle.
+**Artifact:** the §5 password-spray rule bundle — the Sigma YAML (valid against the spec, ATT&CK-tagged), both corpora, the before/after tuning numbers, and the three-line runbook — committed as a detection-as-code bundle. Not the walkthrough's encoded-PowerShell rule: the walkthrough taught the loop; the spray rule proves you can run it on a behavior you weren't handed.
 
 **Honest claim:** "I can write a Sigma rule against the specification, validate it, measure it against positive and negative corpora, tune it without losing true positives, and ship it with a runbook."
 **Can't claim yet:** "I have production detection coverage" — that needs a SIEM, a soak period, quarterly review, and executed adversary tests (`d-dfir-deep` track).

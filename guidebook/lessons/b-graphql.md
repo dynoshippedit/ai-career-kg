@@ -25,7 +25,7 @@ GraphQL replaces REST's fixed endpoints with a single endpoint that answers *wha
 
 - You can read HTTP requests and responses cold (`a-http-depth`), including JSON bodies.
 - You have done `b-api-abuse` — the four base classes are assumed; this lesson covers only what GraphQL *adds*.
-- Your target is written down and authorizes your testing: this lesson's local GraphQL server (graphql-core, real engine), a PortSwigger API/GraphQL lab, or a bounty program whose scope explicitly includes the API. Introspection is *enabled by default* in most frameworks — probing it on an authorized target is normal testing. Re-read B-AUTH if this sentence surprised you.
+- Your target is written down and authorizes your testing: this lesson's local GraphQL server (graphql-core, real engine), a PortSwigger API/GraphQL lab, or a bounty program whose scope explicitly includes the API. Introspection is *enabled by default* in most frameworks — probing it on an authorized target is normal testing. Re-read `b-authorization-scope` if this sentence surprised you.
 - Tooling: curl or any HTTP client that posts JSON. No special GraphQL client needed.
 
 ## 3. How it works

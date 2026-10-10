@@ -3,7 +3,7 @@ lesson_id: b-session-auth
 slug: session-auth
 stage: B
 level: 3
-prerequisites: [a-http-depth, b-csrf]
+prerequisites: [a-http-depth, b-csrf, b-idor]
 roles: [security-analyst, pentester, appsec]
 map_refs: []
 test_date: 2026-10-09
@@ -108,7 +108,7 @@ Free resources for going deeper (≤3): **PortSwigger authentication labs** (bru
 2. Why does credential stuffing defeat even a perfect password-complexity policy? Name the two controls that actually address it and what each one does.
 3. A login endpoint returns `429` after 5 rapid failures from one IP. An attacker spreads attempts across 1,000 IPs, one attempt each. What broke, and what detection or control addresses the distributed version?
 4. MFA is enabled and the attacker still hijacks the account without touching the password or the second factor. Describe a mechanism by which this is possible, referencing this lesson's session material.
-5. A password-reset token never expires and is accepted multiple times. Name three distinct abuses this enables, and the three token properties that would prevent them.
+5. A password-reset token never expires and stays valid after use. An attacker recovers a year-old reset email from a breached mailbox. Explain what they can do with it that they couldn't if the token expired after an hour — then explain what changes if the token is also single-use, and which of the two properties matters more against an attacker who intercepts the email in transit.
 
 ## 9. Prove it
 

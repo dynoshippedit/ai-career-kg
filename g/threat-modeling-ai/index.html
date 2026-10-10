@@ -178,6 +178,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <ul>
 <li>You can draw the LLM application stack from memory (<a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a>) and name each layer's attack surface.</li>
 <li>You know the OWASP LLM Top 10:2026 risks by mechanism (<a href="/g/llm-top10/"><code>ai-llm-top10</code></a>), and the pipeline's five stages (<a href="/g/ai-pipeline/"><code>ai-pipeline</code></a>).</li>
+<li><a href="/g/risk-assessment/"><code>e-risk-assessment</code></a> — the risk-register method this lesson's deliverable uses: likelihood and impact in words, the four treatments (mitigate, transfer, accept, avoid), and owned residual risk.</li>
 <li>No tools, no terminal. The work product is a document. Bring the refusal to invent threats you cannot connect to the diagram — a threat with no asset and no path is a worry, not a finding.</li>
 </ul>
 <h2>3. How it works</h2>
@@ -254,7 +255,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>After an incident, you need to determine which build produced the misbehaving model, but the registry has mutable tags and no provenance. Which STRIDE category failed, and which <a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> control would have preserved the evidence?</li>
 </ol>
 <h2>9. Prove it</h2>
-<p><strong>Artifact:</strong> the complete threat-model document for the Harborlight assistant — data-flow diagram (photo/scan of the whiteboard is fine), trust-boundary statements, STRIDE table, ATLAS mappings, and the risk register with treatments, owners, and the self-review checklist signed off.</p>
+<p><strong>Artifact:</strong> the complete threat-model document for the Meridian pipeline from §5 — data-flow diagram (photo/scan of the whiteboard is fine), trust-boundary statements, STRIDE table, ATLAS mappings, and the risk register with treatments, owners, and the self-review checklist signed off.</p>
 <p><strong>You can claim:</strong> "I can threat-model an AI system end to end — map its data flows, mark its trust boundaries, apply STRIDE adapted to AI components, map threats to MITRE ATLAS, and produce a risk register with owned treatments."</p>
 <p><strong>You cannot claim:</strong> that the model is complete (threat models are hypotheses — the lesson says so); coverage of threats outside the modeled scope (name the scope boundary in the document); or red-team validation — the model predicts, testing confirms.</p>
 <h2>10. Leads to</h2>

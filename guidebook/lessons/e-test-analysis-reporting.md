@@ -24,7 +24,7 @@ Every testing method in `e-control-testing` produces output: scanner lists, pent
 ## 2. Before you start
 
 - You can score severity (`c-cvss`) and you know the engagement lifecycle (`b-methodology`) — this lesson is the analysis-and-reporting phase done at program scale.
-- You have the method matrix (`e-control-testing`) — every finding below arrives with the method that produced it, which bounds what the finding means.
+- Every finding below arrives with the method that produced it, which bounds what the finding means: a scanner finding is unverified until triaged, a pentest finding is point-in-time evidence, an audit finding is sampled evidence — the full method matrix is `e-control-testing`'s subject.
 - One local demo in §4: Python 3, no packages, no network. The script and its fictional findings list are reproduced so you can run the exact transcript.
 
 ## 3. How it works

@@ -25,7 +25,7 @@ Someone has to decide, before the incident, that evidence will exist when needed
 
 - You have run the incident-response lifecycle in `c-incident-response` — investigations begin where containment ends, or run in parallel.
 - You know what forensic artifacts look like from `d-dfir-deep` — this lesson teaches what governs their collection.
-- No tools. The work products are documents: a forensic-readiness plan, a chain-of-custody procedure, an investigation decision log. Bring the `e-risk-assessment` habit of writing reasons, owners, and dates — a court may read them.
+- No tools. The work products are documents: a forensic-readiness plan, a chain-of-custody procedure, an investigation decision log. Bring the discipline of writing reasons, owners, and dates — a court may read them.
 
 ## 3. How it works
 

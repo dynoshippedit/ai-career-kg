@@ -25,7 +25,7 @@ An incident becomes an investigation the moment someone asks "what happened, who
 
 - You have run the first hours of an incident in `c-incident-response` — this lesson starts where containment ends and the questions begin.
 - You know evidence handling from `d-dfir-deep` — chain of custody, imaging, documentation. Every type below consumes that discipline differently.
-- Bring your `e-cyber-law` matrix — regulatory investigations are obligations from that matrix coming due.
+- If you have built the `e-cyber-law` obligation matrix, bring it — regulatory investigations are those obligations coming due; the clocks and triggers for each type are taught here.
 - The work product is a decision tree applied to three scenarios, each ending in: type, authority, evidence standard, the one mistake to avoid.
 
 ## 3. How it works

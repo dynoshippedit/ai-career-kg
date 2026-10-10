@@ -86,7 +86,7 @@ Expected: `demo-correct` reports zero escalation findings; `demo-overbroad` flag
 
 ## 5. On your own
 
-Take the `overbroad.json` policy from the walkthrough and write the privilege-escalation path it enables as a three-step chain (which API calls, in which order, ending in what permission). Then write the minimal fixed policy. Success test: Cloudsplaining reports no escalation findings on your fixed policy, and a second reader can follow your three steps without asking what any call does.
+Take the `overbroad.json` policy from the walkthrough and write the privilege-escalation path it enables as a three-step chain (which API calls, in which order, ending in what permission). Then write the minimal fixed policy. Success test (alone — no second reader needed): run Cloudsplaining against your fixed policy with the walkthrough's exact command and confirm zero escalation findings — save the output. Then read your three-step chain back and check each step names the API call, the permission that allows it, and the permission it buys; any step using a term the walkthrough didn't teach gets rewritten in plain words. Clean scan output plus a chain with no unexplained terms.
 
 ## 6. Where it goes wrong
 
@@ -119,7 +119,7 @@ Free resources for going deeper (at most three):
 
 ## 9. Prove it
 
-**Artifact:** a posture mini-assessment of the walkthrough's fictional estate: the three analyzed policies with Cloudsplaining output, the five scenario classifications, and the bucket finding written as a full report entry (root cause, impact in business terms, remediation, verification).
+**Artifact:** a posture mini-assessment of the walkthrough's fictional estate — the three analyzed policies with Cloudsplaining output, the five scenario classifications, the bucket finding as a full report entry — **plus** one policy you write yourself for a plausible real role (a CI deploy role, a read-only auditor, a backup job): run Cloudsplaining on it, fix what it flags, and include the before/after with the scan outputs. The walkthrough's policies were the lesson's; the fourth proves you can write and check a policy the lesson didn't hand you.
 
 **You can honestly claim:** you can classify cloud responsibility, read IAM policies for escalation paths, run posture tooling, and write cloud findings that get fixed. **You cannot yet claim:** you have assessed a real estate — that needs your own lab account and the reader-side scan, with findings verified by hand.
 

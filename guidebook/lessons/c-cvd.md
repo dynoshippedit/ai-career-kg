@@ -101,11 +101,11 @@ Primary documents first — read them in this order:
 
 ## 8. Check yourself
 
-1. You find a flaw in a vendor's product. Their site has no security.txt, no SECURITY.md, and no security page — just a general contact form. Walk the CERT contact-finding order: what do you try, in what order, and what do you document at each step?
+1. A vendor's site has a security.txt but its Contact address bounces, and their SECURITY.md names a different email. Which do you use first, what do you document about the dead address, and why does the CERT order put security.txt before SECURITY.md? What changes in your documentation when the first contact method fails?
 2. The vendor acknowledges your report but proposes publishing the advisory in six months, with no patch date committed. Which CERT principle does this violate, and what is your counter-proposal?
 3. Why does the OpenSSF guide insist the report be written so "the advisory can be derived from it"? What goes wrong when the report and the advisory are written as separate documents by different people?
 4. A researcher publishes a zero-day on social media with no vendor notice, arguing "the vendor would have sat on it." Using the SandboxEscaper case, explain who paid the cost of that decision and what the coordinated alternative would have changed.
-5. Your disclosure timeline hits day 14 of vendor silence. Name the exact next step from this lesson's walkthrough — and what you must not do.
+5. Your disclosure timeline hits day 14 of vendor silence, and a colleague urges you to publish the proof of concept "to light a fire under them." Using the CERT principles from this lesson, explain the two harms that publication would cause, what the walkthrough prescribes instead, and why the prescribed step preserves your leverage better than the PoC would.
 
 ## 9. Prove it
 

@@ -24,7 +24,7 @@ The response lifecycle tells you *what* to do about an incident; incident manage
 ## 2. Before you start
 
 - You know the incident-response lifecycle from `c-incident-response` — preparation, detection, containment, eradication, recovery, lessons learned. This lesson staffs it.
-- You have the BCP/DRP view from `e-bcp-drp` — incident management hands off to continuity; know where that boundary is.
+- Incident management hands off to continuity; this lesson teaches the handoff from the incident side — the continuity half is `e-bcp-drp`'s subject.
 - No tools. The work products are documents: a team charter with roles, an escalation matrix, a communications plan, and a metrics set. Primary spine: **NIST SP 800-61 Rev. 3** (Computer Security Incident Handling Guide, April 2025 — the current revision, restructured around CSF 2.0).
 
 ## 3. How it works

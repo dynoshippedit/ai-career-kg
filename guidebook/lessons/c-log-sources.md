@@ -22,7 +22,7 @@ Triage told you *what to decide*; this lesson tells you *where to look*. Every i
 ## 2. Before you start
 
 - You parse text with the command line without thinking about it (`a-linux-cli`): `grep`, `awk`, `sort`, `uniq -c`.
-- You know what a TCP connection looks like (`a-tcpip-ports`): 5-tuple, ports, what encryption hides and what it doesn't.
+- You know what a TCP connection looks like (`a-tcpip-ports`): the socket pair, ports, handshake states. This lesson adds what that lesson doesn't teach: the 5-tuple's fifth field (protocol) and the encryption distinction — content hidden, envelope visible.
 - Accept the premise you will use for the rest of your career: **one log source never tells the story.** Every conclusion in this lesson is cross-source.
 - Vocabulary you will meet here: **telemetry** is the stream of events and measurements a system emits about its own operation — the raw material every detection and investigation is built from. A **SIEM** (security information and event management) is the platform that ingests logs from many sources so you can search and correlate them in one place — Wazuh, Splunk, and Microsoft Sentinel are examples.
 
@@ -102,7 +102,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** the source map from walkthrough step 8 plus your invented Sysmon story: per source, what it contributed, what it answered, and the blind-spot column naming what you couldn't see.
+**Artifact:** the source map for *your invented Sysmon story* from §5 (not the walkthrough's): per source, what it contributed, what it answered, and the blind-spot column naming what you couldn't see — with the initial-access, execution, and persistence events cited by ID. The walkthrough's map was the template; this one is unaided: the story must be a different intrusion than the walkthrough's, and the blind spot must be a question your invented sources genuinely cannot answer.
 
 **Honest claim:** "Given a set of log sources, I can select the right source for each investigation question, parse it with CLI tools, correlate across sources into a timeline, and state what remains blind."
 **Can't claim yet:** "I can design a logging architecture" — collection engineering, retention policy, and pipeline reliability are the detection-engineering discipline (`c-sigma-detection` and the D track).

@@ -177,6 +177,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>2. Before you start</h2>
 <ul>
 <li><a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> (you know where the weights sit in the stack) and <a href="/g/llm-top10/"><code>ai-llm-top10</code></a> (LLM04:2026 is this lesson's headline risk).</li>
+<li><a href="/g/git-github/"><code>a-git-github</code></a> — commits as content-addressed snapshots: a commit hash names exact bytes, while a branch name is a movable pointer. That distinction is why this lesson pins hashes and distrusts "latest."</li>
 <li>Python 3 and OpenSSL on your machine. No model download needed — the walkthrough builds a fake model directory and treats it as the artifact under test. The live-signing step uses Sigstore's keyless flow against the public Rekor log; it needs network and an OIDC identity, so it is marked <strong>not run by us</strong> here with the exact reader procedure.</li>
 <li>Safety framing: you will deliberately craft a malicious pickle file <em>on your own machine, in a scratch directory, labeled as a hazard demo</em> — the classic <code>__reduce__</code> demonstration. This is the standard teaching demo for deserialization risk, contained to your own files. Nothing leaves your machine.</li>
 </ul>
@@ -207,7 +208,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li><strong>Keyless signing — NOT RUN BY US.</strong> On your machine, with network: install cosign; <code>cosign sign-blob --yes bom.json</code> using your OIDC identity (GitHub Actions or email); then <code>cosign verify-blob</code> against the expected identity, and check the Rekor entry. Record the four verification checks from §3 and confirm each passes. Then write the admission policy from §5 of the worked example as a script that refuses any model directory without a verified signature — that policy is your artifact's companion.</li>
 </ol>
 <h2>5. On your own</h2>
-<p><strong>Task:</strong> Take any model artifact on your machine (a real download, or the walkthrough's <code>model_dir</code>). Produce its AIBOM (hashes, source, framework, dataset reference), verify it, tamper one file, and show the verification catching it. Then write the admission policy: a script that takes a model directory and exits non-zero unless every file's hash matches the AIBOM and the AIBOM itself carries a signature from an expected identity (stub the signature check with a comment marking where cosign verification plugs in, until you complete step 6 above).</p>
+<p><strong>Task:</strong> Take a model artifact you did not build in the walkthrough — a real download if you have one; the walkthrough's <code>model_dir</code> only as a last resort. Produce its AIBOM (hashes, source, framework, dataset reference), verify it, tamper one file, and show the verification catching it. Then write the admission policy: a script that takes a model directory and exits non-zero unless every file's hash matches the AIBOM and the AIBOM itself carries a signature from an expected identity (stub the signature check with a comment marking where cosign verification plugs in, until you complete step 6 above).</p>
 <p><strong>Success test:</strong> The tamper is caught and named; the policy script refuses the tampered directory and accepts the clean one; the stub comment says exactly which cosign command fills it. If your policy trusts the hub's web page instead of hashes and signatures, it fails.</p>
 <h2>6. Where it goes wrong</h2>
 <ul>
@@ -237,7 +238,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>Explain why a transparency log (Rekor) is necessary even when every artifact is signed — what attack does the log prevent that signatures alone do not?</li>
 <li>A <code>.pt</code> file from an unverified publisher arrives for fine-tuning. Explain the exact mechanism by which loading it could compromise the training machine, and the two mitigations in order of preference.</li>
 <li>Your AIBOM lists framework version X, and a vulnerability is later found in X's model loader. Explain the two questions the AIBOM answers in the first ten minutes of triage, and which question it cannot answer.</li>
-<li>A vendor says their model registry "signs all models." List the four verification checks from §3 and explain which one fails if the team never wrote the admission policy.</li>
+<li>A registry "signs all models," but no admission policy was ever written — deploys pull whatever the registry serves. An attacker publishes a backdoored model under a lookalike publisher identity and signs it properly with their own key. Predict which of the four §3 verification checks catches this, explain why the other three pass, and explain why the catching check is useless unless it runs in the deploy path.</li>
 </ol>
 <h2>9. Prove it</h2>
 <p><strong>Artifact:</strong> the AIBOM (<code>bom.json</code>) for a model directory, the verification transcript (clean accept + tamper caught and named), and the admission-policy script from §5.</p>

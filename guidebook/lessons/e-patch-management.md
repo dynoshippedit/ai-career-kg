@@ -24,7 +24,7 @@ Vulnerabilities are found constantly; patches exist for most of them; breaches s
 ## 2. Before you start
 
 - You know the vulnerability inputs from `c-vuln-ecosystem` — CVE records, the KEV catalog, EPSS — and severity from `c-cvss`. This lesson turns those inputs into an operation.
-- You understand change control from `e-change-management` (same batch) — routine patching flows through it; emergency patching has its own path.
+- Routine patching flows through change control; emergency patching has its own path — the change-control discipline is `e-change-management`'s subject (same stage); this lesson teaches the patching-specific design.
 - No tools. The work products are documents: a patching SLA policy, an exception register, and an emergency-patching runbook. Primary spine: **CISA's Known Exploited Vulnerabilities (KEV) catalog** and **NIST SP 800-40 Rev. 4** (Guide to Enterprise Patch Management Planning, April 2022).
 
 ## 3. How it works

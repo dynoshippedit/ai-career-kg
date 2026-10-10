@@ -24,7 +24,7 @@ dateline: "Worked case authored and reviewed 2026-10-10 · no command line in th
 ## 2. Before you start
 
 - You know the engagement lifecycle from `b-methodology` — scoping, rules of engagement, reporting. This lesson writes the scoping decisions for twelve months at once.
-- You have seen risk thinking (`e-risk-assessment`) — the strategy allocates testing where risk justifies it, not where it is convenient.
+- This lesson allocates testing where risk justifies it, not where it is convenient — the risk-rating discipline is `e-risk-assessment`'s subject; §3 teaches the prioritization reasoning this strategy needs.
 - No tools. The work product is an annual assessment strategy document for a fictional company.
 
 ## 3. How it works
@@ -112,7 +112,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** your annual assessment strategy — policy, coverage inventory with tiered prioritization and written reasons, assessor-class assignments, cadence (continuous, periodic, event-driven) across all four testing viewpoints, scoping-rule template, and retest commitments — for the Alderpoint worked case in your own words or an estate you know.
+**Artifact:** your annual assessment strategy — policy, coverage inventory with tiered prioritization and written reasons, assessor-class assignments, cadence (continuous, periodic, event-driven) across all four testing viewpoints, scoping-rule template, and retest commitments — for an estate you know. If you use the Alderpoint case instead, change the estate (different systems, different tiers) so the strategy is yours, not a retelling.
 
 **Honest claim:** "I can design a year's assessment program — I can say what gets tested, by whom, how often, how deep, under what rules, and why each choice, and I can defend the coverage against a skeptic."
 **Can't claim yet:** "I can execute these assessments" — performing the tests is the practitioners' work (`b-methodology`, `e-control-testing`); this lesson taught the strategy that directs it.

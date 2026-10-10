@@ -177,7 +177,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>2. Before you start</h2>
 <ul>
 <li>You parse text with the command line without thinking about it (<a href="/g/linux-cli/"><code>a-linux-cli</code></a>): <code>grep</code>, <code>awk</code>, <code>sort</code>, <code>uniq -c</code>.</li>
-<li>You know what a TCP connection looks like (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>): 5-tuple, ports, what encryption hides and what it doesn't.</li>
+<li>You know what a TCP connection looks like (<a href="/g/tcpip-ports/"><code>a-tcpip-ports</code></a>): the socket pair, ports, handshake states. This lesson adds what that lesson doesn't teach: the 5-tuple's fifth field (protocol) and the encryption distinction — content hidden, envelope visible.</li>
 <li>Accept the premise you will use for the rest of your career: <strong>one log source never tells the story.</strong> Every conclusion in this lesson is cross-source.</li>
 <li>Vocabulary you will meet here: <strong>telemetry</strong> is the stream of events and measurements a system emits about its own operation — the raw material every detection and investigation is built from. A <strong>SIEM</strong> (security information and event management) is the platform that ingests logs from many sources so you can search and correlate them in one place — Wazuh, Splunk, and Microsoft Sentinel are examples.</li>
 </ul>
@@ -239,7 +239,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li>Your SIEM has no proxy logs and no EDR. An analyst asks "which user clicked the phishing link?" Explain why this question is unanswerable from your sources, which source would answer it, and how you would work around the gap today.</li>
 </ol>
 <h2>9. Prove it</h2>
-<p><strong>Artifact:</strong> the source map from walkthrough step 8 plus your invented Sysmon story: per source, what it contributed, what it answered, and the blind-spot column naming what you couldn't see.</p>
+<p><strong>Artifact:</strong> the source map for <em>your invented Sysmon story</em> from §5 (not the walkthrough's): per source, what it contributed, what it answered, and the blind-spot column naming what you couldn't see — with the initial-access, execution, and persistence events cited by ID. The walkthrough's map was the template; this one is unaided: the story must be a different intrusion than the walkthrough's, and the blind spot must be a question your invented sources genuinely cannot answer.</p>
 <p><strong>Honest claim:</strong> "Given a set of log sources, I can select the right source for each investigation question, parse it with CLI tools, correlate across sources into a timeline, and state what remains blind."</p>
 <p><strong>Can't claim yet:</strong> "I can design a logging architecture" — collection engineering, retention policy, and pipeline reliability are the detection-engineering discipline (<a href="/g/sigma-detection/"><code>c-sigma-detection</code></a> and the D track).</p>
 <h2>10. Leads to</h2>

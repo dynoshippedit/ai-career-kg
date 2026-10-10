@@ -111,7 +111,7 @@ Then at most three free resources:
 
 ## 9. Prove it
 
-**Artifact:** your architecture vulnerability assessment — component inventory with trust boundaries, per-component vulnerability classes with specific mechanisms, ratings with the structural modifier, prioritized recommendations with effort tiers and retirement notes, scope limits, and the re-assessment trigger — for the Harborline case in your own words, or for a system you can observe.
+**Artifact:** your architecture vulnerability assessment — component inventory with trust boundaries, per-component vulnerability classes with specific mechanisms, ratings with the structural modifier, prioritized recommendations with effort tiers and retirement notes, scope limits, and the re-assessment trigger — for a system you can observe. If you use the Harborline case instead, change the architecture (different components, different trust boundaries) so the assessment is yours, not a retelling.
 
 **Honest claim:** "I can decompose a hybrid architecture, name the vulnerability classes each component type invites, rate findings with structural judgment, and prioritize architectural fixes."
 **Can't claim yet:** "I can penetration-test the architecture" — exploitation is a separate discipline; this lesson argued from design.
