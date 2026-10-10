@@ -8,7 +8,7 @@ roles: [pentester]
 map_refs: []
 test_date: 2026-10-09
 description: "Setting up practice targets locally: DVWA, Juice Shop, WebGoat, crAPI and DVGA, one verified command each, bound to localhost — so you never need a live system. A free lesson in the security guidebook."
-dateline: "Procedures verified against the projects' own READMEs 2026-10-09 · container runs not run by us (no Docker on the build machine)"
+dateline: "Procedures verified against the projects' own READMEs 2026-10-09 · DVGA additionally run for real on the build machine 2026-10-10 (native, from the project's own source — registry pull blocked, see runs log); other container runs not run by us"
 ---
 # Setting up practice targets locally
 
@@ -90,13 +90,14 @@ Then `http://localhost:5013`. Note the deliberate correction in the command abov
 
 ## 4. Walkthrough
 
-**Procedure verification — no Docker on this machine.** The walkthrough for this lesson is the verification of every setup procedure above against the primary source. Transcript: `runs/b-practice-targets.log`. Verified 2026-10-09.
+**Procedure verification + one real bring-up.** Steps 1–4 verify every setup procedure against the primary source (transcript: `runs/b-practice-targets.log`). Step 6 runs DVGA for real on this machine — the one target light enough to run natively, and the one whose all-interfaces bind is this lesson's key teaching moment. Docker is installed on this machine now (static binaries, 28.5.2) but the registry is unreachable from this network — the runs log carries the full attempt log, so the honest marker below stands on evidence, not assumption. Verified 2026-10-09; DVGA run 2026-10-10.
 
 1. **Fetch the canonical READMEs.** All five project pages fetched in-session (HTTP 200): DVWA, Juice Shop, WebGoat, crAPI, DVGA. These are the primary sources; everything below is quoted from them.
 2. **Extract and record the run commands.** Each command in section 3 was extracted from its README's text: DVWA's `docker compose up -d` with the `127.0.0.1:4280:80` mapping; Juice Shop's loopback-bound `docker run`; WebGoat's dual-port command with the `-e TZ=` note; crAPI's `docker compose pull` + `--compatibility up -d`; DVGA's `docker pull` + `docker run -t -p 5013:5013`.
 3. **Confirm the ports.** DVWA `:4280`, Juice Shop `:3000`, WebGoat `:8080`/`:9090`, crAPI `:8888` + MailHog `:8025`, DVGA `:5013` — all confirmed in the READMEs; all distinct, so all five targets can run simultaneously.
 4. **Apply the safety correction.** DVGA's README binds all interfaces; the lesson teaches the loopback override and explains the two-bind distinction (container-internal vs host). This is the lesson's key teaching moment, and it is marked as a lesson decision, not a README quote.
-5. **Container runs: not run by us.** No Docker binary exists on this machine (verified: `command -v docker` → missing). The commands are verified quotes from the projects' own documentation as fetched today — but the containers were not started here. The reader runs them on their own machine, following `b-authorization-scope`'s rules.
+5. **Container runs: not run by us.** The Docker daemon runs on this machine now, but Docker Hub is unreachable from this network (registry TLS timeouts; the full attempt — static binaries, vfs driver, proxy-aware pull tools — is logged in `runs/b-practice-targets.log`). The commands are verified quotes from the projects' own documentation as fetched today — but the containers were not started here. The reader runs them on their own machine, following `b-authorization-scope`'s rules.
+6. **DVGA, run for real (native, 2026-10-10).** With the registry blocked, DVGA ran from the project's own source instead: cloned `github.com/dolevf/Damn-Vulnerable-GraphQL-Application`, installed its `requirements.txt` in a venv (two substitutions logged in the runs log: the pinned gevent 22.10.2 won't build on Python 3.12 → gevent 26.9.0; pinned greenlet 2.0.1 conflicts → 3.5.6), ran `setup.py` to build the database. Then, with `WEB_HOST=127.0.0.1`: the app listened on **127.0.0.1:5013 only** (`ss -tlnp` confirms — loopback, not all interfaces), served HTTP 200 on `/`, and answered a real GraphQL introspection query (`{ __schema { types { name } } }` → the full type list, introspection enabled) plus `{ systemHealth }`. Then restarted with `WEB_HOST=0.0.0.0` — the README's setting — and `ss` showed **0.0.0.0:5013 LISTEN**: the vulnerable app exposed on every interface. That pair of `ss` outputs is the whole lesson in one line: the README's `-e WEB_HOST=0.0.0.0` (plus `-p 5013:5013`) is what you're overriding when you bind loopback. Teardown: app killed by PID, port verified free, no stray processes.
 
 ## 5. On your own
 

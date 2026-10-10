@@ -186,7 +186,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Gates per phase.</strong> A <strong>gate</strong> is a checkpoint with entry criteria: the phase's work cannot proceed until the security activity is done and its findings dispositioned. The standard attachment points:</p>
 <ul>
 <li><strong>Requirements:</strong> security requirements written alongside functional ones (authentication, authorization, data classification, compliance obligations). <em>Gate:</em> requirements reviewed for completeness — "the system shall…" includes the security shalls.</li>
-<li><strong>Design:</strong> threat model completed; security architecture reviewed (this is where <code>E-D3-01</code>'s principles get applied). <em>Gate:</em> threat-model sign-off with mitigations assigned.</li>
+<li><strong>Design:</strong> threat model completed; security architecture reviewed (this is where <a href="/g/secure-design/"><code>e-secure-design</code></a>'s principles get applied). <em>Gate:</em> threat-model sign-off with mitigations assigned.</li>
 <li><strong>Implementation:</strong> secure-coding standards in force, IDE/editor checks, pre-commit secret scanning, peer review with a security checklist. <em>Gate:</em> no known-bad patterns merged (the checklist is the gate, not a person).</li>
 <li><strong>Verification:</strong> SAST on every build, DAST against a staging environment, SCA for dependency vulnerabilities, targeted penetration testing for high-risk changes. <em>Gate:</em> findings triaged by severity with SLAs; release-blocking severities defined in advance, not negotiated at release time.</li>
 <li><strong>Release:</strong> final review — all gate findings dispositioned, SBOM generated, signing in place. <em>Gate:</em> the release checklist, signed.</li>
@@ -225,7 +225,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <li><strong>Checklist without enforcement.</strong> The secure-coding checklist exists; nobody checks it; admin code is exempt "because it's internal." The Northwind root cause is the archetype — fix the enforcement, not just the finding.</li>
 <li><strong>Scanning as the program.</strong> SAST/DAST/SCA are verification <em>activities</em>, not a secure SDLC. A program that scans at the end and threat-models never is just waterfall with dashboards.</li>
 <li><strong>Metrics of activity.</strong> "We ran 400 scans" tells you nothing about whether software got safer. Track detection-phase shift, remediation time, and recurrence — or admit you are not measuring effectiveness.</li>
-<li><strong>Third-party code as someone else's problem.</strong> Dependencies and acquired components carry your risk (Log4Shell taught this at scale). SCA and acquisition review (<code>E-D1-11</code>'s territory) are gates too — an SBOM nobody reads is inventory, not control.</li>
+<li><strong>Third-party code as someone else's problem.</strong> Dependencies and acquired components carry your risk (Log4Shell taught this at scale). SCA and acquisition review (<a href="/g/supply-chain-risk/"><code>e-supply-chain-risk</code></a>'s territory) are gates too — an SBOM nobody reads is inventory, not control.</li>
 <li><strong>The maintenance cliff.</strong> Gates end at release; vulnerabilities do not. Without the Respond practices (intake, triage, SLA, root cause), the program covers birth and abandons life.</li>
 </ul>
 <h2>7. Read the source</h2>
@@ -256,8 +256,8 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <h2>10. Leads to</h2>
 <ul>
 <li><strong>D-AppSec track</strong> — the hands-on techniques this program deploys: STRIDE facilitation, SAST/DAST/IAST/SCA operation, code review.</li>
-<li><strong>E-D3-01 — Secure design principles</strong> — the design-phase companion: principles applied at the threat-model table.</li>
-<li><strong>E-D1-11 — Supply chain risk management</strong> — the acquisition gate: third-party software under the same discipline.</li>
+<li><strong>e-secure-design — Secure design principles</strong> — the design-phase companion: principles applied at the threat-model table.</li>
+<li><strong>e-supply-chain-risk — Supply chain risk management</strong> — the acquisition gate: third-party software under the same discipline.</li>
 <li><a href="/g/business-logic/"><code>b-business-logic</code></a>, <a href="/g/sqli/"><code>b-sqli</code></a>, <a href="/g/idor/"><code>b-idor</code></a> — the vulnerability classes your gates exist to catch; reread them as gate-test cases.</li>
 <li>Map refs: <strong>CISSP 8.1, 8.2, 8.3, 8.4, 8.5</strong> (this lesson, governance level); feeds <strong>CISSP 3.10</strong> (system lifecycle).</li>
 </ul>

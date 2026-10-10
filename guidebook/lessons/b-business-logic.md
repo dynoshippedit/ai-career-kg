@@ -86,7 +86,7 @@ Take the fixed demo shop and find a *fourth* assumption the walkthrough didn't v
 
 Primary documents — read in this order:
 
-1. **PortSwigger Web Security Academy — Business logic vulnerabilities** (portswigger.net/web-security/logic-flaws): definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). *Verified in night research 2026-10-09; re-fetch at build time before linking.*
+1. **PortSwigger Web Security Academy — Business logic vulnerabilities** (portswigger.net/web-security/logic-flaws): definition, the flaw families, prevention practices. Read fully, then work the labs (11+ labs: excessive trust in client-side controls, low-level logic flaws, inconsistent handling of exceptional input, weak isolation on dual-use endpoints, insufficient workflow validation, flawed state machines). *Verified in-session 2026-10-10.*
 2. **OWASP Top 10:2025 — A06 Insecure Design** (owasp.org/Top10/2025/): what "insecure design" means as a category and why logic flaws live there rather than under Injection. *Verified in-session 2026-10-09.*
 3. **WSTG business-logic testing** (owasp.org/www-project-web-security-testing-guide/ — WSTG-BUSL): the test-case checklist form of this lesson's methodology. Skim the test IDs; use as a checklist on your next workflow.
 

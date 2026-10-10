@@ -132,7 +132,7 @@ Then at most three free resources:
 **Artifact:** the Sigma rule YAML (valid against the spec, ATT&CK-tagged), both corpora, the before/after tuning numbers, and the three-line runbook — committed as a detection-as-code bundle.
 
 **Honest claim:** "I can write a Sigma rule against the specification, validate it, measure it against positive and negative corpora, tune it without losing true positives, and ship it with a runbook."
-**Can't claim yet:** "I have production detection coverage" — that needs a SIEM, a soak period, quarterly review, and executed adversary tests (`D-DFIR` track).
+**Can't claim yet:** "I have production detection coverage" — that needs a SIEM, a soak period, quarterly review, and executed adversary tests (`d-dfir-deep` track).
 
 ## 10. Leads to
 

@@ -117,8 +117,8 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-GOV-01 — NIST Cybersecurity Framework 2.0** — the risk assessment feeds the Govern function and the Current-vs-Target profile.
-- **E-D1-11 — Supply chain risk management** — the same method applied to vendors (SP 800-161).
-- **E-LEAD — Running a security program** — the board memo: risk communication as a leadership skill.
-- **E-D1-07 — Business continuity (BIA)** — impact analysis is the sibling discipline; the two share scales and stakeholders.
+- **e-csf-20 — NIST Cybersecurity Framework 2.0** — the risk assessment feeds the Govern function and the Current-vs-Target profile.
+- **e-supply-chain-risk — Supply chain risk management** — the same method applied to vendors (SP 800-161).
+- **e-security-program — Running a security program** — the board memo: risk communication as a leadership skill.
+- **e-bcp-drp — Business continuity (BIA)** — impact analysis is the sibling discipline; the two share scales and stakeholders.
 - Map refs: **CISSP 1.9** (this lesson); feeds **CISSP 1.3** (governance) and **1.7** (BIA) downstream.

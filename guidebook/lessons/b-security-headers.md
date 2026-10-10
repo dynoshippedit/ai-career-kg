@@ -87,7 +87,7 @@ Primary documents — read in this order:
 
 1. **OWASP Secure Headers Project** (owasp.org/www-project-secure-headers/): the header catalog — what each header does, with configuration guidance. Read the header reference fully. *Verified in-session 2026-10-09.*
 2. **MDN — Content Security Policy guide** (developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP): directives, nonces, hashes, the `unsafe-inline` warnings. Read the XSS-defense and nonce sections; skim the rest. *Verified in-session 2026-10-09.*
-3. **RFC 6797 — HTTP Strict Transport Security** (rfc-editor.org/rfc/rfc6797): the HSTS mechanism — max-age, includeSubDomains, preload semantics. Read §6–§8; skim the rest. *Cited as primary lead — fetch at build time before linking.*
+3. **RFC 6797 — HTTP Strict Transport Security** (rfc-editor.org/rfc/rfc6797): the HSTS mechanism — max-age (§6.1.1), includeSubDomains (§6.1.2), the server/user-agent processing models, and the pre-loaded list (§12.3). Read §6–§8; skim the rest. *Verified in-session 2026-10-10 (HTTP 200; Standards Track, November 2012).*
 
 Free resources for going deeper (≤3): **MDN HTTP headers reference** (per-header semantics, browser support tables); **the OWASP Secure Headers validator** (the project's own checking tool — run it against your labs); **Google's CSP evaluator** (paste a policy, get the bypasses — teaches you to read policies adversarially).
 

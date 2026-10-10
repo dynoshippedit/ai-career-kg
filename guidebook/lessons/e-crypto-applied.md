@@ -97,7 +97,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-D2-06 — Data protection controls** — encryption at rest/in transit as an organizational control set; this lesson's inventory becomes its input.
-- **E-D3-01 — Secure design principles** — "use established cryptography" as a design principle with teeth.
+- **e-data-protection-controls — Data protection controls** — encryption at rest/in transit as an organizational control set; this lesson's inventory becomes its input.
+- **e-secure-design — Secure design principles** — "use established cryptography" as a design principle with teeth.
 - `a-http-depth` — reread the TLS handshake section now that you have run one; `b-security-headers` — HSTS as the policy that keeps TLS from being optional.
 - Map refs: **CISSP 3.6** (this lesson); feeds **CISSP 2.6** (data protection), **4.3** (secure channels).

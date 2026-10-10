@@ -46,3 +46,44 @@ Step 5 — PortSwigger Academy: account signup and lab launch are reader-side
 Safety notes verified in READMEs: DVWA and WebGoat both warn the container
 makes the host vulnerable while running — lesson teaches run-only-while-
 practicing + compose down afterward.
+
+Step 6 — DVGA real bring-up (2026-10-10, depth-deepening pass).
+  Docker route attempted first and abandoned with a full attempt log:
+  - apt: no sources configured, `apt-get update` hung on a dead mirror (>5 min).
+  - Docker 28.5.2 static binaries installed fine; daemon started with
+    `--storage-driver=vfs --iptables=false --bridge=none` because this VM's
+    kernel rejects overlay mounts ("invalid argument") and iptables rule
+    appends ("missing kernel module").
+  - The daemon ignores proxy env for registry pulls (TLS handshake timeout
+    to registry-1.docker.io); crane 0.22.1 (proxy-aware) could not complete
+    even a hello-world pull — the registry path is dead from this network.
+  - Verdict: container bring-ups remain "not run by us"; the attempt log is
+    the honest record, per the brief's "a gap is a valid result."
+  Native run instead, from the project's own source (github.com/dolevf/
+  Damn-Vulnerable-GraphQL-Application, cloned 2026-10-10):
+  - Dockerfile/READMEs confirm the lesson's claims: README's run command is
+    `docker run -t -p 5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga`; port 5013;
+    Dockerfile EXPOSE 5013. The source's config.py defaults WEB_HOST to
+    127.0.0.1 — the README overrides it to 0.0.0.0, which is the lesson's
+    teaching point, verified at the source.
+  - requirements.txt installed with two substitutions (logged, not hidden):
+    pinned gevent==22.10.2 fails to build on Python 3.12 (Cython
+    incompatibility) -> gevent 26.9.0; pinned greenlet==2.0.1 conflicts ->
+    greenlet 3.5.6. Everything else installed as pinned.
+  - `python setup.py` -> "Reconstructing Database / Populating Database / done".
+  Run 1 (WEB_HOST=127.0.0.1): `ss -tlnp` -> 127.0.0.1:5013 LISTEN (python,
+    loopback only). `curl http://127.0.0.1:5013/` -> HTTP 200.
+    GraphQL proof: POST /graphql `{"query":"{ __schema { types { name } } }"}`
+    -> 200 with the type list (Query, PasteObject, UserObject, Mutations:
+    CreatePaste/EditPaste/DeletePaste/UploadPaste/ImportPaste...). Introspection
+    enabled, as the b-graphql lesson teaches to expect. `{ systemHealth }`
+    -> "System Load: 0.98" — a real engine, not a stub.
+  Run 2 (WEB_HOST=0.0.0.0 — the README's setting): `ss -tlnp` ->
+    0.0.0.0:5013 LISTEN. This is the exact difference the lesson teaches:
+    the README's `-e WEB_HOST=0.0.0.0` (plus `-p 5013:5013`) exposes the
+    deliberately vulnerable app on every interface; the lesson's
+    loopback bind (127.0.0.1) does not. Demonstrated, not just described.
+  Teardown: app killed by PID; `ss` shows nothing on 5013; `pgrep -f dvga-src`
+  empty; dockerd/containerd stopped; no stray listeners. Nothing left running.
+  Tool versions: Python 3.12.3 (venv), pip 24.0, gevent 26.9.0, graphene 2.1.9,
+  Flask 2.2.2. Loopback only. 2026-10-10.

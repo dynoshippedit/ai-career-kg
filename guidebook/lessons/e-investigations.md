@@ -117,8 +117,8 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **D-DFIR — `d-dfir-deep`** — the evidence discipline every type consumes: imaging, hashing, custody, analysis.
-- **C-IR — `c-incident-response`** — the first hours: containment before investigation, and the handoff between them.
-- `e-cyber-law`** — the regulatory type's obligations: notification clocks, evidence the regulator expects.
-- `e-personnel-security`** — the administrative type's home ground: the employment lifecycle and insider cases.
+- **d-dfir-deep — `d-dfir-deep`** — the evidence discipline every type consumes: imaging, hashing, custody, analysis.
+- **c-incident-response — `c-incident-response`** — the first hours: containment before investigation, and the handoff between them.
+- `e-cyber-law` — the regulatory type's obligations: notification clocks, evidence the regulator expects.
+- `e-personnel-security` — the administrative type's home ground: the employment lifecycle and insider cases.
 - Map refs: **CISSP 1.5** (this lesson); feeds **CISSP 7.1** (investigations and forensics) and **7.6** (incident management).

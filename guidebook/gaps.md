@@ -417,3 +417,9 @@ Open from this work:
 - `ai-sec-automation` has no runs log yet; its dateline says the walkthrough is being finalized. Test date to be confirmed.
 - Sitemap is still hand-maintained (no builder).
 - `map.md` frozen as a research artifact; frontmatter is now canonical.
+
+## Depth audit (2026-10-10) — new observations
+
+- **OWASP Top 10 for Agentic Applications — 2026** (ASI01–ASI10) exists as a separate publication from the LLM Top 10:2026. Outside the AI track's §5 scope (CAISP spine + LLM Top 10), so no lesson written; candidate for a future AI-track extension. Not fetched in-session — verify at write time.
+- **Docker Hub unreachable from the build network** (2026-10-10): static Docker 28.5.2 + daemon run (`--storage-driver=vfs --iptables=false --bridge=none`), but registry TLS handshake timeouts block all image pulls (verified with proxy-aware `crane`). The five container-based "not run by us" markers in `b-practice-targets` stand on evidence. DVGA ran for real from source instead (DB built, `ss` pair demonstrating README's 0.0.0.0 vs loopback bind). Re-run the five documented Docker commands on a registry-reachable machine to close the loop. Scratch kept at `~/workspace/dvga-src/`, `~/workspace/bin/docktools/`, `~/workspace/docker-data/`.
+- **Legacy lesson-ID scheme** in "Leads to" (E-GOV-01, E-D7-10, E-D2-06, E-D3-01, E-AI-01, C-CVD-01, B-BTY-01, D-DFIR, C-IR, E-LEAD, E-GOV-AI, E-D1-08, E-D7-03, E-D1-11, E-D1-07, E-AI-SC, E-AI-TM, ai-01/03a/b/c/04/05) — **normalized to current slugs** 2026-10-10 across 16 lessons (E-D7-10's "Recovery strategies" line in e-bcp-drp was self-referential; removed). Zero residual legacy IDs (`grep` clean).

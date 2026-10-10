@@ -142,11 +142,11 @@ Then at most three free resources:
 **Artifact:** the full IR report from the walkthrough (or your "on your own" report): executive summary, sourced timeline, scope, root cause, ordered containment/eradication/recovery, honest limitations, traceable recommendations.
 
 **Honest claim:** "I can take a triage escalation, scope it, order containment without destroying evidence, and write the IR report that stands alone."
-**Can't claim yet:** "I can lead incident response" — leading means legal coordination, executive communication under pressure, and adversary-aware operations across a real enterprise (`D-DFIR` track).
+**Can't claim yet:** "I can lead incident response" — leading means legal coordination, executive communication under pressure, and adversary-aware operations across a real enterprise (`d-dfir-deep` track).
 
 ## 10. Leads to
 
 - `c-soc-triage` — the loop closes: your recommendations become the detection rules and logging improvements the next triage shift relies on.
 - `c-sigma-detection` — recommendation (2) in the worked example is a rule waiting to be written; detection engineering is where IR lessons compound.
-- **D-DFIR track** — disk, memory, and network forensics: the deep evidence work this lesson's timeline assumes.
+- **d-dfir-deep track** — disk, memory, and network forensics: the deep evidence work this lesson's timeline assumes.
 - Map refs: **Stage C · Professional**; **NIST SP 800-61 Rev. 3**; NICE **Protection and Defense** and **Investigation**; the `/r/dfir/` and `/r/soc-analyst/` paths.

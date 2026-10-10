@@ -129,7 +129,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- `e-governance`** — the program's home: charter, risk-committee reporting, annual review.
-- `e-policy-docs`** — the program's curriculum source: policy is what the program teaches.
+- `e-governance` — the program's home: charter, risk-committee reporting, annual review.
+- `e-policy-docs` — the program's curriculum source: policy is what the program teaches.
 - **C-SOC — `c-soc-triage`** — the template library: real phishing the SOC sees becomes the simulation content.
 - Map refs: **CISSP 1.12** (this lesson); feeds **CISSP 7.15** (personnel security) and **1.3** (governance).

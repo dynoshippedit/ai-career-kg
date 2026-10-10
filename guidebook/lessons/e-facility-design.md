@@ -110,7 +110,7 @@ Then at most three free resources:
 
 1. **NIST SP 800-53 Rev. 5, PE family** (csrc.nist.gov) — free; the physical/environmental controls in catalog form — the implementation language for this lesson's findings.
 2. **LAPD: Crime Prevention Through Environmental Design** (lapdonline.org) — free; a law-enforcement CPTED page with the three core strategies and practical recommendations — a good second voice.
-3. **FEMA: How to Use a Portable Fire Extinguisher** (fema.gov via wsu.edu) — free; fire classes and response basics — read before the controls lesson's fire section.
+3. **FEMA: How to Use a Portable Fire Extinguisher** (fema.gov) — free; fire classes and response basics — read before the controls lesson's fire section.
 
 ## 8. Check yourself
 

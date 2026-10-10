@@ -8,7 +8,7 @@ roles: [soc-analyst, security-analyst, pentester, appsec, cloud-security, iam-en
 map_refs: []
 test_date: 2026-10-09
 description: "Linux command line for security work: files, permissions, processes, logs, pipes and SSH keys — the instrument every later lesson assumes. A free lesson in the security guidebook."
-dateline: "Walkthrough run 2026-10-09 · local scratch dir; shell ran as root (flagged in-lesson)"
+dateline: "Walkthrough run 2026-10-09 · deepened 2026-10-10 (package management + services; read-only re-run, transcript appended to runs/a-linux-cli.log) · local scratch dir; shell ran as root (flagged in-lesson)"
 ---
 # Linux command line for security work
 
@@ -45,6 +45,10 @@ The shell is a conversation with the kernel, mediated by programs. `ls` is a pro
 
 **SSH.** The secure remote shell, and the key lesson is *keys, not passwords*. `ssh-keygen -t ed25519` makes a keypair: the private key stays on your machine (permissions 600 — the OS enforces this), the public key is one line appended to `~/.ssh/authorized_keys` on the server. Authentication becomes a challenge-response the server verifies against the public key — no password crosses the network, none can be brute-forced. `ssh -G` shows your effective client config; `/etc/ssh/sshd_config` on the server is where `PasswordAuthentication no` lives — the single most impactful hardening line on any Linux server, and the reason this lesson teaches key generation before anything else about SSH.
 
+**Package management: how software gets on the machine.** Every tool in Stage B arrives via the package manager, so learn it before you need it. On Debian/Ubuntu the stack is `apt` (the human-friendly frontend), `apt-get`/`apt-cache` (the scriptable originals), and `dpkg` (the low-level tool that owns the installed-package database). The workflow has an order: `apt update` pulls the current package *list* from the configured repositories — it installs nothing, it just refreshes the catalog (the Debian AptCLI guide says to run it whenever you start installing or updating). Then `apt install <package>` installs, `apt upgrade` brings everything current. Two commands answer forensic questions you will ask constantly: `dpkg -S /usr/bin/curl` tells you *which package owns a file* ("curl: /usr/bin/curl" — this is how you answer "did this binary come from a package or did someone drop it here?"), and `dpkg -L <package>` lists *every file a package installed* (the full blast radius of one install). `apt-cache policy <package>` shows the installed version against the candidate — when the two differ, an update is waiting, and on a maintained system that update is often a security patch. `apt show <package>` reads the package's own metadata: version, dependencies, description. And the pair everyone confuses: `apt remove` uninstalls but *leaves edited configuration files behind*; `apt purge` removes those too. That distinction matters on a suspect box: a "removed" package can still have its config sitting in `/etc`, telling you exactly how the thing was set up.
+
+**Services and daemons: the programs that never log out.** Some programs don't run because *you* started them — they run because the machine booted. On modern Linux, `systemd` is the init system that starts and supervises them, and each one is described by a *unit file* (usually in `/lib/systemd/system/`). `systemctl` is the control plane: `systemctl status sshd` shows whether the SSH daemon is running, where its unit file lives, and its recent log lines; `systemctl list-units --type=service --state=running` inventories everything currently running as a service; `systemctl start/stop/restart <service>` changes state; `systemctl enable/disable <service>` decides whether it starts at *boot*. Read that split carefully: *running now* versus *starts at boot* are two different facts, and malware (and misconfigurations) love the gap between them — a service that's stopped but enabled will be back after the next reboot. The read-only commands above work unprivileged; changing state needs privilege, which is the point. Start/stop demos were not run on the build container (no systemd as init there — marked "not run by us" in the transcript); run them on your own VM where `systemctl status sshd` shows a real daemon.
+
 ### Worked example: reading a machine like an investigator
 
 From the walkthrough (§4): in `/tmp/cliwalk`, `plans.txt` is created (note its initial mode `660` — the umask at work), tightened to `600`, then to `000`. As root, `cat` still succeeds — the transcript flags this explicitly: *running as root hides permission errors*. On your machine as a normal user, `000` gives `Permission denied`, and that error is information: it tells you the check happens per-triple against your identity. `id` shows who you are; `find /usr/bin -perm -4000` lists the setuid binaries (`chfn`, `mount`, `newgidmap`…) — each one a program that will run as its owner. A `sleep 300` backgrounded, found via `ps` and `pgrep`, and killed with SIGTERM. The hits.log pipeline counts status codes by frequency. An ed25519 keypair generated, the public key displayed as the single line a server needs. Each command is small; the skill is chaining them without hesitation on a machine you've never seen before.
@@ -60,6 +64,9 @@ From the walkthrough (§4): in `/tmp/cliwalk`, `plans.txt` is created (note its 
 5. **Find the logs.** `ls /var/log/`, `journalctl --no-pager -n 3`, `dmesg | tail -2` — note which one failed and why (privilege), and where you'd look for SSH login attempts on a real server (`/var/log/auth.log` or the journal).
 6. **Build the triage pipeline.** Create `hits.log`, then `grep '^web' hits.log | cut -d' ' -f2 | sort | uniq -c | sort -rn`. Explain what each stage of the pipe does. Then `awk -F: '{print $7}' /etc/passwd | sort | uniq -c | sort -rn` — shells in use on the system.
 7. **Make an SSH keypair.** `ssh-keygen -t ed25519 -f labkey -N '' -C 'guidebook-lab'` — read the public key aloud as three fields. `ssh -G localhost | grep -iE '^(user|port|identityfile)'` — your effective client config. Note: no `sshd_config` on this machine (no sshd); on yours, read every uncommented line.
+
+8. **Inventory the software.** `apt list --installed 2>/dev/null | wc -l` — how many packages own this machine (794 here). `apt-cache policy curl` — installed vs candidate version; explain what it means that they're equal. `dpkg -S "$(which curl)"` then `dpkg -L curl | head -10` — the file→package→files round trip: you can now answer "where did this binary come from and what else did it bring?"
+9. **Inventory the services.** `systemctl list-units --type=service --state=running --no-pager` — which services are *running now*. `systemctl status systemd-journald --no-pager` — read the Loaded line (the unit file — the definition), the Active line (running since when), and the recent log tail. On your VM, run `systemctl status sshd` and name one service that is *enabled but not running* (`systemctl list-unit-files --type=service | grep enabled` minus the running set) — say what the gap between "enabled" and "running" means. Start/stop/restart steps: not run by us on the build container (no systemd as init); do them on your VM.
 
 ## 5. On your own
 
@@ -77,6 +84,8 @@ From the walkthrough (§4): in `/tmp/cliwalk`, `plans.txt` is created (note its 
 - **Piping curl to shell.** `curl URL | sudo bash` executes unaudited code as root — the exact opposite of everything this program teaches. Download, read, then run.
 - **Private keys with bad permissions or in repos.** SSH refuses keys readable by others (and tells you so — read the error). A private key committed to git is compromised the moment it's pushed; the fix is rotation, not deletion (history remembers).
 - **Trusting `ps` output at face value on a suspect box.** Rootkits hide processes. `ps` is a starting point; cross-check with `/proc` and network state (`ss -tlnp`) — Stage D teaches the full paranoia.
+- **`sudo apt install` from a random tutorial, blind.** A package install runs maintainer scripts as root. Read `apt show <package>` first (what is it, what does it depend on), prefer the distribution's repositories, and treat third-party repos, PPAs, and pasted `curl ... | sudo bash` installers as what they are: unaudited code execution with root. `apt update` before `apt install`, or you may install a stale, vulnerable version from an old catalog.
+- **Stopping a service and calling it fixed.** `systemctl stop` changes *now*; `systemctl disable` changes *boot*. A stopped-but-enabled service (or one in a user's autostart, or a cron job) comes back. Check both states before you declare anything dead.
 - **Forgetting which machine you're on.** An `rm`, a `chmod -R`, a `kill` in the wrong terminal is the classic self-inflicted incident. The prompt shows hostname for a reason — customize yours to make production unmistakable.
 
 ## 7. Read the source
@@ -85,6 +94,7 @@ Primary documents first — the shell's documentation *is* the machine:
 
 - **Man pages** (`man ls`, `man chmod`, `man ssh`, `man sshd_config`, `man journalctl`) — *read* the DESCRIPTION and EXAMPLES sections; *skim* the option lists; *skip* nothing permanently — the man page is the reference you return to for years. No fetch needed: they ship with the OS.
 - **OpenSSH manual pages** (openssh.com/manual.html — verified 2026-10-09) — the project's own docs: `ssh(1)`, `ssh-keygen(1)`, `sshd_config(5)`. *Read* ssh-keygen's key-type notes; *skim* sshd_config's authentication section.
+- **Debian AptCLI wiki** (wiki.debian.org/AptCLI — verified 2026-10-10) — the project's own guide to apt/apt-get/aptitude: *read* "Basic usage" (update, install, remove vs purge, search); *skim* "Advanced usage" for `dpkg -S`/`dpkg -L` and dependency queries.
 
 Then at most three free resources:
 
@@ -98,16 +108,18 @@ Then at most three free resources:
 3. `ps` shows a process, but `kill <pid>` reports "No such process" a second later. Explain what happened — and why `kill -9` would not have helped.
 4. You find a setuid-root binary in `/opt/vendor/bin` that you don't recognize. Name the two questions you ask before deciding whether it's legitimate, and the command that tells you when it was installed.
 5. Explain why appending your *public* key to a server's `authorized_keys` is safe to do over an untrusted channel, but sending the *private* key anywhere is not — using the word "challenge" correctly.
+6. You find `/usr/bin/strange-tool` on a server and need to know whether the package manager put it there. Name the exact command, and state what an empty result means. Then explain the difference between `apt remove strange-tool` and `apt purge strange-tool` for the investigation.
 
 ## 9. Prove it
 
 **Artifact:** a published "Bandit notes" page (Markdown in your new git repo — see `a-git-github`): one entry per Bandit level you complete, each naming the command you learned, what it does, and the exact invocation that beat the level. Plus: your hardened SSH client config (`~/.ssh/config` with key-only defaults) documented with one line per option.
 
-**Honest claim:** "I can navigate, inspect, and control a Linux system from the shell, chain tools into pipelines, manage permissions and processes, and use SSH keys correctly."
+**Honest claim:** "I can navigate, inspect, and control a Linux system from the shell, chain tools into pipelines, manage permissions and processes, install and inventory software via the package manager, read service state, and use SSH keys correctly."
 **Can't claim yet:** "I can administer or harden a server" — that needs the SSH *server* side, package management, and services (a later Stage A lesson); this one built fluency, not administration.
 
 ## 10. Leads to
 
 - `a-git-github` — next: your Bandit notes and every later artifact live in version control — learn the tool before you need it.
 - `a-http-depth` — the Stage A milestone lesson: the shell runs the lab server whose traffic you'll narrate packet by packet.
+- `b-toolbench` (later) — the tools you install with the package manager you just learned get put to work there; fluency with `apt`/`dpkg`/`systemctl` is what keeps tool problems from becoming mysteries.
 - Every Stage B lesson: their walkthroughs assume this lesson's fluency without re-teaching it. If a later walkthrough's commands feel like incantations, come back here.

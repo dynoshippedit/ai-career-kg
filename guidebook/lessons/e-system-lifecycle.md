@@ -95,7 +95,7 @@ Findings at the gate: (1) the third-party video service's audit right — contra
 Primary documents first:
 
 - **NIST SP 800-160 Vol. 1 Rev. 1, Engineering Trustworthy Secure Systems** (csrc.nist.gov) — *read* the life-cycle processes and the security integration across phases; the primary source for this lesson's structure.
-- **NIST SP 800-88 Rev. 1, Guidelines for Media Sanitization** (csrc.nist.gov) — *read* the clear/purge/destroy decision factors and the media-type guidance; *skim* the method details. The disposal phase's authority.
+- **NIST SP 800-88 Rev. 2, Guidelines for Media Sanitization** (csrc.nist.gov, September 2025 — supersedes Rev. 1, withdrawn 2025-09-26 per NIST's withdrawal notice) — *read* the sanitization decision framework (categorization, reuse, decision, verification, documentation) and the Clear/Purge/Destroy definitions; *skim* the media-specific guidance. The disposal phase's authority.
 
 Then at most three free resources:
 

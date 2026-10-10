@@ -131,7 +131,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-AI-SC — `ai-supply-chain`** — the AI variant: models, datasets, and weights as supply-chain components.
+- **ai-supply-chain — `ai-supply-chain`** — the AI variant: models, datasets, and weights as supply-chain components.
 - `e-cyber-law`** — the contractual sibling: obligations to evidence, and what the clauses must contain.
 - `e-governance`** — the program home: C-SCRM in the acquisition process by default.
 - Map refs: **CISSP 1.11** (this lesson); feeds **CISSP 8.4** (security of acquired software).

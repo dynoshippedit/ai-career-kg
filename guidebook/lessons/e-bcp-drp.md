@@ -135,7 +135,6 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-GOV-01 — NIST CSF 2.0** — continuity lives in the Recover function; the BIA feeds the Current-vs-Target profile.
-- **E-D7-10 — Recovery strategies** — the deep companion: strategy selection as its own discipline.
+- **e-csf-20 — NIST CSF 2.0** — continuity lives in the Recover function; the BIA feeds the Current-vs-Target profile.
 - `e-risk-assessment` — the BIA's sibling: impact analysis feeding risk decisions; `c-incident-response` — the handoff point where IR ends and continuity begins.
 - Map refs: **CISSP 1.7, 7.10, 7.11, 7.12, 7.13** (this lesson).

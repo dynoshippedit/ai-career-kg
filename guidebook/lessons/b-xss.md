@@ -96,7 +96,7 @@ Extend the demo (or your PortSwigger lab target): find one reflection point the 
 Primary documents — read in this order, skipping as marked:
 
 1. **PortSwigger Web Security Academy — Cross-site scripting** (portswigger.net/web-security/cross-site-scripting): the topic page — types, contexts, prevention checklist. Read fully; then work the reflected/stored/DOM labs (the largest Academy topic — dozens of labs, free).
-2. **MDN — Content Security Policy guide** (developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP): directives, nonces, hashes, `unsafe-inline` warnings. Read the "how CSP protects against XSS" and nonce sections; skim the rest.
+2. **MDN — Content Security Policy guide** (developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP): directives, nonces, hashes, `unsafe-inline` warnings. Read the "how CSP protects against XSS" and nonce sections; skim the rest. *Verified in-session 2026-10-10 (HTTP 200; the `/Guides/CSP` path is current).*
 3. **OWASP XSS Prevention Cheat Sheet** (cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html — verified 2026-10-09): the output-encoding rules per context — read the rule set for HTML, attribute, JavaScript, and URL contexts.
 
 Free resources for going deeper (≤3): **PortSwigger XSS labs** (the hands-on companion — reflected, stored, DOM, filter bypasses); **MDN CSP reference** (directive-by-directive semantics); **the `b-security-headers` lesson** (this guidebook — CSP as deployed defense).

@@ -8,7 +8,7 @@ roles: [soc-analyst, security-analyst, pentester]
 map_refs: []
 test_date: 2026-10-09
 description: "Windows concepts for security: the registry, services, event logs and PowerShell — the Linux lesson's concepts in Windows form, taught from Microsoft's own docs with exact reader procedures. A free lesson in the security guidebook."
-dateline: "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09"
+dateline: "Hands-on steps not run by us (no Windows on the build machine) · Microsoft docs fetched and verified 2026-10-09 · deepened 2026-10-10 (execution policy section from Microsoft's PowerShell-Docs; fixed §7 duplicate URL with registry-value-types reference)"
 ---
 # Windows concepts for security
 
@@ -39,6 +39,8 @@ The servers you will attack in Stage B are Linux. The *victims* in Stage C and D
 **Event logs: where Windows writes everything down.** Linux has `/var/log` and the journal; Windows has the Event Log — structured records in channels, each event with an ID, a provider, and XML details. The three classic channels: **Application**, **System**, and **Security**. The Security channel is the crown jewel: logon events (4624 success, 4625 failure — the pair every SOC analyst knows), account management (4720 created, 4726 deleted), privilege use (4672), and 1102 (the audit log was cleared — the "someone is covering tracks" event). `c-log-sources` builds the full ID vocabulary on this foundation; this lesson is where you learn the log *exists* and how to query it.
 
 **PowerShell: the shell that returns objects.** This is the deep difference from bash. Where Linux pipes *text* (`ps | grep`), PowerShell pipes *objects* with named properties: `Get-WinEvent -LogName Security -MaxEvents 10` returns event objects, and `| Select-Object TimeCreated, Id, Message` picks properties — no `cut -d' ' -f7` fragility, because fields are named, not positional. Microsoft's `Get-WinEvent` documentation (fetched 2026-10-09) shows the query patterns: `-ListLog *` inventories the logs; `-FilterHashtable @{LogName='Security'; ID=4625}` filters server-side (fast) instead of pulling everything and filtering client-side (slow) — the exact performance discipline `c-log-sources`' awk pipelines teach for Linux logs. Verbs are standardized (`Get-`, `Set-`, `Start-`, `Stop-`), so `Get-Service`, `Get-Process`, `Get-EventLog` are guessable once you know the pattern.
+
+**PowerShell execution policy: the gate in front of every script.** Before any `.ps1` in this lesson runs on your VM, you will meet the **execution policy** — PowerShell's safety feature controlling when scripts may run (Microsoft's `about_Execution_Policies` reference, fetched 2026-10-10). The policies that matter: `Restricted` (the effective default on Windows clients — individual commands work, no script files run), `RemoteSigned` (scripts you wrote locally run; scripts downloaded from the internet must be signed by a trusted publisher or explicitly unblocked with `Unblock-File`), `AllSigned` (everything signed), and `Bypass` (nothing blocked). Two facts make this a security lesson rather than a configuration note. First, Microsoft states plainly that the execution policy **is not a security boundary** — it is defense in depth; anything it stops can be re-typed at the prompt or launched with `pwsh.exe -ExecutionPolicy Bypass`, and malware does exactly that. Second, it is *scoped*: `Get-ExecutionPolicy -List` shows the policy per scope — `MachinePolicy`/`UserPolicy` (Group Policy, highest precedence), `Process` (this session only, gone when it closes), `CurrentUser`, `LocalMachine`. The reader's move is `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`: it permits your own scripts without touching other users or weakening the machine default, and it needs no administrator rights. The analyst's move is the inverse: when you find `Bypass` set at a wide scope, or scripts launching with `-ExecutionPolicy Bypass` in scheduled tasks and logon scripts, that is a *finding* — someone (or something) chose to drop the gate.
 
 **The translation table.** Keep this beside you until it's reflex:
 
@@ -72,6 +74,7 @@ On your Windows VM, as Administrator, in PowerShell — each step marked **not r
 3. **Find the Run keys** — in `regedit`, visit both `HKLM\...\Run` and `HKCU\...\Run`. List every value. For each, note the executable path and ask: do I know what this is?
 4. **Generate and find a 4625** — mistype your password once at the lock screen, then run the `Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4625}` query. Confirm your attempt appears with the right timestamp.
 5. **Compare service views** — count subkeys under the Services registry key; count `Get-Service` output. They should agree; if they don't, you have found something worth understanding.
+6. **Meet the execution-policy gate.** `Get-ExecutionPolicy -List` — read every scope and identify the effective policy and which scope wins. If it is `Restricted`, your `.ps1` files will not run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` (no admin needed), then re-run the list to confirm. Save a one-line script (`"hello-policy"` in `hello.ps1`) and run it — note that it now works, and that `-Scope Process` would have given you the same result for this session only. Then find where the gate is *not*: run `pwsh -ExecutionPolicy Bypass -Command '"the gate is a suggestion"'` and say out loud what this proves about who the policy protects against — hint: not malware. **Not run by us** (no Windows on the bench); exact procedure for your VM.
 
 ## 5. On your own
 
@@ -87,6 +90,7 @@ On your Windows VM, as Administrator, in PowerShell — each step marked **not r
 - **Disabling UAC.** The prompt is the privilege boundary made visible. Disabling it for convenience removes the one interactive check between you and silent elevation.
 - **Running everything as Administrator.** The Windows twin of running as root: it hides permission errors and makes every mistake system-wide. Elevate per-task, not per-session.
 - **Trusting the GUI alone.** Event Viewer shows the same data `Get-WinEvent` returns, but the GUI doesn't scale and doesn't script. Learn the cmdlet form from the start — your future SIEM queries are the same shape.
+- **"Fixing" scripts with `Set-ExecutionPolicy Bypass`.** When a script won't run, the wrong answer is dropping the gate machine-wide — it trains you to dismantle a safety feature and it protects against nothing determined anyway. The right answer is `RemoteSigned` at `CurrentUser` scope: your own scripts run, internet downloads still get questioned, nobody else is affected. A `Bypass` at `LocalMachine` scope is something you *investigate*, not something you set.
 - **Assuming "Windows is different" means "the concepts don't transfer."** Every row of the translation table is the same question. The analyst who knows *what to ask* learns the new names in a day; the one who memorized commands starts over.
 
 ## 7. Read the source
@@ -95,7 +99,8 @@ Primary documents first — Microsoft documents its own system:
 
 - **Registry Hives** (learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives — verified 2026-10-09) — *read* the hive definitions and the supporting-files table; this is the authoritative statement of what lives where on disk.
 - **Get-WinEvent** (learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent — verified 2026-10-09) — *read* the Description and the `-FilterHashtable`/`-FilterXPath` parameter sets; *skim* the examples. This is the cmdlet reference for every log query in this lesson.
-- **Registry Hives reference, reread** (learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives — verified 2026-10-09) — the old Microsoft Learn registry tour module is retired; the reference page above is the authoritative replacement. Re-read it now that you know what to look for: which hive a persistence key lives in, and why.
+- **Registry value types** (learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types — verified 2026-10-10) — the authoritative type table: `REG_SZ`, `REG_DWORD`, `REG_MULTI_SZ`, `REG_EXPAND_SZ`, `REG_QWORD`, `REG_BINARY`. *Read* the type definitions; *skim* the string-handling notes. This is what §3's "values have types" paragraph summarizes — now check it against the source.
+- **about_Execution_Policies** (Microsoft's PowerShell-Docs repo, `reference/7.4/Microsoft.PowerShell.Core/About/about_Execution_Policies.md` — verified 2026-10-10) — *read* the policy list (Restricted/RemoteSigned/AllSigned/Bypass/Undefined), the scope-and-precedence section, and the "isn't a security boundary" paragraph. This is the source behind §3's execution-policy section; read it before you decide what `Bypass` in a logon script means.
 
 Then at most three free resources:
 
@@ -110,12 +115,13 @@ Then at most three free resources:
 3. Why is `-FilterHashtable @{LogName='Security'; ID=4625}` preferable to `Get-WinEvent -LogName Security | Where-Object {$_.Id -eq 4625}`? (Two reasons: performance and one more.)
 4. Event 1102 appears in the Security log. What does it mean, and why does its *presence* matter more than most events' presence?
 5. Translate this Linux triage pipeline into its PowerShell equivalent, naming what changes about the data between the pipes: `grep 'Failed password' /var/log/auth.log | cut -d' ' -f11 | sort | uniq -c | sort -rn`.
+6. A scheduled task on a server you are reviewing launches `pwsh.exe -ExecutionPolicy Bypass -File C:\Tools\sync.ps1`. Name two things that are wrong with this picture — one about what the flag proves, one about where you'd look next — and state the correct scope/policy pair for letting your own maintenance scripts run.
 
 ## 9. Prove it
 
 **Artifact:** A "Windows first-look" report on your VM: the Automatic-service inventory with every entry explained, the Run-key contents with verdicts, and the three most recent 4624/4625 events interpreted (who, when, what logon type). Written up, with the commands you ran.
 
-**Honest claim:** "I can navigate a Windows system's configuration, services, and event logs from PowerShell and explain what I find — demonstrated on my own VM, report linked here."
+**Honest claim:** "I can navigate a Windows system's configuration, services, and event logs from PowerShell, explain the execution policy and set it safely at the right scope, and explain what I find — demonstrated on my own VM, report linked here."
 
 **You cannot yet claim:** forensic analysis of a compromised Windows host (disk images, timeline analysis, malware behavior) — that's `d-malware-analysis` and Stage D incident-response work, which build on this foundation.
 

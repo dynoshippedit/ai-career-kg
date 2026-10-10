@@ -119,7 +119,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-AI-01 — `ai-governance`** — the canons applied to AI systems: training data, automated decisions, deployment ethics.
-- **C-CVD-01 — `c-cvd`** — coordinated vulnerability disclosure in practice: the disclosure dilemma with real process around it.
-- **B-BTY-01 — `b-bug-bounty`** — researcher ethics in bounty work: scope, disclosure, and the no-testing-without-permission line.
+- **ai-governance — `ai-governance`** — the canons applied to AI systems: training data, automated decisions, deployment ethics.
+- **c-cvd — `c-cvd`** — coordinated vulnerability disclosure in practice: the disclosure dilemma with real process around it.
+- **b-bug-bounty — `b-bug-bounty`** — researcher ethics in bounty work: scope, disclosure, and the no-testing-without-permission line.
 - Map refs: **CISSP 1.1** (this lesson); the canon method is reused in **1.4** (legal obligations) and **1.8** (personnel decisions).

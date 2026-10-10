@@ -177,7 +177,7 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p>Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications — <strong>LLM01</strong> in both the 2025 and 2026 editions — because it is the failure mode from which the others follow: if an attacker can make the model follow their instructions instead of yours, every downstream control (tool permissions, output handling, data boundaries) is suddenly negotiable. It appears in MITRE ATLAS as technique <strong>AML.T0051</strong>. It is the first thing a CAISP candidate meets in chapter 3, the first thing a red team tries against any LLM app, and the mechanism behind the real incidents you have read about — assistants tricked by webpages they summarized, agents manipulated through the tickets they processed. If you build, buy, or secure anything with an LLM in it, this is the threat model you learn first.</p>
 <h2>2. Before you start</h2>
 <ul>
-<li>You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG) adds documents, the model produces text, and tool/function calling lets that text cause actions (the <code>ai-01</code> lesson).</li>
+<li>You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG) adds documents, the model produces text, and tool/function calling lets that text cause actions (the <a href="/g/llm-architecture/"><code>ai-llm-architecture</code></a> lesson).</li>
 <li>Python 3 on your machine. No model is required for the mechanism and defense portions — the walkthrough's harness is deterministic. The live red-team step needs a local model (Ollama + an open-weight model, your own machine, your own data only).</li>
 <li>Safety framing for this lesson: we teach the attack concept, what defenders see, detection, and defenses together. No exploits for real products, no automation for attacking systems you do not own. Every hands-on step runs against code and models you control.</li>
 </ul>
@@ -249,11 +249,11 @@ footer.site .cols{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,
 <p><strong>Can't claim yet:</strong> "I can secure an LLM application against prompt injection" — the mechanism section establishes this as an open problem; the honest claim is defense-in-depth with stated residual risk, which is exactly what the artifact shows.</p>
 <h2>10. Leads to</h2>
 <ul>
-<li><strong>ai-03a — Data risks (LLM02/LLM05/LLM09:2026)</strong> — disclosure, poisoning, and vector-store weaknesses: what the injected content can also do besides hijack instructions.</li>
-<li><strong>ai-03b — System risks (LLM04/LLM10/LLM08:2026)</strong> — supply chain, output handling, hidden context exposure.</li>
-<li><strong>ai-03c — Agency risks (LLM03/LLM06/LLM07:2026)</strong> — excessive agency is where injection becomes action.</li>
-<li><strong>ai-04 — Attacks and defenses in the pipeline</strong> — red-teaming as a CI gate: your before/after report becomes a regression test.</li>
-<li><strong>ai-05 — Threat modeling AI systems</strong> — STRIDE + ATLAS over your app's data flow.</li>
+<li><strong><a href="/g/llm-top10/"><code>ai-llm-top10</code></a> — Data risks (LLM02/LLM05/LLM09:2026)</strong> — disclosure, poisoning, and vector-store weaknesses: what the injected content can also do besides hijack instructions.</li>
+<li><strong><a href="/g/llm-top10/"><code>ai-llm-top10</code></a> — System risks (LLM04/LLM10/LLM08:2026)</strong> — supply chain, output handling, hidden context exposure.</li>
+<li><strong><a href="/g/llm-top10/"><code>ai-llm-top10</code></a> — Agency risks (LLM03/LLM06/LLM07:2026)</strong> — excessive agency is where injection becomes action.</li>
+<li><strong><a href="/g/ai-pipeline/"><code>ai-pipeline</code></a> — Attacks and defenses in the pipeline</strong> — red-teaming as a CI gate: your before/after report becomes a regression test.</li>
+<li><strong><a href="/g/threat-modeling-ai/"><code>ai-threat-modeling</code></a> — Threat modeling AI systems</strong> — STRIDE + ATLAS over your app's data flow.</li>
 <li>Map refs: <strong>OWASP LLM Top 10:2026</strong> (this lesson = LLM01); <strong>CAISP ch. 3</strong>; ATLAS <strong>AML.T0051</strong>; the governance half connects to <strong>CAISP ch. 7</strong> and <strong>NIST AI RMF</strong>.</li>
 </ul>
 </section>

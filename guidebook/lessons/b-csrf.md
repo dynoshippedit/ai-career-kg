@@ -107,7 +107,7 @@ Primary documents first:
 
 - **PortSwigger Web Security Academy — CSRF** (portswigger.net/web-security/csrf) — *read* fully; the canonical treatment (three conditions, the email-change example, token/SameSite/Referer defenses and their bypass labs). *Do* the labs after this lesson.
 - **OWASP CSRF Prevention Cheat Sheet** (cheatsheetseries.owasp.org) — *read* the token patterns (synchronizer, signed double-submit) and the defense-in-depth section; *note* the warning that naive double-submit is bypassable via cookie injection, and that XSS defeats all CSRF mitigations.
-- **draft-ietf-httpbis-rfc6265bis §5.6.7** (ietf.org — the SameSite attribute; RFC 6265 has no §4.1.2.7) — *skim* the cookie attribute semantics; cite it when you set the attribute.
+- **draft-ietf-httpbis-rfc6265bis §5.6.7** (ietf.org — the SameSite attribute; RFC 6265 has no §4.1.2.7) — *skim* the cookie attribute semantics; cite it when you set the attribute. *Status checked in-session 2026-10-10: still an Internet-Draft (draft -22, December 2025, expires June 2026), not yet an RFC — cite it as a draft.*
 
 Then at most three free resources:
 

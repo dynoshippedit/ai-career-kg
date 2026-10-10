@@ -4,7 +4,7 @@ slug: iam
 stage: E
 level: 3
 prerequisites: [a-http-depth, a-linux-cli, b-session-auth]
-roles: [cloud-security, cloud-security, iam-engineer]
+roles: [cloud-security, iam-engineer]
 map_refs: ["CISSP 5.1", "CISSP 5.2", "CISSP 5.3", "CISSP 5.4", "CISSP 5.5"]
 test_date: 2026-10-09
 description: "Identity and access management: the joiner-mover-leaver lifecycle, assurance levels, federation, RBAC/ABAC, privileged access — with a full access review worked case. A free lesson in the security guidebook, serving CISSP objectives 5.1–5.5."
@@ -13,7 +13,7 @@ dateline: "Worked case authored and reviewed 2026-10-09 · no command line in th
 # Identity and access management: who gets in, and to what
 
 
-**Map ref:** serves **CISSP objectives 5.1–5.5** — access control, identification/authentication strategy, federated identity, authorization models, the provisioning lifecycle. (Objective 5.6, implementing authentication systems, is taught hands-on in Stage A and Stage D.)
+**Map ref:** serves **CISSP objectives 5.1–5.5** — access control, identification/authentication strategy, federated identity, authorization models, the provisioning lifecycle. (Objective 5.6, implementing authentication systems, is taught in `e-auth-systems`.)
 
 ---
 
@@ -131,8 +131,8 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-D1-08 — Personnel security across the employment lifecycle** — the HR side of joiner-mover-leaver: background checks, onboarding security, termination procedure.
-- **E-D7-03 — Operational disciplines** — privileged-access management as a daily operation: just-in-time elevation, session recording, SoD enforcement.
-- **E-GOV-01 — NIST CSF 2.0** — IAM sits in the Protect function (PR.AC); the access review is evidence for the Govern function.
+- **e-personnel-security — Personnel security across the employment lifecycle** — the HR side of joiner-mover-leaver: background checks, onboarding security, termination procedure.
+- **e-secops-concepts — Operational disciplines** — privileged-access management as a daily operation: just-in-time elevation, session recording, SoD enforcement.
+- **e-csf-20 — NIST CSF 2.0** — IAM sits in the Protect function (PR.AC); the access review is evidence for the Govern function.
 - `b-session-auth` — the technical failures this lesson's processes exist to prevent; reread it as the "what happens without this" companion.
 - Map refs: **CISSP 5.1, 5.2, 5.3, 5.4, 5.5** (this lesson); feeds **CISSP 1.8** (personnel security) and **7.4/7.9** (operations).

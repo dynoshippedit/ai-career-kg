@@ -109,3 +109,46 @@ $ grep -vE '^#|^$' /etc/ssh/sshd_config 2>/dev/null | head -6 || echo '(no sshd_
 (no /etc/ssh/sshd_config on this machine — no sshd installed here.
  On your own server: grep -vE '^#|^$' /etc/ssh/sshd_config — read every uncommented line;
  the hardening lesson is 'PasswordAuthentication no' + key-only auth, which is why step 7 matters.)
+
+=== DEEPENING re-run 2026-10-10: package management + services read-only ===
+Purpose: new §3 sections (package management, services/daemons). Ubuntu container, read-only commands; nothing installed or started.
+
+$ apt list --installed 2>/dev/null | wc -l
+794
+
+$ apt-cache policy curl
+curl:
+  Installed: 8.5.0-2ubuntu10.15
+  Candidate: 8.5.0-2ubuntu10.15
+  Version table:
+ *** 8.5.0-2ubuntu10.15 100
+        100 /var/lib/dpkg/status
+(Installed == Candidate: nothing to upgrade for this package; two lines would differ if an update were available.)
+
+$ dpkg -S "$(which curl)"
+curl: /usr/bin/curl
+
+$ dpkg -L curl | head -6
+/.
+/usr
+/usr/bin
+/usr/bin/curl
+/usr/share
+/usr/share/doc
+
+$ systemctl list-units --type=service --state=running --no-pager
+  UNIT                     LOAD   ACTIVE SUB     DESCRIPTION
+  systemd-journald.service loaded active running Journal Service
+(only unit active: this container has systemd present but no PID-1-managed services; on a real VM this lists sshd, cron, etc.)
+
+$ systemctl status systemd-journald --no-pager | head -8
+● systemd-journald.service - Journal Service
+     Loaded: loaded (/usr/lib/systemd/system/systemd-journald.service; static)
+     Active: active (running) since Sat 2026-10-10 01:52:04 UTC; 2h 31min ago
+
+$ apt show curl | grep -E '^(Package|Version|Description)'
+Package: curl
+Version: 8.5.0-2ubuntu10.15
+Description: command line tool for transferring data with URL syntax
+
+Start/stop/enable of services NOT run here (needs a real VM with systemd as init and privilege); lesson marks those "not run by us".

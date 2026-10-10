@@ -1,5 +1,30 @@
 # STATE.md — security guidebook build
 
+**Last updated:** 2026-10-10 · **Phase:** Content-depth audit + deepening (all 110 lessons)
+
+## Depth audit — 2026-10-10 (integrated)
+
+Dino's order: review every lesson, add more only where genuinely warranted. Six stage crews audited all 110 lessons against brief §1/§6/§7 with a pad-free rule (never flag for length alone; "If you can't fill 'How it works' and 'Walkthrough' with substance, that is a gap. Log it. Don't pad.").
+
+**Verdict: 105 SOLID, 5 DEEPENED.** Per-lesson tables in `reports/DEPTH-AUDIT.md` (merged from the six crew files, kept alongside).
+
+Deepened in place:
+- `a-linux-cli` — added the brief §5-mandated package-management and services/daemons sections the lesson was missing (read-only commands run, transcript in `runs/a-linux-cli.log`); level stays L3.
+- `a-windows-concepts` — added PowerShell execution policy (the first thing that bites a beginner; policy list, scope precedence, "not a security boundary" per Microsoft's own doc); replaced a duplicated §7 URL with the registry-value-types reference; level stays L2.
+- `b-practice-targets` — DVGA run for real from source (DB built; `ss` pair proving the README's 0.0.0.0 bind vs loopback). Docker Hub unreachable from the build network (logged in gaps.md with evidence).
+- `ai-threat-modeling` — corrected three factually wrong OWASP LLM Top 10:2026 codes (Unbounded Consumption = LLM06, Excessive Agency = LLM03, build-pipeline scenario = LLM04); every ATLAS technique name used verified real against primary `ATLAS.yaml`.
+- `ai-prompt-injection` — fixed five stale internal lesson IDs (dead cross-references); AML.T0051 citation verified against ATLAS.yaml.
+
+Factual-freshness fixes (one-liners, all verified in-session): RFC 6797 fetched (killed a "fetch at build time" placeholder in b-security-headers); PortSwigger logic-flaws page fetched (b-business-logic); rfc6265bis confirmed still a draft (b-csrf); MDN CSP guide verified (b-xss); `e-system-lifecycle` §7 corrected from SP 800-88 Rev. 1 (withdrawn 2025-09-26) to Rev. 2; `e-iam` duplicate role entry removed + wrong 5.6 map-ref fixed; malformed backtick markdown fixed in 4 E lessons; `e-facility-design` citation corrected to (fema.gov).
+
+**Coordinator-wide normalization:** legacy lesson-ID scheme in "Leads to" sections (E-GOV-01, E-D7-10, E-D2-06, E-D3-01, E-AI-01, C-CVD-01, B-BTY-01, D-DFIR, C-IR, E-LEAD, E-GOV-AI, E-D1-08, E-D7-03, E-D1-11, E-D1-07, E-AI-SC, E-AI-TM, ai-01/03a/b/c/04/05) mapped to current slugs across 16 lessons; the self-referential E-D7-10 line in e-bcp-drp removed. Zero residual legacy IDs.
+
+**Sources:** 11 new `verified` ledger rows (sources.csv 334 → 345, 341 verified). Note: two crews' `/tmp` staging files were wiped by their VMs before the merge; 15 rows reconstructed from the lesson diffs and audit files, every URL re-fetched in-session by the coordinator (one row uses the raw.githubusercontent.com URL after github.com blob returned 503); DEa's 4 verification-only rows skipped as duplicates of existing rows.
+
+**Verification gate:** build clean (zero errors); all 110 lessons exactly 10 `##` sections + intact frontmatter; 5,039 internal links, 0 broken; all 110 lesson pages carry the level badge (the 12 pages without are maps/stages/paths, by design); no banned voice words or currency symbols in new copy; zero stray test servers.
+
+Nothing committed, nothing pushed — parent's lane.
+
 **Last updated:** 2026-10-10 · **Phase:** Frontmatter refactor — lessons as data (brief §4)
 
 ## Frontmatter refactor (2026-10-10)

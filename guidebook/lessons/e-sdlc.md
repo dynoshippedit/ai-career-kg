@@ -36,7 +36,7 @@ Every vulnerability in Stage B was a decision somebody made under schedule press
 **Gates per phase.** A **gate** is a checkpoint with entry criteria: the phase's work cannot proceed until the security activity is done and its findings dispositioned. The standard attachment points:
 
 - **Requirements:** security requirements written alongside functional ones (authentication, authorization, data classification, compliance obligations). *Gate:* requirements reviewed for completeness — "the system shall…" includes the security shalls.
-- **Design:** threat model completed; security architecture reviewed (this is where `E-D3-01`'s principles get applied). *Gate:* threat-model sign-off with mitigations assigned.
+- **Design:** threat model completed; security architecture reviewed (this is where `e-secure-design`'s principles get applied). *Gate:* threat-model sign-off with mitigations assigned.
 - **Implementation:** secure-coding standards in force, IDE/editor checks, pre-commit secret scanning, peer review with a security checklist. *Gate:* no known-bad patterns merged (the checklist is the gate, not a person).
 - **Verification:** SAST on every build, DAST against a staging environment, SCA for dependency vulnerabilities, targeted penetration testing for high-risk changes. *Gate:* findings triaged by severity with SLAs; release-blocking severities defined in advance, not negotiated at release time.
 - **Release:** final review — all gate findings dispositioned, SBOM generated, signing in place. *Gate:* the release checklist, signed.
@@ -85,7 +85,7 @@ Every vulnerability in Stage B was a decision somebody made under schedule press
 - **Checklist without enforcement.** The secure-coding checklist exists; nobody checks it; admin code is exempt "because it's internal." The Northwind root cause is the archetype — fix the enforcement, not just the finding.
 - **Scanning as the program.** SAST/DAST/SCA are verification *activities*, not a secure SDLC. A program that scans at the end and threat-models never is just waterfall with dashboards.
 - **Metrics of activity.** "We ran 400 scans" tells you nothing about whether software got safer. Track detection-phase shift, remediation time, and recurrence — or admit you are not measuring effectiveness.
-- **Third-party code as someone else's problem.** Dependencies and acquired components carry your risk (Log4Shell taught this at scale). SCA and acquisition review (`E-D1-11`'s territory) are gates too — an SBOM nobody reads is inventory, not control.
+- **Third-party code as someone else's problem.** Dependencies and acquired components carry your risk (Log4Shell taught this at scale). SCA and acquisition review (`e-supply-chain-risk`'s territory) are gates too — an SBOM nobody reads is inventory, not control.
 - **The maintenance cliff.** Gates end at release; vulnerabilities do not. Without the Respond practices (intake, triage, SLA, root cause), the program covers birth and abandons life.
 
 ## 7. Read the source
@@ -120,7 +120,7 @@ Then at most three free resources:
 ## 10. Leads to
 
 - **D-AppSec track** — the hands-on techniques this program deploys: STRIDE facilitation, SAST/DAST/IAST/SCA operation, code review.
-- **E-D3-01 — Secure design principles** — the design-phase companion: principles applied at the threat-model table.
-- **E-D1-11 — Supply chain risk management** — the acquisition gate: third-party software under the same discipline.
+- **e-secure-design — Secure design principles** — the design-phase companion: principles applied at the threat-model table.
+- **e-supply-chain-risk — Supply chain risk management** — the acquisition gate: third-party software under the same discipline.
 - `b-business-logic`, `b-sqli`, `b-idor` — the vulnerability classes your gates exist to catch; reread them as gate-test cases.
 - Map refs: **CISSP 8.1, 8.2, 8.3, 8.4, 8.5** (this lesson, governance level); feeds **CISSP 3.10** (system lifecycle).

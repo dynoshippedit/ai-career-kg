@@ -137,5 +137,5 @@ Then at most three free resources:
 
 - `e-risk-assessment`** — properties become impact: the triad is what risk analysis measures damage against.
 - `e-crypto-applied`** — the mechanisms behind the properties: hashes, MACs, signatures, key management.
-- **E-GOV-01 — `e-governance`** — the properties as business language: what the board is actually buying.
+- **e-csf-20 — `e-governance`** — the properties as business language: what the board is actually buying.
 - Map refs: **CISSP 1.2** (this lesson); feeds **CISSP 2.6** (data states and protective methods) and **3.1** (secure design principles).

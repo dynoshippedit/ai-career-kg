@@ -123,7 +123,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- `e-investigations`** — when obligations become incidents: the investigation types the breach clock triggers.
-- `e-policy-docs`** — the policy tier that carries the controls column into the organization.
-- **E-AI-01 — `ai-governance`** — the AI Act column of the matrix, in depth.
+- `e-investigations` — when obligations become incidents: the investigation types the breach clock triggers.
+- `e-policy-docs` — the policy tier that carries the controls column into the organization.
+- **ai-governance — `ai-governance`** — the AI Act column of the matrix, in depth.
 - Map refs: **CISSP 1.4** (this lesson); feeds **CISSP 1.5** (investigations) and **2.6** (data protection controls).

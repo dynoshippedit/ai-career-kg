@@ -130,7 +130,7 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **E-LEAD — `e-board-communication`** — the upward half of the loop: reporting governance's results to the board.
-- `e-policy-docs`** — the downward instrument: policy, standards, procedures, guidelines.
-- **E-GOV-AI — `ai-governance`** — AI governance as a row in the same table.
+- **`e-board-communication`** — the upward half of the loop: reporting governance's results to the board.
+- `e-policy-docs` — the downward instrument: policy, standards, procedures, guidelines.
+- **ai-governance — `ai-governance`** — AI governance as a row in the same table.
 - Map refs: **CISSP 1.3** (this lesson); feeds **CISSP 1.6** (policy), **1.9** (risk management), and **1.12** (training governance).

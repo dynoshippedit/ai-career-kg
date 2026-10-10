@@ -25,7 +25,7 @@ Prompt injection is the risk at the top of the OWASP Top 10 for LLM Applications
 
 ## 2. Before you start
 
-- You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG) adds documents, the model produces text, and tool/function calling lets that text cause actions (the `ai-01` lesson).
+- You understand the LLM application stack: a system prompt sets the role, user input arrives, retrieval (RAG) adds documents, the model produces text, and tool/function calling lets that text cause actions (the `ai-llm-architecture` lesson).
 - Python 3 on your machine. No model is required for the mechanism and defense portions — the walkthrough's harness is deterministic. The live red-team step needs a local model (Ollama + an open-weight model, your own machine, your own data only).
 - Safety framing for this lesson: we teach the attack concept, what defenders see, detection, and defenses together. No exploits for real products, no automation for attacking systems you do not own. Every hands-on step runs against code and models you control.
 
@@ -112,9 +112,9 @@ Then at most three free resources:
 
 ## 10. Leads to
 
-- **ai-03a — Data risks (LLM02/LLM05/LLM09:2026)** — disclosure, poisoning, and vector-store weaknesses: what the injected content can also do besides hijack instructions.
-- **ai-03b — System risks (LLM04/LLM10/LLM08:2026)** — supply chain, output handling, hidden context exposure.
-- **ai-03c — Agency risks (LLM03/LLM06/LLM07:2026)** — excessive agency is where injection becomes action.
-- **ai-04 — Attacks and defenses in the pipeline** — red-teaming as a CI gate: your before/after report becomes a regression test.
-- **ai-05 — Threat modeling AI systems** — STRIDE + ATLAS over your app's data flow.
+- **`ai-llm-top10` — Data risks (LLM02/LLM05/LLM09:2026)** — disclosure, poisoning, and vector-store weaknesses: what the injected content can also do besides hijack instructions.
+- **`ai-llm-top10` — System risks (LLM04/LLM10/LLM08:2026)** — supply chain, output handling, hidden context exposure.
+- **`ai-llm-top10` — Agency risks (LLM03/LLM06/LLM07:2026)** — excessive agency is where injection becomes action.
+- **`ai-pipeline` — Attacks and defenses in the pipeline** — red-teaming as a CI gate: your before/after report becomes a regression test.
+- **`ai-threat-modeling` — Threat modeling AI systems** — STRIDE + ATLAS over your app's data flow.
 - Map refs: **OWASP LLM Top 10:2026** (this lesson = LLM01); **CAISP ch. 3**; ATLAS **AML.T0051**; the governance half connects to **CAISP ch. 7** and **NIST AI RMF**.
